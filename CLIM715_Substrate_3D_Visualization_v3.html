@@ -1309,7 +1309,10 @@ requestAnimationFrame(animate);
       s.oy = rect.top;
       s.fw = rect.width;
       s.fh = rect.height;
-      document.addEventListener('pointermove', onMove);
+      // passive:false is required so e.preventDefault() in onMove can
+      // claim the gesture on iOS Safari (which otherwise uses passive
+      // listeners for touch-derived pointer events).
+      document.addEventListener('pointermove', onMove, { passive: false });
       document.addEventListener('pointerup',   onUp);
       document.addEventListener('pointercancel', onUp);
     }
@@ -1317,25 +1320,30 @@ requestAnimationFrame(animate);
       s.dragging = true;
       // Lock width and height to current rect (border-box value from
       // getBoundingClientRect()). Force box-sizing: border-box so the
-      // explicit width includes padding+border — without this the
-      // default content-box would let padding (e.g., 12px 18px on
-      // #controls) grow the rendered width by ~36 px relative to the
-      // intended lock, which is exactly the "width changes weirdly"
-      // bug. Don't touch max-width; the explicit width already
-      // overrides it for our purposes, and unsetting max-width would
-      // let flex-wrap un-wrap into a single row that overflows.
-      el.style.boxSizing = 'border-box';
-      el.style.width  = s.fw + 'px';
-      el.style.height = s.fh + 'px';
-      el.style.left   = s.ox + 'px';
-      el.style.top    = s.oy + 'px';
-      el.style.right  = 'auto';
-      el.style.bottom = 'auto';
-      el.style.transform = 'none';
+      // explicit width includes padding+border. Use setProperty with
+      // !important — the mobile @media block has rules like
+      // `max-width: calc(100vw - 20px) !important` and `bottom: 80px
+      // !important` that would otherwise override plain inline styles.
+      el.style.setProperty('box-sizing', 'border-box', 'important');
+      el.style.setProperty('width',     s.fw + 'px', 'important');
+      el.style.setProperty('height',    s.fh + 'px', 'important');
+      el.style.setProperty('max-width', s.fw + 'px', 'important');
+      el.style.setProperty('left',      s.ox + 'px', 'important');
+      el.style.setProperty('top',       s.oy + 'px', 'important');
+      el.style.setProperty('right',     'auto',      'important');
+      el.style.setProperty('bottom',    'auto',      'important');
+      el.style.setProperty('transform', 'none',      'important');
       el.style.cursor = 'grabbing';
     }
     function onMove(e) {
       if (!s.tracking) return;
+      // Always preventDefault during tracking so mobile browsers don't
+      // hijack the gesture for native scroll/zoom — without this, the
+      // ts-panel canvas (or even the panel chrome) can fail to drag on
+      // iOS once the panel is expanded. Click events still fire on
+      // pointerup if the move never crossed THRESHOLD, so tap-to-seek
+      // on the canvas continues to work.
+      e.preventDefault();
       var dx = e.clientX - s.sx;
       var dy = e.clientY - s.sy;
       if (!s.dragging) {
@@ -1345,21 +1353,21 @@ requestAnimationFrame(animate);
       var W = window.innerWidth, H = window.innerHeight;
       var nx = Math.max(0, Math.min(W - s.fw, s.ox + dx));
       var ny = Math.max(0, Math.min(H - s.fh, s.oy + dy));
-      el.style.left = nx + 'px';
-      el.style.top  = ny + 'px';
-      e.preventDefault();
+      el.style.setProperty('left', nx + 'px', 'important');
+      el.style.setProperty('top',  ny + 'px', 'important');
     }
     function onUp() {
       document.removeEventListener('pointermove', onMove);
       document.removeEventListener('pointerup',   onUp);
       document.removeEventListener('pointercancel', onUp);
       if (s.dragging) {
-        // Release the size lock so the +/- toggle can collapse/expand
-        // the panel after the drag. (We never set maxWidth, so no
-        // need to clear it.)
-        el.style.boxSizing = '';
-        el.style.width    = '';
-        el.style.height   = '';
+        // Release the size locks so the +/- toggle can collapse/expand
+        // the panel naturally afterwards. removeProperty clears any
+        // !important inline rules we set in startDrag().
+        el.style.removeProperty('box-sizing');
+        el.style.removeProperty('width');
+        el.style.removeProperty('height');
+        el.style.removeProperty('max-width');
         el.style.cursor = 'grab';
       }
       s.tracking = false;

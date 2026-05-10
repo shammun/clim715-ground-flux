@@ -581,7 +581,11 @@
     display: flex; flex-direction: column;
   }
   .title-bar {
-    padding: 22px 52px 6px;
+    /* padding-top extra so the title clears the floating slide-number
+       chip in the parent (which lives at top:8 in viewport coords and
+       is ~24 px tall — a flat 22 px padding on the title-bar lets the
+       title's top edge fall behind it). */
+    padding: 40px 52px 6px;
     display: flex; align-items: center; gap: 14px;
     flex-shrink: 0;
   }
@@ -3080,7 +3084,7 @@ var MOBILE_CSS =
     '    overflow-x: hidden;' +
     '  }' +
     '  .title-bar {' +
-    '    padding: 14px 14px 6px !important;' +
+    '    padding: 30px 14px 6px !important;' +    /* clears the slide-number chip */
     '    gap: 8px !important;' +
     '    flex-wrap: wrap;' +
     '  }' +
