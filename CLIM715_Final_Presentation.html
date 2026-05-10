@@ -1544,12 +1544,12 @@ update();
 <body>
   <div class="title-bar">
     <span class="badge">Mechanism &mdash; live</span>
-    <span class="slide-title">BTCS smears the post-swing gradient</span>
+    <span class="slide-title">BTCS smears curvature at the &lambda; jump</span>
   </div>
   <div class="subtitle">
-    Concrete-roof column with concrete (&lambda; = 1.50) / insulation (&lambda; = 0.04) interface (&times;37 ratio).
-    BTCS evaluates the diffusion operator <b>at the post-swing T<sub>s</sub><sup>0</sup></b>:
-    the gradient at the &lambda; jump is biased and the curvature there is visibly smeared.
+    Concrete-roof column at the concrete (&lambda; = 1.50, C = 2.1&times;10<sup>6</sup>) / rigid insulation (&lambda; = 0.04, C = 8&times;10<sup>4</sup>) interface
+    (&times;37 &lambda; ratio). Live BTCS solver, prescribed sinusoidal T<sub>s</sub>(t) at the top &mdash;
+    at coarse &Delta;t the gradient concentrated at the &lambda; jump is visibly distorted.
   </div>
 
   <div class="control-card">
@@ -1602,10 +1602,12 @@ var T_INNER = 22.0;       // interior structure (°C)
 var OMEGA   = 2 * Math.PI / 86400;
 var PHI     = OMEGA * 14 * 3600;  // peak surface T at 14:00
 
+// (λ, C) values match run_experiments.py SUBSTRATES["concrete_roof"]
+// and long report §3.2 (ii). Top 30 cm of the 2 m column.
 var LAYERS = [
-  { name: 'concrete',   z0: 0.00, z1: 0.10, lambda: 1.50, C: 2.0e6 },
-  { name: 'insulation', z0: 0.10, z1: 0.20, lambda: 0.04, C: 4.0e4 },
-  { name: 'drywall',    z0: 0.20, z1: 0.30, lambda: 0.15, C: 1.2e6 }
+  { name: 'concrete',   z0: 0.00, z1: 0.10, lambda: 1.50, C: 2.1e6  },
+  { name: 'insulation', z0: 0.10, z1: 0.20, lambda: 0.04, C: 0.08e6 },
+  { name: 'drywall',    z0: 0.20, z1: 0.30, lambda: 0.15, C: 1.5e6  }
 ];
 
 // Cell-centre depth for cell j (j = 0 .. N-1).
@@ -1954,7 +1956,7 @@ function update() {
     p.innerHTML =
       'At <span class="v">t = ' + fmtTime(idx) + '</span>: BTCS &Delta;t = 600 s biased by ' +
       '<span class="v">' + srf + '</span> at the surface and <span class="v">' + ifc + '</span> just below the &lambda; jump. ' +
-      'The error is the splitting between the column and SEB updates &mdash; <b>next slide attributes its prefactor</b>.';
+      '<b>Slide 11</b> identifies the same coarse-&Delta;t error as first-order operator splitting in the project\'s full-SEB run; <b>slide 12</b> attributes its prefactor to &kappa;<sub>top</sub>.';
   } else {
     p.innerHTML =
       'At <span class="v">t = ' + fmtTime(idx) + '</span>: surface bias <span class="v">' + srf + '</span>, ' +
