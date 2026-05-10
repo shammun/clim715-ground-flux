@@ -772,10 +772,17 @@ var X_MIN_S = 0.1;
 var X_MAX_S = 1e5;
 var X_RANGE = Math.log10(X_MAX_S) - Math.log10(X_MIN_S);
 
-// SVG layout
+// SVG layout. On mobile we use a near-square viewBox so the chart
+// fills the phone screen vertically without distorting text via
+// preserveAspectRatio=none. PAD adapts proportionally so the bars
+// still have their existing left/right padding for axis labels.
+var IS_MOBILE = (typeof window !== 'undefined' && window.matchMedia &&
+                 window.matchMedia('(max-width: 760px)').matches);
 var SVG_W = 1000;
-var SVG_H = 320;
-var PAD = { top: 36, right: 130, bottom: 50, left: 170 };
+var SVG_H = IS_MOBILE ? 1000 : 320;
+var PAD = IS_MOBILE
+  ? { top: 60, right: 130, bottom: 90, left: 170 }
+  : { top: 36, right: 130, bottom: 50, left: 170 };
 var PLOT_W = SVG_W - PAD.left - PAD.right;
 var PLOT_H = SVG_H - PAD.top - PAD.bottom;
 
@@ -1909,11 +1916,18 @@ TMIN = Math.floor(TMIN - 1);
 TMAX = Math.ceil(TMAX + 1);
 
 // =============================================================
-// Plot
+// Plot. On mobile use a portrait viewBox so the SVG aspect-ratio
+// fills the phone screen vertically without distorting text — the
+// depth profile naturally elongates which actually helps mobile
+// readability of the depth axis.
 // =============================================================
+var IS_MOBILE = (typeof window !== 'undefined' && window.matchMedia &&
+                 window.matchMedia('(max-width: 760px)').matches);
 var SVG_W = 1000;
-var SVG_H = 420;
-var PAD = { top: 22, right: 130, bottom: 38, left: 60 };
+var SVG_H = IS_MOBILE ? 1200 : 420;
+var PAD = IS_MOBILE
+  ? { top: 30, right: 130, bottom: 60, left: 60 }
+  : { top: 22, right: 130, bottom: 38, left: 60 };
 var PLOT_W = SVG_W - PAD.left - PAD.right;
 var PLOT_H = SVG_H - PAD.top - PAD.bottom;
 
@@ -3081,32 +3095,24 @@ var MOBILE_CSS =
     '  }' +
     /* leave room at bottom for the floating nav arrows */
     '  body { padding-bottom: 80px !important; }' +
-    /* SVG sizing on mobile.
-       Two regimes:
-       (a) Stretch-to-fill: barplot (slide 6) and profile (slide 10).
-           These sit alone inside a flex:1 .plot-card that grows to fill
-           the body's vertical slack. The viewBox is landscape-ish but
-           the slide has plenty of vertical space; we set
-           preserveAspectRatio="none" via JS so bars/profile axes
-           stretch vertically with no letterbox. Distortion is
-           visually fine — bars stay clearly bars; depth stretches
-           but doesn't lie about ordering.
-       (b) Aspect-ratio (letterboxed): all other SVGs. They live in
-           grid items or short cards where the natural geometry is
-           important (log-log slopes, spatial diagrams). */
-    '  svg.barplot, svg.profile {' +
-    '    width: 100% !important;' +
-    '    height: 100% !important;' +
-    '    flex: 1 !important;' +
-    '    min-height: 60vh !important;' +     /* fill majority of phone viewport */
-    '  }' +
-    '  svg.ratios, svg.shap, svg.tsplot, svg.uhi-plot,' +
-    '  svg.err-plot, svg.col-diagram, svg.plot, svg.rmse-plot {' +
+    /* SVG sizing on mobile — all chart SVGs use aspect-ratio so they
+       render at their viewBox proportions, no stretching, crisp text.
+       Slide 6 (svg.barplot) and slide 10 (svg.profile) get a
+       portrait-friendly mobile viewBox (set in their JS) so the
+       aspect-ratio here naturally fills the phone vertically. */
+    '  .plot-card { flex: none !important; }' +    /* don\'t flex-grow past SVG */
+    '  svg.barplot, svg.profile, svg.ratios, svg.shap, svg.tsplot,' +
+    '  svg.uhi-plot, svg.err-plot, svg.col-diagram, svg.plot, svg.rmse-plot {' +
     '    width: 100% !important;' +
     '    height: auto !important;' +
     '    flex: none !important;' +
     '    min-height: 0 !important;' +
     '  }' +
+    /* slide 6 and 10 use a TALL portrait viewBox on mobile (set in
+       their JS), so the aspect-ratio here keeps the SVG filling the
+       phone screen vertically without stretching text. */
+    '  svg.barplot     { aspect-ratio: 1000 / 1000; }' +
+    '  svg.profile     { aspect-ratio: 1000 / 1200; }' +
     '  svg.ratios      { aspect-ratio: 720 / 380; }' +
     '  svg.shap        { aspect-ratio: 720 / 380; }' +
     '  svg.tsplot      { aspect-ratio: 320 / 220; }' +
@@ -3131,16 +3137,6 @@ function injectMobileCSS(frame) {
         var s = doc.createElement('style');
         s.textContent = MOBILE_CSS;
         doc.head.appendChild(s);
-        // On mobile, set preserveAspectRatio="none" on the stretch-to-fill
-        // SVGs (slides 6 and 10). The CSS rules above set width/height to
-        // 100% on these; this attribute lets the SVG content scale
-        // independently in x and y, eliminating the letterbox.
-        if (window.matchMedia && window.matchMedia('(max-width: 760px)').matches) {
-            var stretchSvgs = doc.querySelectorAll('svg.barplot, svg.profile');
-            for (var i = 0; i < stretchSvgs.length; i++) {
-                stretchSvgs[i].setAttribute('preserveAspectRatio', 'none');
-            }
-        }
     } catch (ex) { /* cross-origin — skip */ }
 }
 

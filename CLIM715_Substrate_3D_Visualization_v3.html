@@ -1263,64 +1263,96 @@ requestAnimationFrame(animate);
 </script>
 
 <script>
-// Make #ts-panel and #controls draggable. Pointer events cover both mouse
-// and touch. Drag starts only on the panel's "chrome" — skips buttons,
-// inputs, selects, the canvas (so seeking by tapping the canvas still
-// works), and the +/− toggle. Movement is constrained to the viewport.
+// Make #ts-panel and #controls draggable. Three things to get right:
+//   (1) Pointer events on document, not element — so dragging continues
+//       when the finger leaves the panel boundary on touch devices.
+//   (2) Tap-vs-drag distinction — start tracking on pointerdown but
+//       only switch to drag mode after 5px movement. Below that
+//       threshold the click falls through to native handlers
+//       (seek-by-tap on the ts-panel canvas; +/- toggle clicks).
+//   (3) Freeze width/height at drag start — otherwise the
+//       flex-wrap layout in #controls reflows as content space
+//       changes, making the panel look like it's resizing during
+//       the drag. Restore on drag end so the +/- toggle continues
+//       to collapse/expand normally afterwards.
 (function () {
-  function isInteractive(target) {
+  function isHardInteractive(target) {
     if (!target) return false;
     var t = target.tagName;
-    if (t === 'BUTTON' || t === 'INPUT' || t === 'SELECT' || t === 'OPTION' ||
-        t === 'CANVAS' || t === 'TEXTAREA' || t === 'A') return true;
-    // Walk up a couple of levels in case the click is on a child of a button.
+    if (t === 'BUTTON' || t === 'INPUT' || t === 'SELECT' ||
+        t === 'OPTION' || t === 'TEXTAREA' || t === 'A') return true;
     var p = target.parentElement;
-    if (p && (p.tagName === 'BUTTON' || p.classList && p.classList.contains('ts-toggle'))) return true;
+    while (p) {
+      if (p.tagName === 'BUTTON') return true;
+      p = p.parentElement;
+    }
     return false;
   }
   function makeDraggable(el) {
     if (!el) return;
-    var state = { dragging: false, sx: 0, sy: 0, ox: 0, oy: 0 };
+    var s = { tracking: false, dragging: false,
+              sx: 0, sy: 0, ox: 0, oy: 0, fw: 0, fh: 0 };
+    var THRESHOLD = 5;        // px of movement before drag starts
     function onDown(e) {
-      if (isInteractive(e.target)) return;
+      if (isHardInteractive(e.target)) return;
       var rect = el.getBoundingClientRect();
-      state.dragging = true;
-      state.sx = e.clientX;
-      state.sy = e.clientY;
-      state.ox = rect.left;
-      state.oy = rect.top;
-      // Switch to top/left positioning, clear any other anchors so we
-      // don't fight the original CSS while dragging.
-      el.style.left = state.ox + 'px';
-      el.style.top  = state.oy + 'px';
-      el.style.right = 'auto';
+      s.tracking = true;
+      s.dragging = false;
+      s.sx = e.clientX;
+      s.sy = e.clientY;
+      s.ox = rect.left;
+      s.oy = rect.top;
+      s.fw = rect.width;
+      s.fh = rect.height;
+      document.addEventListener('pointermove', onMove);
+      document.addEventListener('pointerup',   onUp);
+      document.addEventListener('pointercancel', onUp);
+    }
+    function startDrag() {
+      s.dragging = true;
+      // Freeze size so flex-wrap reflow doesn't change panel
+      // dimensions as it moves around.
+      el.style.width  = s.fw + 'px';
+      el.style.height = s.fh + 'px';
+      el.style.maxWidth = 'none';
+      el.style.left   = s.ox + 'px';
+      el.style.top    = s.oy + 'px';
+      el.style.right  = 'auto';
       el.style.bottom = 'auto';
       el.style.transform = 'none';
       el.style.cursor = 'grabbing';
-      e.preventDefault();
-      try { el.setPointerCapture && el.setPointerCapture(e.pointerId); } catch (_) {}
     }
     function onMove(e) {
-      if (!state.dragging) return;
-      var dx = e.clientX - state.sx;
-      var dy = e.clientY - state.sy;
-      var rect = el.getBoundingClientRect();
+      if (!s.tracking) return;
+      var dx = e.clientX - s.sx;
+      var dy = e.clientY - s.sy;
+      if (!s.dragging) {
+        if (Math.abs(dx) < THRESHOLD && Math.abs(dy) < THRESHOLD) return;
+        startDrag();
+      }
       var W = window.innerWidth, H = window.innerHeight;
-      var nx = Math.max(0, Math.min(W - rect.width,  state.ox + dx));
-      var ny = Math.max(0, Math.min(H - rect.height, state.oy + dy));
+      var nx = Math.max(0, Math.min(W - s.fw, s.ox + dx));
+      var ny = Math.max(0, Math.min(H - s.fh, s.oy + dy));
       el.style.left = nx + 'px';
       el.style.top  = ny + 'px';
       e.preventDefault();
     }
     function onUp() {
-      if (!state.dragging) return;
-      state.dragging = false;
-      el.style.cursor = 'grab';
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup',   onUp);
+      document.removeEventListener('pointercancel', onUp);
+      if (s.dragging) {
+        // Release the size lock so the +/- toggle can collapse/expand
+        // the panel after the drag.
+        el.style.width    = '';
+        el.style.height   = '';
+        el.style.maxWidth = '';
+        el.style.cursor = 'grab';
+      }
+      s.tracking = false;
+      s.dragging = false;
     }
-    el.addEventListener('pointerdown',   onDown);
-    el.addEventListener('pointermove',   onMove);
-    el.addEventListener('pointerup',     onUp);
-    el.addEventListener('pointercancel', onUp);
+    el.addEventListener('pointerdown', onDown);
   }
   makeDraggable(document.getElementById('ts-panel'));
   makeDraggable(document.getElementById('controls'));
