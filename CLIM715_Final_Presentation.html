@@ -2552,12 +2552,22 @@ var ROWS = [
 // =============================================================
 // SVG layout
 // =============================================================
+var IS_MOBILE = (typeof window !== 'undefined' && window.matchMedia &&
+                 window.matchMedia('(max-width: 760px)').matches);
 var SVG_W = 720;
-var SVG_H = 380;
-var PAD = { top: 24, right: 30, bottom: 56, left: 56 };
+var SVG_H = IS_MOBILE ? 600 : 380;
+var PAD = IS_MOBILE
+  ? { top: 60, right: 30, bottom: 110, left: 90 }
+  : { top: 24, right: 30, bottom: 56,  left: 56 };
 var PLOT_W = SVG_W - PAD.left - PAD.right;
 var PLOT_H = SVG_H - PAD.top - PAD.bottom;
 var Y_MAX = 12;
+// Font scaling: mobile SVG is rendered at scale ~0.5 (360 px / 720 user),
+// desktop ~0.85. Multiply user-unit font-sizes by these inverses to land
+// at readable rendered px sizes.
+var FS_MUL = IS_MOBILE ? 2.5 : 1.5;
+function fs(n)  { return String(Math.round(n * FS_MUL)); }
+function off(n) { return Math.round(n * FS_MUL); }
 
 var NS = 'http://www.w3.org/2000/svg';
 function svgEl(tag, attrs) {
@@ -2578,8 +2588,8 @@ for (var v = 0; v <= Y_MAX; v += 2) {
     stroke: 'rgba(107, 92, 181, 0.10)'
   }));
   var tl = svgEl('text', {
-    x: PAD.left - 8, y: yPx(v) + 4,
-    'text-anchor': 'end', 'font-size': '11', fill: '#6b7186',
+    x: PAD.left - off(8), y: yPx(v) + off(4),
+    'text-anchor': 'end', 'font-size': fs(11), fill: '#6b7186',
     'font-family': 'Cascadia Code, Consolas, monospace'
   });
   tl.textContent = v.toFixed(0);
@@ -2587,11 +2597,12 @@ for (var v = 0; v <= Y_MAX; v += 2) {
 }
 // Y axis label
 svg.appendChild((function() {
+  var yLabX = off(16);
   var t = svgEl('text', {
-    x: 16, y: PAD.top + PLOT_H / 2,
-    'text-anchor': 'middle', 'font-size': '12', fill: '#4a5066',
+    x: yLabX, y: PAD.top + PLOT_H / 2,
+    'text-anchor': 'middle', 'font-size': fs(12), fill: '#4a5066',
     'font-weight': '600',
-    transform: 'rotate(-90 16 ' + (PAD.top + PLOT_H / 2) + ')'
+    transform: 'rotate(-90 ' + yLabX + ' ' + (PAD.top + PLOT_H / 2) + ')'
   });
   t.textContent = 'RMSE ratio (×)';
   return t;
@@ -2607,8 +2618,8 @@ svg.appendChild((function() {
   // Floated near the top of the plot, well above the highest bar (soil CN
   // at 10.15×) so it never collides with the bar tops in the soil group.
   var t = svgEl('text', {
-    x: PAD.left + PLOT_W - 8, y: yPx(11.5),
-    'text-anchor': 'end', 'font-size': '11', fill: '#c2492a',
+    x: PAD.left + PLOT_W - off(8), y: yPx(11.5),
+    'text-anchor': 'end', 'font-size': fs(11), fill: '#c2492a',
     'font-style': 'italic', 'font-weight': '700'
   });
   t.textContent = 'first-order in Δt → ratio ≈ 10';
@@ -2636,16 +2647,16 @@ ROWS.forEach(function(row, i) {
   }));
   // Numerical labels above each bar
   var lblB = svgEl('text', {
-    x: x0 + barW / 2, y: yPx(row.btcs) - 6,
-    'text-anchor': 'middle', 'font-size': '12', fill: row.color,
+    x: x0 + barW / 2, y: yPx(row.btcs) - off(6),
+    'text-anchor': 'middle', 'font-size': fs(12), fill: row.color,
     'font-weight': '700',
     'font-family': 'Cascadia Code, Consolas, monospace'
   });
   lblB.textContent = row.btcs.toFixed(1) + '×';
   svg.appendChild(lblB);
   var lblC = svgEl('text', {
-    x: x0 + 1.5 * barW + gap, y: yPx(row.cn) - 6,
-    'text-anchor': 'middle', 'font-size': '12', fill: row.color,
+    x: x0 + 1.5 * barW + gap, y: yPx(row.cn) - off(6),
+    'text-anchor': 'middle', 'font-size': fs(12), fill: row.color,
     'font-weight': '700',
     'font-family': 'Cascadia Code, Consolas, monospace'
   });
@@ -2653,22 +2664,22 @@ ROWS.forEach(function(row, i) {
   svg.appendChild(lblC);
   // Substrate label below the group
   var lbl = svgEl('text', {
-    x: PAD.left + i * groupW + groupW / 2, y: PAD.top + PLOT_H + 18,
-    'text-anchor': 'middle', 'font-size': '13', fill: row.color,
+    x: PAD.left + i * groupW + groupW / 2, y: PAD.top + PLOT_H + off(22),
+    'text-anchor': 'middle', 'font-size': fs(13), fill: row.color,
     'font-weight': '700'
   });
   lbl.textContent = row.sub;
   svg.appendChild(lbl);
   // BTCS / CN sub-labels
   var subB = svgEl('text', {
-    x: x0 + barW / 2, y: PAD.top + PLOT_H + 36,
-    'text-anchor': 'middle', 'font-size': '10.5', fill: '#6b7186'
+    x: x0 + barW / 2, y: PAD.top + PLOT_H + off(40),
+    'text-anchor': 'middle', 'font-size': fs(10.5), fill: '#6b7186'
   });
   subB.textContent = 'BTCS';
   svg.appendChild(subB);
   var subC = svgEl('text', {
-    x: x0 + 1.5 * barW + gap, y: PAD.top + PLOT_H + 36,
-    'text-anchor': 'middle', 'font-size': '10.5', fill: '#6b7186'
+    x: x0 + 1.5 * barW + gap, y: PAD.top + PLOT_H + off(40),
+    'text-anchor': 'middle', 'font-size': fs(10.5), fill: '#6b7186'
   });
   subC.textContent = 'CN';
   svg.appendChild(subC);
@@ -2896,12 +2907,22 @@ var FEATURES = [
 // =============================================================
 // SVG — horizontal bar chart with annotations.
 // =============================================================
+var IS_MOBILE = (typeof window !== 'undefined' && window.matchMedia &&
+                 window.matchMedia('(max-width: 760px)').matches);
 var SVG_W = 720;
-var SVG_H = 380;
-var PAD = { top: 14, right: 80, bottom: 50, left: 170 };
+var SVG_H = IS_MOBILE ? 600 : 380;
+// PAD.left bumped on mobile so feature labels like "1st interface depth"
+// (longest text in this chart) don't clip off the left edge after the
+// 2.5x font scale-up.
+var PAD = IS_MOBILE
+  ? { top: 30, right: 80, bottom: 70, left: 320 }
+  : { top: 14, right: 80, bottom: 50, left: 170 };
 var PLOT_W = SVG_W - PAD.left - PAD.right;
 var PLOT_H = SVG_H - PAD.top - PAD.bottom;
 var X_MAX = 0.80;
+var FS_MUL = IS_MOBILE ? 2.5 : 1.5;
+function fs(n)  { return String(Math.round(n * FS_MUL)); }
+function off(n) { return Math.round(n * FS_MUL); }
 
 var NS = 'http://www.w3.org/2000/svg';
 function svgEl(tag, attrs) {
@@ -2922,8 +2943,8 @@ svg.setAttribute('viewBox', '0 0 ' + SVG_W + ' ' + SVG_H);
     stroke: 'rgba(107, 92, 181, 0.10)'
   }));
   var t = svgEl('text', {
-    x: xPx(v), y: PAD.top + PLOT_H + 16,
-    'text-anchor': 'middle', 'font-size': '11', fill: '#6b7186',
+    x: xPx(v), y: PAD.top + PLOT_H + off(18),
+    'text-anchor': 'middle', 'font-size': fs(11), fill: '#6b7186',
     'font-family': 'Cascadia Code, Consolas, monospace'
   });
   t.textContent = v.toFixed(1);
@@ -2931,8 +2952,8 @@ svg.setAttribute('viewBox', '0 0 ' + SVG_W + ' ' + SVG_H);
 });
 svg.appendChild((function() {
   var t = svgEl('text', {
-    x: PAD.left + PLOT_W / 2, y: PAD.top + PLOT_H + 36,
-    'text-anchor': 'middle', 'font-size': '12', fill: '#4a5066',
+    x: PAD.left + PLOT_W / 2, y: PAD.top + PLOT_H + off(40),
+    'text-anchor': 'middle', 'font-size': fs(12), fill: '#4a5066',
     'font-weight': '600'
   });
   t.textContent = 'mean |SHAP| (K)';
@@ -2954,16 +2975,16 @@ FEATURES.forEach(function(f, i) {
   }));
   // Feature label (left of axis)
   var lbl = svgEl('text', {
-    x: PAD.left - 12, y: yC + 4,
-    'text-anchor': 'end', 'font-size': '13', fill: '#2c3142',
+    x: PAD.left - off(12), y: yC + off(4),
+    'text-anchor': 'end', 'font-size': fs(13), fill: '#2c3142',
     'font-weight': f.cat === 'dom' ? '700' : '500'
   });
   lbl.textContent = f.label;
   svg.appendChild(lbl);
   // Value (right of bar)
   var val = svgEl('text', {
-    x: xPx(f.shap) + 8, y: yC + 4,
-    'text-anchor': 'start', 'font-size': '12.5', fill: f.color,
+    x: xPx(f.shap) + off(8), y: yC + off(4),
+    'text-anchor': 'start', 'font-size': fs(12.5), fill: f.color,
     'font-weight': '700',
     'font-family': 'Cascadia Code, Consolas, monospace'
   });
@@ -2979,8 +3000,8 @@ FEATURES.forEach(function(f, i) {
 (function() {
   var domY = PAD.top + 0.5 * rowH;
   var annot = svgEl('text', {
-    x: xPx(0.71) + 60, y: domY + 4,
-    'text-anchor': 'start', 'font-size': '11', fill: '#2c8a83',
+    x: xPx(0.71) + off(60), y: domY + off(4),
+    'text-anchor': 'start', 'font-size': fs(11), fill: '#2c8a83',
     'font-weight': '700', 'font-style': 'italic'
   });
   annot.textContent = '← R² = 0.92 alone';
@@ -3117,6 +3138,10 @@ var MOBILE_CSS =
     '  }' +
     /* leave room at bottom for the floating nav arrows */
     '  body { padding-bottom: 80px !important; }' +
+    /* slide 12 HTML category-legend bumped slightly so it reads
+       cleanly alongside the bigger chart fonts */
+    '  .cat-legend { font-size: 12px !important; }' +
+    '  .cat-legend .dot { width: 16px !important; height: 11px !important; }' +
     /* SVG sizing on mobile — all chart SVGs use aspect-ratio so they
        render at their viewBox proportions, no stretching, crisp text.
        Slide 6 (svg.barplot) and slide 10 (svg.profile) get a
@@ -3135,8 +3160,8 @@ var MOBILE_CSS =
        phone screen vertically without stretching text. */
     '  svg.barplot     { aspect-ratio: 1000 / 1000; }' +
     '  svg.profile     { aspect-ratio: 1000 / 1200; }' +
-    '  svg.ratios      { aspect-ratio: 720 / 380; }' +
-    '  svg.shap        { aspect-ratio: 720 / 380; }' +
+    '  svg.ratios      { aspect-ratio: 720 / 600; }' +     /* mobile uses taller viewBox */
+    '  svg.shap        { aspect-ratio: 720 / 600; }' +     /* mobile uses taller viewBox */
     '  svg.tsplot      { aspect-ratio: 320 / 220; }' +
     '  svg.uhi-plot    { aspect-ratio: 540 / 280; }' +
     '  svg.err-plot    { aspect-ratio: 400 / 270; }' +
