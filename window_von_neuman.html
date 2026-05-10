@@ -318,7 +318,16 @@
     }
     .card {
       padding: 8px 10px 6px;
-      min-height: 240px;
+      min-height: 0;     /* let cards size to content + SVG's aspect-driven height */
+    }
+    /* SVG uses its viewBox aspect ratio so the amplification curve
+       renders at correct proportions — no letterbox empty space. */
+    svg.plot {
+      width: 100% !important;
+      height: auto !important;
+      aspect-ratio: 380 / 240 !important;
+      flex: none !important;
+      min-height: 0 !important;
     }
     .panel-title { font-size: 12.5px; }
     .panel-subtitle { font-size: 9px; }

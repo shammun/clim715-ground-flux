@@ -370,8 +370,18 @@
     }
     .card {
       padding: 8px 10px;
-      min-height: 230px;
+      min-height: 0;        /* let cards size to content + SVG's aspect-driven height */
     }
+    /* SVGs use their viewBox aspect ratio so they render at the correct
+       proportions without letterbox empty space above/below. */
+    svg.plot, svg.rmse-plot {
+      width: 100% !important;
+      height: auto !important;
+      flex: none !important;
+      min-height: 0 !important;
+    }
+    svg.plot      { aspect-ratio: 600 / 230; }
+    svg.rmse-plot { aspect-ratio: 600 / 280; }
     .panel-title { font-size: 13px; }
     .control-bar { padding: 8px 12px 4px; }
     .dt-slider::-webkit-slider-thumb {

@@ -3081,6 +3081,27 @@ var MOBILE_CSS =
     '  }' +
     /* leave room at bottom for the floating nav arrows */
     '  body { padding-bottom: 80px !important; }' +
+    /* SVG aspect-ratio fixes — each chart SVG gets its viewBox aspect
+       so it renders at the correct size with no letterbox above/below.
+       Cards then size naturally to fit content. flex:none prevents
+       flex containers from forcing the SVG to grow into empty space. */
+    '  svg.barplot, svg.profile, svg.ratios, svg.shap, svg.tsplot,' +
+    '  svg.uhi-plot, svg.err-plot, svg.col-diagram, svg.plot, svg.rmse-plot {' +
+    '    width: 100% !important;' +
+    '    height: auto !important;' +
+    '    flex: none !important;' +
+    '    min-height: 0 !important;' +
+    '  }' +
+    '  svg.barplot     { aspect-ratio: 1000 / 320; }' +
+    '  svg.profile     { aspect-ratio: 1000 / 420; }' +
+    '  svg.ratios      { aspect-ratio: 720 / 380; }' +
+    '  svg.shap        { aspect-ratio: 720 / 380; }' +
+    '  svg.tsplot      { aspect-ratio: 320 / 220; }' +
+    '  svg.uhi-plot    { aspect-ratio: 540 / 280; }' +
+    '  svg.err-plot    { aspect-ratio: 400 / 270; }' +
+    '  svg.col-diagram { aspect-ratio: 320 / 250; }' +
+    '  svg.plot        { aspect-ratio: 600 / 230; }' +
+    '  svg.rmse-plot   { aspect-ratio: 600 / 280; }' +
     '}';
 function injectMobileCSS(frame) {
     try {
