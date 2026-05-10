@@ -271,6 +271,62 @@
     z-index: 100;
   }
   #error-msg strong { color: #c8483a; }
+
+  /* Mobile portrait (≤ 760 px). The 3D scene's canvas already takes
+     100vw × 100vh so no layout change needed for it. The overlay
+     panels (#legend, #ts-panel, #controls) get tighter margins,
+     smaller fonts, and bottom padding so they don't collide with
+     the deck's floating nav arrows. The bottom controls bar shifts
+     up to leave room for the arrows. */
+  @media (max-width: 760px) {
+    #title {
+      font-size: 13px !important;
+      padding: 6px 10px !important;
+      top: 10px !important; left: 10px !important;
+    }
+    #legend {
+      padding: 8px 10px !important;
+      max-width: 60vw !important;
+      font-size: 10px !important;
+      top: 50px !important; left: 10px !important;
+    }
+    #legend .section-title { font-size: 10px !important; }
+    #legend .scale { height: 10px !important; }
+    #legend .scale-labels { font-size: 8.5px !important; }
+    #legend .layer-key { font-size: 9.5px !important; gap: 5px !important; }
+    #legend .swatch { width: 12px !important; height: 12px !important; }
+    #ts-panel {
+      bottom: 80px !important;            /* clear of nav arrows */
+      left: 10px !important;
+      max-width: calc(100vw - 20px) !important;
+    }
+    #ts-panel canvas {
+      width: calc(100vw - 40px) !important;
+      max-width: 100% !important;
+      height: auto !important;
+    }
+    #controls {
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      bottom: 80px !important;             /* clear of nav arrows */
+      flex-wrap: wrap !important;
+      max-width: calc(100vw - 20px) !important;
+      gap: 6px !important;
+      padding: 8px 12px !important;
+    }
+    #controls.collapsed {
+      padding: 6px 10px !important;
+    }
+    #controls button, #controls select {
+      font-size: 11px !important;
+      padding: 6px 10px !important;
+    }
+    #controls .ctl-label { font-size: 11px !important; }
+    #controls input[type=range] {
+      flex: 1 1 100% !important;
+      min-width: 200px !important;
+    }
+  }
 </style>
 </head>
 <body>
