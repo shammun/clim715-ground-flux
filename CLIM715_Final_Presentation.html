@@ -780,9 +780,13 @@ var IS_MOBILE = (typeof window !== 'undefined' && window.matchMedia &&
                  window.matchMedia('(max-width: 760px)').matches);
 var SVG_W = 1000;
 var SVG_H = IS_MOBILE ? 1000 : 320;
+// PAD.left is bumped on mobile (and modestly on desktop) because the
+// substrate row labels ("Asphalt road" etc.) are now in fs(14) =
+// 42 user units on mobile / 21 on desktop — they need ~250 user units
+// of left margin to fit in full without clipping at the SVG edge.
 var PAD = IS_MOBILE
-  ? { top: 60, right: 130, bottom: 90, left: 170 }
-  : { top: 36, right: 130, bottom: 50, left: 170 };
+  ? { top: 60, right: 140, bottom: 90, left: 320 }
+  : { top: 36, right: 140, bottom: 50, left: 220 };
 var PLOT_W = SVG_W - PAD.left - PAD.right;
 var PLOT_H = SVG_H - PAD.top - PAD.bottom;
 // Font-size helper: text in user units scales with the SVG, so to land
@@ -882,14 +886,14 @@ function drawAxes() {
     var sub = SUBS[s];
     var yC = PAD.top + (s + 0.5) * rowH;
     var lblName = svgEl('text', {
-      x: PAD.left - 14, y: yC - off(6),
+      x: PAD.left - off(14), y: yC - off(6),
       'text-anchor': 'end', 'font-size': fs(14), fill: sub.color,
       'font-weight': '700'
     });
     lblName.textContent = sub.label;
     svg.appendChild(lblName);
     var lblSub = svgEl('text', {
-      x: PAD.left - 14, y: yC + off(18),
+      x: PAD.left - off(14), y: yC + off(18),
       'text-anchor': 'end', 'font-size': fs(10.5), fill: '#6b7186',
       'font-style': 'italic'
     });

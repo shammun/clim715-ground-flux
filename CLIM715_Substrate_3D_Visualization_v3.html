@@ -321,6 +321,11 @@
       bottom: auto !important;
       max-width: calc(100vw - 16px) !important;
     }
+    /* When ts-panel is expanded on mobile, the canvas (and other
+       children) may otherwise capture touch events for native gestures
+       and prevent drag from starting. Force touch-action:none on every
+       descendant so pointer events propagate up to ts-panel. */
+    #ts-panel * { touch-action: none !important; }
     #ts-panel canvas {
       width: 100% !important;
       max-width: 100% !important;
@@ -1310,11 +1315,16 @@ requestAnimationFrame(animate);
     }
     function startDrag() {
       s.dragging = true;
-      // Lock width and height to current rect so flex-wrap can't reflow
-      // the panel as it moves around. DO NOT touch max-width — clearing
-      // it lets the flex-wrap content "un-wrap" into a single row that
-      // overflows the viewport, which is exactly the "width changes
-      // weirdly" bug the user was seeing.
+      // Lock width and height to current rect (border-box value from
+      // getBoundingClientRect()). Force box-sizing: border-box so the
+      // explicit width includes padding+border — without this the
+      // default content-box would let padding (e.g., 12px 18px on
+      // #controls) grow the rendered width by ~36 px relative to the
+      // intended lock, which is exactly the "width changes weirdly"
+      // bug. Don't touch max-width; the explicit width already
+      // overrides it for our purposes, and unsetting max-width would
+      // let flex-wrap un-wrap into a single row that overflows.
+      el.style.boxSizing = 'border-box';
       el.style.width  = s.fw + 'px';
       el.style.height = s.fh + 'px';
       el.style.left   = s.ox + 'px';
@@ -1347,6 +1357,7 @@ requestAnimationFrame(animate);
         // Release the size lock so the +/- toggle can collapse/expand
         // the panel after the drag. (We never set maxWidth, so no
         // need to clear it.)
+        el.style.boxSizing = '';
         el.style.width    = '';
         el.style.height   = '';
         el.style.cursor = 'grab';
