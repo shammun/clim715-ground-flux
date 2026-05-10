@@ -33,10 +33,64 @@
     border-radius: 4px;
     letter-spacing: 0.3px;
   }
+
+  /* Touch-friendly nav arrows — fixed on every slide.
+     Bottom-left and bottom-right corners (far apart by viewport width)
+     so accidental taps are unlikely. Visible on every device; on
+     desktop they're a soft hint, on mobile they're the primary nav. */
+  .nav-arrow {
+    position: fixed;
+    bottom: 14px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(107, 92, 181, 0.78);
+    color: #ffffff;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+    z-index: 100000;
+    transition: background 0.15s ease, transform 0.1s ease;
+    padding: 0;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+  }
+  .nav-arrow:hover { background: rgba(107, 92, 181, 0.95); }
+  .nav-arrow:active { background: #6b5cb5; transform: scale(0.92); }
+  .nav-arrow:disabled { opacity: 0.30; cursor: default; }
+  .nav-arrow-prev { left: 14px; }
+  .nav-arrow-next { right: 14px; }
+
+  /* Mobile portrait: shrink slide-number so it doesn't crash with the
+     top of the iframe content. Buttons stay 56 px since fingers are big. */
+  @media (max-width: 600px) {
+    #slide-number {
+      font-size: 11px;
+      padding: 2px 8px;
+      top: 6px; right: 8px;
+    }
+    .nav-arrow {
+      width: 52px;
+      height: 52px;
+      font-size: 28px;
+      bottom: 10px;
+    }
+    .nav-arrow-prev { left: 10px; }
+    .nav-arrow-next { right: 10px; }
+  }
 </style>
 </head>
 <body>
 <div id="slide-number">Slide 1</div>
+<button class="nav-arrow nav-arrow-prev" id="nav-arrow-prev" aria-label="Previous slide" type="button">&#x2039;</button>
+<button class="nav-arrow nav-arrow-next" id="nav-arrow-next" aria-label="Next slide" type="button">&#x203A;</button>
 <div id="frames-container"></div>
 
 <!-- ============================================================
@@ -2951,6 +3005,13 @@ if (channel) {
 function nextSlide() { if (currentSlide < totalSlides - 1) showSlide(currentSlide + 1); }
 function prevSlide() { if (currentSlide > 0) showSlide(currentSlide - 1); }
 
+function updateNavArrows() {
+    var prevBtn = document.getElementById('nav-arrow-prev');
+    var nextBtn = document.getElementById('nav-arrow-next');
+    if (prevBtn) prevBtn.disabled = (currentSlide === 0);
+    if (nextBtn) nextBtn.disabled = (currentSlide === totalSlides - 1);
+}
+
 function showSlide(n) {
     if (n < 0 || n >= totalSlides) return;
     iframes[currentSlide].classList.remove('active');
@@ -2959,6 +3020,7 @@ function showSlide(n) {
     document.getElementById('slide-number').textContent = 'Slide ' + (currentSlide + 1) + ' / ' + totalSlides;
     try { iframes[currentSlide].focus(); } catch (e) {}
     try { iframes[currentSlide].contentWindow.focus(); } catch (e) {}
+    updateNavArrows();
     broadcastSlide(n);
 }
 
@@ -2971,6 +3033,71 @@ function attachMKListener(frame) {
             else if (e.key === 'k' || e.key === 'K') { e.preventDefault(); e.stopPropagation(); prevSlide(); }
         }, true);
     } catch (ex) { /* cross-origin or not yet loaded — silently skip */ }
+}
+
+// Inject universal mobile-responsive overrides into each iframe so that
+// multi-column grids stack vertically and the body can scroll on phones.
+// Cross-origin iframes (file:// dev mode) silently throw and skip — they
+// keep their own layout. Same-origin iframes (GitHub Pages) get the rules.
+var MOBILE_CSS =
+    '@media (max-width: 760px) {' +
+    '  html, body {' +
+    '    height: auto !important;' +
+    '    min-height: 100vh;' +
+    '    overflow-y: auto !important;' +
+    '    overflow-x: hidden;' +
+    '  }' +
+    '  .title-bar {' +
+    '    padding: 14px 14px 6px !important;' +
+    '    gap: 8px !important;' +
+    '    flex-wrap: wrap;' +
+    '  }' +
+    '  .slide-title { font-size: 18px !important; line-height: 1.25; }' +
+    '  .headline, .subtitle, .formula-bar {' +
+    '    margin-left: 14px !important;' +
+    '    margin-right: 14px !important;' +
+    '    font-size: 13px !important;' +
+    '  }' +
+    '  .content, .findings, .panels, .panels-2x2 {' +
+    '    grid-template-columns: 1fr !important;' +
+    '    grid-template-rows: auto !important;' +
+    '    gap: 10px !important;' +
+    '    padding-left: 14px !important;' +
+    '    padding-right: 14px !important;' +
+    '  }' +
+    '  .footer-band {' +
+    '    grid-template-columns: 1fr !important;' +
+    '    gap: 10px !important;' +
+    '    padding-left: 14px !important;' +
+    '    padding-right: 14px !important;' +
+    '  }' +
+    '  .col, .card, .finding, .plot-card, .interp-card, .reasoning-card, .control-card, .footer-card {' +
+    '    padding: 12px 14px !important;' +
+    '  }' +
+    '  .punch, .closing {' +
+    '    margin: 0 14px 14px !important;' +
+    '    font-size: 13px !important;' +
+    '    padding: 8px 12px !important;' +
+    '  }' +
+    /* leave room at bottom for the floating nav arrows */
+    '  body { padding-bottom: 80px !important; }' +
+    '}';
+function injectMobileCSS(frame) {
+    try {
+        var doc = frame.contentDocument;
+        if (!doc || !doc.head) return;
+        // Ensure viewport meta — without it mobile browsers render the
+        // iframe at the default 980 px width and shrink everything.
+        if (!doc.querySelector('meta[name="viewport"]')) {
+            var vp = doc.createElement('meta');
+            vp.name = 'viewport';
+            vp.content = 'width=device-width, initial-scale=1.0';
+            doc.head.appendChild(vp);
+        }
+        var s = doc.createElement('style');
+        s.textContent = MOBILE_CSS;
+        doc.head.appendChild(s);
+    } catch (ex) { /* cross-origin — skip */ }
 }
 
 // Build all iframes up-front so navigation is instantaneous.
@@ -2997,7 +3124,20 @@ for (var i = 0; i < totalSlides; i++) {
     // iframes are also same-origin (unlike file://, where they were
     // cross-origin and the contentWindow attach silently failed).
     if (!isExternal) {
-        (function (f) { f.addEventListener('load', function () { attachMKListener(f); }); })(frame);
+        (function (f) {
+            f.addEventListener('load', function () {
+                attachMKListener(f);
+                injectMobileCSS(f);
+            });
+        })(frame);
+    } else {
+        // External iframes: try to inject mobile CSS too — works on Pages
+        // (same-origin), no-ops silently on file:// (cross-origin).
+        (function (f) {
+            f.addEventListener('load', function () {
+                injectMobileCSS(f);
+            });
+        })(frame);
     }
 }
 
@@ -3022,6 +3162,19 @@ window.addEventListener('message', function (e) {
 // Initial slide-counter text and focus.
 document.getElementById('slide-number').textContent = 'Slide 1 / ' + totalSlides;
 if (iframes[0]) iframes[0].addEventListener('load', function () { iframes[0].focus(); });
+
+// Touch/click nav arrows. Click for desktop; touchstart for mobile (avoids
+// the ~300 ms click delay and the iOS "double-tap to zoom" trap).
+(function () {
+    var prevBtn = document.getElementById('nav-arrow-prev');
+    var nextBtn = document.getElementById('nav-arrow-next');
+    if (!prevBtn || !nextBtn) return;
+    prevBtn.addEventListener('click', function (e) { e.preventDefault(); prevSlide(); });
+    nextBtn.addEventListener('click', function (e) { e.preventDefault(); nextSlide(); });
+    prevBtn.addEventListener('touchstart', function (e) { e.preventDefault(); prevSlide(); }, { passive: false });
+    nextBtn.addEventListener('touchstart', function (e) { e.preventDefault(); nextSlide(); }, { passive: false });
+    updateNavArrows();
+})();
 </script>
 </body>
 </html>
