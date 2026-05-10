@@ -1180,19 +1180,17 @@ update();
           <tr><th>Scheme</th><th>&Delta;t (s)</th><th>&nu; = &kappa;&Delta;t/&Delta;z&sup2;</th><th>RMSE T<sub>s</sub> (K)</th></tr>
         </thead>
         <tbody>
-          <tr class="ftcs"><td class="scheme">FTCS</td><td><span class="num">2000</span></td><td><span class="num">0.46</span></td><td><span class="num">0.018</span></td></tr>
-          <tr class="ftcs"><td class="scheme">FTCS</td><td><span class="num">2600</span></td><td><span class="num">0.60</span></td><td class="unstable">unstable (53 steps)</td></tr>
-          <tr class="btcs"><td class="scheme">BTCS</td><td><span class="num">300</span></td><td><span class="num">0.07</span></td><td><span class="num">0.024</span></td></tr>
-          <tr class="btcs"><td class="scheme">BTCS</td><td><span class="num">600</span></td><td><span class="num">0.14</span></td><td><span class="num">0.044</span></td></tr>
-          <tr class="btcs"><td class="scheme">BTCS</td><td><span class="num">900</span></td><td><span class="num">0.21</span></td><td><span class="num">0.062</span></td></tr>
-          <tr class="cn"><td class="scheme">CN</td><td><span class="num">300</span></td><td><span class="num">0.07</span></td><td><span class="num">0.005</span></td></tr>
-          <tr class="cn"><td class="scheme">CN</td><td><span class="num">900</span></td><td><span class="num">0.21</span></td><td><span class="num">0.006</span></td></tr>
-          <tr class="cn"><td class="scheme">CN</td><td><span class="num">9000</span></td><td><span class="num">2.08</span></td><td><span class="num">0.014</span></td></tr>
+          <tr class="ftcs"><td class="scheme">FTCS</td><td><span class="num">200</span></td><td><span class="num">0.46</span></td><td><span class="num">0.018</span></td></tr>
+          <tr class="ftcs"><td class="scheme">FTCS</td><td><span class="num">260</span></td><td><span class="num">0.60</span></td><td class="unstable">unstable (53 steps)</td></tr>
+          <tr class="btcs"><td class="scheme">BTCS</td><td><span class="num">300</span></td><td><span class="num">0.69</span></td><td><span class="num">0.024</span></td></tr>
+          <tr class="btcs"><td class="scheme">BTCS</td><td><span class="num">900</span></td><td><span class="num">2.08</span></td><td><span class="num">0.062</span></td></tr>
+          <tr class="cn"><td class="scheme">CN</td><td><span class="num">300</span></td><td><span class="num">0.69</span></td><td><span class="num">0.005</span></td></tr>
+          <tr class="cn"><td class="scheme">CN</td><td><span class="num">900</span></td><td><span class="num">2.08</span></td><td><span class="num">0.006</span></td></tr>
         </tbody>
       </table>
       <div class="findings">
-        <span class="warn">FTCS at &nu; = 0.6</span> &mdash; only 20% above the bound &mdash; destroys the solution within 53 steps.<br>
-        <span class="key">CN at &nu; = 2.08</span> uses ~5&times; fewer steps than FTCS at &nu; = 0.4 and produces a smaller error.
+        <span class="warn">FTCS at &nu; = 0.6</span> &mdash; only 20% above the &nu; &le; &frac12; bound &mdash; destroys the solution within 53 steps.<br>
+        <span class="key">CN at &nu; = 2.08</span> uses ~5&times; fewer steps than FTCS at &nu; = 0.4 and still produces a smaller error.
       </div>
     </div>
 
@@ -1200,54 +1198,50 @@ update();
       <h3>Error vs &Delta;t &mdash; log-log</h3>
       <div class="plot-wrap">
         <svg class="err-plot" viewBox="0 0 400 270" preserveAspectRatio="xMidYMid meet">
+          <!-- X-axis maps log10(Δt) ∈ [2, 4] to x ∈ [60, 380] (160 px / decade);
+               Y-axis maps log10(RMSE) ∈ [-3, 0] to y ∈ [220, 20] (66.67 px / decade).
+               All gridlines, ticks, data points, and the slope-1 reference now use
+               this single coordinate system. -->
           <!-- Axes -->
           <line x1="60" y1="220" x2="380" y2="220" stroke="#9aa3b8"/>
           <line x1="60" y1="220" x2="60"  y2="20"  stroke="#9aa3b8"/>
-          <!-- Gridlines (decade) -->
+          <!-- Vertical decade gridlines: x = 60 (10²), 220 (10³), 380 (10⁴) -->
           <line x1="60"  y1="20"  x2="60"  y2="220" stroke="rgba(107,92,181,0.10)"/>
-          <line x1="167" y1="20"  x2="167" y2="220" stroke="rgba(107,92,181,0.10)"/>
-          <line x1="273" y1="20"  x2="273" y2="220" stroke="rgba(107,92,181,0.10)"/>
+          <line x1="220" y1="20"  x2="220" y2="220" stroke="rgba(107,92,181,0.10)"/>
           <line x1="380" y1="20"  x2="380" y2="220" stroke="rgba(107,92,181,0.10)"/>
-          <line x1="60"  y1="220" x2="380" y2="220" stroke="rgba(107,92,181,0.10)"/>
-          <line x1="60"  y1="153" x2="380" y2="153" stroke="rgba(107,92,181,0.10)"/>
-          <line x1="60"  y1="87"  x2="380" y2="87"  stroke="rgba(107,92,181,0.10)"/>
-          <line x1="60"  y1="20"  x2="380" y2="20"  stroke="rgba(107,92,181,0.10)"/>
-          <!-- X tick labels: 100, 1000, 10000 (we map log10(dt) to x) -->
+          <!-- Horizontal decade gridlines: y = 220 (10⁻³), 153 (10⁻²), 87 (10⁻¹), 20 (10⁰) -->
+          <line x1="60" y1="220" x2="380" y2="220" stroke="rgba(107,92,181,0.10)"/>
+          <line x1="60" y1="153" x2="380" y2="153" stroke="rgba(107,92,181,0.10)"/>
+          <line x1="60" y1="87"  x2="380" y2="87"  stroke="rgba(107,92,181,0.10)"/>
+          <line x1="60" y1="20"  x2="380" y2="20"  stroke="rgba(107,92,181,0.10)"/>
+          <!-- X tick labels -->
           <text x="60"  y="236" font-size="10" fill="#6b7186" text-anchor="middle">10&sup2;</text>
-          <text x="167" y="236" font-size="10" fill="#6b7186" text-anchor="middle">10&sup3;</text>
-          <text x="273" y="236" font-size="10" fill="#6b7186" text-anchor="middle">10&#8308;</text>
-          <text x="225" y="254" font-size="11" fill="#4a5066" text-anchor="middle" font-weight="500">&Delta;t (s)</text>
-          <!-- Y tick labels: 0.001, 0.01, 0.1 K -->
+          <text x="220" y="236" font-size="10" fill="#6b7186" text-anchor="middle">10&sup3;</text>
+          <text x="380" y="236" font-size="10" fill="#6b7186" text-anchor="middle">10&#8308;</text>
+          <text x="220" y="254" font-size="11" fill="#4a5066" text-anchor="middle" font-weight="500">&Delta;t (s)</text>
+          <!-- Y tick labels -->
           <text x="54" y="223" font-size="10" fill="#6b7186" text-anchor="end">10&#8315;&sup3;</text>
           <text x="54" y="156" font-size="10" fill="#6b7186" text-anchor="end">10&#8315;&sup2;</text>
           <text x="54" y="90"  font-size="10" fill="#6b7186" text-anchor="end">10&#8315;&sup1;</text>
           <text x="54" y="24"  font-size="10" fill="#6b7186" text-anchor="end">10&#8304;</text>
           <text x="22" y="120" font-size="11" fill="#4a5066" text-anchor="middle" font-weight="500"
                 transform="rotate(-90 22 120)">RMSE T<tspan baseline-shift="sub" font-size="9">s</tspan> (K)</text>
-          <!-- Slope-1 reference -->
-          <line x1="80"  y1="180" x2="320" y2="60"  stroke="#b89854" stroke-width="1.6" stroke-dasharray="5 4"/>
-          <text x="328" y="62" font-size="10" fill="#b89854" font-style="italic">slope = 1</text>
-          <!-- BTCS curve: roughly linear in dt → slope 1 in log-log -->
-          <!-- Data points (approx): (300, 0.024), (600, 0.044), (900, 0.062) -->
-          <!-- Mapping: log10(dt) → x; log10(err) → y where y=20 at err=1, y=220 at err=10^-3 -->
-          <!-- 300s: x = 60 + (log10(300)-2)/2 * 320 = 60 + 0.477*160 = 136 ; err 0.024: y = 220 - (log10(0.024)+3)/3 * 200 = 220 - 1.62/3*200 ≈ 112 -->
-          <polyline points="136,112 187,87 215,80 245,74"
-                    fill="none" stroke="#6b5cb5" stroke-width="2.6"/>
-          <circle cx="136" cy="112" r="3.2" fill="#6b5cb5"/>
-          <circle cx="187" cy="87"  r="3.2" fill="#6b5cb5"/>
-          <circle cx="215" cy="80"  r="3.2" fill="#6b5cb5"/>
-          <circle cx="245" cy="74"  r="3.2" fill="#6b5cb5"/>
-          <!-- CN curve: nearly flat near 0.005 K (y ≈ 153) until very large dt -->
-          <polyline points="136,160 187,158 215,156 320,138"
-                    fill="none" stroke="#2c8a83" stroke-width="2.6" stroke-dasharray="6 4"/>
-          <circle cx="136" cy="160" r="3.2" fill="#2c8a83"/>
-          <circle cx="187" cy="158" r="3.2" fill="#2c8a83"/>
-          <circle cx="215" cy="156" r="3.2" fill="#2c8a83"/>
-          <circle cx="320" cy="138" r="3.2" fill="#2c8a83"/>
+          <!-- Slope-1 reference: 1 decade in Δt ↔ 1 decade in RMSE.
+               From (Δt=200, RMSE=0.005) at (108, 173) to (Δt=2000, RMSE=0.05) at (268, 107). -->
+          <line x1="108" y1="173" x2="268" y2="107" stroke="#b89854" stroke-width="1.6" stroke-dasharray="5 4"/>
+          <text x="276" y="105" font-size="10" fill="#b89854" font-style="italic">slope = 1</text>
+          <!-- BTCS: (Δt=300, RMSE=0.024) → (Δt=900, RMSE=0.062). Empirical slope 0.86 in log–log. -->
+          <line x1="136.3" y1="128.0" x2="212.7" y2="100.5" stroke="#6b5cb5" stroke-width="2.6"/>
+          <circle cx="136.3" cy="128.0" r="3.6" fill="#6b5cb5"/>
+          <circle cx="212.7" cy="100.5" r="3.6" fill="#6b5cb5"/>
+          <!-- CN: (Δt=300, RMSE=0.005) → (Δt=900, RMSE=0.006). Empirical slope 0.17 (essentially flat). -->
+          <line x1="136.3" y1="173.4" x2="212.7" y2="168.1" stroke="#2c8a83" stroke-width="2.6" stroke-dasharray="6 4"/>
+          <circle cx="136.3" cy="173.4" r="3.6" fill="#2c8a83"/>
+          <circle cx="212.7" cy="168.1" r="3.6" fill="#2c8a83"/>
           <!-- Legend -->
-          <g transform="translate(80, 35)">
+          <g transform="translate(76, 35)">
             <line x1="0" y1="6" x2="22" y2="6" stroke="#6b5cb5" stroke-width="2.4"/>
-            <text x="28" y="9" font-size="11" fill="#2c3142">BTCS &mdash; slope 1 (first-order)</text>
+            <text x="28" y="9" font-size="11" fill="#2c3142">BTCS &mdash; slope &asymp; 0.86 (first-order)</text>
             <line x1="0" y1="22" x2="22" y2="22" stroke="#2c8a83" stroke-width="2.4" stroke-dasharray="6 3"/>
             <text x="28" y="25" font-size="11" fill="#2c3142">CN &mdash; flat (second-order)</text>
           </g>
