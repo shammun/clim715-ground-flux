@@ -14,53 +14,23 @@ body, html {
   color: #2c3142;
   line-height: 1.65;
 }
-.layout {
-  display: grid;
-  grid-template-columns: 300px 1fr;
-  max-width: 1600px;
-  margin: 0 auto;
-}
+.layout { display: grid; grid-template-columns: 300px 1fr; max-width: 1600px; margin: 0 auto; }
 .toc {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  overflow-y: auto;
-  background: #ffffff;
-  border-right: 1px solid rgba(107, 92, 181, 0.15);
-  padding: 28px 16px 28px 24px;
-  box-shadow: 2px 0 8px rgba(107, 92, 181, 0.05);
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  background: #ffffff; border-right: 1px solid rgba(107, 92, 181, 0.15);
+  padding: 28px 16px 28px 24px; box-shadow: 2px 0 8px rgba(107, 92, 181, 0.05);
 }
-.toc h2 {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: #6b5cb5;
-  margin: 0 0 14px 0;
-  font-weight: 700;
-}
+.toc h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: #6b5cb5; margin: 0 0 14px 0; font-weight: 700; }
 .toc ul { list-style: none; padding: 0; margin: 0; }
 .toc li { margin-bottom: 3px; }
 .toc a {
-  color: #4a5066;
-  text-decoration: none;
-  font-size: 12.5px;
-  display: block;
-  padding: 4px 8px;
-  border-radius: 4px;
-  border-left: 2px solid transparent;
-  transition: all 0.15s;
-  line-height: 1.4;
+  color: #4a5066; text-decoration: none; font-size: 12.5px;
+  display: block; padding: 4px 8px; border-radius: 4px;
+  border-left: 2px solid transparent; transition: all 0.15s; line-height: 1.4;
 }
-.toc a:hover {
-  background: rgba(107, 92, 181, 0.06);
-  color: #6b5cb5;
-  border-left-color: #6b5cb5;
-}
+.toc a:hover { background: rgba(107, 92, 181, 0.06); color: #6b5cb5; border-left-color: #6b5cb5; }
 .toc a.level-3 { padding-left: 22px; font-size: 11.5px; color: #6b7186; }
-main {
-  padding: 40px 60px 80px 60px;
-  max-width: 1100px;
-}
+main { padding: 40px 60px 80px 60px; max-width: 1100px; }
 h1 { color: #2c3142; font-size: 32px; margin-top: 0; margin-bottom: 12px; line-height: 1.25; }
 h2 { color: #6b5cb5; font-size: 24px; margin-top: 44px; margin-bottom: 12px; padding-top: 16px; border-top: 1px solid rgba(107, 92, 181, 0.15); }
 h3 { color: #4a5066; font-size: 19px; margin-top: 30px; margin-bottom: 8px; }
@@ -68,65 +38,23 @@ h4 { color: #ee845b; font-size: 15px; font-weight: 700; margin-top: 22px; margin
 p { margin: 10px 0 14px 0; font-size: 15px; }
 strong { color: #2c3142; }
 em { color: #4a5066; }
-code {
-  background: #f3f0fa;
-  color: #6b5cb5;
-  padding: 1px 6px;
-  border-radius: 3px;
-  font-family: 'Cascadia Code', 'Consolas', monospace;
-  font-size: 0.9em;
-}
-pre {
-  background: #1a1a2e;
-  color: #cfd8dc;
-  padding: 14px 18px;
-  border-radius: 6px;
-  overflow-x: auto;
-  font-size: 13px;
-}
+code { background: #f3f0fa; color: #6b5cb5; padding: 1px 6px; border-radius: 3px; font-family: 'Cascadia Code', 'Consolas', monospace; font-size: 0.9em; }
+pre { background: #1a1a2e; color: #cfd8dc; padding: 14px 18px; border-radius: 6px; overflow-x: auto; font-size: 13px; }
 pre code { background: transparent; color: inherit; padding: 0; }
-blockquote {
-  margin: 14px 0;
-  padding: 12px 18px;
-  background: rgba(56, 178, 172, 0.08);
-  border-left: 4px solid #38b2ac;
-  border-radius: 0 6px 6px 0;
-  color: #2c8a83;
-  font-style: italic;
-}
+blockquote { margin: 14px 0; padding: 12px 18px; background: rgba(56, 178, 172, 0.08); border-left: 4px solid #38b2ac; border-radius: 0 6px 6px 0; color: #2c8a83; font-style: italic; }
 blockquote strong { color: #2c8a83; }
-table {
-  border-collapse: collapse;
-  width: 100%;
-  margin: 16px 0;
-  background: #ffffff;
-  box-shadow: 0 2px 6px rgba(107, 92, 181, 0.08);
-  border-radius: 6px;
-  overflow: hidden;
-  font-size: 14px;
-}
+table { border-collapse: collapse; width: 100%; margin: 16px 0; background: #ffffff; box-shadow: 0 2px 6px rgba(107, 92, 181, 0.08); border-radius: 6px; overflow: hidden; font-size: 14px; }
 th { background: #6b5cb5; color: #ffffff; font-weight: 700; text-align: left; padding: 10px 14px; font-size: 13px; }
 td { padding: 8px 14px; border-top: 1px solid rgba(107, 92, 181, 0.1); }
 tr:nth-child(even) td { background: rgba(107, 92, 181, 0.03); }
 hr { border: none; border-top: 1px solid rgba(107, 92, 181, 0.2); margin: 32px 0; }
 ul, ol { margin: 10px 0 14px 24px; padding: 0; }
 li { margin-bottom: 4px; font-size: 15px; }
-
-mjx-container[display="true"] {
-  margin: 14px 0 !important;
-  overflow-x: auto;
-}
-
-.banner {
-  background: linear-gradient(135deg, #6b5cb5 0%, #2c8a83 100%);
-  color: #ffffff;
-  padding: 40px 60px;
-  margin: 0 -60px 28px -60px;
-}
+mjx-container[display="true"] { margin: 14px 0 !important; overflow-x: auto; }
+.banner { background: linear-gradient(135deg, #6b5cb5 0%, #2c8a83 100%); color: #ffffff; padding: 40px 60px; margin: 0 -60px 28px -60px; }
 .banner h1 { color: #ffffff; margin: 0; font-size: 30px; }
 .banner .subtitle { font-size: 16px; opacity: 0.95; margin-top: 8px; font-style: italic; }
 .banner .meta { font-size: 13px; opacity: 0.85; margin-top: 16px; font-family: 'Cascadia Code', 'Consolas', monospace; }
-
 @media (max-width: 1000px) {
   .layout { grid-template-columns: 1fr; }
   .toc { position: relative; height: auto; border-right: none; border-bottom: 1px solid rgba(107, 92, 181, 0.15); }
@@ -140,19 +68,15 @@ window.MathJax = {
   tex: {
     inlineMath: [['$', '$'], ['\\(', '\\)']],
     displayMath: [['$$', '$$'], ['\\[', '\\]']],
-    processEscapes: true,
-    tags: 'none'
+    processEscapes: true, tags: 'none'
   },
-  options: {
-    skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-  }
+  options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
 };
 </script>
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
 <div class="layout">
-
 <aside class="toc">
   <h2>Contents</h2>
   <ul>
@@ -303,7 +227,6 @@ window.MathJax = {
 <li><a href="#b11-parameterization-workflow" class="level-2">B.11 Parameterization workflow</a></li>
   </ul>
 </aside>
-
 <main>
   <div class="banner">
     <h1>CLIM-715 — Master Study Guide</h1>
@@ -1965,12 +1888,41 @@ Combine these with K-theory ($K_M = u_*\ell$) and you derive a $1/z$ shear → i
 - <em>Denominator</em> $(g/T_0)(H_0/\rho c_p)$: rate of <em>buoyancy</em> TKE production/destruction.
 - The ratio $L$ = the height at which these two rates would be equal.</p>
 <p>Below this height, shear dominates → the surface layer behaves close to the neutral log profile. Above it, buoyancy takes over.</p>
-<p><strong>Sign conventions for $\zeta = z/L$.</strong>
-| Surface condition | Heat flux $H_0$ | Sign of $L$ | Sign of $\zeta$ | Meaning |
-|---|---|---|---|---|
-| <strong>Unstable</strong> (sunny day) | $> 0$ (upward) | $L < 0$ | $\zeta < 0$ | Buoyancy <em>helps</em> turbulence; thermals form. |
-| <strong>Neutral</strong> (overcast, windy) | $\approx 0$ | $|L| \to \infty$ | $\zeta \to 0$ | No buoyancy effect; pure log profile. |
-| <strong>Stable</strong> (clear night) | $< 0$ (downward) | $L > 0$ | $\zeta > 0$ | Buoyancy <em>suppresses</em> turbulence; layer becomes shallow and quiet. |</p>
+<p><strong>Sign conventions for $\zeta = z/L$.</strong></p>
+<table>
+<thead>
+<tr>
+<th>Surface condition</th>
+<th>Heat flux $H_0$</th>
+<th>Sign of $L$</th>
+<th>Sign of $\zeta$</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Unstable</strong> (sunny day)</td>
+<td>$> 0$ (upward)</td>
+<td>$L < 0$</td>
+<td>$\zeta < 0$</td>
+<td>Buoyancy <em>helps</em> turbulence; thermals form.</td>
+</tr>
+<tr>
+<td><strong>Neutral</strong> (overcast, windy)</td>
+<td>$\approx 0$</td>
+<td>$|L| \to \infty$</td>
+<td>$\zeta \to 0$</td>
+<td>No buoyancy effect; pure log profile.</td>
+</tr>
+<tr>
+<td><strong>Stable</strong> (clear night)</td>
+<td>$< 0$ (downward)</td>
+<td>$L > 0$</td>
+<td>$\zeta > 0$</td>
+<td>Buoyancy <em>suppresses</em> turbulence; layer becomes shallow and quiet.</td>
+</tr>
+</tbody>
+</table>
 <p><strong>Reading $|L|$ as a length.</strong> If $|L|$ is large (hundreds of meters), the shear/buoyancy crossover is far above your observation height — you're in the neutral-like regime, log profile approximately valid. If $|L|$ is small (a few meters), buoyancy dominates almost everywhere — strong departure from log profile, full M-O correction needed.</p>
 <p><strong>Where M-O came from.</strong> M-O similarity isn't pure theory — its functional forms ($\Phi_m, \Phi_h$) were determined empirically from the <strong>1968 Kansas Field Experiment</strong>: a 32 m tower in a 1-mile² field of wheat stubble, fast-response cup anemometers, sonic anemometers, thermistors. Both heat and momentum fluxes were confirmed constant with height to within ±15%. That's the experimental backbone every operational surface scheme rests on (Businger et al. 1971).</p>
 <p>The non-dimensional gradient functions $\Phi_m(\zeta)$, $\Phi_h(\zeta)$ with $\zeta = z/L$ describe deviations from the log profile:</p>
@@ -3161,7 +3113,6 @@ Combine these with K-theory ($K_M = u_*\ell$) and you derive a $1/z$ shear → i
     <em>Source: Lecture_Master_Guide.md.</em>
   </p>
 </main>
-
 </div>
 </body>
 </html>

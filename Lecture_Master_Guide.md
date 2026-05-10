@@ -1671,6 +1671,7 @@ $L$ is the height at which buoyant production of TKE equals shear production. Ab
 Below this height, shear dominates → the surface layer behaves close to the neutral log profile. Above it, buoyancy takes over.
 
 **Sign conventions for $\zeta = z/L$.**
+
 | Surface condition | Heat flux $H_0$ | Sign of $L$ | Sign of $\zeta$ | Meaning |
 |---|---|---|---|---|
 | **Unstable** (sunny day) | $> 0$ (upward) | $L < 0$ | $\zeta < 0$ | Buoyancy *helps* turbulence; thermals form. |
