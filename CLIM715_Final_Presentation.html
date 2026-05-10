@@ -612,6 +612,21 @@
     display: inline-block;
   }
 
+  /* Caption explaining the three vertical reference lines on the chart */
+  .ref-legend {
+    text-align: center;
+    font-size: 12.5px;
+    color: #4a5066;
+    margin: 0 52px 8px;
+    flex-shrink: 0;
+    line-height: 1.5;
+  }
+  .ref-legend strong {
+    font-weight: 700;
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+  }
+  .ref-legend .sep { color: #b6bdcc; margin: 0 8px; }
+
   /* Slider control card */
   .control-card {
     background: #ffffff;
@@ -725,6 +740,14 @@
   <div class="formula-bar">
     FTCS bound at the most thermally stiff top layer of each substrate:
     <span class="eq">&Delta;t<sub>max</sub> = &frac12; &Delta;z&sup2; / &kappa;</span>
+  </div>
+  <div class="ref-legend">
+    Vertical reference lines:
+    <strong style="color:#c2492a">17 s</strong> &mdash; FTCS bound at &Delta;z = 5 mm
+    <span class="sep">&middot;</span>
+    <strong style="color:#b89854">60 s</strong> &mdash; typical mesoscale &Delta;t
+    <span class="sep">&middot;</span>
+    <strong style="color:#2c8a83">600 s</strong> &mdash; long climate-model &Delta;t
   </div>
 
   <div class="control-card">
@@ -1623,9 +1646,11 @@ update();
     <span class="slide-title">BTCS smears the post-swing gradient at the &lambda; jump</span>
   </div>
   <div class="subtitle">
-    Concrete-roof column &mdash; faithful port of <code style="background:rgba(107,92,181,0.10); padding:1px 5px; border-radius:3px; color:#6b5cb5; font-size:12px;">run_experiments.py</code>:
-    stretched grid, prognostic SEB Newton iteration, column-then-SEB operator splitting per long report &sect;5.2.
-    Concrete (&lambda; = 1.50, C = 2.1&times;10<sup>6</sup>) over rigid insulation (&lambda; = 0.04, C = 8&times;10<sup>4</sup>) &mdash; <b>&times;37 &lambda; ratio</b>.
+    Vertical temperature profile through the concrete-roof column. A
+    <b>&times;37 thermal-conductivity jump</b> at z = 10 cm &mdash; concrete deck
+    (&lambda; = 1.50 W m<sup>&minus;1</sup> K<sup>&minus;1</sup>) over rigid insulation (&lambda; = 0.04) &mdash;
+    concentrates the temperature gradient at the layer interface. Drag the time slider:
+    at coarse &Delta;t, BTCS visibly distorts the curvature where the conductivity jumps.
   </div>
 
   <div class="control-card">
