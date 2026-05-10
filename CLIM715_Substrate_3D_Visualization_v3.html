@@ -1310,11 +1310,13 @@ requestAnimationFrame(animate);
     }
     function startDrag() {
       s.dragging = true;
-      // Freeze size so flex-wrap reflow doesn't change panel
-      // dimensions as it moves around.
+      // Lock width and height to current rect so flex-wrap can't reflow
+      // the panel as it moves around. DO NOT touch max-width — clearing
+      // it lets the flex-wrap content "un-wrap" into a single row that
+      // overflows the viewport, which is exactly the "width changes
+      // weirdly" bug the user was seeing.
       el.style.width  = s.fw + 'px';
       el.style.height = s.fh + 'px';
-      el.style.maxWidth = 'none';
       el.style.left   = s.ox + 'px';
       el.style.top    = s.oy + 'px';
       el.style.right  = 'auto';
@@ -1343,10 +1345,10 @@ requestAnimationFrame(animate);
       document.removeEventListener('pointercancel', onUp);
       if (s.dragging) {
         // Release the size lock so the +/- toggle can collapse/expand
-        // the panel after the drag.
+        // the panel after the drag. (We never set maxWidth, so no
+        // need to clear it.)
         el.style.width    = '';
         el.style.height   = '';
-        el.style.maxWidth = '';
         el.style.cursor = 'grab';
       }
       s.tracking = false;

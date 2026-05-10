@@ -785,6 +785,12 @@ var PAD = IS_MOBILE
   : { top: 36, right: 130, bottom: 50, left: 170 };
 var PLOT_W = SVG_W - PAD.left - PAD.right;
 var PLOT_H = SVG_H - PAD.top - PAD.bottom;
+// Font-size helper: text in user units scales with the SVG, so to land
+// at a readable rendered size we multiply by ~3 on mobile (where the
+// SVG is rendered at scale ~0.34) and ~1.5 on desktop (scale ~0.8).
+var FS_MUL = IS_MOBILE ? 3.0 : 1.5;
+function fs(n)  { return String(Math.round(n * FS_MUL)); }    // returns string for SVG attrs
+function off(n) { return Math.round(n * FS_MUL); }            // returns number for y-offsets
 
 var NS = 'http://www.w3.org/2000/svg';
 function svgEl(tag, attrs) {
@@ -838,8 +844,8 @@ function drawAxes() {
       stroke: 'rgba(107, 92, 181, 0.10)', 'stroke-width': '1'
     }));
     var lab = svgEl('text', {
-      x: xPx(DECADES[i]), y: PAD.top + PLOT_H + 18,
-      'text-anchor': 'middle', 'font-size': '12', fill: '#6b7186',
+      x: xPx(DECADES[i]), y: PAD.top + PLOT_H + off(18),
+      'text-anchor': 'middle', 'font-size': fs(12), fill: '#6b7186',
       'font-family': 'Cascadia Code, Consolas, monospace'
     });
     lab.textContent = DECADE_LABELS[i];
@@ -847,8 +853,8 @@ function drawAxes() {
   }
   // X-axis title
   var xLab = svgEl('text', {
-    x: PAD.left + PLOT_W / 2, y: PAD.top + PLOT_H + 40,
-    'text-anchor': 'middle', 'font-size': '13', fill: '#4a5066',
+    x: PAD.left + PLOT_W / 2, y: PAD.top + PLOT_H + off(40),
+    'text-anchor': 'middle', 'font-size': fs(13), fill: '#4a5066',
     'font-weight': '600'
   });
   xLab.textContent = 'FTCS Δt_max (seconds, log scale)';
@@ -863,8 +869,8 @@ function drawAxes() {
       'stroke-dasharray': '5 4', opacity: '0.75'
     }));
     var refLab = svgEl('text', {
-      x: xPx(ref.s), y: PAD.top - 16,
-      'text-anchor': 'middle', 'font-size': '11', fill: ref.color,
+      x: xPx(ref.s), y: PAD.top - off(16),
+      'text-anchor': 'middle', 'font-size': fs(11), fill: ref.color,
       'font-weight': '700', 'font-family': 'Cascadia Code, Consolas, monospace'
     });
     refLab.textContent = ref.label;
@@ -876,15 +882,15 @@ function drawAxes() {
     var sub = SUBS[s];
     var yC = PAD.top + (s + 0.5) * rowH;
     var lblName = svgEl('text', {
-      x: PAD.left - 14, y: yC - 4,
-      'text-anchor': 'end', 'font-size': '14', fill: sub.color,
+      x: PAD.left - 14, y: yC - off(6),
+      'text-anchor': 'end', 'font-size': fs(14), fill: sub.color,
       'font-weight': '700'
     });
     lblName.textContent = sub.label;
     svg.appendChild(lblName);
     var lblSub = svgEl('text', {
-      x: PAD.left - 14, y: yC + 14,
-      'text-anchor': 'end', 'font-size': '10.5', fill: '#6b7186',
+      x: PAD.left - 14, y: yC + off(18),
+      'text-anchor': 'end', 'font-size': fs(10.5), fill: '#6b7186',
       'font-style': 'italic'
     });
     lblSub.textContent = sub.sub;
@@ -908,8 +914,8 @@ for (var s = 0; s < SUBS.length; s++) {
   svg.appendChild(bar);
   bars.push(bar);
   var lbl = svgEl('text', {
-    x: PAD.left, y: yC + 5,
-    'font-size': '14', fill: '#ffffff',
+    x: PAD.left, y: yC + off(5),
+    'font-size': fs(14), fill: '#ffffff',
     'font-weight': '700',
     'font-family': 'Cascadia Code, Consolas, monospace',
     'text-anchor': 'start'
@@ -943,11 +949,11 @@ function update() {
     var labelText = fmtSeconds(dt_max);
     var lbl = barLabels[s];
     lbl.textContent = labelText;
-    if (w > 80) {
-      lbl.setAttribute('x', x0 + 8);
+    if (w > off(80)) {
+      lbl.setAttribute('x', x0 + off(8));
       lbl.setAttribute('fill', '#ffffff');
     } else {
-      lbl.setAttribute('x', x1 + 8);
+      lbl.setAttribute('x', x1 + off(8));
       lbl.setAttribute('fill', SUBS[s].color);
     }
     if (SUBS[s].key === 'roof') concreteDt = dt_max;
@@ -1928,6 +1934,12 @@ var SVG_H = IS_MOBILE ? 1200 : 420;
 var PAD = IS_MOBILE
   ? { top: 30, right: 130, bottom: 60, left: 60 }
   : { top: 22, right: 130, bottom: 38, left: 60 };
+// Font/offset scaling — the SVG is rendered at scale ~0.34 on mobile
+// and ~0.8 on desktop; multiply user-unit font sizes by these inverses
+// to land readable rendered pixel sizes.
+var FS_MUL = IS_MOBILE ? 3.0 : 1.5;
+function fs(n)  { return String(Math.round(n * FS_MUL)); }
+function off(n) { return Math.round(n * FS_MUL); }
 var PLOT_W = SVG_W - PAD.left - PAD.right;
 var PLOT_H = SVG_H - PAD.top - PAD.bottom;
 
@@ -1958,9 +1970,9 @@ LAYERS.forEach(function(L) {
   }));
   // Layer label on the right.
   var lab = svgEl('text', {
-    x: PAD.left + PLOT_W + 8,
-    y: (yPx(L.z0) + yPx(L.z1)) / 2 + 4,
-    'font-size': '11', fill: '#4a5066',
+    x: PAD.left + PLOT_W + off(8),
+    y: (yPx(L.z0) + yPx(L.z1)) / 2 + off(4),
+    'font-size': fs(11), fill: '#4a5066',
     'font-style': 'italic'
   });
   lab.textContent = L.name + ' λ=' + L.lambda;
@@ -1978,15 +1990,17 @@ LAYERS.slice(0, -1).forEach(function(L) {
 
 // "λ ratio ×37" call-out at the concrete/insulation interface.
 var iface_y = yPx(0.10);
-var callX = PAD.left + 8;
+var callX = PAD.left + off(8);
+var callW = off(90);
+var callH = off(22);
 svg.appendChild(svgEl('rect', {
-  x: callX, y: iface_y - 12, width: 90, height: 22,
-  rx: 11,
+  x: callX, y: iface_y - callH/2, width: callW, height: callH,
+  rx: callH/2,
   fill: '#c2492a'
 }));
 var callT = svgEl('text', {
-  x: callX + 45, y: iface_y + 3,
-  'text-anchor': 'middle', 'font-size': '11', fill: '#fff',
+  x: callX + callW/2, y: iface_y + off(3),
+  'text-anchor': 'middle', 'font-size': fs(11), fill: '#fff',
   'font-weight': '700'
 });
 callT.textContent = 'λ ratio ×37';
@@ -2012,16 +2026,16 @@ for (var T = Math.ceil(TMIN/5)*5; T <= TMAX; T += 5) {
     stroke: 'rgba(107, 92, 181, 0.08)'
   }));
   var tl = svgEl('text', {
-    x: xPx(T), y: PAD.top + PLOT_H + 16,
-    'text-anchor': 'middle', 'font-size': '11', fill: '#6b7186'
+    x: xPx(T), y: PAD.top + PLOT_H + off(16),
+    'text-anchor': 'middle', 'font-size': fs(11), fill: '#6b7186'
   });
   tl.textContent = T.toFixed(0);
   svg.appendChild(tl);
 }
 svg.appendChild((function() {
   var t = svgEl('text', {
-    x: PAD.left + PLOT_W / 2, y: PAD.top + PLOT_H + 32,
-    'text-anchor': 'middle', 'font-size': '12', fill: '#4a5066', 'font-weight': '600'
+    x: PAD.left + PLOT_W / 2, y: PAD.top + PLOT_H + off(34),
+    'text-anchor': 'middle', 'font-size': fs(12), fill: '#4a5066', 'font-weight': '600'
   });
   t.textContent = 'temperature (°C)';
   return t;
@@ -2035,17 +2049,17 @@ svg.appendChild((function() {
     stroke: '#9aa3b8'
   }));
   var lt = svgEl('text', {
-    x: PAD.left - 8, y: yPx(z) + 4,
-    'text-anchor': 'end', 'font-size': '11', fill: '#6b7186'
+    x: PAD.left - off(8), y: yPx(z) + off(4),
+    'text-anchor': 'end', 'font-size': fs(11), fill: '#6b7186'
   });
   lt.textContent = (z * 100).toFixed(0);
   svg.appendChild(lt);
 });
 svg.appendChild((function() {
   var t = svgEl('text', {
-    x: 18, y: PAD.top + PLOT_H / 2,
-    'text-anchor': 'middle', 'font-size': '12', fill: '#4a5066', 'font-weight': '600',
-    transform: 'rotate(-90 18 ' + (PAD.top + PLOT_H / 2) + ')'
+    x: off(18), y: PAD.top + PLOT_H / 2,
+    'text-anchor': 'middle', 'font-size': fs(12), fill: '#4a5066', 'font-weight': '600',
+    transform: 'rotate(-90 ' + off(18) + ' ' + (PAD.top + PLOT_H / 2) + ')'
   });
   t.textContent = 'depth z (cm)';
   return t;
