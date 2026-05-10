@@ -91,4 +91,34 @@ The user views these from mobile while changes are made on the desktop. Workflow
 2. `git add` the touched files, `git commit` with a clear message, `git push`. Use the gh CLI binary at `C:\Users\sislam27\AppData\Local\Microsoft\WinGet\Packages\GitHub.cli_Microsoft.Winget.Source_8wekyb3d8bbwe\bin\gh.exe` if you need to run anything via gh; the user is already authenticated as `shammun`.
 3. Pages redeploys in ~30–60 s. Tell the user the change is live and quote the relevant deck URL so they can refresh on mobile.
 
-Don't push speculative WIP — push after each user-requested change has landed and is internally consistent (i.e., what would be a clean commit). Don't commit `.claude/settings.local.json`; it's already in `.gitignore`.
+**Always include the deck URL in every reply** so the user can tap it from their phone. The canonical URL is `https://shammun.github.io/clim715-ground-flux/CLIM715_Final_Presentation.html`.
+
+**Auto-push is the default** — do not ask the user for permission to commit or push. Every user-requested change ends in `git commit` + `git push`. Don't push speculative WIP; push after each change has landed and is internally consistent (i.e., what would be a clean commit). Don't commit `.claude/settings.local.json`; it's already in `.gitignore`.
+
+## Multi-pass verification when the user asks "verify slide N"
+
+When the user asks to verify a slide against the long report or Python code, do **not** trust the first pass — values can be self-consistent within the slide but use the wrong source-of-truth. The pattern that has caught real bugs:
+
+1. **Read the slide content fully** — title, subtitle, headline, table cells, chart code, sub-labels, peak callouts.
+2. **Extract the matching source-of-truth** in parallel:
+   - Long report `.docx`: read with `python-docx`, including `d.tables` (Table 1 has the verification numbers; Table 2 has Test 2 metrics). The text often paraphrases a value but the table holds the canonical version.
+   - Python code: `run_experiments.py`, `extend_test2_metrics.py`, `shap_attribution (1).py`. Especially substrate parameters, κ values, Δz, atmospheric forcing constants, SEB coefficients.
+   - Generated CSVs: `test2_extended_metrics.csv`, `shap_summary.csv`, `shap_residual_summary.csv`, `synthetic_dataset (1).csv`.
+   - The embedded JSON inside `window_delta_t.html` (`<script id="dt-data">`) — extract with regex + `json.loads`.
+3. **Cell-by-cell comparison**, ideally in a small Python snippet that prints the long-report value, the slide value, and a checkmark. Don't eyeball — actually compute.
+4. **Cross-check internal consistency** — e.g., for any (Δt, ν) pair claim, verify ν = κΔt/Δz² with the slide's stated κ. A real bug we hit: the slide displayed κ = 2.31×10⁻⁷ in caption but every ν in the table was computed with κ = 2.31×10⁻⁸.
+5. **Cross-check across slides** — values quoted on slide N should match those on adjacent slides. Slide 8's Tₛ(t) curves and slide 9's reference dataset should be from the same data; slide 10's λ/C should match slide 3's substrate definitions; slide 11's RMSE values should match `test2_extended_metrics.csv` exactly; slide 12's SHAP values should match `shap_summary.csv`.
+6. **Re-verify after fixing** — after the first round of edits, re-extract the source-of-truth and compare again. The first fix often catches the obvious errors but misses subtle ones (e.g., a row reordering, a column-header mismatch, a fabricated extra row that needs removal). Plan on at least two verification passes.
+7. **Report findings as a table** in the reply: bug list, source-of-truth value, slide value, fix. The user wants to see the diff, not just "fixed it".
+
+Things to watch for that have actually broken slides in this deck:
+- ν values computed with the wrong κ (factor of 10 off).
+- Δt values 10× larger or smaller than they should be for the stated ν.
+- Hand-drawn SVG paths that don't match the actual data (curve peaks at wrong hour, or curves with implausible amplitude).
+- Column headers that label values differently than the source-of-truth ("RMSE Tₛ" when the data is actually "RMSE T@10 cm").
+- Two SVG coordinate systems in the same chart (one for gridlines, another for data points). The "slope = 1" reference line on a log-log plot should be a true 45°.
+- Sub-labels that paraphrase the long report's physical reasoning incorrectly (e.g., "high admittance → hot" when the report attributes the peak to low albedo).
+- Fabricated extra rows in tables that don't appear in the long report's Table 1 / Table 2.
+- Use of dev jargon ("faithful port of run_experiments.py", "per long report §5.2") in a slide subtitle that should be presentation prose.
+
+After fixing, push the commit (auto-push), give the user the Pages URL, and report the diff in a verification table.
