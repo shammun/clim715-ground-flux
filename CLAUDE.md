@@ -102,8 +102,8 @@ When the user asks to verify a slide against the long report or Python code, do 
 1. **Read the slide content fully** — title, subtitle, headline, table cells, chart code, sub-labels, peak callouts.
 2. **Extract the matching source-of-truth** in parallel:
    - Long report `.docx`: read with `python-docx`, including `d.tables` (Table 1 has the verification numbers; Table 2 has Test 2 metrics). The text often paraphrases a value but the table holds the canonical version.
-   - Python code: `run_experiments.py`, `extend_test2_metrics.py`, `shap_attribution (1).py`. Especially substrate parameters, κ values, Δz, atmospheric forcing constants, SEB coefficients.
-   - Generated CSVs: `test2_extended_metrics.csv`, `shap_summary.csv`, `shap_residual_summary.csv`, `synthetic_dataset (1).csv`.
+   - Python code: `run_experiments.py`, `extend_test2_metrics.py`, `shap_attribution.py`. Especially substrate parameters, κ values, Δz, atmospheric forcing constants, SEB coefficients.
+   - Generated CSVs: `test2_extended_metrics.csv`, `shap_summary.csv`, `shap_residual_summary.csv`, `synthetic_dataset.csv`.
    - The embedded JSON inside `window_delta_t.html` (`<script id="dt-data">`) — extract with regex + `json.loads`.
 3. **Cell-by-cell comparison**, ideally in a small Python snippet that prints the long-report value, the slide value, and a checkmark. Don't eyeball — actually compute.
 4. **Cross-check internal consistency** — e.g., for any (Δt, ν) pair claim, verify ν = κΔt/Δz² with the slide's stated κ. A real bug we hit: the slide displayed κ = 2.31×10⁻⁷ in caption but every ν in the table was computed with κ = 2.31×10⁻⁸.
