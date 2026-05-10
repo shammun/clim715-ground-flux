@@ -272,59 +272,66 @@
   }
   #error-msg strong { color: #c8483a; }
 
-  /* Mobile portrait (≤ 760 px). The 3D scene's canvas already takes
-     100vw × 100vh so no layout change needed for it. The overlay
-     panels (#legend, #ts-panel, #controls) get tighter margins,
-     smaller fonts, and bottom padding so they don't collide with
-     the deck's floating nav arrows. The bottom controls bar shifts
-     up to leave room for the arrows. */
+  /* Mobile portrait (≤ 760 px). Keep each overlay's DESKTOP anchor
+     edges intact — title at top-centre, legend at bottom-right,
+     ts-panel at bottom-left, controls at bottom-centre. Just shrink
+     fonts/padding and clear the deck's floating nav arrows by lifting
+     bottoms to ~80 px. Do NOT add `top` to elements anchored at
+     `bottom` (or vice versa) — that constrains all four edges and
+     makes the panel stretch the full viewport height. */
   @media (max-width: 760px) {
     #title {
       font-size: 13px !important;
-      padding: 6px 10px !important;
-      top: 10px !important; left: 10px !important;
+      padding: 5px 12px !important;
+      top: 8px !important;
+      /* keep left:50% + transform:translateX(-50%) from desktop */
     }
     #legend {
-      padding: 8px 10px !important;
-      max-width: 60vw !important;
-      font-size: 10px !important;
-      top: 50px !important; left: 10px !important;
+      /* desktop anchor: bottom + right — keep both, just shrink */
+      bottom: 80px !important;
+      right: 8px !important;
+      padding: 7px 10px !important;
+      font-size: 9.5px !important;
+      max-width: 50vw !important;
+      max-height: 45vh !important;
+      overflow-y: auto !important;
     }
-    #legend .section-title { font-size: 10px !important; }
-    #legend .scale { height: 10px !important; }
+    #legend .section-title { font-size: 10px !important; margin-bottom: 3px !important; }
+    #legend .section-title:not(.first) { margin-top: 6px !important; }
+    #legend .scale { width: 100px !important; height: 8px !important; }
     #legend .scale-labels { font-size: 8.5px !important; }
-    #legend .layer-key { font-size: 9.5px !important; gap: 5px !important; }
-    #legend .swatch { width: 12px !important; height: 12px !important; }
+    #legend .layer-key { font-size: 9.5px !important; gap: 5px !important; margin-top: 2px !important; }
+    #legend .swatch { width: 10px !important; height: 8px !important; }
     #ts-panel {
-      bottom: 80px !important;            /* clear of nav arrows */
-      left: 10px !important;
-      max-width: calc(100vw - 20px) !important;
+      /* desktop anchor: bottom + left — keep both */
+      bottom: 80px !important;
+      left: 8px !important;
+      max-width: calc(50vw - 14px) !important;
     }
     #ts-panel canvas {
-      width: calc(100vw - 40px) !important;
+      width: 100% !important;
       max-width: 100% !important;
       height: auto !important;
     }
     #controls {
-      left: 50% !important;
-      transform: translateX(-50%) !important;
-      bottom: 80px !important;             /* clear of nav arrows */
-      flex-wrap: wrap !important;
+      /* desktop anchor: bottom + left:50% + transform — keep all */
+      bottom: 80px !important;
       max-width: calc(100vw - 20px) !important;
       gap: 6px !important;
       padding: 8px 12px !important;
+      flex-wrap: wrap !important;
     }
     #controls.collapsed {
       padding: 6px 10px !important;
     }
     #controls button, #controls select {
       font-size: 11px !important;
-      padding: 6px 10px !important;
+      padding: 5px 9px !important;
     }
     #controls .ctl-label { font-size: 11px !important; }
     #controls input[type=range] {
       flex: 1 1 100% !important;
-      min-width: 200px !important;
+      min-width: 180px !important;
     }
   }
 </style>

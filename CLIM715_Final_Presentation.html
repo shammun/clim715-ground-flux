@@ -3043,9 +3043,16 @@ var MOBILE_CSS =
     '@media (max-width: 760px) {' +
     '  html, body {' +
     '    height: auto !important;' +
-    '    min-height: 100vh;' +
+    '    min-height: 0 !important;' +
     '    overflow-y: auto !important;' +
     '    overflow-x: hidden;' +
+    '  }' +
+    /* Layout containers must NOT flex-grow on mobile, otherwise they
+       expand to fill the viewport while the (correctly-sized) SVG inside
+       stays short — leaving empty space above and below the chart. */
+    '  .plot-card, .interp-card, .reasoning-card, .findings,' +
+    '  .panels, .panels-2x2, .content {' +
+    '    flex: none !important;' +
     '  }' +
     '  .title-bar {' +
     '    padding: 14px 14px 6px !important;' +
