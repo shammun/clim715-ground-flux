@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q&amp;A Guide &mdash; CLIM-715 Final Project Presentation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html {
+            font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+            background: #1a1a2e; color: #e0e0e0;
+            line-height: 1.65;
+        }
+        .header {
+            position: sticky; top: 0; z-index: 10;
+            padding: 18px 40px; background: #16213e;
+            border-bottom: 2px solid #0f3460;
+            display: flex; align-items: baseline; gap: 24px; flex-wrap: wrap;
+        }
+        .header h1 {
+            font-size: 22px; font-weight: 700; color: #4fc3f7;
+        }
+        .header .subtitle {
+            font-size: 14px; color: #80cbc4;
+        }
+        .header .count {
+            margin-left: auto; font-size: 12.5px; color: #78909c;
+        }
+        .container {
+            max-width: 1100px; margin: 0 auto; padding: 30px 40px 80px 40px;
+        }
+        .toc {
+            background: #16213e; border-left: 3px solid #4fc3f7;
+            padding: 16px 22px; border-radius: 4px; margin-bottom: 28px;
+        }
+        .toc h2 {
+            font-size: 13px; color: #4fc3f7; text-transform: uppercase;
+            letter-spacing: 1.5px; margin-bottom: 10px; font-weight: 700;
+        }
+        .toc ul {
+            list-style: none; display: grid;
+            grid-template-columns: 1fr 1fr; gap: 4px 18px;
+        }
+        .toc a {
+            color: #b0bec5; text-decoration: none; font-size: 13.5px;
+            padding: 2px 0; display: block;
+        }
+        .toc a:hover { color: #4fc3f7; }
+        .section-title {
+            font-size: 15px; color: #4fc3f7; text-transform: uppercase;
+            letter-spacing: 1.5px; font-weight: 700;
+            margin: 32px 0 14px 0; padding-bottom: 6px;
+            border-bottom: 1px solid #0f3460;
+        }
+        .qa {
+            background: #16213e;
+            border-radius: 6px;
+            padding: 18px 24px;
+            margin-bottom: 14px;
+            border-left: 3px solid #37474f;
+            transition: border-color 0.2s;
+        }
+        .qa:hover { border-left-color: #4fc3f7; }
+        .qa .q {
+            font-size: 16.5px; font-weight: 700; color: #80cbc4;
+            margin-bottom: 10px;
+        }
+        .qa .q .num {
+            display: inline-block;
+            color: #4fc3f7; font-family: 'Cascadia Code', Consolas, monospace;
+            font-size: 13px; margin-right: 6px;
+        }
+        .qa .a {
+            font-size: 15px; color: #cfd8dc; line-height: 1.72;
+        }
+        .qa .a p { margin-bottom: 10px; }
+        .qa .a p:last-child { margin-bottom: 0; }
+        .qa .a code {
+            font-family: 'Cascadia Code', Consolas, monospace;
+            background: #0f3460; color: #80cbc4; padding: 1px 5px;
+            border-radius: 3px; font-size: 13.5px;
+        }
+        .qa .a em {
+            color: #ffb74d; font-style: normal; font-weight: 600;
+        }
+        .footer {
+            margin-top: 40px; padding-top: 16px;
+            border-top: 1px solid #0f3460;
+            color: #78909c; font-size: 13px; text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Q&amp;A Guide</h1>
+        <div class="subtitle">CLIM-715 Final Project &middot; Anticipated questions and answers</div>
+        <div class="count">20 questions across 4 categories</div>
+    </div>
+
+    <div class="container">
+
+        <div class="toc">
+            <h2>Table of contents</h2>
+            <ul>
+                <li><a href="#nm">Numerical methods (Q1–Q7)</a></li>
+                <li><a href="#pi">Physical interpretation (Q8–Q12)</a></li>
+                <li><a href="#mc">Methodology choices (Q13–Q17)</a></li>
+                <li><a href="#le">Limitations &amp; extensions (Q18–Q20)</a></li>
+            </ul>
+        </div>
+
+        <!-- =================== NUMERICAL METHODS =================== -->
+        <div class="section-title" id="nm">Numerical methods</div>
+
+        <div class="qa">
+            <div class="q"><span class="num">Q1.</span> Why use the conductivity form of the heat equation rather than the diffusivity form?</div>
+            <div class="a">
+                <p>The two forms are equivalent only when <em>λ and C are constant</em>. The conductivity form keeps λ inside the spatial derivative — <code>C ∂T/∂t = ∂/∂z(λ ∂T/∂z)</code> — while the diffusivity form absorbs C into a single thermal diffusivity κ = λ/C and writes <code>∂T/∂t = ∂/∂z(κ ∂T/∂z)</code>.</p>
+                <p>In our layered substrates λ and C jump by an order of magnitude across layer interfaces. The concrete-roof column has λ going from 1.5 in the deck to 0.04 in the insulation — a factor-of-37 jump. C drops by a factor of 26 across the same interface. If we discretise the diffusivity form, that factor κ = λ/C is what we average across the interface, and the discrete heat content is <em>not</em> conserved exactly across the jump. The conductivity form, with the harmonic mean of λ at the half-level, conserves the discrete heat flux exactly across any λ discontinuity by construction. It is the standard finite-volume choice for layered substrates.</p>
+            </div>
+        </div>
+
+        <div class="qa">
+            <div class="q"><span class="num">Q2.</span> Why the harmonic mean for the half-level conductivity? Where does it come from?</div>
+            <div class="a">
+                <p>It comes from solving the steady one-dimensional conduction problem across a two-material interface. If you have material A with conductivity λ_A and thickness Δz_A, and material B with conductivity λ_B and thickness Δz_B, in steady state the flux is constant across both materials, and the effective conductivity that reproduces the correct flux from the temperature drop across the combined interval is <code>λ_eff = (Δz_A + Δz_B) / (Δz_A/λ_A + Δz_B/λ_B)</code> — a thickness-weighted harmonic mean.</p>
+                <p>For two adjacent grid cells of equal thickness, that simplifies to <code>λ_½ = 2 λ_A λ_B / (λ_A + λ_B)</code>. The arithmetic mean would over-estimate the flux by a factor of about <code>(λ_A/λ_B)/2</code> for our concrete-over-insulation interface — that is roughly nineteen, meaning insulation would barely block any heat. The harmonic mean is correct in the steady-state limit, which is the relevant limit for the thin interface region we are modelling at each time step.</p>
+            </div>
+        </div>
+
+        <div class="qa">
+            <div class="q"><span class="num">Q3.</span> Where does the FTCS stability bound ν ≤ 1/2 actually come from?</div>
+            <div class="a">
+                <p>From von Neumann analysis. We substitute a single Fourier mode <code>T_j^n = A^n exp(i k j Δz)</code> into the FTCS finite-difference equation on a uniform grid with constant κ. After algebra, the per-step amplification factor is <code>A_FTCS(ν, kΔz) = 1 − 2ν(1 − cos kΔz)</code>, where ν = κ Δt / Δz².</p>
+                <p>Stability requires |A| ≤ 1 for every wavenumber the grid can resolve, that is for every kΔz in [0, π]. The factor (1 − cos kΔz) is largest at kΔz = π — the so-called 2-Δz wave, the shortest wavelength on the grid. At kΔz = π, A_FTCS = 1 − 4ν, and |1 − 4ν| ≤ 1 requires ν ≤ 1/2. This is the textbook FTCS bound for the diffusion equation. Equivalently, Δt ≤ (1/2) Δz² / κ.</p>
+            </div>
+        </div>
+
+        <div class="qa">
+            <div class="q"><span class="num">Q4.</span> Why is Crank–Nicolson second-order in time but BTCS only first-order, when both are implicit?</div>
+            <div class="a">
+                <p>Both schemes solve a linear system at each step, so "implicit vs explicit" does not by itself decide accuracy order. What decides accuracy order is <em>where in the time interval the right-hand side is evaluated</em>.</p>
+                <p>BTCS evaluates the flux divergence entirely at the new time level n+1. That is a one-sided rule, equivalent to the backward-Euler quadrature for the time integral — accurate only to first order in Δt. Crank–Nicolson averages the flux divergence at time levels n and n+1, which is the trapezoidal rule for the time integral — accurate to second order in Δt. The trapezoidal rule cancels the leading error term that the one-sided rules carry.</p>
+                <p>You can read this off the θ-method's α parameter directly. The leading truncation error has a factor of (½ − α) Δt times a second derivative; α = ½ kills that factor exactly, leaving the next-order term, which is O(Δt²).</p>
+            </div>
+        </div>
+
+        <div class="qa">
+            <div class="q"><span class="num">Q5.</span> What does it mean that A_CN(ν, π) approaches minus one as ν grows large? Is that bad?</div>
+            <div class="a">
+                <p>It means the worst-case 2-Δz wave is preserved in magnitude — |A| stays at one — but its sign flips at every step. That is an oscillation, not a blow-up. Energy is not amplified, but the wave is also not damped.</p>
+                <p>Compared to BTCS, where A_BTCS(ν, π) = 1/(1 + 4ν) → 0 as ν → ∞ — strict damping of the worst wave — Crank–Nicolson is a weaker damper at coarse resolution. For smooth initial conditions and smooth forcing, this is harmless. For initial conditions or forcing with sharp features at the 2-Δz wavelength — for example, a shock or a noisy boundary condition — CN can ring. In the present project we never see this issue because our forcing is smooth and our solutions are well-resolved spatially. But it is the reason CN is sometimes paired with a bit of artificial dissipation in operational codes.</p>
+            </div>
+        </div>
+
+        <div class="qa">
+            <div class="q"><span class="num">Q6.</span> Why use a banded (tridiagonal) solver? Could you not just use a generic linear-algebra routine?</div>
+            <div class="a">
+                <p>The implicit linear system <code>A T^{n+1} = b</code> for our discretised heat equation is <em>tridiagonal</em>: each cell is coupled only to its two immediate neighbours through the half-level fluxes, so A has nonzero entries only on the main diagonal and the two adjacent diagonals. Everything else is zero.</p>
+                <p>A generic linear solver costs O(N³) per solve. A tridiagonal solver — Thomas's algorithm, implemented as <code>scipy.linalg.solve_banded((1,1), ab, rhs)</code> — costs O(N) per solve. For our N = 24–30 cells per column the practical speed difference is small, but the structural difference matters: with a tridiagonal solver, doubling the resolution doubles the cost, not multiplies it by eight. That is the operational reason every land surface model uses a banded solver for the column.</p>
+            </div>
+        </div>
+
+        <div class="qa">
+            <div class="q"><span class="num">Q7.</span> Why use the analytical Jacobian for Newton iteration instead of a finite-difference Jacobian?</div>
+            <div class="a">
+                <p>Newton's method has quadratic convergence near the root only if the Jacobian is exact. With a finite-difference Jacobian, we either use a perturbation that is too small — so floating-point cancellation contaminates the derivative — or too large — so the linear approximation is no longer accurate near the root. Either way, we lose the quadratic convergence and pick up noise in the iterates.</p>
+                <p>For our SEB residual, the Jacobian is straightforward to write down analytically: <code>dF/dT_s = −4 ε σ T_s³ − ρ c_p / r_a − λ_½ / Δz_½</code>. All three terms are smooth functions of T_s, with no special-case logic needed. With this analytical Jacobian and a warm start from the previous time step, Newton converges in three to five iterations to a tolerance of 10⁻⁴ K — essentially free. A finite-difference Jacobian would cost roughly the same wall clock but with worse convergence properties.</p>
+            </div>
+        </div>
+
+        <!-- =================== PHYSICAL INTERPRETATION =================== -->
+        <div class="section-title" id="pi">Physical interpretation</div>
+
+        <div class="qa">
+            <div class="q"><span class="num">Q8.</span> What is the diurnal damping depth physically? Why does it have that particular formula?</div>
+            <div class="a">
+                <p>It is the depth at which a sinusoidal temperature wave at the surface, with frequency ω, has decayed to e⁻¹ ≈ 37 percent of its surface amplitude. Solving the heat equation in a semi-infinite medium with sinusoidal Dirichlet forcing <code>T_s(0,t) = T̄ + A cos(ωt)</code> gives the solution <code>T(z,t) = T̄ + A exp(−z/d) cos(ωt − z/d)</code> with <code>d = √(2κ/ω)</code>.</p>
+                <p>The square-root structure says: faster-diffusing materials (larger κ) feel the surface signal deeper; faster cycles (larger ω) decay to nothing closer to the surface. For our diurnal forcing ω = 2π/86400 s⁻¹ and κ on the order of 10⁻⁷ m² s⁻¹, that gives d on the order of ten centimetres. That is the centimetre-to-decimetre scale we have to resolve numerically. For the annual cycle, ω is 365 times smaller, so d is √365 ≈ 19 times larger — about two metres — which is exactly why we extend the column to z = 2 m and use the zero-flux Neumann floor there.</p>
+            </div>
+        </div>
+
+        <div class="qa">
+            <div class="q"><span class="num">Q9.</span> Why does the surface ground heat flux lead the surface temperature by π/4?</div>
+            <div class="a">
+                <p>The flux at the surface is <em>proportional to the temperature gradient</em>, not to the temperature itself: <code>G(0,t) = −λ ∂T/∂z|_{z=0}</code>. For the analytical solution <code>T(z,t) = T̄ + A exp(−z/d) cos(ωt − z/d)</code>, taking the derivative in z and evaluating at z = 0 gives a sum of a cosine and a sine of ωt, which combines via the trigonometric identity into <code>G(0,t) = λ(A/d)√2 cos(ωt + π/4)</code>.</p>
+                <p>So the flux peaks π/4 in phase before the temperature peaks. For a 24-hour cycle, π/4 of 24 hours is 3 hours. Physically: when the surface is warming most rapidly, the gradient at the surface is steepest, so the conductive flux into the substrate is largest — and that moment occurs in mid-morning, before the actual surface temperature peak around solar noon. The substrate begins absorbing heat before the surface gets hottest, and stops absorbing heat (then starts releasing) before the surface gets coldest.</p>
+            </div>
+        </div>
+
+        <div class="qa">
+            <div class="q"><span class="num">Q10.</span> Why does the bare soil column reach the highest peak surface temperature, despite having a lower albedo than asphalt?</div>
+            <div class="a">
+                <p>This is a surprise that turns out to be a thermal-diffusivity story. The bare soil κ is 2.31 × 10⁻⁷ m² s⁻¹ — the lowest of the three substrates. Asphalt is 3.75 × 10⁻⁷, concrete is 7.14 × 10⁻⁷. Low κ means absorbed heat cannot diffuse downward fast enough to keep the surface cool.</p>
+                <p>Combined with the strict-impervious assumption (LE = 0), all the absorbed shortwave that is not radiated back as longwave or carried away by sensible heat must be stored in the very top centimetre or two of the column. The bare soil's low diffusivity concentrates that energy near the surface, so the surface temperature climbs higher than the asphalt's, even though the asphalt is darker. The concrete roof peaks lowest because its higher albedo (0.30) means it absorbs less shortwave to begin with — and once absorbed, its higher diffusivity spreads the heat downward more easily.</p>
+            </div>
+        </div>
+
+        <div class="qa">
+            <div class="q"><span class="num">Q11.</span> What is the operator-splitting error physically? In what sense is the system being driven toward the wrong equilibrium?</div>
+            <div class="a">
+                <p>At each time step we do two things in sequence: (1) advance the soil column with the current T_s⁰ held as a Dirichlet boundary, and (2) update T_s⁰ from the SEB using the new T_1. In the limit Δt → 0 this sequencing is fine because nothing changes much between the two sub-steps. At finite Δt, the sub-step (1) drives the column toward thermal equilibrium with a stale T_s⁰ — the value of T_s⁰ at the start of the step. By the time we get to sub-step (2), T_s⁰ should have already moved partway toward its end-of-step value, but the column does not see that movement.</p>
+                <p>The result is that the gradient at the top half-level is steeper than it should be — the column is "behind" the surface — and BTCS, which evaluates the diffusion operator entirely at the post-swing temperature, amplifies that artificially-steep gradient. Crank–Nicolson does so to half the extent because half its weight is on the start-of-step state, where the gradient was correct. This is exactly the wrong-equilibrium pathology described in Notes #10 Section 8 of the course material: running an implicit fast process first, without including the other tendencies, drives the system toward an equilibrium with respect to only one process.</p>
+            </div>
+        </div>
+
+        <div class="qa">
+            <div class="q"><span class="num">Q12.</span> Why is κ_top — the top-cell thermal diffusivity — the dominant predictor of BTCS coarse-Δt error in your SHAP analysis?</div>
+            <div class="a">
+                <p>Mechanistically, κ_top sets the speed at which the top cell responds to changes in the surface temperature. Higher κ_top means the top cell relaxes toward equilibrium with T_s⁰ faster, which means the column-then-SEB splitting introduces a larger gradient swing per Δt. Lower κ_top means the top cell barely moves between the two sub-steps, so the splitting error is small.</p>
+                <p>Quantitatively, if you write the splitting error as a leading-order Taylor term in Δt, the prefactor in front of Δt scales with κ_top — the same parameter that sets the FTCS stability bound. So the FTCS stability story and the BTCS coarse-Δt error story are <em>the same physics</em> seen from two different angles: in FTCS, κ_top sets the maximum Δt before stability collapses; in BTCS at coarse Δt, κ_top sets the prefactor of the splitting-error term. The SHAP attribution recovers this connection empirically: R² = 0.92 from κ_top alone, with mean |SHAP| = 0.71 K versus 0.18–0.20 K for the next two features.</p>
+            </div>
+        </div>
+
+        <!-- =================== METHODOLOGY CHOICES =================== -->
+        <div class="section-title" id="mc">Methodology choices</div>
+
+        <div class="qa">
+            <div class="q"><span class="num">Q13.</span> Why N = 150 substrate columns for the SHAP ensemble? Why not 50 or 1500?</div>
+            <div class="a">
+                <p>Three constraints set the choice. First, each column requires running BTCS at Δt = 600 s and a reference at Δt = 15 s for two diurnal cycles, taking about one second per column on a laptop — so total runtime scales linearly with N. Second, gradient-boosted regression with six features and SHAP attribution needs at least a few dozen samples to give stable feature rankings. Third, the in-sample R² of 0.96 versus the 5-fold cross-validated R² of 0.61 indicates we are using up most of the discriminating power our six features can extract — going to 1500 would not reduce the gap unless we also widened the feature set.</p>
+                <p>So N = 150 is a compromise: big enough to give reliable feature rankings (the bootstrap on the SHAP values is tight), small enough to run in three minutes on a laptop. The conclusions are about <em>feature ordering</em>, which is robust at this n. Absolute SHAP magnitudes have a few percent of uncertainty, which is acknowledged in §6.4 of the report.</p>
+            </div>
+        </div>
+
+        <div class="qa">
+            <div class="q"><span class="num">Q14.</span> Why two days of integration in Test 2? Would five days change the results?</div>
+            <div class="a">
+                <p>The damping-depth initialisation places the column close to diurnal quasi-equilibrium at t = 0. The first day of integration absorbs the 12-hour phase mismatch between the analytical initial profile (which peaks at t = 0) and the SEB-driven cycle (which peaks at 14:00 LT). By the start of day 2 the column is at quasi-equilibrium, and day 2 is what we use for diagnostics.</p>
+                <p>I checked five days during development and the day-5 metrics differed from day-2 metrics by less than one percent — well below the differences between schemes, which is what the experiment is designed to measure. Two days is the cheapest length that gives a clean day-2 diagnostic. If we had cold-started from a uniform T_s, we would need three to four days of spin-up, but the damping-depth init removes that need.</p>
+            </div>
+        </div>
+
+        <div class="qa">
+            <div class="q"><span class="num">Q15.</span> Why is the wind speed held constant?</div>
+            <div class="a">
+                <p>For two reasons. First, methodological clarity: holding U constant isolates the scheme-comparison signal from a confounding diurnal variation in the aerodynamic resistance r_a = 1/(C_H U). If U varied with time, the SEB residual would have an additional structure that mixes scheme errors with forcing structure, making the comparison harder to interpret.</p>
+                <p>Second, a benign simplification it enables: with constant U, the Newton SEB Jacobian's wind-dependent term r_a = 1/(C_H U) has the same value at every time step. The code evaluates this at t = 0 and reuses it. If U were time-varying, the Jacobian would need to be re-evaluated each Newton step. This is a noted limitation in §5.4 (iv) of the report — the scheme comparison would need to be re-validated under time-varying U with a correspondingly re-evaluated Jacobian, but I do not expect the qualitative ordering of schemes to change.</p>
+            </div>
+        </div>
+
+        <div class="qa">
+            <div class="q"><span class="num">Q16.</span> Why is LE = 0? How would your conclusions change with non-zero LE?</div>
+            <div class="a">
+                <p>The strict-impervious assumption is a fair model of newly paved asphalt or a sealed concrete roof. It is a less fair model of bare soil — moist soil has a non-trivial latent flux even without irrigation. And it underestimates real cities, where anthropogenic moisture from irrigation, AC condensate, and wet streets gives a Bowen-ratio-ish β around 0.05 to 0.10 even over pavement.</p>
+                <p>Adding non-zero LE — for example, replacing LE = 0 with LE = H/β for a fixed β — would (a) lower the daytime peak surface temperatures, especially on bare soil, by carrying more energy away as evaporation; (b) reduce the peak G during the day, since less energy is going into the substrate; (c) add a third nonlinear term to the SEB Jacobian, but the Newton iteration would still converge in 3–5 steps; and (d) <em>not</em> change the qualitative scheme comparison, because the operator-splitting error scales with κ_top, which is a substrate property unaffected by LE. I expect the percentage over-amplification by BTCS at Δt = 600 s would shift, but the ordering — paved surfaces worse than soil, BTCS worse than CN by about a factor of two — would survive.</p>
+            </div>
+        </div>
+
+        <div class="qa">
+            <div class="q"><span class="num">Q17.</span> Why a stretched grid instead of a uniform fine grid?</div>
+            <div class="a">
+                <p>The diurnal damping depth is centimetres in our substrates. The seasonal damping depth and the column's slow thermal memory both extend to metres. A uniform 1-cm grid covering 2 m would be 200 cells — manageable at FTCS Δt = 15 s, but expensive at BTCS Δt = 15 s where each step requires a tridiagonal solve. A uniform 10-cm grid would be cheap but would miss the diurnal damping zone entirely.</p>
+                <p>A geometric stretched grid with Δz₀ ≈ 0.5 cm at the surface, ratio ≈ 1.20, deepest cell ≈ 30 cm, gets us about 24–30 cells covering 2 m: fine where it matters, coarse where it doesn't. This is the standard convention in operational urban canopy schemes (e.g., TEB, Masson 2000). The harmonic mean at half-levels makes this work cleanly across material interfaces in the layered substrates.</p>
+            </div>
+        </div>
+
+        <!-- =================== LIMITATIONS & EXTENSIONS =================== -->
+        <div class="section-title" id="le">Limitations &amp; extensions</div>
+
+        <div class="qa">
+            <div class="q"><span class="num">Q18.</span> If the operator-splitting error is the dominant error, how would you remove it structurally?</div>
+            <div class="a">
+                <p>The lecture-prescribed cure is in Notes #10 Section 8: solve the SEB row directly inside the tridiagonal substrate solve. Concretely, you augment the column's tridiagonal system with one extra row and one extra column representing the SEB residual at the surface, and solve the augmented (linear-after-Newton-linearisation) system as one. The two processes are no longer split — they are coupled at every Newton iteration of every time step.</p>
+                <p>The cost is small: the augmented system is still nearly tridiagonal (it has at most one extra non-zero per row from the SEB coupling), and the Newton iteration still converges in 3–5 steps. The benefit is that the first-order splitting error vanishes, leaving only the per-substep truncation error of the underlying scheme — which for CN is second-order. A back-of-the-envelope estimate is that fully-coupled CN would halve the BTCS-versus-CN error gap relative to the un-split version, and would also recover the second-order Δt-refinement scaling we did not see in the project.</p>
+            </div>
+        </div>
+
+        <div class="qa">
+            <div class="q"><span class="num">Q19.</span> What is Strang splitting, and why is it cheaper than fully coupled solution?</div>
+            <div class="a">
+                <p>The standard column-then-SEB ordering — call it scheme A then scheme B at full Δt — has a splitting error that is first-order in Δt. Strang splitting reorganises this as A at Δt/2, then B at full Δt, then A at Δt/2 — symmetrising the operator order. The leading splitting-error term cancels in the symmetric sandwich, leaving an O(Δt²) splitting error.</p>
+                <p>Cost comparison: the standard split takes one A-step plus one B-step per Δt. Strang takes two A-steps (each of half-Δt) plus one B-step. So Strang is cheaper than fully-coupled solution because it does not require an augmented linear system; it only requires the same column solver, called twice per Δt. The cost increase is roughly fifty percent of the standard split, but the splitting error drops by an order of magnitude at fixed Δt. Strang splitting is the natural intermediate step before going all the way to a fully-coupled solve.</p>
+            </div>
+        </div>
+
+        <div class="qa">
+            <div class="q"><span class="num">Q20.</span> How would these results connect to a real urban canopy scheme like WRF-SLUCM or WRF-TEB?</div>
+            <div class="a">
+                <p>Urban canopy schemes typically run with Δt = 60 s in WRF mesoscale mode. At that time step, my results show a 4–6 percent over-amplification of the diurnal G cycle on paved surfaces with BTCS, dropping to 2 percent on bare soil. That is small enough that the simulated nocturnal urban heat island intensity has only a percent-level bias, but large enough that the simulated diurnal range of the UHI is inflated.</p>
+                <p>The natural follow-up is to take this diagnostic framework — the FTCS reference at Δt = 15 s, the BTCS and CN runs at coarser Δt, the cross-substrate quantitative summary — and apply it to an offline run of WRF-SLUCM or WRF-TEB with a real city's substrate composition (a tile-weighted mix of asphalt, concrete, soil, vegetation, water) and flux-tower-derived forcing instead of synthetic. Because real cities are tile-weighted averages of multiple facets, the urban-mean G error would be a weighted combination of the per-facet errors. The dominant contributors would be the high-κ_top tiles — concrete roofs, dense pavement — which the SHAP analysis already identifies. That gives a tractable path from this idealised study to operational relevance.</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            CLIM-715 Numerical Methods for Climate and Weather Modeling &middot; Final Project (40% of grade)
+            <br>Companion to <code>CLIM715_Final_Presentation.html</code> and <code>CLIM715_speaker_notes.html</code>.
+        </div>
+    </div>
+</body>
+</html>

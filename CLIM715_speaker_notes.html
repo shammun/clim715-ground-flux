@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speaker Notes &mdash; CLIM-715 Final Project Presentation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html {
+            width: 100vw; height: 100vh;
+            overflow: hidden;
+            font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+            background: #1a1a2e; color: #e0e0e0;
+        }
+        .top-bar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 32px; background: #16213e;
+            border-bottom: 2px solid #0f3460; flex-shrink: 0;
+        }
+        .slide-indicator { font-size: 22px; font-weight: 700; color: #4fc3f7; }
+        .slide-title { font-size: 18px; font-weight: 600; color: #b0bec5; flex: 1; margin-left: 24px; }
+        .timer {
+            font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums;
+            color: #78909c; min-width: 90px; text-align: right;
+        }
+        .timer.running { color: #4fc3f7; }
+        .nav-hint {
+            display: flex; align-items: center; gap: 18px;
+            padding: 8px 32px; background: #16213e;
+            border-bottom: 1px solid #0f3460;
+            font-size: 12px; color: #546e7a; flex-shrink: 0;
+        }
+        .nav-hint kbd {
+            background: #263238; color: #80cbc4;
+            padding: 2px 8px; border-radius: 3px;
+            font-family: monospace; font-size: 12px; border: 1px solid #37474f;
+        }
+        .notes-container {
+            flex: 1; overflow-y: auto; padding: 28px 40px 40px 40px;
+        }
+        .note-paragraph {
+            font-size: 18px; line-height: 1.75; color: #e0e0e0;
+            margin-bottom: 16px; padding-left: 20px; position: relative;
+        }
+        .note-paragraph::before {
+            content: '\25B8'; position: absolute; left: 0; color: #4fc3f7;
+        }
+        .bottom-bar {
+            display: flex; align-items: center; justify-content: center;
+            padding: 10px 32px; background: #16213e;
+            border-top: 2px solid #0f3460; gap: 6px; flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+        .dot {
+            width: 22px; height: 22px; border-radius: 50%;
+            background: #263238; border: 2px solid #37474f;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; color: #546e7a; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .dot.active  { background: #0f3460; border-color: #4fc3f7; color: #4fc3f7; font-weight: 700; }
+        .dot.visited { border-color: #1a5276; color: #4fc3f7; }
+        .sync-status {
+            position: fixed; bottom: 50px; right: 20px;
+            font-size: 11px; padding: 4px 10px; border-radius: 3px; pointer-events: none;
+        }
+        .sync-status.connected    { background: rgba(76,175,80,0.15);  color: #66bb6a; }
+        .sync-status.disconnected { background: rgba(244,67,54,0.15);  color: #ef5350; }
+    </style>
+</head>
+<body style="display:flex; flex-direction:column;">
+    <div class="top-bar">
+        <div class="slide-indicator" id="slideIndicator">Slide 1</div>
+        <div class="slide-title" id="slideTitle">Title</div>
+        <div class="timer" id="timer">0:00</div>
+    </div>
+    <div class="nav-hint">
+        <span><kbd>M</kbd> Next slide</span>
+        <span><kbd>K</kbd> Prev slide</span>
+        <span><kbd>T</kbd> Toggle timer</span>
+        <span><kbd>R</kbd> Reset timer</span>
+        <span style="margin-left:auto;color:#80cbc4;">Synced to the deck via BroadcastChannel &mdash; advances both windows together.</span>
+    </div>
+    <div class="notes-container" id="notesContainer"></div>
+    <div class="bottom-bar" id="dotsBar"></div>
+    <div class="sync-status" id="syncStatus"></div>
+
+    <script>
+        // 13 entries — one per displayed slide of the deck. Display order matches
+        // SLIDE_ORDER in CLIM715_Final_Presentation.html.
+        var slides = [
+            {
+                title: "Title",
+                paragraphs: [
+                    "Good morning. I'm Shammunul Islam, and today I'm presenting my CLIM-715 course project on the numerical treatment of the one-dimensional ground heat conduction equation, applied to three urban substrate columns: an asphalt road, a concrete roof with insulation, and a bare soil reference. The project compares three classical time-stepping schemes — explicit forward Euler, implicit backward Euler, and Crank–Nicolson — coupled to a fully prognostic surface energy balance solved by Newton iteration."
+                ]
+            },
+            {
+                title: "Why does the ground heat flux deserve numerical care?",
+                paragraphs: [
+                    "Of the four components of the surface energy budget — net radiation, sensible heat, latent heat, and the conductive ground flux — the ground flux is the smallest by daily mean, but it is the single largest control on the diurnal range of surface temperature. During the day, pavements and roofs absorb shortwave radiation and store heat in the substrate. At night, that stored heat is released back to the surface, and that release is what sustains the urban heat island for hours after sunset.",
+                    "The diurnal damping depth — the depth at which the daily temperature wave decays to about thirty-seven percent of its surface amplitude — is roughly 8 centimetres in dry soil, 10 in asphalt, and 14 in concrete for the substrates I simulate. That length scale is small, which is why operational urban canopy schemes use centimetre-scale near-surface layers. And once we have centimetre-scale layers, the FTCS stability bound becomes about 17 seconds for a half-centimetre concrete cell — far below any operational mesoscale time step. So errors in the numerical treatment of the ground flux propagate directly into the simulated nocturnal urban heat island."
+                ]
+            },
+            {
+                title: "The three substrate columns",
+                paragraphs: [
+                    "This is a 3-D view of the three substrate columns I simulate. Each column is two metres deep. The asphalt road has four layers — asphalt, aggregate, dry soil, and subsoil. The concrete roof has three layers — concrete deck, mineral-wool insulation, and a drywall and wood interior. The bare soil reference is a single uniform sandy loam. These are not real city geometries — they are idealised one-dimensional columns chosen to span a wide range of behaviours: a moderately conductive surface over a heterogeneous subgrade, a moderately conductive surface over an extreme insulator, and a uniform low-conductivity reference."
+                ]
+            },
+            {
+                title: "1-D heat equation + θ-method",
+                paragraphs: [
+                    "The governing physics is the one-dimensional vertical heat conduction equation in conductivity form. The volumetric heat capacity times the rate of change of temperature equals the spatial divergence of the conductive flux. I use the conductivity form rather than the diffusivity form because the layered substrates have lambda and C that jump by an order of magnitude across interfaces, and the conductivity form preserves the discrete heat content exactly across those jumps.",
+                    "Spatial discretisation is on a stretched grid — half a centimetre at the surface, growing geometrically to about 30 centimetres at depth — to resolve the centimetre-scale damping zone at the surface while keeping the column thermally complete to two metres. Conductivity at half-levels uses the harmonic mean, which preserves the heat flux exactly across a discontinuity in lambda. The arithmetic mean would over-estimate the flux across the concrete-to-insulation interface by roughly a factor of nineteen.",
+                    "For time stepping, all three schemes are unified under a single alpha-weighted theta-method. Alpha equals zero is FTCS, alpha equals one half is Crank–Nicolson, alpha equals one is BTCS. One implementation, three schemes — which means a bug in the spatial discretisation cannot make any one scheme look better than another in the comparison. Top boundary is the surface energy balance, solved for T-s-zero by Newton iteration. Bottom boundary is zero-flux Neumann at z equals two metres."
+                ]
+            },
+            {
+                title: "Von Neumann amplification factors — live",
+                paragraphs: [
+                    "This is the von Neumann analysis I derived in section 2.5 of the report, made interactive. Three panels — FTCS, BTCS, Crank–Nicolson — showing the magnitude of the amplification factor against the dimensionless wavenumber k delta z. The slider controls nu — the diffusion number, which is kappa delta t over delta z squared. The dashed horizontal line is the stability bound, magnitude of A equals one.",
+                    "FTCS at nu equals one half sits exactly on the bound at the worst-case 2-delta-z wave at k delta z equals pi. At nu equals one, FTCS amplifies the worst wave by a factor of three — solution blows up. At nu equals five, the factor is nineteen — exponential growth within a few steps.",
+                    "BTCS is bounded for any nu — the amplification factor is one over one plus four nu, always less than one, strictly damping. CN is also bounded, but at large nu the amplification factor at the 2-delta-z wave approaches minus one — the worst wave is preserved in magnitude but flips sign every step. That's a harmless oscillation, not a blow-up."
+                ]
+            },
+            {
+                title: "The 17-second problem",
+                paragraphs: [
+                    "This widget makes the FTCS stability bound concrete for the three substrates. The slider controls delta z; the bars show the resulting maximum stable time step on each column. The vertical reference lines mark 17 seconds, 60 seconds, and 600 seconds — the FTCS bound at half-centimetre concrete, a typical mesoscale time step, and a typical regional climate model time step.",
+                    "At delta z equals half a centimetre, the concrete deck top cell with kappa about 7.1 times 10 to the minus 7 gives a maximum stable time step of about 17 seconds. The asphalt road bound is about 33 seconds. Bare soil with a one-centimetre cell tolerates about 217 seconds.",
+                    "The point is structural. Mesoscale models run with delta t around 60. Regional climate models around 600. Both are well above the FTCS bound at delta z equals half a centimetre on the conductive substrates — the concrete bound is exceeded by a factor of 35. So FTCS is structurally ruled out for any model that resolves the centimetre-scale near-surface layers needed to capture the diurnal damping depth in highly conductive urban materials. Implicit treatment of vertical conduction is not optional — it is required."
+                ]
+            },
+            {
+                title: "Verification: uniform sandy-loam column vs analytic damping-depth",
+                paragraphs: [
+                    "Test 1 verifies the implementation against the closed-form analytical damping-depth solution for a uniform sandy-loam column. Surface temperature is prescribed as a sinusoid; the analytical solution is T-bar plus A times exp of minus z over d times cos of omega t minus z over d, where d equals square root of two kappa over omega — the damping depth, about 8 centimetres for sandy loam.",
+                    "The table shows day-five errors at z equals 10 centimetres for six configurations. FTCS at nu equals 0.4 is fine — RMSE 0.007 K. FTCS at nu equals 0.6 — only twenty percent above the stability bound — destroys the solution within fifty-three steps, exactly consistent with the predicted growth factor of 1.4 per step at the worst wave.",
+                    "The interesting comparison is BTCS versus CN. BTCS error at z equals 10 centimetres grows roughly linearly with delta t — 0.024 K at 300 seconds, 0.062 K at 900. CN error is essentially flat — 0.005 K at 300, 0.006 at 900. This is the second-order temporal accuracy of CN against the first-order accuracy of BTCS, exactly as the textbook predicts. CN at nu equals 2.08 produces a smaller error than FTCS at nu equals 0.4, while using five times fewer time steps."
+                ]
+            },
+            {
+                title: "At small Δt, the choice of scheme is invisible",
+                paragraphs: [
+                    "Now we move to Test 2 — the prognostic SEB integration on the three substrate columns. This slide shows the day-2 surface temperature at delta t equals 15 seconds for all three schemes. The three curves overlay to within visual precision on every substrate. The schemes agree.",
+                    "What you see instead are the substrate differences. Asphalt peaks at fifty degrees Celsius around 1 PM. The concrete roof peaks at forty-five — its higher albedo, 0.30, reflects more incoming sunlight. Bare soil peaks at fifty-one, the highest of the three, despite a low albedo, because its thermal diffusivity is low — heat cannot penetrate downward fast enough — and the latent heat is set to zero. Substrate physics dominates at small delta t. The choice of scheme is invisible at this resolution. Now, what happens at delta t equals 600 seconds?"
+                ]
+            },
+            {
+                title: "Δt-refinement — live",
+                paragraphs: [
+                    "This widget shows the answer. Drag the delta-t slider through 15, 60, and 600 seconds and watch the simulated diurnal G cycle on each substrate. At small delta t the schemes agree. As delta t grows, BTCS starts to over-amplify the daytime peak.",
+                    "On asphalt and the concrete roof at delta t equals 600 seconds, BTCS over-amplifies the diurnal G amplitude by 40 percent. Crank–Nicolson at the same delta t over-amplifies by 21 percent on asphalt and 26 on the roof — about half of BTCS. Bare soil is the least sensitive — 19 percent for BTCS, 10 for CN — because it has the lowest top-cell diffusivity. FTCS at delta t equals 600 seconds blows up on asphalt and on the roof, exactly as the stability theory predicts."
+                ]
+            },
+            {
+                title: "BTCS smears the post-swing gradient at the λ jump",
+                paragraphs: [
+                    "This widget zooms in on the mechanism. Vertical temperature profile through the concrete-roof column at three different delta t values. The conductivity jump at z equals 10 centimetres is a factor of thirty-seven — concrete deck over mineral-wool insulation. That jump concentrates the temperature gradient at the interface.",
+                    "At fine delta t, the BTCS profile matches the reference. At coarse delta t, the profile visibly distorts at the interface — BTCS holds the surface a few Kelvin too warm and rounds off the kink at z equals 10 centimetres.",
+                    "The mechanism is operator splitting. Each step I advance the column with the current T-s-zero held as Dirichlet, then update T-s-zero from the new T-1. At small delta t this is fine. At large delta t, T-s-zero swings further between updates than it should, the gradient at the top half-level is correspondingly steeper, and BTCS evaluates the diffusion operator entirely at the post-swing temperature. This is the wrong-equilibrium pathology warned about in Notes 10 Section 8 of the course material — running an implicit fast process first, without including the other tendencies, drives the system toward the wrong equilibrium."
+                ]
+            },
+            {
+                title: "What is the error, exactly? Δt-refinement ratios",
+                paragraphs: [
+                    "What is the error, exactly? This slide shows the delta-t refinement ratios — the ratio of RMSE at delta t equals 600 seconds to RMSE at delta t equals 60 seconds — for both BTCS and CN across the three substrates.",
+                    "The expected ratio for a first-order error in delta t is ten. For a second-order error, one hundred. The empirical ratios are between 8.2 and 10.2 across all six combinations. Both BTCS and CN show first-order scaling.",
+                    "This is the smoking gun. BTCS by itself is first-order, so a ratio of 10 is consistent. But CN by itself is second-order — we should see a ratio close to 100 if the within-substep CN truncation error were the dominant source. The fact that CN's ratio is also around ten tells us the dominant error is not the within-substep CN truncation — it is the operator-splitting error between the column and the SEB updates. That splitting error is first-order regardless of the per-substep scheme. The factor-of-two reduction in CN error compared to BTCS at fixed delta t is just a prefactor effect — CN's alpha equal to one half splits the post-swing operator evaluation that BTCS retains in full."
+                ]
+            },
+            {
+                title: "SHAP attribution on a 150-column synthetic ensemble",
+                paragraphs: [
+                    "Section 6 of the report uses a machine-learning method to identify which substrate property dominates the BTCS coarse-delta-t error across a wider parameter space than the three idealised substrates can probe. I sample 150 three-layer substrate columns from a wide prior on lambda, C, and layer thicknesses, run each at BTCS delta t equals 600 seconds and a delta t equals 15 seconds reference, and use SHAP attribution on a gradient-boosted regression to rank the substrate descriptors as predictors of the day-2 surface temperature RMSE.",
+                    "The dominant feature is kappa-top — the top-cell thermal diffusivity. Mean absolute SHAP equals 0.71 K. R-squared from kappa-top alone equals 0.92. Bulk admittance is the dominant secondary feature, and layer-interface descriptors are a small but non-zero residual.",
+                    "Why kappa-top? It is the same parameter that sets the FTCS stability bound. It controls how fast the top cell's temperature swings between the column update and the SEB update — which is exactly what controls the operator-splitting error. The connection is mechanistic, not a coincidence. The original three-substrate ordering — bare soil error a quarter of asphalt, asphalt two-thirds of the roof — is reconcilable with this picture: the three substrates differ in kappa-top by exactly the right ratio."
+                ]
+            },
+            {
+                title: "Four findings — and what they mean",
+                paragraphs: [
+                    "Four findings in summary. First — stability is structural. The FTCS bound is set by the most thermally stiff layer on a stretched grid: 33 seconds on asphalt, 17 on concrete. Implicit treatment of vertical conduction is structurally required for any model with centimetre-scale near-surface layers.",
+                    "Second — errors are substrate-dependent and CN halves BTCS at fixed delta t. BTCS and CN are unconditionally stable on every substrate at every time step tested. At delta t equals 600 seconds, BTCS over-amplifies the diurnal G amplitude by 40 percent on asphalt, 41 on the roof, 19 on soil. CN halves these to 21, 26, and 10. Surface temperature RMSE up to 3.7 K on the roof for BTCS at coarse delta t.",
+                    "Third — the dominant error is operator splitting. Both BTCS and CN show delta-t refinement ratios near ten, first-order in delta t regardless of the per-substep scheme. SHAP attribution on the synthetic ensemble identifies kappa-top as the dominant predictor: R-squared equal to 0.92 from kappa-top alone.",
+                    "Fourth — the daily storage integral is preserved across schemes within plus or minus 5 percent. The bias from the over-amplified G cycle is in the diurnal range of the simulated nocturnal urban heat island, not in its mean. The simulated nocturnal warming is larger than reality, and the simulated dawn-time cooling is sharper, but the daily-mean nocturnal warm anomaly is unbiased.",
+                    "The natural follow-up is to remove the splitting error structurally — coupling the SEB row directly into the tridiagonal substrate solve, which is the cure prescribed in Notes 10 Section 8. Strang splitting is a cheaper alternative that recovers second-order accuracy in the splitting itself. Coupling this diagnostic to an offline run of WRF-SLUCM or WRF-TEB for a real city is the natural extension toward operational relevance. Thank you. Happy to take questions."
+                ]
+            }
+        ];
+
+        // Display order: each slot maps to slides[] index. For this 13-slide deck
+        // it is just identity — speaker notes follow the same order as the deck.
+        var NOTE_ORDER = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+
+        var currentSlide = 0;
+        var totalSlides = NOTE_ORDER.length;
+        var timerRunning = false;
+        var timerSeconds = 0;
+        var timerInterval = null;
+
+        // BroadcastChannel name MUST match the presentation's: 'clim715-deck-sync'
+        // (line 3066 of CLIM715_Final_Presentation.html). When this notes window
+        // navigates, the deck advances; when the deck advances, this window follows.
+        var channel = null;
+        var broadcasting = false;
+        try { channel = new BroadcastChannel('clim715-deck-sync'); } catch(e) {}
+
+        function broadcastSlide(n) {
+            if (channel && !broadcasting) {
+                channel.postMessage({ type: 'slide-change', slide: n });
+            }
+        }
+
+        if (channel) {
+            channel.onmessage = function(e) {
+                if (e.data && e.data.type === 'slide-change' && typeof e.data.slide === 'number') {
+                    broadcasting = true;
+                    showSlide(e.data.slide);
+                    broadcasting = false;
+                }
+            };
+            document.getElementById('syncStatus').textContent = 'Sync: connected';
+            document.getElementById('syncStatus').className = 'sync-status connected';
+        } else {
+            document.getElementById('syncStatus').textContent = 'Sync: unavailable';
+            document.getElementById('syncStatus').className = 'sync-status disconnected';
+        }
+
+        function renderDots() {
+            var bar = document.getElementById('dotsBar');
+            bar.innerHTML = '';
+            for (var i = 0; i < totalSlides; i++) {
+                var dot = document.createElement('div');
+                dot.className = 'dot' + (i === currentSlide ? ' active' : (i < currentSlide ? ' visited' : ''));
+                dot.textContent = i + 1;
+                dot.onclick = (function(idx) { return function() { showSlide(idx); }; })(i);
+                bar.appendChild(dot);
+            }
+        }
+
+        function renderNotes() {
+            var data = slides[NOTE_ORDER[currentSlide]];
+            document.getElementById('slideIndicator').textContent = 'Slide ' + (currentSlide + 1) + ' / ' + totalSlides;
+            document.getElementById('slideTitle').textContent = data.title;
+            var container = document.getElementById('notesContainer');
+            container.innerHTML = '';
+            container.scrollTop = 0;
+            data.paragraphs.forEach(function(text) {
+                var p = document.createElement('div');
+                p.className = 'note-paragraph';
+                p.textContent = text;
+                container.appendChild(p);
+            });
+        }
+
+        function showSlide(n) {
+            if (n < 0 || n >= totalSlides) return;
+            currentSlide = n;
+            renderNotes();
+            renderDots();
+            broadcastSlide(n);
+        }
+
+        function nextSlide() { if (currentSlide < totalSlides - 1) showSlide(currentSlide + 1); }
+        function prevSlide() { if (currentSlide > 0) showSlide(currentSlide - 1); }
+
+        function updateTimerDisplay() {
+            var m = Math.floor(timerSeconds / 60);
+            var s = timerSeconds % 60;
+            document.getElementById('timer').textContent = m + ':' + (s < 10 ? '0' : '') + s;
+        }
+
+        function toggleTimer() {
+            if (timerRunning) {
+                clearInterval(timerInterval); timerRunning = false;
+                document.getElementById('timer').classList.remove('running');
+            } else {
+                timerInterval = setInterval(function() { timerSeconds++; updateTimerDisplay(); }, 1000);
+                timerRunning = true;
+                document.getElementById('timer').classList.add('running');
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval); timerRunning = false;
+            timerSeconds = 0; updateTimerDisplay();
+            document.getElementById('timer').classList.remove('running');
+        }
+
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'm' || e.key === 'M') { e.preventDefault(); nextSlide(); }
+            else if (e.key === 'k' || e.key === 'K') { e.preventDefault(); prevSlide(); }
+            else if (e.key === 't' || e.key === 'T') { e.preventDefault(); toggleTimer(); }
+            else if (e.key === 'r' || e.key === 'R') { e.preventDefault(); resetTimer(); }
+        });
+
+        renderNotes();
+        renderDots();
+        updateTimerDisplay();
+    </script>
+</body>
+</html>
