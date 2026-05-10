@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Von Neumann Amplification Factors — Interactive ν Slider</title>
+<style>
+  html, body {
+    margin: 0; padding: 0;
+    background: #eaf0f8;
+    color: #2c3142;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    height: 100vh;
+    overflow: hidden;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+
+  .container {
+    max-width: 1400px;
+    height: 100vh;
+    margin: 0 auto;
+    padding: 10px 16px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  header {
+    text-align: center;
+    flex-shrink: 0;
+  }
+  header h1 {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0;
+    color: #6b5cb5;
+    letter-spacing: 0.2px;
+  }
+  header .sub {
+    font-size: 11px;
+    color: #6b7186;
+    margin-top: 2px;
+  }
+
+  .panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    flex: 1;
+    min-height: 0;
+  }
+  .card {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 8px 10px 6px;
+    position: relative;
+    box-shadow: 0 2px 10px rgba(107, 92, 181, 0.10);
+    border: 1px solid rgba(107, 92, 181, 0.06);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .panel-title {
+    text-align: center;
+    font-weight: 600;
+    font-size: 13.5px;
+    color: #2c3142;
+    flex-shrink: 0;
+  }
+  .panel-subtitle {
+    text-align: center;
+    font-size: 10px;
+    color: #6b7186;
+    margin-bottom: 4px;
+    font-style: italic;
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    flex-shrink: 0;
+  }
+  .badge {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+    letter-spacing: 0.5px;
+  }
+  .badge.stable {
+    background: rgba(56, 178, 172, 0.15);
+    color: #2c8a83;
+    border: 1px solid rgba(56, 178, 172, 0.4);
+  }
+  .badge.unstable {
+    background: rgba(238, 132, 91, 0.18);
+    color: #c2492a;
+    border: 1px solid rgba(238, 132, 91, 0.5);
+    animation: pulse 1.0s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.55; }
+  }
+
+  svg.plot {
+    display: block;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+  }
+  svg.plot text { font-family: 'Segoe UI', system-ui, sans-serif; }
+
+  .control-card {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 10px 18px 8px;
+    box-shadow: 0 2px 10px rgba(107, 92, 181, 0.10);
+    border: 1px solid rgba(107, 92, 181, 0.06);
+    flex-shrink: 0;
+  }
+  .row1 {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+  .nu-label {
+    font-size: 12px;
+    color: #6b7186;
+    font-weight: 500;
+    min-width: 36px;
+  }
+  .nu-value {
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    font-size: 22px;
+    color: #2c8a83;
+    font-weight: 600;
+    min-width: 90px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.4px;
+  }
+  .slider-wrap {
+    flex: 1;
+    position: relative;
+    padding: 6px 0 22px 0;
+  }
+
+  input[type="range"].nu-slider {
+    width: 100%;
+    height: 18px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+    display: block;
+  }
+  input[type="range"].nu-slider:focus { outline: none; }
+
+  input[type="range"].nu-slider::-webkit-slider-runnable-track {
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(to right,
+      #38b2ac 0%,   #38b2ac 10%,
+      #f0a05a 10%,  #f0a05a 13%,
+      #ee845b 13%,  #ee845b 100%);
+    border: 1px solid rgba(107, 92, 181, 0.20);
+  }
+  input[type="range"].nu-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    margin-top: -7px;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: #ee845b;
+    border: 3px solid #ffffff;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(238, 132, 91, 0.5),
+                0 0 0 2px rgba(238, 132, 91, 0.25);
+  }
+  input[type="range"].nu-slider:active::-webkit-slider-thumb {
+    background: #d56a3f;
+  }
+
+  input[type="range"].nu-slider::-moz-range-track {
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(to right,
+      #38b2ac 0%,   #38b2ac 10%,
+      #f0a05a 10%,  #f0a05a 13%,
+      #ee845b 13%,  #ee845b 100%);
+    border: 1px solid rgba(107, 92, 181, 0.20);
+  }
+  input[type="range"].nu-slider::-moz-range-thumb {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: #ee845b;
+    border: 3px solid #ffffff;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(238, 132, 91, 0.5);
+  }
+
+  .ticks {
+    position: absolute;
+    bottom: 0;
+    left: 0; right: 0;
+    height: 18px;
+    pointer-events: none;
+  }
+  .tick {
+    position: absolute;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: #6b7186;
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    pointer-events: auto;
+    cursor: pointer;
+    padding: 1px 5px;
+    border-radius: 3px;
+    user-select: none;
+  }
+  .tick::before {
+    content: '';
+    display: block;
+    width: 1px;
+    height: 5px;
+    background: rgba(107, 92, 181, 0.45);
+    margin: 0 auto 2px;
+  }
+  .tick:hover {
+    color: #6b5cb5;
+    background: rgba(107, 92, 181, 0.08);
+  }
+
+  .row2 {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 14px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(107, 92, 181, 0.10);
+  }
+  .key-fact {
+    font-size: 11px;
+    color: #4a5066;
+    line-height: 1.4;
+  }
+  .key-fact strong {
+    color: #2c8a83;
+    font-variant-numeric: tabular-nums;
+    font-size: 14px;
+  }
+  .key-fact .label {
+    display: block;
+    color: #6b7186;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+    font-weight: 600;
+  }
+
+  .footnote {
+    font-size: 10px;
+    color: #6b7186;
+    text-align: center;
+    line-height: 1.4;
+    flex-shrink: 0;
+  }
+  .footnote .kbd {
+    display: inline-block;
+    padding: 0 5px;
+    background: #ffffff;
+    border: 1px solid rgba(107, 92, 181, 0.25);
+    border-radius: 3px;
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    font-size: 9px;
+    color: #6b5cb5;
+    margin: 0 1px;
+  }
+
+  @media (max-height: 760px) {
+    header .sub { display: none; }
+    .footnote { display: none; }
+  }
+  @media (max-height: 680px) {
+    .row2 { grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; }
+    .row2 .key-fact:first-child { display: none; }
+  }
+  @media (max-width: 900px) {
+    .panels { grid-template-columns: 1fr; }
+    .row2 { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <h1>Von Neumann amplification factors for the diffusion equation</h1>
+    <div class="sub">|A<sub>k</sub>(ν, kΔz)| as a function of dimensionless time-step ν = κΔt/Δz²</div>
+  </header>
+
+  <div class="panels">
+    <div class="card">
+      <div class="panel-title">FTCS (explicit)</div>
+      <div class="panel-subtitle">A = 1 − 2ν(1 − cos kΔz)</div>
+      <span class="badge stable" id="badge-ftcs">STABLE</span>
+      <svg class="plot" id="plot-ftcs"></svg>
+    </div>
+    <div class="card">
+      <div class="panel-title">BTCS (implicit)</div>
+      <div class="panel-subtitle">A = 1 / [1 + 2ν(1 − cos kΔz)]</div>
+      <span class="badge stable" id="badge-btcs">STABLE</span>
+      <svg class="plot" id="plot-btcs"></svg>
+    </div>
+    <div class="card">
+      <div class="panel-title">Crank–Nicolson</div>
+      <div class="panel-subtitle">A = [1 − ν(1 − cos kΔz)] / [1 + ν(1 − cos kΔz)]</div>
+      <span class="badge stable" id="badge-cn">STABLE</span>
+      <svg class="plot" id="plot-cn"></svg>
+    </div>
+  </div>
+
+  <div class="control-card">
+    <div class="row1">
+      <span class="nu-label">ν =</span>
+      <span class="nu-value" id="nu-value">0.250</span>
+      <div class="slider-wrap">
+        <input type="range" class="nu-slider" id="nu-slider"
+               min="0.01" max="5.0" step="0.01" value="0.25">
+        <div class="ticks" id="ticks"></div>
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="key-fact">
+        <span class="label">FTCS stability bound</span>
+        ν ≤ ½. Worst case at the 2Δz wave (kΔz = π): |A<sub>FTCS</sub>(ν, π)| = |1 − 4ν|. Track is teal where stable, orange where unstable.
+      </div>
+      <div class="key-fact">
+        <span class="label">FTCS max |A|</span>
+        <strong id="amax-ftcs">0.000</strong>
+      </div>
+      <div class="key-fact">
+        <span class="label">BTCS max |A|</span>
+        <strong id="amax-btcs">0.000</strong>
+      </div>
+      <div class="key-fact">
+        <span class="label">CN max |A|</span>
+        <strong id="amax-cn">0.000</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="footnote">
+    Drag the orange handle to vary ν. Click a preset (0.25, 0.5, 1.0, 5.0) to jump.
+    Use <span class="kbd">←</span> <span class="kbd">→</span> to nudge by 0.01, <span class="kbd">Shift</span>+arrow for ×10.
+    The dashed line marks the |A| = 1 stability bound.
+  </div>
+
+</div>
+
+<script>
+"use strict";
+
+// ============================================================
+// Configuration
+// ============================================================
+var W = 380;
+var H = 240;
+var PAD = { top: 14, right: 18, bottom: 32, left: 38 };
+var PLOT_W = W - PAD.left - PAD.right;
+var PLOT_H = H - PAD.top - PAD.bottom;
+
+var Y_MAX = 1.5;
+var Y_MIN = 0;
+var N_KDZ = 200;
+
+var COLORS = {
+  stableCurve:   '#38b2ac',
+  unstableCurve: '#ee845b',
+  stabilityLine: '#b89854',
+  axis:          '#9aa3b8',
+  axisLabel:     '#4a5066',
+  gridLine:      'rgba(107, 92, 181, 0.10)'
+};
+
+var PRESETS = [
+  { value: 0.25, label: '0.25' },
+  { value: 0.50, label: '\u00bd' },
+  { value: 1.00, label: '1' },
+  { value: 5.00, label: '5' }
+];
+
+// ============================================================
+// Pixel mappings
+// ============================================================
+function xToPixel(kdz) {
+  return PAD.left + (kdz / Math.PI) * PLOT_W;
+}
+function yToPixel(A) {
+  return PAD.top + (1 - (A - Y_MIN) / (Y_MAX - Y_MIN)) * PLOT_H;
+}
+
+// ============================================================
+// Math: amplification factors
+// ============================================================
+function ampFTCS(nu, kdz) {
+  return 1 - 2 * nu * (1 - Math.cos(kdz));
+}
+function ampBTCS(nu, kdz) {
+  return 1 / (1 + 2 * nu * (1 - Math.cos(kdz)));
+}
+function ampCN(nu, kdz) {
+  var x = nu * (1 - Math.cos(kdz));
+  return (1 - x) / (1 + x);
+}
+
+// ============================================================
+// SVG helper
+// ============================================================
+var NS = 'http://www.w3.org/2000/svg';
+function svgEl(tag, attrs) {
+  var el = document.createElementNS(NS, tag);
+  if (attrs) {
+    for (var k in attrs) el.setAttribute(k, attrs[k]);
+  }
+  return el;
+}
+
+// ============================================================
+// Build one panel and return its update function
+// ============================================================
+function makePanel(svgId) {
+  var svg = document.getElementById(svgId);
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+  svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+  // Horizontal gridlines
+  var hGrid = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5];
+  for (var i = 0; i < hGrid.length; i++) {
+    svg.appendChild(svgEl('line', {
+      x1: PAD.left, x2: W - PAD.right,
+      y1: yToPixel(hGrid[i]), y2: yToPixel(hGrid[i]),
+      stroke: COLORS.gridLine, 'stroke-width': '1'
+    }));
+  }
+  // Vertical gridlines
+  var vGrid = [Math.PI/4, Math.PI/2, 3*Math.PI/4];
+  for (var j = 0; j < vGrid.length; j++) {
+    svg.appendChild(svgEl('line', {
+      x1: xToPixel(vGrid[j]), x2: xToPixel(vGrid[j]),
+      y1: PAD.top, y2: H - PAD.bottom,
+      stroke: COLORS.gridLine, 'stroke-width': '1'
+    }));
+  }
+
+  // Stability bound line
+  svg.appendChild(svgEl('line', {
+    x1: PAD.left, x2: W - PAD.right,
+    y1: yToPixel(1), y2: yToPixel(1),
+    stroke: COLORS.stabilityLine, 'stroke-width': '1.4',
+    'stroke-dasharray': '5 4'
+  }));
+  var stabLabel = svgEl('text', {
+    x: W - PAD.right - 4, y: yToPixel(1) - 5,
+    'text-anchor': 'end', fill: COLORS.stabilityLine,
+    'font-size': '10', 'font-style': 'italic'
+  });
+  stabLabel.textContent = '|A| = 1';
+  svg.appendChild(stabLabel);
+
+  // Axes
+  svg.appendChild(svgEl('line', {
+    x1: PAD.left, x2: W - PAD.right,
+    y1: H - PAD.bottom, y2: H - PAD.bottom,
+    stroke: COLORS.axis, 'stroke-width': '1'
+  }));
+  svg.appendChild(svgEl('line', {
+    x1: PAD.left, x2: PAD.left,
+    y1: PAD.top, y2: H - PAD.bottom,
+    stroke: COLORS.axis, 'stroke-width': '1'
+  }));
+
+  // X tick labels
+  var xTicks = [
+    { v: 0,         t: '0' },
+    { v: Math.PI/2, t: '\u03c0/2' },
+    { v: Math.PI,   t: '\u03c0' }
+  ];
+  for (var k = 0; k < xTicks.length; k++) {
+    var el = svgEl('text', {
+      x: xToPixel(xTicks[k].v), y: H - PAD.bottom + 14,
+      'text-anchor': 'middle', fill: COLORS.axisLabel,
+      'font-size': '10'
+    });
+    el.textContent = xTicks[k].t;
+    svg.appendChild(el);
+  }
+  var xLab = svgEl('text', {
+    x: PAD.left + PLOT_W / 2, y: H - PAD.bottom + 28,
+    'text-anchor': 'middle', fill: COLORS.axisLabel,
+    'font-size': '11', 'font-weight': '500'
+  });
+  xLab.textContent = 'k\u0394z';
+  svg.appendChild(xLab);
+
+  // Y tick labels
+  var yTicks = [0, 0.5, 1.0, 1.5];
+  for (var m = 0; m < yTicks.length; m++) {
+    var ye = svgEl('text', {
+      x: PAD.left - 6, y: yToPixel(yTicks[m]) + 3,
+      'text-anchor': 'end', fill: COLORS.axisLabel,
+      'font-size': '10'
+    });
+    ye.textContent = yTicks[m].toFixed(1);
+    svg.appendChild(ye);
+  }
+  var yLab = svgEl('text', {
+    x: PAD.left - 28, y: PAD.top + PLOT_H / 2,
+    'text-anchor': 'middle', fill: COLORS.axisLabel,
+    'font-size': '11', 'font-weight': '500',
+    transform: 'rotate(-90 ' + (PAD.left - 28) + ' ' + (PAD.top + PLOT_H / 2) + ')'
+  });
+  yLab.textContent = '|A_k|';
+  svg.appendChild(yLab);
+
+  // The curve
+  var curve = svgEl('path', {
+    fill: 'none', 'stroke-width': '2.6',
+    'stroke-linejoin': 'round', 'stroke-linecap': 'round',
+    stroke: COLORS.stableCurve
+  });
+  svg.appendChild(curve);
+
+  // Off-scale indicator
+  var offGroup = svgEl('g', { opacity: '0' });
+  var ax = W - PAD.right - 80, ay = PAD.top + 6;
+  offGroup.appendChild(svgEl('path', {
+    fill: COLORS.unstableCurve,
+    d: 'M' + ax + ' ' + (ay+9) + ' L' + (ax+6) + ' ' + ay + ' L' + (ax+12) + ' ' + (ay+9) + ' Z'
+  }));
+  var offText = svgEl('text', {
+    x: ax + 16, y: ay + 8,
+    fill: COLORS.unstableCurve,
+    'font-size': '11', 'font-weight': '700'
+  });
+  offText.textContent = 'off-scale';
+  offGroup.appendChild(offText);
+  svg.appendChild(offGroup);
+
+  // Update function
+  return function update(nu, ampFn) {
+    var maxA = 0;
+    var d = '';
+    for (var i = 0; i <= N_KDZ; i++) {
+      var kdz = (i / N_KDZ) * Math.PI;
+      var Aabs = Math.abs(ampFn(nu, kdz));
+      if (Aabs > maxA) maxA = Aabs;
+      var x = xToPixel(kdz);
+      var y = yToPixel(Math.min(Aabs, Y_MAX));
+      d += (i === 0 ? 'M' : ' L') + x.toFixed(2) + ' ' + y.toFixed(2);
+    }
+    curve.setAttribute('d', d);
+    var isUnstable = maxA > 1.0001;
+    curve.setAttribute('stroke', isUnstable ? COLORS.unstableCurve : COLORS.stableCurve);
+    offGroup.setAttribute('opacity', maxA > Y_MAX + 0.01 ? '1' : '0');
+    return { maxA: maxA, isUnstable: isUnstable };
+  };
+}
+
+// ============================================================
+// Build panels
+// ============================================================
+var updateFTCS = makePanel('plot-ftcs');
+var updateBTCS = makePanel('plot-btcs');
+var updateCN   = makePanel('plot-cn');
+
+// ============================================================
+// Slider setup
+// ============================================================
+var slider   = document.getElementById('nu-slider');
+var nuValue  = document.getElementById('nu-value');
+var ticksDiv = document.getElementById('ticks');
+
+var SLIDER_MIN = parseFloat(slider.min);
+var SLIDER_MAX = parseFloat(slider.max);
+
+// Build preset clickable ticks
+for (var p = 0; p < PRESETS.length; p++) {
+  (function(preset) {
+    var tick = document.createElement('div');
+    tick.className = 'tick';
+    var pct = (preset.value - SLIDER_MIN) / (SLIDER_MAX - SLIDER_MIN) * 100;
+    tick.style.left = pct + '%';
+    tick.textContent = preset.label;
+    tick.addEventListener('click', function() {
+      slider.value = String(preset.value);
+      update();
+    });
+    ticksDiv.appendChild(tick);
+  })(PRESETS[p]);
+}
+
+var badges = {
+  ftcs: document.getElementById('badge-ftcs'),
+  btcs: document.getElementById('badge-btcs'),
+  cn:   document.getElementById('badge-cn')
+};
+var amaxOut = {
+  ftcs: document.getElementById('amax-ftcs'),
+  btcs: document.getElementById('amax-btcs'),
+  cn:   document.getElementById('amax-cn')
+};
+
+function setBadge(el, isUnstable) {
+  if (isUnstable) {
+    el.className = 'badge unstable';
+    el.textContent = 'UNSTABLE';
+  } else {
+    el.className = 'badge stable';
+    el.textContent = 'STABLE';
+  }
+}
+
+function update() {
+  var nu = parseFloat(slider.value);
+  nuValue.textContent = nu.toFixed(3);
+
+  var fr = updateFTCS(nu, ampFTCS);
+  var br = updateBTCS(nu, ampBTCS);
+  var cr = updateCN(nu,   ampCN);
+
+  setBadge(badges.ftcs, fr.isUnstable);
+  setBadge(badges.btcs, br.isUnstable);
+  setBadge(badges.cn,   cr.isUnstable);
+
+  var ftcsMax = Math.max(Math.abs(1 - 4*nu), 1);
+  amaxOut.ftcs.textContent = ftcsMax.toFixed(3);
+  amaxOut.btcs.textContent = br.maxA.toFixed(3);
+  amaxOut.cn.textContent   = cr.maxA.toFixed(3);
+}
+
+// Listen for both events to be safe across browsers
+slider.addEventListener('input',  update);
+slider.addEventListener('change', update);
+
+// Keyboard nudges
+window.addEventListener('keydown', function(e) {
+  if (e.target.tagName === 'INPUT' && e.target !== slider) return;
+  var step = e.shiftKey ? 0.10 : 0.01;
+  if (e.key === 'ArrowLeft') {
+    slider.value = String(Math.max(SLIDER_MIN, parseFloat(slider.value) - step));
+    update();
+    e.preventDefault();
+  } else if (e.key === 'ArrowRight') {
+    slider.value = String(Math.min(SLIDER_MAX, parseFloat(slider.value) + step));
+    update();
+    e.preventDefault();
+  }
+});
+
+// Initial render
+update();
+</script>
+
+<script>
+// Relay M/K to parent deck so navigation works when this file is embedded
+// as an iframe.src (cross-origin under Chrome's file:// SOP). Capture phase
+// so it wins over any inner handler.
+window.addEventListener('keydown', function(e) {
+  if (e.key === 'm' || e.key === 'M') {
+    e.preventDefault();
+    try { window.parent.postMessage({type:'deck-nav', dir:'next'}, '*'); } catch(ex) {}
+  } else if (e.key === 'k' || e.key === 'K') {
+    e.preventDefault();
+    try { window.parent.postMessage({type:'deck-nav', dir:'prev'}, '*'); } catch(ex) {}
+  }
+}, true);
+</script>
+
+</body>
+</html>

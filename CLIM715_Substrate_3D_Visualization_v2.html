@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Urban Substrate Diurnal Heat — CLIM-715 3D Visualization</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0a0d1a;
+            color: #e8eaef;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            overflow: hidden;
+        }
+
+        #container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        #info {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(15, 20, 35, 0.85);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.5;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            max-width: 360px;
+            backdrop-filter: blur(8px);
+            z-index: 10;
+        }
+
+        #info h2 {
+            margin: 0 0 6px 0;
+            font-size: 15px;
+            color: #6ec6ff;
+            font-weight: 600;
+        }
+
+        #info .sub {
+            font-size: 11px;
+            color: #9aa3b8;
+            margin-bottom: 8px;
+        }
+
+        #info kbd {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 11px;
+        }
+
+        #controls {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 20, 35, 0.9);
+            padding: 10px 16px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+            z-index: 10;
+            flex-wrap: wrap;
+            max-width: calc(100vw - 32px);
+            justify-content: center;
+        }
+
+        #controls button,
+        #controls select {
+            background: rgba(110, 198, 255, 0.15);
+            border: 1px solid rgba(110, 198, 255, 0.4);
+            color: #6ec6ff;
+            padding: 4px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        #controls button:hover,
+        #controls select:hover {
+            background: rgba(110, 198, 255, 0.3);
+        }
+
+        #controls button.active {
+            background: rgba(110, 198, 255, 0.4);
+            color: #fff;
+            border-color: #6ec6ff;
+        }
+
+        #controls input[type=range] {
+            width: 220px;
+            accent-color: #6ec6ff;
+        }
+
+        #time-label {
+            font-size: 13px;
+            color: #e8eaef;
+            min-width: 90px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        #legend {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(15, 20, 35, 0.85);
+            padding: 12px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+            z-index: 10;
+        }
+
+        #legend .scale {
+            width: 200px;
+            height: 14px;
+            margin: 6px 0;
+            background: linear-gradient(to right, #2c5fa8, #4ba6c9, #d8d27a, #e89752, #c8483a);
+            border-radius: 3px;
+        }
+
+        #legend .scale-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: #9aa3b8;
+        }
+
+        #legend .layer-key {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 4px;
+            font-size: 11px;
+        }
+
+        #legend .swatch {
+            width: 14px;
+            height: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* --- NEW: Time-series inset panel (bottom-left) --- */
+        #ts-panel {
+            position: absolute;
+            bottom: 16px;
+            left: 12px;
+            background: rgba(15, 20, 35, 0.9);
+            padding: 8px 10px 6px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+            z-index: 10;
+            font-size: 11px;
+            color: #9aa3b8;
+        }
+
+        #ts-panel .ts-title {
+            font-weight: 600;
+            color: #e8eaef;
+            margin-bottom: 4px;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #ts-panel .ts-toggle {
+            background: rgba(110, 198, 255, 0.15);
+            border: 1px solid rgba(110, 198, 255, 0.4);
+            color: #6ec6ff;
+            padding: 1px 6px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 10px;
+            margin-left: 8px;
+        }
+
+        #ts-panel .ts-toggle:hover {
+            background: rgba(110, 198, 255, 0.3);
+        }
+
+        #ts-canvas {
+            display: block;
+            width: 280px;
+            height: 110px;
+        }
+
+        #ts-panel.collapsed #ts-canvas,
+        #ts-panel.collapsed .ts-legend {
+            display: none;
+        }
+
+        #ts-panel .ts-legend {
+            display: flex;
+            gap: 10px;
+            margin-top: 3px;
+            font-size: 10px;
+        }
+
+        #ts-panel .ts-legend span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        #ts-panel .ts-legend .dot {
+            width: 8px;
+            height: 2px;
+            border-radius: 1px;
+        }
+
+        #error-msg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(120, 30, 30, 0.95);
+            padding: 20px 30px;
+            border-radius: 8px;
+            display: none;
+            max-width: 500px;
+            text-align: center;
+            z-index: 100;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <div id="info">
+            <h2>Urban substrate diurnal heat conduction</h2>
+            <div class="sub">CLIM-715 Course Project · Shammunul Islam</div>
+            Three urban substrate columns under 24-h synthetic forcing, top of each column coloured by simulated surface
+            temperature (BTCS, Δt = 60 s). Internal bands are the material layers; depth ticks (left) measure into the
+            substrate from each column's own top surface.
+            <br><br>
+            <span style="color: #9aa3b8;">Drag to rotate · scroll to zoom · <kbd>Space</kbd> play/pause · <kbd>1</kbd>–<kbd>4</kbd> camera presets</span>
+        </div>
+        <div id="legend">
+            <div style="font-weight: 600; margin-bottom: 4px;">Temperature</div>
+            <div class="scale"></div>
+            <div class="scale-labels"><span>10 °C</span><span>30 °C</span><span>55 °C</span></div>
+            <div style="font-weight: 600; margin: 10px 0 4px 0;">Layer materials</div>
+            <div class="layer-key">
+                <div class="swatch" style="background: #2a2a2a;"></div>Asphalt
+            </div>
+            <div class="layer-key">
+                <div class="swatch" style="background: #6e6e6e;"></div>Aggregate
+            </div>
+            <div class="layer-key">
+                <div class="swatch" style="background: #9a9a9a;"></div>Concrete deck
+            </div>
+            <div class="layer-key">
+                <div class="swatch" style="background: #e8d8a8;"></div>Rigid insulation
+            </div>
+            <div class="layer-key">
+                <div class="swatch" style="background: #c8b48a;"></div>Interior structure
+            </div>
+            <div class="layer-key">
+                <div class="swatch" style="background: #8b6f3a;"></div>Soil (sandy loam)
+            </div>
+        </div>
+
+        <!-- NEW: Time-series Ts(t) trace panel -->
+        <div id="ts-panel">
+            <div class="ts-title">
+                Surface Tₛ(t) — 24 h
+                <button class="ts-toggle" id="ts-toggle">−</button>
+            </div>
+            <canvas id="ts-canvas" width="560" height="220"></canvas>
+            <div class="ts-legend">
+                <span><span class="dot" style="background:#e89752"></span>Asphalt</span>
+                <span><span class="dot" style="background:#c8483a"></span>Roof</span>
+                <span><span class="dot" style="background:#4ba6c9"></span>Soil</span>
+            </div>
+        </div>
+
+        <div id="controls">
+            <button id="play-btn">⏸ Pause</button>
+            <input type="range" id="time-slider" min="0" max="96" value="48" step="1">
+            <span id="time-label">12:00</span>
+
+            <!-- NEW: speed selector -->
+            <select id="speed-select" title="Playback speed">
+                <option value="160">0.5×</option>
+                <option value="80" selected>1×</option>
+                <option value="40">2×</option>
+                <option value="20">4×</option>
+            </select>
+
+            <!-- NEW: camera preset selector -->
+            <select id="view-select" title="Camera preset">
+                <option value="iso" selected>Iso view</option>
+                <option value="front">Front</option>
+                <option value="top">Top</option>
+                <option value="cross">Cross-section</option>
+            </select>
+
+            <button id="thermal-btn">Thermal cross-section</button>
+            <button id="grid-btn">Δz grid</button>
+            <!-- NEW: damping depth markers -->
+            <button id="damping-btn">Damping depth D</button>
+            <button id="reset-btn">↺ Reset view</button>
+        </div>
+        <div id="error-msg">
+            <strong>WebGL not available</strong><br><br>
+            Your browser cannot render this 3D scene. Try Chrome, Firefox, Edge, or Safari with hardware acceleration
+            enabled.
+        </div>
+    </div>
+
+    <script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // Substrate definitions
+        const SUBSTRATES = {
+            asphalt: {
+                label: "Asphalt road",
+                layers: [
+                    { top: 0, bot: 5, color: 0x2a2a2a, name: "Asphalt" },
+                    { top: 5, bot: 25, color: 0x6e6e6e, name: "Aggregate" },
+                    { top: 25, bot: 100, color: 0x8b6f3a, name: "Dry soil" },
+                ],
+            },
+            roof: {
+                label: "Concrete roof",
+                layers: [
+                    { top: 0, bot: 10, color: 0x9a9a9a, name: "Concrete deck" },
+                    { top: 10, bot: 20, color: 0xe8d8a8, name: "Rigid insulation" },
+                    { top: 20, bot: 100, color: 0xc8b48a, name: "Interior structure" },
+                ],
+            },
+            soil: {
+                label: "Bare soil",
+                layers: [
+                    { top: 0, bot: 100, color: 0x8b6f3a, name: "Sandy loam (uniform)" },
+                ],
+            },
+        };
+
+        const COL_W = 1.6;
+        const COL_D = 1.6;
+        const DEPTH_M = 1.0;
+        const COL_HEIGHT = 4.0;
+        const COL_GAP = 2.6;
+        const VERT_SEGMENTS = 40; // Number of vertical segments for the thermal gradient plane
+
+        const container = document.getElementById('container');
+        const testCanvas = document.createElement('canvas');
+        const gl = testCanvas.getContext('webgl2') || testCanvas.getContext('webgl');
+        if (!gl) {
+            document.getElementById('error-msg').style.display = 'block';
+            throw new Error("WebGL not available");
+        }
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x86b4d8);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 200);
+        camera.position.set(9, 4.5, 12);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = false;
+        container.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.08;
+        controls.target.set(0, -1.5, 0);
+        controls.minDistance = 5;
+        controls.maxDistance = 30;
+
+        scene.add(new THREE.HemisphereLight(0xbfd6e8, 0x665548, 0.7));
+        const sunLight = new THREE.DirectionalLight(0xfff4d6, 1.4);
+        sunLight.castShadow = false;
+        scene.add(sunLight);
+        scene.add(sunLight.target);
+
+        const sunMesh = new THREE.Mesh(
+            new THREE.SphereGeometry(0.4, 24, 24),
+            new THREE.MeshBasicMaterial({ color: 0xffd680 })
+        );
+        scene.add(sunMesh);
+
+        const PLATFORM_SIZE = 18;
+        const groundShape = new THREE.Shape();
+        groundShape.moveTo(-PLATFORM_SIZE / 2, -PLATFORM_SIZE / 2);
+        groundShape.lineTo(PLATFORM_SIZE / 2, -PLATFORM_SIZE / 2);
+        groundShape.lineTo(PLATFORM_SIZE / 2, PLATFORM_SIZE / 2);
+        groundShape.lineTo(-PLATFORM_SIZE / 2, PLATFORM_SIZE / 2);
+        groundShape.lineTo(-PLATFORM_SIZE / 2, -PLATFORM_SIZE / 2);
+
+        function rectHole(cx, cz, halfW, halfD) {
+            const h = new THREE.Path();
+            h.moveTo(cx - halfW, cz - halfD);
+            h.lineTo(cx + halfW, cz - halfD);
+            h.lineTo(cx + halfW, cz + halfD);
+            h.lineTo(cx - halfW, cz + halfD);
+            h.lineTo(cx - halfW, cz - halfD);
+            return h;
+        }
+
+        [-1, 0, 1].forEach(idx => {
+            groundShape.holes.push(rectHole(idx * COL_GAP, 0, COL_W * 0.51, COL_D * 0.51));
+        });
+
+        const groundGeo = new THREE.ShapeGeometry(groundShape);
+        const groundMat = new THREE.MeshStandardMaterial({
+            color: 0x6c7689, roughness: 0.85, metalness: 0.0,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.85,
+            depthWrite: false,
+        });
+        const ground = new THREE.Mesh(groundGeo, groundMat);
+        ground.rotation.x = -Math.PI / 2;
+        ground.position.y = 0;
+        scene.add(ground);
+
+        const edgePoints = [
+            [-PLATFORM_SIZE / 2, PLATFORM_SIZE / 2],
+            [PLATFORM_SIZE / 2, PLATFORM_SIZE / 2],
+            [PLATFORM_SIZE / 2, -PLATFORM_SIZE / 2],
+            [-PLATFORM_SIZE / 2, -PLATFORM_SIZE / 2],
+            [-PLATFORM_SIZE / 2, PLATFORM_SIZE / 2],
+        ];
+        const edgeGeom = new THREE.BufferGeometry().setFromPoints(
+            edgePoints.map(([x, z]) => new THREE.Vector3(x, 0.01, z))
+        );
+        const edgeMat = new THREE.LineBasicMaterial({
+            color: 0xe0e6f0, transparent: true, opacity: 0.85,
+        });
+        const edgeLine = new THREE.Line(edgeGeom, edgeMat);
+        scene.add(edgeLine);
+
+        const gridHelper = new THREE.GridHelper(PLATFORM_SIZE, 18, 0xb8c2d6, 0x4a546a);
+        gridHelper.position.y = 0.005;
+        gridHelper.material.transparent = true;
+        gridHelper.material.opacity = 0.85;
+        gridHelper.material.depthWrite = false;
+        scene.add(gridHelper);
+
+        const columns = [];
+
+        const colorScale = (t) => {
+            const norm = Math.max(0, Math.min(1, (t - 10) / 45));
+            const stops = [
+                [0.00, [0.17, 0.37, 0.66]], // Deep Blue
+                [0.30, [0.29, 0.65, 0.79]], // Light Blue
+                [0.50, [0.85, 0.82, 0.48]], // Yellow
+                [0.75, [0.91, 0.59, 0.32]], // Orange
+                [1.00, [0.78, 0.28, 0.23]], // Red
+            ];
+            for (let i = 0; i < stops.length - 1; i++) {
+                if (norm <= stops[i + 1][0]) {
+                    const t01 = (norm - stops[i][0]) / (stops[i + 1][0] - stops[i][0]);
+                    const c0 = stops[i][1], c1 = stops[i + 1][1];
+                    return new THREE.Color(
+                        c0[0] + (c1[0] - c0[0]) * t01,
+                        c0[1] + (c1[1] - c0[1]) * t01,
+                        c0[2] + (c1[2] - c0[2]) * t01
+                    );
+                }
+            }
+            return new THREE.Color(...stops[stops.length - 1][1]);
+        };
+
+        const substrateKeys = ['asphalt', 'roof', 'soil'];
+
+        // Shader Material for the Thermal Cross-Section Plane
+        const thermalMaterial = new THREE.MeshBasicMaterial({
+            vertexColors: true,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.9,
+            visible: false // Hidden by default
+        });
+
+        // Non-uniform grid depth generator (simulates stretching factor)
+        // Tight at surface, sparse at depth
+        function generateGridDepths(maxDepthCm) {
+            const depths = [];
+            let currentDepth = 0;
+            let dz = 0.5; // Start with 0.5 cm spacing at the top
+
+            while (currentDepth <= maxDepthCm) {
+                depths.push(currentDepth);
+                currentDepth += dz;
+                // Increase dz slightly as we go deeper (geometric stretching)
+                dz *= 1.15;
+            }
+            return depths;
+        }
+
+        const gridDepthsCm = generateGridDepths(100);
+
+        substrateKeys.forEach((key, idx) => {
+            const sub = SUBSTRATES[key];
+            const group = new THREE.Group();
+            const xCenter = (idx - 1) * COL_GAP;
+            group.position.x = xCenter;
+
+            const depthToY = (cm) => -COL_HEIGHT * Math.min(cm, DEPTH_M * 100) / (DEPTH_M * 100);
+
+            // 1. Build Physical Material Layers
+            sub.layers.forEach((layer) => {
+                const topD = Math.min(layer.top, DEPTH_M * 100);
+                const botD = Math.min(layer.bot, DEPTH_M * 100);
+                if (botD <= topD) return;
+                const yTop = depthToY(topD);
+                const yBot = depthToY(botD);
+                const h = yTop - yBot;
+                const yCenter = (yTop + yBot) / 2;
+
+                const slabGeo = new THREE.BoxGeometry(COL_W, h, COL_D);
+                const slabMat = new THREE.MeshStandardMaterial({
+                    color: layer.color, roughness: 0.85, metalness: 0.05,
+                });
+                const slab = new THREE.Mesh(slabGeo, slabMat);
+                slab.position.y = yCenter;
+                group.add(slab);
+
+                if (!group.userData.slabs) group.userData.slabs = [];
+                group.userData.slabs.push(slab);
+
+                const edges = new THREE.EdgesGeometry(slabGeo);
+                const lineMat = new THREE.LineBasicMaterial({ color: 0x000000, opacity: 0.5, transparent: true });
+                const wire = new THREE.LineSegments(edges, lineMat);
+                wire.position.copy(slab.position);
+                group.add(wire);
+            });
+
+            // 2. Build Thermal Cross-Section Plane
+            const thermalGeo = new THREE.PlaneGeometry(COL_W * 1.05, COL_HEIGHT, 1, VERT_SEGMENTS);
+            thermalGeo.translate(0, -COL_HEIGHT / 2, 0);
+
+            const colors = [];
+            for (let i = 0; i < thermalGeo.attributes.position.count; i++) {
+                colors.push(1, 1, 1);
+            }
+            thermalGeo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+            const thermalPlane = new THREE.Mesh(thermalGeo, thermalMaterial);
+            thermalPlane.position.z = COL_D / 2 + 0.05;
+            group.add(thermalPlane);
+
+            // 3. Surface Plate
+            const plateThickness = 0.08;
+            const plateGeo = new THREE.BoxGeometry(COL_W * 1.04, plateThickness, COL_D * 1.04);
+            const plateMat = new THREE.MeshStandardMaterial({
+                color: 0x888888, roughness: 0.4, emissive: 0x000000,
+            });
+            const plate = new THREE.Mesh(plateGeo, plateMat);
+            plate.position.y = plateThickness / 2;
+            group.add(plate);
+
+            // 4. Label
+            const labelCanvas = document.createElement('canvas');
+            labelCanvas.width = 256; labelCanvas.height = 64;
+            const ctx = labelCanvas.getContext('2d');
+            ctx.font = 'bold 28px "Segoe UI", system-ui, sans-serif';
+            ctx.fillStyle = '#ffffff';
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 4;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.strokeText(sub.label, 128, 32);
+            ctx.fillText(sub.label, 128, 32);
+            const labelTex = new THREE.CanvasTexture(labelCanvas);
+            labelTex.minFilter = THREE.LinearFilter;
+            const labelSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+                map: labelTex, transparent: true, depthTest: false,
+            }));
+            labelSprite.scale.set(2.5, 0.625, 1);
+            labelSprite.position.set(0, 1.0, 0);
+            group.add(labelSprite);
+
+            // 5. Build Computational Grid Overlay (Δz)
+            const gridGroup = new THREE.Group();
+            gridGroup.visible = false; // Hidden by default
+            const gridPlaneGeo = new THREE.PlaneGeometry(COL_W * 1.1, COL_D * 1.1);
+            gridPlaneGeo.rotateX(-Math.PI / 2);
+            const gridLineMat = new THREE.LineBasicMaterial({ color: 0x00ffcc, transparent: true, opacity: 0.6 });
+            const gridMeshMat = new THREE.MeshBasicMaterial({ color: 0x00ffcc, transparent: true, opacity: 0.1, side: THREE.DoubleSide });
+
+            gridDepthsCm.forEach((depthCm, i) => {
+                const yPos = depthToY(depthCm);
+
+                // Wireframe plane
+                const edges = new THREE.EdgesGeometry(gridPlaneGeo);
+                const wirePlane = new THREE.LineSegments(edges, gridLineMat);
+                wirePlane.position.y = yPos;
+                gridGroup.add(wirePlane);
+
+                // Fill plane
+                const fillPlane = new THREE.Mesh(gridPlaneGeo, gridMeshMat);
+                fillPlane.position.y = yPos;
+                gridGroup.add(fillPlane);
+
+                // Vertical connecting lines at the corners
+                if (i > 0) {
+                    const prevYPos = depthToY(gridDepthsCm[i - 1]);
+                    const corners = [
+                        [-COL_W * 0.55, -COL_D * 0.55],
+                        [COL_W * 0.55, -COL_D * 0.55],
+                        [COL_W * 0.55, COL_D * 0.55],
+                        [-COL_W * 0.55, COL_D * 0.55]
+                    ];
+
+                    corners.forEach(corner => {
+                        const points = [
+                            new THREE.Vector3(corner[0], prevYPos, corner[1]),
+                            new THREE.Vector3(corner[0], yPos, corner[1])
+                        ];
+                        const vertGeom = new THREE.BufferGeometry().setFromPoints(points);
+                        const vertLine = new THREE.Line(vertGeom, gridLineMat);
+                        gridGroup.add(vertLine);
+                    });
+                }
+            });
+            group.add(gridGroup);
+            group.userData.gridGroup = gridGroup;
+
+            scene.add(group);
+            columns.push({ key, group, plate, plateMat, thermalPlane });
+        });
+
+        function makeTickLabel(text) {
+            const c = document.createElement('canvas');
+            c.width = 96; c.height = 32;
+            const ctx = c.getContext('2d');
+            ctx.font = 'bold 18px "Segoe UI", system-ui, sans-serif';
+            ctx.fillStyle = '#ffffff';
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 3;
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            ctx.strokeText(text, 92, 16);
+            ctx.fillText(text, 92, 16);
+            const tex = new THREE.CanvasTexture(c);
+            tex.minFilter = THREE.LinearFilter;
+            const sp = new THREE.Sprite(new THREE.SpriteMaterial({
+                map: tex, transparent: true, depthTest: false,
+            }));
+            sp.scale.set(0.85, 0.28, 1);
+            return sp;
+        }
+        const ticks = [0, 25, 50, 75, 100];
+        ticks.forEach(d => {
+            const sp = makeTickLabel(`${d} cm`);
+            const yScene = -COL_HEIGHT * d / (DEPTH_M * 100);
+            sp.position.set(-COL_GAP - COL_W * 0.85, yScene, COL_D * 0.6);
+            scene.add(sp);
+        });
+
+        // SYNTHETIC DATA: Surface temperatures
+        const TS_DATA = {
+            asphalt: [15.68, 15.437, 15.211, 15.004, 14.815, 14.645, 14.495, 14.365, 14.255, 14.166, 14.098, 14.05, 14.024, 14.018, 14.033, 14.068, 14.124, 14.199, 14.293, 14.406, 14.537, 14.686, 14.851, 15.032, 15.227, 16.209, 17.593, 19.161, 20.836, 22.576, 24.352, 26.144, 27.935, 29.71, 31.459, 33.169, 34.831, 36.437, 37.976, 39.443, 40.829, 42.128, 43.334, 44.442, 45.447, 46.343, 47.129, 47.799, 48.351, 48.783, 49.093, 49.28, 49.342, 49.28, 49.093, 48.782, 48.347, 47.792, 47.116, 46.323, 45.416, 44.398, 43.273, 42.044, 40.716, 39.294, 37.784, 36.191, 34.521, 32.781, 30.977, 29.117, 27.207, 26.023, 25.191, 24.507, 23.908, 23.361, 22.85, 22.366, 21.9, 21.45, 21.013, 20.587, 20.172, 19.767, 19.373, 18.989, 18.615, 18.253, 17.903, 17.565, 17.241, 16.931, 16.635, 16.355, 16.091],
+            roof: [15.87, 15.478, 15.108, 14.76, 14.433, 14.13, 13.849, 13.592, 13.359, 13.15, 12.966, 12.807, 12.673, 12.564, 12.48, 12.421, 12.386, 12.376, 12.391, 12.429, 12.491, 12.575, 12.682, 12.81, 12.959, 13.537, 14.406, 15.433, 16.568, 17.787, 19.071, 20.407, 21.782, 23.187, 24.611, 26.045, 27.478, 28.902, 30.308, 31.688, 33.032, 34.334, 35.586, 36.78, 37.91, 38.97, 39.955, 40.858, 41.675, 42.401, 43.033, 43.568, 44.001, 44.332, 44.557, 44.676, 44.686, 44.589, 44.383, 44.07, 43.649, 43.122, 42.491, 41.759, 40.926, 39.998, 38.976, 37.865, 36.669, 35.391, 34.038, 32.614, 31.125, 29.983, 29.055, 28.218, 27.433, 26.682, 25.957, 25.254, 24.57, 23.903, 23.253, 22.62, 22.002, 21.4, 20.813, 20.242, 19.687, 19.149, 18.627, 18.122, 17.635, 17.166, 16.715, 16.284, 15.873],
+            soil: [13.118, 12.875, 12.653, 12.454, 12.279, 12.127, 12.0, 11.897, 11.819, 11.767, 11.739, 11.737, 11.76, 11.808, 11.881, 11.978, 12.099, 12.242, 12.408, 12.596, 12.804, 13.032, 13.278, 13.542, 13.822, 15.395, 17.228, 19.172, 21.174, 23.202, 25.235, 27.255, 29.25, 31.205, 33.11, 34.955, 36.731, 38.429, 40.042, 41.562, 42.982, 44.297, 45.502, 46.591, 47.56, 48.406, 49.124, 49.713, 50.17, 50.494, 50.682, 50.735, 50.652, 50.433, 50.079, 49.591, 48.972, 48.221, 47.344, 46.342, 45.218, 43.978, 42.624, 41.163, 39.599, 37.938, 36.186, 34.349, 32.435, 30.45, 28.403, 26.301, 24.153, 23.232, 22.532, 21.922, 21.361, 20.831, 20.322, 19.829, 19.347, 18.877, 18.415, 17.963, 17.521, 17.088, 16.666, 16.254, 15.855, 15.47, 15.098, 14.741, 14.401, 14.078, 13.774, 13.488, 13.223],
+        };
+
+        const T_MEAN = 20;
+        const DAMPING_DEPTHS = {
+            asphalt: 0.15,
+            roof: 0.05,
+            soil: 0.10
+        };
+
+        function getSubstrateTempAtDepth(key, z_meters, hour_idx) {
+            const ts = TS_DATA[key][hour_idx];
+            const surface_amplitude = ts - T_MEAN;
+
+            const wt = (hour_idx / N_FRAMES) * Math.PI * 2;
+            const D = DAMPING_DEPTHS[key];
+
+            const decay = Math.exp(-z_meters / D);
+            const phase_shift = z_meters / D;
+
+            const temp_at_z = T_MEAN + surface_amplitude * decay * Math.cos(phase_shift);
+            return temp_at_z;
+        }
+
+        const N_FRAMES = 97;
+        let frameIdx = 48;
+        let isPlaying = true;
+        let showThermal = false;
+        let showGrid = false;
+        let showDamping = false;            // NEW
+        let lastFrameTime = 0;
+        let FRAME_INTERVAL_MS = 80;         // mutable for speed control
+
+        const slider = document.getElementById('time-slider');
+        const timeLabel = document.getElementById('time-label');
+        const playBtn = document.getElementById('play-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const thermalBtn = document.getElementById('thermal-btn');
+        const gridBtn = document.getElementById('grid-btn');
+        const dampingBtn = document.getElementById('damping-btn');     // NEW
+        const speedSelect = document.getElementById('speed-select');   // NEW
+        const viewSelect = document.getElementById('view-select');     // NEW
+        slider.max = N_FRAMES - 1;
+
+        // -------------------------------------------------------------
+        // NEW FEATURE 1: Damping-depth marker rings
+        //
+        // For each column, draw a horizontal ring at depth z = D
+        // (damping depth, where amplitude has decayed by 1/e ≈ 37%).
+        // This is a free physics insight: it tells you at a glance how
+        // much of the diurnal signal penetrates each substrate.
+        // -------------------------------------------------------------
+        const dampingMarkers = new THREE.Group();
+        dampingMarkers.visible = false;
+        scene.add(dampingMarkers);
+
+        substrateKeys.forEach((key, idx) => {
+            const D_m = DAMPING_DEPTHS[key];
+            const D_cm = D_m * 100;
+            const yScene = -COL_HEIGHT * Math.min(D_cm, DEPTH_M * 100) / (DEPTH_M * 100);
+            const xCenter = (idx - 1) * COL_GAP;
+
+            // Ring around the column at depth D
+            const ringPoints = [];
+            const halfW = COL_W * 0.55;
+            const halfD = COL_D * 0.55;
+            ringPoints.push(
+                new THREE.Vector3(xCenter - halfW, yScene, -halfD),
+                new THREE.Vector3(xCenter + halfW, yScene, -halfD),
+                new THREE.Vector3(xCenter + halfW, yScene,  halfD),
+                new THREE.Vector3(xCenter - halfW, yScene,  halfD),
+                new THREE.Vector3(xCenter - halfW, yScene, -halfD),
+            );
+            const ringGeom = new THREE.BufferGeometry().setFromPoints(ringPoints);
+            const ringMat = new THREE.LineDashedMaterial({
+                color: 0xff66cc, dashSize: 0.18, gapSize: 0.10,
+                linewidth: 2, transparent: true, opacity: 0.95,
+            });
+            const ring = new THREE.Line(ringGeom, ringMat);
+            ring.computeLineDistances();
+            dampingMarkers.add(ring);
+
+            // Label "D = X cm" anchored to the ring on the right side
+            const c = document.createElement('canvas');
+            c.width = 144; c.height = 36;
+            const cx = c.getContext('2d');
+            cx.font = 'bold 18px "Segoe UI", system-ui, sans-serif';
+            cx.fillStyle = '#ff66cc';
+            cx.strokeStyle = '#000000';
+            cx.lineWidth = 4;
+            cx.textAlign = 'left';
+            cx.textBaseline = 'middle';
+            const labelText = `D = ${Math.round(D_cm)} cm`;
+            cx.strokeText(labelText, 4, 18);
+            cx.fillText(labelText, 4, 18);
+            const tex = new THREE.CanvasTexture(c);
+            tex.minFilter = THREE.LinearFilter;
+            const sp = new THREE.Sprite(new THREE.SpriteMaterial({
+                map: tex, transparent: true, depthTest: false,
+            }));
+            sp.scale.set(1.1, 0.275, 1);
+            sp.position.set(xCenter + halfW + 0.7, yScene, halfD);
+            dampingMarkers.add(sp);
+        });
+
+        // -------------------------------------------------------------
+        // NEW FEATURE 2: 24-hour time-series Tₛ(t) inset
+        //
+        // Lightweight 2D canvas plot showing all three Tₛ traces with
+        // a moving cursor at the current time. Makes the inter-substrate
+        // phase lag and amplitude differences immediately visible.
+        // -------------------------------------------------------------
+        const tsPanel = document.getElementById('ts-panel');
+        const tsToggle = document.getElementById('ts-toggle');
+        const tsCanvas = document.getElementById('ts-canvas');
+        const tsCtx = tsCanvas.getContext('2d');
+        const TS_COLORS = { asphalt: '#e89752', roof: '#c8483a', soil: '#4ba6c9' };
+
+        // Find global min/max for y-axis
+        let tsMin = Infinity, tsMax = -Infinity;
+        substrateKeys.forEach(k => {
+            TS_DATA[k].forEach(v => { if (v < tsMin) tsMin = v; if (v > tsMax) tsMax = v; });
+        });
+        // Round outwards for clean axis bounds
+        tsMin = Math.floor(tsMin / 5) * 5;
+        tsMax = Math.ceil (tsMax / 5) * 5;
+
+        function drawTimeSeries() {
+            const W = tsCanvas.width;
+            const H = tsCanvas.height;
+            const padL = 38, padR = 8, padT = 8, padB = 22;
+            const plotW = W - padL - padR;
+            const plotH = H - padT - padB;
+
+            tsCtx.clearRect(0, 0, W, H);
+
+            // Background
+            tsCtx.fillStyle = 'rgba(255,255,255,0.02)';
+            tsCtx.fillRect(padL, padT, plotW, plotH);
+
+            // Axis grid (horizontal: 10°C steps)
+            tsCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+            tsCtx.lineWidth = 1;
+            tsCtx.fillStyle = '#9aa3b8';
+            tsCtx.font = '11px "Segoe UI", system-ui, sans-serif';
+            tsCtx.textAlign = 'right';
+            tsCtx.textBaseline = 'middle';
+            for (let v = tsMin; v <= tsMax; v += 10) {
+                const y = padT + plotH * (1 - (v - tsMin) / (tsMax - tsMin));
+                tsCtx.beginPath();
+                tsCtx.moveTo(padL, y);
+                tsCtx.lineTo(padL + plotW, y);
+                tsCtx.stroke();
+                tsCtx.fillText(`${v}°`, padL - 4, y);
+            }
+
+            // Axis grid (vertical: 6 hr steps)
+            tsCtx.textAlign = 'center';
+            tsCtx.textBaseline = 'top';
+            for (let h = 0; h <= 24; h += 6) {
+                const x = padL + plotW * (h / 24);
+                tsCtx.beginPath();
+                tsCtx.moveTo(x, padT);
+                tsCtx.lineTo(x, padT + plotH);
+                tsCtx.stroke();
+                tsCtx.fillText(`${h}h`, x, padT + plotH + 4);
+            }
+
+            // Plot each trace
+            substrateKeys.forEach(k => {
+                tsCtx.strokeStyle = TS_COLORS[k];
+                tsCtx.lineWidth = 2;
+                tsCtx.beginPath();
+                TS_DATA[k].forEach((v, i) => {
+                    const x = padL + plotW * (i / (N_FRAMES - 1));
+                    const y = padT + plotH * (1 - (v - tsMin) / (tsMax - tsMin));
+                    if (i === 0) tsCtx.moveTo(x, y); else tsCtx.lineTo(x, y);
+                });
+                tsCtx.stroke();
+            });
+
+            // Time cursor (vertical line at current frame)
+            const cursorX = padL + plotW * (frameIdx / (N_FRAMES - 1));
+            tsCtx.strokeStyle = 'rgba(255,255,255,0.85)';
+            tsCtx.lineWidth = 1.5;
+            tsCtx.setLineDash([4, 3]);
+            tsCtx.beginPath();
+            tsCtx.moveTo(cursorX, padT);
+            tsCtx.lineTo(cursorX, padT + plotH);
+            tsCtx.stroke();
+            tsCtx.setLineDash([]);
+
+            // Current-value dots on each trace at the cursor
+            substrateKeys.forEach(k => {
+                const v = TS_DATA[k][frameIdx];
+                const y = padT + plotH * (1 - (v - tsMin) / (tsMax - tsMin));
+                tsCtx.fillStyle = TS_COLORS[k];
+                tsCtx.beginPath();
+                tsCtx.arc(cursorX, y, 3.5, 0, Math.PI * 2);
+                tsCtx.fill();
+                tsCtx.strokeStyle = '#0a0d1a';
+                tsCtx.lineWidth = 1.5;
+                tsCtx.stroke();
+            });
+        }
+
+        // Click on the time-series panel to seek
+        tsCanvas.addEventListener('click', (e) => {
+            const rect = tsCanvas.getBoundingClientRect();
+            // Map CSS-pixel click to canvas-pixel x, then to plot x
+            const cssX = e.clientX - rect.left;
+            const canvasX = cssX * (tsCanvas.width / rect.width);
+            const padL = 38, padR = 8;
+            const plotW = tsCanvas.width - padL - padR;
+            const frac = (canvasX - padL) / plotW;
+            const newIdx = Math.max(0, Math.min(N_FRAMES - 1, Math.round(frac * (N_FRAMES - 1))));
+            updateFrame(newIdx);
+        });
+
+        tsToggle.addEventListener('click', () => {
+            tsPanel.classList.toggle('collapsed');
+            tsToggle.textContent = tsPanel.classList.contains('collapsed') ? '+' : '−';
+        });
+
+        // -------------------------------------------------------------
+        // NEW FEATURE 3: Camera presets (Iso / Front / Top / Cross)
+        // -------------------------------------------------------------
+        const CAMERA_PRESETS = {
+            iso:   { pos: [9, 4.5, 12],   target: [0, -1.5, 0] },
+            front: { pos: [0, 0,   13],   target: [0, -2,    0] },
+            top:   { pos: [0, 14,  0.01], target: [0,  0,    0] },
+            cross: { pos: [0, 0.5, 11],   target: [0, -2,    0] },
+        };
+
+        function applyCameraPreset(name) {
+            const p = CAMERA_PRESETS[name];
+            if (!p) return;
+            camera.position.set(...p.pos);
+            controls.target.set(...p.target);
+        }
+
+        viewSelect.addEventListener('change', () => applyCameraPreset(viewSelect.value));
+
+        // -------------------------------------------------------------
+        // NEW FEATURE 4: Playback speed
+        // -------------------------------------------------------------
+        speedSelect.addEventListener('change', () => {
+            FRAME_INTERVAL_MS = parseInt(speedSelect.value);
+        });
+
+        // -------------------------------------------------------------
+        // Existing updateFrame, with TS panel redraw added
+        // -------------------------------------------------------------
+        function updateFrame(idx) {
+            frameIdx = idx;
+            slider.value = idx;
+            const hour = idx * 0.25;
+            const hh = Math.floor(hour);
+            const mm = Math.round((hour - hh) * 60);
+            timeLabel.textContent = `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+
+            columns.forEach(col => {
+                // 1. Update Surface Plate Color
+                const ts = TS_DATA[col.key][idx];
+                col.plateMat.color.copy(colorScale(ts));
+                col.plateMat.emissive.copy(colorScale(ts)).multiplyScalar(0.25);
+
+                // 2. Update Thermal Cross-Section Colors if active
+                if (showThermal) {
+                    const colorsAttribute = col.thermalPlane.geometry.attributes.color;
+                    const positionsAttribute = col.thermalPlane.geometry.attributes.position;
+
+                    for (let i = 0; i < positionsAttribute.count; i++) {
+                        const y_scene = positionsAttribute.getY(i);
+                        const z_meters = Math.abs(y_scene) / COL_HEIGHT * DEPTH_M;
+
+                        const temp_at_depth = getSubstrateTempAtDepth(col.key, z_meters, idx);
+                        const color = colorScale(temp_at_depth);
+
+                        colorsAttribute.setXYZ(i, color.r, color.g, color.b);
+                    }
+                    colorsAttribute.needsUpdate = true;
+                }
+            });
+
+            const sunHourAngle = (hour - 6) / 12 * Math.PI;
+            const sunHeight = Math.sin(sunHourAngle);
+            const sunX = -Math.cos(sunHourAngle) * 16;
+            const sunY = 8 + sunHeight * 9;
+            const sunZ = 6;
+            sunMesh.position.set(sunX, Math.max(sunY, -2), sunZ);
+            sunLight.position.set(sunX, Math.max(sunY, 2), sunZ);
+            sunLight.target.position.set(0, -1.5, 0);
+
+            const sunIsUp = sunHeight > 0;
+            if (sunIsUp) {
+                const horizon = 1 - sunHeight;
+                sunMesh.material.color.setRGB(1.0, 0.85 - 0.3 * horizon, 0.55 - 0.45 * horizon);
+                sunLight.intensity = 0.4 + 1.0 * sunHeight;
+                sunLight.color.copy(sunMesh.material.color);
+                sunMesh.visible = true;
+            } else {
+                sunLight.intensity = 0.08;
+                sunMesh.visible = false;
+            }
+
+            const dayFactor = Math.max(0, sunHeight);
+            scene.background = new THREE.Color()
+                .setRGB(0.04 + 0.50 * dayFactor, 0.05 + 0.55 * dayFactor, 0.10 + 0.75 * dayFactor);
+
+            // Redraw the 2D time-series cursor
+            drawTimeSeries();
+        }
+
+        slider.addEventListener('input', () => updateFrame(parseInt(slider.value)));
+
+        playBtn.addEventListener('click', () => {
+            isPlaying = !isPlaying;
+            playBtn.textContent = isPlaying ? '⏸ Pause' : '▶ Play';
+        });
+
+        resetBtn.addEventListener('click', () => {
+            applyCameraPreset('iso');
+            viewSelect.value = 'iso';
+        });
+
+        function updateSlabOpacity() {
+            // Determine opacity based on active toggles
+            // If either thermal plane or grid is active, we need to see through the blocks
+            const needsTransparency = showThermal || showGrid;
+            let targetOpacity = 1.0;
+
+            if (needsTransparency) {
+                // If grid is on, we want it quite transparent. If only thermal, slightly less transparent.
+                targetOpacity = showGrid ? 0.08 : 0.15;
+            }
+
+            columns.forEach(col => {
+                if (col.group.userData.slabs) {
+                    col.group.userData.slabs.forEach(slab => {
+                        slab.material.transparent = needsTransparency;
+                        slab.material.opacity = targetOpacity;
+                    });
+                }
+            });
+        }
+
+        thermalBtn.addEventListener('click', () => {
+            showThermal = !showThermal;
+            thermalMaterial.visible = showThermal;
+            thermalBtn.classList.toggle('active');
+
+            updateSlabOpacity();
+
+            if (showThermal && !showGrid) {
+                applyCameraPreset('cross');
+                viewSelect.value = 'cross';
+            }
+
+            if (showThermal) updateFrame(frameIdx);
+        });
+
+        gridBtn.addEventListener('click', () => {
+            showGrid = !showGrid;
+            gridBtn.classList.toggle('active');
+
+            columns.forEach(col => {
+                col.group.userData.gridGroup.visible = showGrid;
+            });
+
+            updateSlabOpacity();
+
+            if (showGrid) {
+                camera.position.set(6, 1.5, 8);
+                controls.target.set(0, -0.5, 0);
+                viewSelect.value = 'iso';   // closest preset, but reflect non-preset state
+            }
+        });
+
+        // NEW: damping-depth toggle
+        dampingBtn.addEventListener('click', () => {
+            showDamping = !showDamping;
+            dampingMarkers.visible = showDamping;
+            dampingBtn.classList.toggle('active');
+        });
+
+        // Keyboard shortcuts: space = play/pause, 1-4 = camera presets
+        const PRESET_KEYS = { '1': 'iso', '2': 'front', '3': 'top', '4': 'cross' };
+        window.addEventListener('keydown', e => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                playBtn.click();
+                return;
+            }
+            // Don't hijack typing in inputs
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+            if (PRESET_KEYS[e.key]) {
+                applyCameraPreset(PRESET_KEYS[e.key]);
+                viewSelect.value = PRESET_KEYS[e.key];
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        function animate(now) {
+            requestAnimationFrame(animate);
+            if (isPlaying && now - lastFrameTime >= FRAME_INTERVAL_MS) {
+                updateFrame((frameIdx + 1) % N_FRAMES);
+                lastFrameTime = now;
+            }
+
+            const camY = camera.position.y;
+            let groundOpacity;
+            if (camY >= 1) {
+                groundOpacity = 0.55;
+            } else if (camY >= 0) {
+                groundOpacity = 0.30 + 0.25 * camY;
+            } else if (camY >= -1) {
+                groundOpacity = 0.30 + 0.25 * camY;
+            } else {
+                groundOpacity = 0.05;
+            }
+            ground.material.opacity = groundOpacity;
+            gridHelper.material.opacity = Math.min(0.85, groundOpacity * 1.3);
+            edgeMat.opacity = Math.min(0.9, groundOpacity * 1.5);
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        updateFrame(48);
+        requestAnimationFrame(animate);
+    </script>
+</body>
+
+</html>

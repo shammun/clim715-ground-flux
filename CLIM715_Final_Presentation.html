@@ -1,0 +1,2937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLIM-715 Final Project — Numerical Damping of Diurnal Ground Heat Flux</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body, html {
+    width: 100vw; height: 100vh;
+    overflow: hidden;
+    background: #eaf0f8;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+  }
+  .slide-frame {
+    position: absolute; top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    border: none;
+    display: none;
+  }
+  .slide-frame.active { display: block; }
+  #slide-number {
+    position: fixed;
+    top: 8px; right: 22px;
+    color: #6b5cb5;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    z-index: 99999;
+    pointer-events: none;
+    background: rgba(234, 240, 248, 0.85);
+    padding: 3px 12px;
+    border-radius: 4px;
+    letter-spacing: 0.3px;
+  }
+</style>
+</head>
+<body>
+<div id="slide-number">Slide 1</div>
+<div id="frames-container"></div>
+
+<!-- ============================================================
+     SLIDE s0 — Title
+     ============================================================ -->
+<textarea id="s0" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #eaf0f8; color: #2c3142;
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .slide {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    justify-content: center;
+    padding: 60px 90px;
+  }
+  .eyebrow {
+    font-size: 12px; letter-spacing: 2.5px;
+    color: #6b5cb5; font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 22px;
+  }
+  .title {
+    font-size: 40px; font-weight: 700;
+    color: #2c3142; line-height: 1.18;
+    margin-bottom: 16px;
+    max-width: 1100px;
+  }
+  .subtitle {
+    font-size: 22px; font-style: italic;
+    color: #ee845b; margin-bottom: 56px;
+    max-width: 1000px;
+  }
+  .divider {
+    width: 70px; height: 3px;
+    background: #38b2ac; border-radius: 2px;
+    margin-bottom: 32px;
+  }
+  .author { font-size: 19px; font-weight: 700; color: #2c3142; margin-bottom: 6px; }
+  .meta { font-size: 14.5px; color: #4a5066; line-height: 1.6; }
+  .meta .accent { color: #6b5cb5; font-weight: 600; }
+  .footer-tip {
+    position: absolute;
+    bottom: 26px; left: 90px;
+    font-size: 11px; color: #6b7186;
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+  }
+  .footer-tip .kbd {
+    display: inline-block;
+    padding: 1px 6px;
+    background: #ffffff;
+    border: 1px solid rgba(107, 92, 181, 0.25);
+    border-radius: 3px;
+    color: #6b5cb5; font-weight: 600;
+    margin: 0 2px;
+  }
+</style>
+</head>
+<body>
+<div class="slide">
+  <div class="eyebrow">CLIM-715 &middot; Numerical Methods for Climate &amp; Weather Modeling</div>
+  <div class="title">Numerical Damping of the Diurnal Ground Heat Flux over Urban Substrates</div>
+  <div class="subtitle">An Explicit, Implicit, and Crank&ndash;Nicolson Comparison</div>
+  <div class="divider"></div>
+  <div class="author">Shammunul Islam</div>
+  <div class="meta">
+    <span class="accent">Final Project</span> &middot; Spring 2026<br>
+    Department of Atmospheric, Oceanic and Earth Sciences &middot; George Mason University
+  </div>
+</div>
+<div class="footer-tip">
+  Press <span class="kbd">M</span> for next slide, <span class="kbd">K</span> for previous.
+</div>
+</body>
+</html></textarea>
+
+<!-- ============================================================
+     SLIDE s1 — Why ground heat flux? UHI hook
+     ============================================================ -->
+<textarea id="s1" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #eaf0f8; color: #2c3142;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .title-bar {
+    padding: 26px 52px 14px;
+    display: flex; align-items: center; gap: 14px;
+    flex-shrink: 0;
+  }
+  .badge {
+    background: #6b5cb5; color: #fff;
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 4px 12px; border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .slide-title {
+    font-size: 26px; font-weight: 700; color: #2c3142;
+  }
+  .headline {
+    font-size: 18px; font-weight: 600;
+    color: #ee845b; text-align: center;
+    margin: 4px 52px 14px;
+    flex-shrink: 0;
+  }
+  .content {
+    flex: 1;
+    padding: 4px 52px 22px;
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: 32px;
+    min-height: 0;
+  }
+  .col {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(107, 92, 181, 0.10);
+    border: 1px solid rgba(107, 92, 181, 0.06);
+    padding: 18px 24px 16px;
+    display: flex; flex-direction: column;
+    min-height: 0;
+  }
+  .col h3 {
+    font-size: 13px; font-weight: 600;
+    color: #6b5cb5; letter-spacing: 0.3px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  ul.points {
+    list-style: none;
+    flex: 1;
+    display: flex; flex-direction: column; gap: 12px;
+    font-size: 15px; color: #2c3142; line-height: 1.5;
+  }
+  ul.points li {
+    padding-left: 22px; position: relative;
+  }
+  ul.points li::before {
+    content: '\25B8';
+    position: absolute; left: 0; top: 0;
+    color: #38b2ac; font-weight: 700;
+  }
+  ul.points em { color: #6b5cb5; font-style: normal; font-weight: 600; }
+  ul.points b { color: #2c8a83; }
+  .viz-wrap {
+    flex: 1; min-height: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  svg.uhi-plot { width: 100%; height: 100%; }
+  .caption {
+    font-size: 11px; color: #6b7186;
+    text-align: center; font-style: italic;
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+  .punchline {
+    text-align: center;
+    background: rgba(238, 132, 91, 0.10);
+    border-left: 3px solid #ee845b;
+    padding: 10px 18px;
+    margin: 0 52px 22px;
+    color: #2c3142;
+    font-size: 15px; font-weight: 500;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .punchline b { color: #ee845b; }
+</style>
+</head>
+<body>
+  <div class="title-bar">
+    <span class="badge">Motivation</span>
+    <span class="slide-title">Why does the ground heat flux deserve numerical care?</span>
+  </div>
+  <div class="headline">G is small in the daily mean &mdash; but dominates the diurnal range and the nocturnal urban warm anomaly.</div>
+  <div class="content">
+
+    <div class="col">
+      <h3>The mechanism</h3>
+      <ul class="points">
+        <li><b>Daytime:</b> pavements, walls, and roofs absorb shortwave and store heat; G &gt; 0 (into the ground).</li>
+        <li><b>Nighttime:</b> stored heat is released back to the surface; G &lt; 0 (out of the ground), sustaining the urban warm anomaly hours after sunset.</li>
+        <li>The diurnal damping depth d = &radic;(2 &kappa;<sub>s</sub>/&omega;) is <em>~8&ndash;12 cm</em> in soils, asphalt, concrete &mdash; so urban canopy schemes use cm-scale near-surface layers.</li>
+        <li>FTCS stability bound at &Delta;z = 1 cm in concrete: <em>&Delta;t &lt; 17 s</em> &mdash; far below any operational mesoscale time step.</li>
+      </ul>
+    </div>
+
+    <div class="col">
+      <h3>Day&ndash;night surface temperature contrast</h3>
+      <div class="viz-wrap">
+        <svg class="uhi-plot" viewBox="0 0 540 280" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <linearGradient id="nightShade" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"  stop-color="#6b5cb5" stop-opacity="0.18"/>
+              <stop offset="100%" stop-color="#6b5cb5" stop-opacity="0.04"/>
+            </linearGradient>
+          </defs>
+          <!-- Night shading: 18:00 - 06:00 -->
+          <rect x="40"  y="20"  width="105" height="220" fill="url(#nightShade)"/>
+          <rect x="415" y="20"  width="85"  height="220" fill="url(#nightShade)"/>
+          <!-- Axes -->
+          <line x1="40" y1="240" x2="500" y2="240" stroke="#9aa3b8" stroke-width="1"/>
+          <line x1="40" y1="20"  x2="40"  y2="240" stroke="#9aa3b8" stroke-width="1"/>
+          <!-- X labels -->
+          <text x="40"  y="258" font-size="10" fill="#6b7186" text-anchor="middle">00</text>
+          <text x="145" y="258" font-size="10" fill="#6b7186" text-anchor="middle">06</text>
+          <text x="270" y="258" font-size="10" fill="#6b7186" text-anchor="middle">12</text>
+          <text x="395" y="258" font-size="10" fill="#6b7186" text-anchor="middle">18</text>
+          <text x="500" y="258" font-size="10" fill="#6b7186" text-anchor="middle">24</text>
+          <text x="270" y="274" font-size="11" fill="#4a5066" text-anchor="middle" font-weight="500">hour of day</text>
+          <!-- Y axis label -->
+          <text x="14" y="135" font-size="11" fill="#4a5066" text-anchor="middle" font-weight="500"
+                transform="rotate(-90 14 135)">surface T (&deg;C)</text>
+          <!-- Y ticks -->
+          <text x="34" y="244" font-size="10" fill="#6b7186" text-anchor="end">15</text>
+          <text x="34" y="166" font-size="10" fill="#6b7186" text-anchor="end">25</text>
+          <text x="34" y="88"  font-size="10" fill="#6b7186" text-anchor="end">35</text>
+          <line x1="40" y1="166" x2="500" y2="166" stroke="rgba(107,92,181,0.10)" stroke-width="1"/>
+          <line x1="40" y1="88"  x2="500" y2="88"  stroke="rgba(107,92,181,0.10)" stroke-width="1"/>
+          <!-- Urban (pavement-heavy) curve: higher peak, slower nighttime cooling -->
+          <path d="M 40,210 C 90,212 120,212 145,205 C 180,195 215,140 270,72 C 320,30 355,55 395,110 C 430,150 470,182 500,196"
+                fill="none" stroke="#c2492a" stroke-width="2.6"/>
+          <!-- Rural (vegetated) curve: lower peak, faster nighttime cooling -->
+          <path d="M 40,228 C 90,232 120,232 145,228 C 180,218 215,160 270,108 C 320,68 355,90 395,148 C 430,190 470,222 500,232"
+                fill="none" stroke="#2c8a83" stroke-width="2.6"/>
+          <!-- Night-time gap arrow + label -->
+          <line x1="455" y1="196" x2="455" y2="222" stroke="#6b5cb5" stroke-width="1.5" stroke-dasharray="3 2"/>
+          <text x="448" y="180" font-size="10.5" fill="#6b5cb5" font-weight="600" text-anchor="end">UHI</text>
+          <!-- Legend -->
+          <g transform="translate(48, 36)">
+            <line x1="0" y1="6" x2="22" y2="6" stroke="#c2492a" stroke-width="2.5"/>
+            <text x="28" y="9" font-size="11" fill="#2c3142">urban (pavement-heavy)</text>
+            <line x1="0" y1="22" x2="22" y2="22" stroke="#2c8a83" stroke-width="2.5"/>
+            <text x="28" y="25" font-size="11" fill="#2c3142">rural (vegetated)</text>
+          </g>
+          <!-- Night labels -->
+          <text x="92"  y="36" font-size="9.5" fill="#6b5cb5" font-weight="600" text-anchor="middle" font-style="italic">night</text>
+          <text x="458" y="36" font-size="9.5" fill="#6b5cb5" font-weight="600" text-anchor="middle" font-style="italic">night</text>
+        </svg>
+      </div>
+      <div class="caption">Heat stored during the day re-emerges at night &mdash; the diurnal G cycle <em>is</em> the UHI mechanism.</div>
+    </div>
+
+  </div>
+  <div class="punchline">
+    Errors in the numerical treatment of G propagate <b>directly into the simulated nocturnal urban heat island</b>.
+  </div>
+</body>
+</html></textarea>
+
+<!-- ============================================================
+     SLIDE s2 — Physics and θ-method
+     ============================================================ -->
+<textarea id="s2" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #eaf0f8; color: #2c3142;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .title-bar {
+    padding: 24px 52px 12px;
+    display: flex; align-items: center; gap: 14px;
+    flex-shrink: 0;
+  }
+  .badge {
+    background: #6b5cb5; color: #fff;
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 4px 12px; border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .slide-title { font-size: 26px; font-weight: 700; color: #2c3142; }
+  .content {
+    flex: 1;
+    padding: 6px 52px 26px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 26px;
+    min-height: 0;
+  }
+  .col {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(107, 92, 181, 0.10);
+    border: 1px solid rgba(107, 92, 181, 0.06);
+    padding: 16px 22px 14px;
+    display: flex; flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .col h3 {
+    font-size: 12.5px; font-weight: 600;
+    color: #6b5cb5; letter-spacing: 0.4px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .eq {
+    font-family: 'Cambria Math', Georgia, serif;
+    font-size: 18px;
+    text-align: center;
+    margin: 6px 0 8px;
+    color: #2c3142;
+    letter-spacing: 0.2px;
+  }
+  .eq-block {
+    background: rgba(56, 178, 172, 0.06);
+    border-left: 3px solid #38b2ac;
+    padding: 10px 14px;
+    border-radius: 4px;
+    margin: 4px 0 12px;
+  }
+  .note {
+    font-size: 13px; color: #4a5066; line-height: 1.5;
+    margin: 6px 0;
+  }
+  .note b { color: #2c8a83; }
+  .note em { color: #6b5cb5; font-style: normal; font-weight: 600; }
+  .pills {
+    display: flex; gap: 10px; margin-top: 10px;
+    justify-content: center;
+  }
+  .pill {
+    border: 1.5px solid; border-radius: 8px;
+    padding: 6px 12px;
+    text-align: center;
+    flex: 1;
+    background: #fff;
+  }
+  .pill .alpha {
+    display: block;
+    font-family: 'Cambria Math', Georgia, serif;
+    font-size: 16px; font-weight: 700;
+  }
+  .pill .name {
+    display: block;
+    font-size: 11.5px; font-weight: 600;
+    margin-top: 2px;
+    letter-spacing: 0.4px;
+  }
+  .pill.ftcs { border-color: #c2492a; color: #c2492a; }
+  .pill.cn   { border-color: #38b2ac; color: #2c8a83; }
+  .pill.btcs { border-color: #6b5cb5; color: #6b5cb5; }
+  .diagram-wrap {
+    flex: 1; min-height: 0;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 8px;
+  }
+  svg.col-diagram { width: 100%; height: 100%; max-width: 320px; }
+  .bc-table {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 4px 12px;
+    font-size: 12.5px;
+    color: #4a5066;
+  }
+  .bc-table .lbl { font-weight: 600; color: #6b5cb5; }
+</style>
+</head>
+<body>
+  <div class="title-bar">
+    <span class="badge">Setup</span>
+    <span class="slide-title">1-D heat equation on a stretched grid + the &theta;-method family</span>
+  </div>
+  <div class="content">
+
+    <div class="col">
+      <h3>Governing equation &amp; discretisation</h3>
+      <div class="eq-block">
+        <div class="eq">C<sub>s</sub>(z) &part;T<sub>s</sub>/&part;t = &part;/&part;z [&lambda;<sub>s</sub>(z) &part;T<sub>s</sub>/&part;z]</div>
+      </div>
+      <div class="note">
+        <b>Conductivity form</b> preserves discrete heat content across material discontinuities, where &lambda; and C jump by orders of magnitude.
+      </div>
+      <div class="note">
+        Cell centres on a stretched grid (<em>&Delta;z<sub>1</sub> = 0.5&ndash;1 cm</em> at the surface, 30 cm at z = 2 m). Conductivity at half-levels via harmonic mean &lambda;<sub>j+&frac12;</sub> = 2 &lambda;<sub>j</sub> &lambda;<sub>j+1</sub> / (&lambda;<sub>j</sub> + &lambda;<sub>j+1</sub>) &mdash; preserves the flux across a &lambda; jump.
+      </div>
+      <div class="diagram-wrap">
+        <svg class="col-diagram" viewBox="0 0 320 250" preserveAspectRatio="xMidYMid meet">
+          <!-- Column outline -->
+          <rect x="100" y="20" width="120" height="210" fill="rgba(107,92,181,0.04)" stroke="#6b5cb5" stroke-width="1"/>
+          <!-- 5 cells -->
+          <line x1="100" y1="62"  x2="220" y2="62"  stroke="#9aa3b8" stroke-dasharray="3 2"/>
+          <line x1="100" y1="104" x2="220" y2="104" stroke="#9aa3b8" stroke-dasharray="3 2"/>
+          <line x1="100" y1="146" x2="220" y2="146" stroke="#9aa3b8" stroke-dasharray="3 2"/>
+          <line x1="100" y1="188" x2="220" y2="188" stroke="#9aa3b8" stroke-dasharray="3 2"/>
+          <!-- Cell centres -->
+          <circle cx="160" cy="41"  r="3.5" fill="#6b5cb5"/>
+          <circle cx="160" cy="83"  r="3.5" fill="#6b5cb5"/>
+          <circle cx="160" cy="125" r="3.5" fill="#6b5cb5"/>
+          <circle cx="160" cy="167" r="3.5" fill="#6b5cb5"/>
+          <circle cx="160" cy="209" r="3.5" fill="#6b5cb5"/>
+          <!-- Centre labels -->
+          <text x="184" y="44"  font-size="11" fill="#2c3142" font-style="italic">T<tspan baseline-shift="sub" font-size="9">1</tspan></text>
+          <text x="184" y="86"  font-size="11" fill="#2c3142" font-style="italic">T<tspan baseline-shift="sub" font-size="9">2</tspan></text>
+          <text x="184" y="128" font-size="11" fill="#2c3142" font-style="italic">T<tspan baseline-shift="sub" font-size="9">j</tspan></text>
+          <!-- Surface plate -->
+          <line x1="92" y1="20" x2="228" y2="20" stroke="#ee845b" stroke-width="3"/>
+          <text x="160" y="13" font-size="11" fill="#ee845b" text-anchor="middle" font-weight="700">surface T<tspan baseline-shift="sub" font-size="9">s</tspan><tspan>&deg;</tspan> (SEB Newton)</text>
+          <!-- Bottom -->
+          <line x1="92" y1="230" x2="228" y2="230" stroke="#9aa3b8" stroke-width="2"/>
+          <text x="160" y="244" font-size="11" fill="#6b7186" text-anchor="middle" font-style="italic">zero-flux: &part;T/&part;z = 0</text>
+          <!-- Half-level flux arrow -->
+          <line x1="64" y1="83"  x2="92" y2="83"  stroke="#38b2ac" stroke-width="2"/>
+          <polygon points="92,80 100,83 92,86" fill="#38b2ac"/>
+          <text x="58" y="86" font-size="10" fill="#2c8a83" text-anchor="end" font-weight="600">G<tspan baseline-shift="sub" font-size="8">j-&frac12;</tspan></text>
+          <line x1="64" y1="125" x2="92" y2="125" stroke="#38b2ac" stroke-width="2"/>
+          <polygon points="92,122 100,125 92,128" fill="#38b2ac"/>
+          <text x="58" y="128" font-size="10" fill="#2c8a83" text-anchor="end" font-weight="600">G<tspan baseline-shift="sub" font-size="8">j+&frac12;</tspan></text>
+          <!-- &lambda; jump annotation -->
+          <line x1="100" y1="104" x2="220" y2="104" stroke="#c2492a" stroke-width="1.5"/>
+          <text x="232" y="107" font-size="10" fill="#c2492a" font-weight="600">&lambda; jump</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="col">
+      <h3>The &theta;-method update</h3>
+      <div class="eq-block">
+        <div class="eq">C<sub>j</sub>&Delta;z<sub>j</sub> (T<sub>j</sub><sup>n+1</sup> &minus; T<sub>j</sub><sup>n</sup>)/&Delta;t =</div>
+        <div class="eq">&alpha; [&minus;&part;G/&part;z]<sup>n+1</sup> + (1&minus;&alpha;) [&minus;&part;G/&part;z]<sup>n</sup></div>
+      </div>
+      <div class="note">
+        One equation, three schemes: choose &alpha;.
+      </div>
+      <div class="pills">
+        <div class="pill ftcs"><span class="alpha">&alpha; = 0</span><span class="name">FTCS</span></div>
+        <div class="pill cn"><span class="alpha">&alpha; = &frac12;</span><span class="name">Crank&ndash;Nicolson</span></div>
+        <div class="pill btcs"><span class="alpha">&alpha; = 1</span><span class="name">BTCS</span></div>
+      </div>
+      <div class="note" style="margin-top:14px">
+        Implicit cases (&alpha; &gt; 0) need a tridiagonal solve each step &mdash; <b>O(N) cost</b> with the SciPy banded solver.
+      </div>
+      <div class="bc-table">
+        <span class="lbl">Top BC:</span>
+        <span>SEB closure R<sub>n</sub> &minus; H &minus; LE &minus; G = 0, solved for T<sub>s</sub><sup>0</sup> by Newton iteration to |&Delta;T| &lt; 10<sup>&minus;4</sup> K.</span>
+        <span class="lbl">Bottom BC:</span>
+        <span>Zero-flux Neumann at z = 2 m.</span>
+        <span class="lbl">Forcing:</span>
+        <span>S&darr; sinusoidal (1000 W m<sup>&minus;2</sup> peak), T<sub>a</sub> mean 292.5 K + 7.5 K cosine, peak at 14:00.</span>
+        <span class="lbl">Order of ops:</span>
+        <span>advance soil column with current T<sub>s</sub><sup>0</sup> &rarr; update T<sub>s</sub><sup>0</sup> from SEB with new T<sub>1</sub>.</span>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html></textarea>
+
+<!-- ============================================================
+     SLIDE s3 — 17-second-problem widget
+     Δz slider → FTCS Δt_max bars per substrate, log-x scale.
+     ============================================================ -->
+<textarea id="s3" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #eaf0f8; color: #2c3142;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .title-bar {
+    padding: 22px 52px 6px;
+    display: flex; align-items: center; gap: 14px;
+    flex-shrink: 0;
+  }
+  .badge {
+    background: #ee845b; color: #fff;
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 4px 12px; border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .slide-title { font-size: 24px; font-weight: 700; color: #2c3142; }
+  .formula-bar {
+    text-align: center;
+    margin: 2px 52px 8px;
+    font-size: 14px; color: #4a5066;
+    flex-shrink: 0;
+  }
+  .formula-bar .eq {
+    font-family: 'Cambria Math', Georgia, serif;
+    font-size: 19px; color: #2c8a83; font-weight: 600;
+    background: rgba(56, 178, 172, 0.08);
+    padding: 3px 14px; border-radius: 4px;
+    margin-left: 6px;
+    display: inline-block;
+  }
+
+  /* Slider control card */
+  .control-card {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 10px 22px 6px;
+    margin: 0 52px 8px;
+    box-shadow: 0 2px 10px rgba(107, 92, 181, 0.10);
+    border: 1px solid rgba(107, 92, 181, 0.06);
+    flex-shrink: 0;
+  }
+  .row1 {
+    display: flex; align-items: center; gap: 14px;
+  }
+  .dz-label { font-size: 12px; color: #6b7186; font-weight: 500; min-width: 36px; }
+  .dz-value {
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    font-size: 20px; color: #2c8a83; font-weight: 600;
+    min-width: 100px; font-variant-numeric: tabular-nums;
+    letter-spacing: 0.3px;
+  }
+  .slider-wrap { flex: 1; position: relative; padding: 6px 0 18px 0; }
+  input[type="range"].dz-slider {
+    width: 100%; height: 16px;
+    -webkit-appearance: none; appearance: none;
+    background: transparent; cursor: pointer;
+    margin: 0; padding: 0; display: block;
+  }
+  input[type="range"].dz-slider:focus { outline: none; }
+  input[type="range"].dz-slider::-webkit-slider-runnable-track {
+    height: 6px; border-radius: 3px;
+    background: linear-gradient(to right, #ee845b 0%, #f0a05a 50%, #38b2ac 100%);
+    border: 1px solid rgba(107, 92, 181, 0.20);
+  }
+  input[type="range"].dz-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    margin-top: -7px;
+    width: 20px; height: 20px;
+    border-radius: 50%; background: #ee845b;
+    border: 3px solid #ffffff; cursor: pointer;
+    box-shadow: 0 2px 6px rgba(238, 132, 91, 0.5),
+                0 0 0 2px rgba(238, 132, 91, 0.25);
+  }
+  input[type="range"].dz-slider::-moz-range-track {
+    height: 6px; border-radius: 3px;
+    background: linear-gradient(to right, #ee845b 0%, #f0a05a 50%, #38b2ac 100%);
+  }
+  input[type="range"].dz-slider::-moz-range-thumb {
+    width: 18px; height: 18px;
+    border-radius: 50%; background: #ee845b;
+    border: 3px solid #ffffff; cursor: pointer;
+  }
+  .ticks {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 16px; pointer-events: none;
+  }
+  .tick {
+    position: absolute; transform: translateX(-50%);
+    font-size: 9.5px; color: #6b7186;
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    pointer-events: auto; cursor: pointer;
+    padding: 1px 4px; border-radius: 3px;
+    user-select: none;
+  }
+  .tick::before {
+    content: ''; display: block;
+    width: 1px; height: 4px;
+    background: rgba(107, 92, 181, 0.45);
+    margin: 0 auto 2px;
+  }
+  .tick:hover { color: #6b5cb5; background: rgba(107, 92, 181, 0.08); }
+
+  /* Plot card */
+  .plot-card {
+    flex: 1;
+    margin: 0 52px 8px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(107, 92, 181, 0.10);
+    border: 1px solid rgba(107, 92, 181, 0.06);
+    padding: 10px 14px 6px;
+    display: flex; flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+  svg.barplot { width: 100%; flex: 1; min-height: 0; }
+
+  /* Punchline */
+  .punch {
+    margin: 0 52px 22px;
+    text-align: center;
+    background: rgba(238, 132, 91, 0.10);
+    border-left: 3px solid #ee845b;
+    padding: 10px 18px; border-radius: 4px;
+    font-size: 14.5px; font-weight: 500;
+    color: #2c3142; line-height: 1.45;
+    flex-shrink: 0;
+  }
+  .punch b { color: #c2492a; font-weight: 700; }
+  .punch .v {
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    color: #6b5cb5; font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+</style>
+</head>
+<body>
+  <div class="title-bar">
+    <span class="badge">Stability bound &mdash; live</span>
+    <span class="slide-title">The 17-second problem</span>
+  </div>
+  <div class="formula-bar">
+    FTCS bound at the most thermally stiff top layer of each substrate:
+    <span class="eq">&Delta;t<sub>max</sub> = &frac12; &Delta;z&sup2; / &kappa;</span>
+  </div>
+
+  <div class="control-card">
+    <div class="row1">
+      <span class="dz-label">&Delta;z =</span>
+      <span class="dz-value" id="dz-value">10.0 mm</span>
+      <div class="slider-wrap">
+        <input type="range" class="dz-slider" id="dz-slider" min="0" max="100" step="0.5" value="50">
+        <div class="ticks" id="ticks"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="plot-card">
+    <svg class="barplot" id="barplot" preserveAspectRatio="xMidYMid meet"></svg>
+  </div>
+
+  <div class="punch" id="punch">
+    Drag the slider to see the bound collapse.
+  </div>
+
+<script>
+"use strict";
+
+// Substrate properties — most thermally stiff TOP layer of each column.
+//   Asphalt road:  top is asphalt itself.   λ = 0.75, C ≈ 2.0e6 → κ = 3.75e-7 m²/s
+//   Concrete roof: top is concrete deck.    λ = 1.50, C ≈ 2.0e6 → κ = 7.50e-7 m²/s
+//   Bare soil:     uniform sandy loam.      κ from report = 2.31e-7 m²/s
+// At Δz = 5 mm in concrete: Δt_max = ½(0.005)²/7.5e-7 ≈ 17 s — matches report.
+var SUBS = [
+  { key: 'asphalt', label: 'Asphalt road',  sub: 'top: asphalt (λ=0.75)',   kappa: 3.75e-7, color: '#6b5cb5' },
+  { key: 'roof',    label: 'Concrete roof', sub: 'top: concrete (λ=1.50)',  kappa: 7.50e-7, color: '#d97757' },
+  { key: 'soil',    label: 'Bare soil',     sub: 'sandy loam (κ=2.3e-7)',   kappa: 2.31e-7, color: '#8b6f3a' }
+];
+
+// Slider 0..100 → Δz in mm (log spaced from 1 mm to 100 mm).
+var DZ_MIN_MM = 1;
+var DZ_MAX_MM = 100;
+function dzFromSlider(v) {
+  var t = v / 100;
+  return Math.pow(10, Math.log10(DZ_MIN_MM) + t * (Math.log10(DZ_MAX_MM) - Math.log10(DZ_MIN_MM)));
+}
+function sliderFromDz(dz_mm) {
+  return 100 * (Math.log10(dz_mm) - Math.log10(DZ_MIN_MM)) / (Math.log10(DZ_MAX_MM) - Math.log10(DZ_MIN_MM));
+}
+
+// Δt log-x bounds (0.1 s to 100 000 s ≈ 28 hours).
+var X_MIN_S = 0.1;
+var X_MAX_S = 1e5;
+var X_RANGE = Math.log10(X_MAX_S) - Math.log10(X_MIN_S);
+
+// SVG layout
+var SVG_W = 1000;
+var SVG_H = 320;
+var PAD = { top: 36, right: 130, bottom: 50, left: 170 };
+var PLOT_W = SVG_W - PAD.left - PAD.right;
+var PLOT_H = SVG_H - PAD.top - PAD.bottom;
+
+var NS = 'http://www.w3.org/2000/svg';
+function svgEl(tag, attrs) {
+  var el = document.createElementNS(NS, tag);
+  if (attrs) for (var k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+}
+function xPx(s) {
+  var v = Math.log10(Math.max(s, X_MIN_S * 0.5));
+  return PAD.left + ((v - Math.log10(X_MIN_S)) / X_RANGE) * PLOT_W;
+}
+
+var svg = document.getElementById('barplot');
+svg.setAttribute('viewBox', '0 0 ' + SVG_W + ' ' + SVG_H);
+
+// Decade gridlines
+var DECADES = [0.1, 1, 10, 100, 1000, 10000, 100000];
+var DECADE_LABELS = ['0.1', '1', '10', '100', '1k', '10k', '100k'];
+
+// Operational reference lines.
+var REFS = [
+  { s: 17,  label: '17 s', color: '#c2492a' },
+  { s: 60,  label: '60 s', color: '#b89854' },
+  { s: 600, label: '600 s', color: '#2c8a83' }
+];
+
+// Background zones — red < 60 s, amber 60–600 s, green > 600 s.
+function drawAxes() {
+  var redEnd   = xPx(60);
+  var amberEnd = xPx(600);
+  svg.appendChild(svgEl('rect', {
+    x: PAD.left, y: PAD.top,
+    width: redEnd - PAD.left, height: PLOT_H,
+    fill: 'rgba(194, 73, 42, 0.05)'
+  }));
+  svg.appendChild(svgEl('rect', {
+    x: redEnd, y: PAD.top,
+    width: amberEnd - redEnd, height: PLOT_H,
+    fill: 'rgba(184, 152, 84, 0.06)'
+  }));
+  svg.appendChild(svgEl('rect', {
+    x: amberEnd, y: PAD.top,
+    width: PAD.left + PLOT_W - amberEnd, height: PLOT_H,
+    fill: 'rgba(56, 178, 172, 0.05)'
+  }));
+  // Decade gridlines + tick labels
+  for (var i = 0; i < DECADES.length; i++) {
+    svg.appendChild(svgEl('line', {
+      x1: xPx(DECADES[i]), y1: PAD.top,
+      x2: xPx(DECADES[i]), y2: PAD.top + PLOT_H,
+      stroke: 'rgba(107, 92, 181, 0.10)', 'stroke-width': '1'
+    }));
+    var lab = svgEl('text', {
+      x: xPx(DECADES[i]), y: PAD.top + PLOT_H + 18,
+      'text-anchor': 'middle', 'font-size': '12', fill: '#6b7186',
+      'font-family': 'Cascadia Code, Consolas, monospace'
+    });
+    lab.textContent = DECADE_LABELS[i];
+    svg.appendChild(lab);
+  }
+  // X-axis title
+  var xLab = svgEl('text', {
+    x: PAD.left + PLOT_W / 2, y: PAD.top + PLOT_H + 40,
+    'text-anchor': 'middle', 'font-size': '13', fill: '#4a5066',
+    'font-weight': '600'
+  });
+  xLab.textContent = 'FTCS Δt_max (seconds, log scale)';
+  svg.appendChild(xLab);
+  // Reference lines + labels
+  for (var r = 0; r < REFS.length; r++) {
+    var ref = REFS[r];
+    svg.appendChild(svgEl('line', {
+      x1: xPx(ref.s), y1: PAD.top - 12,
+      x2: xPx(ref.s), y2: PAD.top + PLOT_H,
+      stroke: ref.color, 'stroke-width': '1.6',
+      'stroke-dasharray': '5 4', opacity: '0.75'
+    }));
+    var refLab = svgEl('text', {
+      x: xPx(ref.s), y: PAD.top - 16,
+      'text-anchor': 'middle', 'font-size': '11', fill: ref.color,
+      'font-weight': '700', 'font-family': 'Cascadia Code, Consolas, monospace'
+    });
+    refLab.textContent = ref.label;
+    svg.appendChild(refLab);
+  }
+  // Substrate row labels
+  var rowH = PLOT_H / SUBS.length;
+  for (var s = 0; s < SUBS.length; s++) {
+    var sub = SUBS[s];
+    var yC = PAD.top + (s + 0.5) * rowH;
+    var lblName = svgEl('text', {
+      x: PAD.left - 14, y: yC - 4,
+      'text-anchor': 'end', 'font-size': '14', fill: sub.color,
+      'font-weight': '700'
+    });
+    lblName.textContent = sub.label;
+    svg.appendChild(lblName);
+    var lblSub = svgEl('text', {
+      x: PAD.left - 14, y: yC + 14,
+      'text-anchor': 'end', 'font-size': '10.5', fill: '#6b7186',
+      'font-style': 'italic'
+    });
+    lblSub.textContent = sub.sub;
+    svg.appendChild(lblSub);
+  }
+}
+drawAxes();
+
+// Bars + value labels.
+var bars = [];
+var barLabels = [];
+var rowH = PLOT_H / SUBS.length;
+var barH = rowH * 0.50;
+for (var s = 0; s < SUBS.length; s++) {
+  var yC = PAD.top + (s + 0.5) * rowH;
+  var bar = svgEl('rect', {
+    x: PAD.left, y: yC - barH/2,
+    width: 0, height: barH,
+    fill: SUBS[s].color, opacity: '0.92', rx: '3'
+  });
+  svg.appendChild(bar);
+  bars.push(bar);
+  var lbl = svgEl('text', {
+    x: PAD.left, y: yC + 5,
+    'font-size': '14', fill: '#ffffff',
+    'font-weight': '700',
+    'font-family': 'Cascadia Code, Consolas, monospace',
+    'text-anchor': 'start'
+  });
+  svg.appendChild(lbl);
+  barLabels.push(lbl);
+}
+
+function fmtSeconds(s) {
+  if (s < 1)    return s.toFixed(2) + ' s';
+  if (s < 60)   return s.toFixed(1) + ' s';
+  if (s < 3600) return (s / 60).toFixed(1) + ' min';
+  return (s / 3600).toFixed(1) + ' hr';
+}
+function fmtDz(dz_mm) {
+  return dz_mm < 10 ? dz_mm.toFixed(2) + ' mm' : dz_mm.toFixed(1) + ' mm';
+}
+
+function update() {
+  var dz_mm = dzFromSlider(parseFloat(slider.value));
+  var dz_m  = dz_mm / 1000;
+  document.getElementById('dz-value').textContent = fmtDz(dz_mm);
+
+  var concreteDt = 0;
+  for (var s = 0; s < SUBS.length; s++) {
+    var dt_max = 0.5 * dz_m * dz_m / SUBS[s].kappa;
+    var x0 = xPx(X_MIN_S);
+    var x1 = xPx(dt_max);
+    var w = Math.max(2, x1 - x0);
+    bars[s].setAttribute('width', w);
+    var labelText = fmtSeconds(dt_max);
+    var lbl = barLabels[s];
+    lbl.textContent = labelText;
+    if (w > 80) {
+      lbl.setAttribute('x', x0 + 8);
+      lbl.setAttribute('fill', '#ffffff');
+    } else {
+      lbl.setAttribute('x', x1 + 8);
+      lbl.setAttribute('fill', SUBS[s].color);
+    }
+    if (SUBS[s].key === 'roof') concreteDt = dt_max;
+  }
+
+  // Punchline — depends on which zone concrete falls into.
+  var punch = document.getElementById('punch');
+  var dzTxt = 'Δz = ' + fmtDz(dz_mm);
+  var dtTxt = 'Δt &lt; ' + fmtSeconds(concreteDt);
+  if (concreteDt < 60) {
+    punch.innerHTML =
+      'At <span class="v">' + dzTxt + '</span>: FTCS on concrete needs <span class="v">' + dtTxt +
+      '</span> &mdash; <b>below any operational mesoscale step</b>. Implicit treatment is structurally required.';
+  } else if (concreteDt < 600) {
+    punch.innerHTML =
+      'At <span class="v">' + dzTxt + '</span>: FTCS on concrete now allows <span class="v">' + dtTxt +
+      '</span> &mdash; usable for short steps but not for sub-hourly operational configurations.';
+  } else {
+    punch.innerHTML =
+      'At <span class="v">' + dzTxt + '</span>: FTCS allows <span class="v">' + dtTxt +
+      '</span>, but <b>this Δz fails to resolve the diurnal damping depth (~8&ndash;12 cm)</b>.';
+  }
+}
+
+// Slider wiring.
+var slider = document.getElementById('dz-slider');
+slider.addEventListener('input',  update);
+slider.addEventListener('change', update);
+
+// Clickable preset ticks.
+var PRESETS = [
+  { mm: 1,   label: '1' },
+  { mm: 5,   label: '5' },
+  { mm: 10,  label: '10' },
+  { mm: 25,  label: '25' },
+  { mm: 50,  label: '50' },
+  { mm: 100, label: '100' }
+];
+var ticksDiv = document.getElementById('ticks');
+PRESETS.forEach(function(preset) {
+  var tick = document.createElement('div');
+  tick.className = 'tick';
+  tick.style.left = sliderFromDz(preset.mm) + '%';
+  tick.textContent = preset.label;
+  tick.addEventListener('click', function() {
+    slider.value = String(sliderFromDz(preset.mm));
+    update();
+  });
+  ticksDiv.appendChild(tick);
+});
+
+// Arrow-key nudges (Shift = ×5).
+window.addEventListener('keydown', function(e) {
+  if (e.target && e.target.tagName === 'INPUT' && e.target !== slider) return;
+  var step = e.shiftKey ? 5 : 1;
+  if (e.key === 'ArrowLeft') {
+    slider.value = String(Math.max(0, parseFloat(slider.value) - step));
+    update();
+    e.preventDefault();
+  } else if (e.key === 'ArrowRight') {
+    slider.value = String(Math.min(100, parseFloat(slider.value) + step));
+    update();
+    e.preventDefault();
+  }
+});
+
+update();
+</script>
+
+</body>
+</html></textarea>
+
+<!-- ============================================================
+     SLIDE s4 — Verification: uniform column
+     ============================================================ -->
+<textarea id="s4" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #eaf0f8; color: #2c3142;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .title-bar {
+    padding: 24px 52px 8px;
+    display: flex; align-items: center; gap: 14px;
+    flex-shrink: 0;
+  }
+  .badge {
+    background: #38b2ac; color: #fff;
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 4px 12px; border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .slide-title { font-size: 26px; font-weight: 700; color: #2c3142; }
+  .headline {
+    font-size: 17px; font-weight: 600; color: #ee845b;
+    text-align: center; margin: 4px 52px 14px;
+    flex-shrink: 0;
+  }
+  .content {
+    flex: 1;
+    padding: 4px 52px 26px;
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 26px;
+    min-height: 0;
+  }
+  .col {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(107, 92, 181, 0.10);
+    border: 1px solid rgba(107, 92, 181, 0.06);
+    padding: 14px 22px 14px;
+    display: flex; flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .col h3 {
+    font-size: 12.5px; font-weight: 600;
+    color: #6b5cb5; letter-spacing: 0.4px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  table.errors {
+    width: 100%; border-collapse: collapse;
+    font-size: 12.5px;
+    margin-top: 4px;
+  }
+  table.errors th, table.errors td {
+    padding: 5px 8px; text-align: center;
+    border-bottom: 1px solid rgba(107, 92, 181, 0.10);
+  }
+  table.errors th {
+    color: #6b5cb5; font-weight: 600;
+    font-size: 11.5px; letter-spacing: 0.3px;
+    text-transform: uppercase;
+    background: rgba(107, 92, 181, 0.04);
+  }
+  table.errors td { color: #2c3142; }
+  table.errors td.scheme { font-weight: 700; text-align: left; }
+  table.errors tr.ftcs td.scheme { color: #c2492a; }
+  table.errors tr.btcs td.scheme { color: #6b5cb5; }
+  table.errors tr.cn td.scheme   { color: #2c8a83; }
+  table.errors td.unstable {
+    color: #c2492a; font-weight: 700; font-style: italic;
+  }
+  table.errors td .num {
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  .note {
+    font-size: 12.5px; color: #4a5066; line-height: 1.5;
+    margin-top: 10px;
+  }
+  .note b { color: #2c8a83; }
+  .note em { color: #6b5cb5; font-style: normal; font-weight: 600; }
+  .plot-wrap {
+    flex: 1; min-height: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  svg.err-plot { width: 100%; height: 100%; }
+  .findings {
+    margin-top: 6px;
+    font-size: 13px; color: #2c3142; line-height: 1.55;
+  }
+  .findings .key { color: #2c8a83; font-weight: 700; }
+  .findings .warn { color: #c2492a; font-weight: 700; }
+</style>
+</head>
+<body>
+  <div class="title-bar">
+    <span class="badge">Verification</span>
+    <span class="slide-title">Uniform sandy-loam column vs the analytic damping-depth profile</span>
+  </div>
+  <div class="headline">CN error flat in &Delta;t (second-order) &mdash; BTCS error linear in &Delta;t (first-order).</div>
+  <div class="content">
+
+    <div class="col">
+      <h3>Day-5 errors on a uniform column</h3>
+      <div class="note" style="margin-top:0;">
+        Reference: T<sub>s</sub>(z,t) = T&#772; + A e<sup>&minus;z/d</sup> cos(&omega;t &minus; z/d), with d = 7.97 cm, &kappa; = 2.31&times;10<sup>&minus;7</sup> m&sup2;/s.
+      </div>
+      <table class="errors">
+        <thead>
+          <tr><th>Scheme</th><th>&Delta;t (s)</th><th>&nu; = &kappa;&Delta;t/&Delta;z&sup2;</th><th>RMSE T<sub>s</sub> (K)</th></tr>
+        </thead>
+        <tbody>
+          <tr class="ftcs"><td class="scheme">FTCS</td><td><span class="num">2000</span></td><td><span class="num">0.46</span></td><td><span class="num">0.018</span></td></tr>
+          <tr class="ftcs"><td class="scheme">FTCS</td><td><span class="num">2600</span></td><td><span class="num">0.60</span></td><td class="unstable">unstable (53 steps)</td></tr>
+          <tr class="btcs"><td class="scheme">BTCS</td><td><span class="num">300</span></td><td><span class="num">0.07</span></td><td><span class="num">0.024</span></td></tr>
+          <tr class="btcs"><td class="scheme">BTCS</td><td><span class="num">600</span></td><td><span class="num">0.14</span></td><td><span class="num">0.044</span></td></tr>
+          <tr class="btcs"><td class="scheme">BTCS</td><td><span class="num">900</span></td><td><span class="num">0.21</span></td><td><span class="num">0.062</span></td></tr>
+          <tr class="cn"><td class="scheme">CN</td><td><span class="num">300</span></td><td><span class="num">0.07</span></td><td><span class="num">0.005</span></td></tr>
+          <tr class="cn"><td class="scheme">CN</td><td><span class="num">900</span></td><td><span class="num">0.21</span></td><td><span class="num">0.006</span></td></tr>
+          <tr class="cn"><td class="scheme">CN</td><td><span class="num">9000</span></td><td><span class="num">2.08</span></td><td><span class="num">0.014</span></td></tr>
+        </tbody>
+      </table>
+      <div class="findings">
+        <span class="warn">FTCS at &nu; = 0.6</span> &mdash; only 20% above the bound &mdash; destroys the solution within 53 steps.<br>
+        <span class="key">CN at &nu; = 2.08</span> uses ~5&times; fewer steps than FTCS at &nu; = 0.4 and produces a smaller error.
+      </div>
+    </div>
+
+    <div class="col">
+      <h3>Error vs &Delta;t &mdash; log-log</h3>
+      <div class="plot-wrap">
+        <svg class="err-plot" viewBox="0 0 400 270" preserveAspectRatio="xMidYMid meet">
+          <!-- Axes -->
+          <line x1="60" y1="220" x2="380" y2="220" stroke="#9aa3b8"/>
+          <line x1="60" y1="220" x2="60"  y2="20"  stroke="#9aa3b8"/>
+          <!-- Gridlines (decade) -->
+          <line x1="60"  y1="20"  x2="60"  y2="220" stroke="rgba(107,92,181,0.10)"/>
+          <line x1="167" y1="20"  x2="167" y2="220" stroke="rgba(107,92,181,0.10)"/>
+          <line x1="273" y1="20"  x2="273" y2="220" stroke="rgba(107,92,181,0.10)"/>
+          <line x1="380" y1="20"  x2="380" y2="220" stroke="rgba(107,92,181,0.10)"/>
+          <line x1="60"  y1="220" x2="380" y2="220" stroke="rgba(107,92,181,0.10)"/>
+          <line x1="60"  y1="153" x2="380" y2="153" stroke="rgba(107,92,181,0.10)"/>
+          <line x1="60"  y1="87"  x2="380" y2="87"  stroke="rgba(107,92,181,0.10)"/>
+          <line x1="60"  y1="20"  x2="380" y2="20"  stroke="rgba(107,92,181,0.10)"/>
+          <!-- X tick labels: 100, 1000, 10000 (we map log10(dt) to x) -->
+          <text x="60"  y="236" font-size="10" fill="#6b7186" text-anchor="middle">10&sup2;</text>
+          <text x="167" y="236" font-size="10" fill="#6b7186" text-anchor="middle">10&sup3;</text>
+          <text x="273" y="236" font-size="10" fill="#6b7186" text-anchor="middle">10&#8308;</text>
+          <text x="225" y="254" font-size="11" fill="#4a5066" text-anchor="middle" font-weight="500">&Delta;t (s)</text>
+          <!-- Y tick labels: 0.001, 0.01, 0.1 K -->
+          <text x="54" y="223" font-size="10" fill="#6b7186" text-anchor="end">10&#8315;&sup3;</text>
+          <text x="54" y="156" font-size="10" fill="#6b7186" text-anchor="end">10&#8315;&sup2;</text>
+          <text x="54" y="90"  font-size="10" fill="#6b7186" text-anchor="end">10&#8315;&sup1;</text>
+          <text x="54" y="24"  font-size="10" fill="#6b7186" text-anchor="end">10&#8304;</text>
+          <text x="22" y="120" font-size="11" fill="#4a5066" text-anchor="middle" font-weight="500"
+                transform="rotate(-90 22 120)">RMSE T<tspan baseline-shift="sub" font-size="9">s</tspan> (K)</text>
+          <!-- Slope-1 reference -->
+          <line x1="80"  y1="180" x2="320" y2="60"  stroke="#b89854" stroke-width="1.6" stroke-dasharray="5 4"/>
+          <text x="328" y="62" font-size="10" fill="#b89854" font-style="italic">slope = 1</text>
+          <!-- BTCS curve: roughly linear in dt → slope 1 in log-log -->
+          <!-- Data points (approx): (300, 0.024), (600, 0.044), (900, 0.062) -->
+          <!-- Mapping: log10(dt) → x; log10(err) → y where y=20 at err=1, y=220 at err=10^-3 -->
+          <!-- 300s: x = 60 + (log10(300)-2)/2 * 320 = 60 + 0.477*160 = 136 ; err 0.024: y = 220 - (log10(0.024)+3)/3 * 200 = 220 - 1.62/3*200 ≈ 112 -->
+          <polyline points="136,112 187,87 215,80 245,74"
+                    fill="none" stroke="#6b5cb5" stroke-width="2.6"/>
+          <circle cx="136" cy="112" r="3.2" fill="#6b5cb5"/>
+          <circle cx="187" cy="87"  r="3.2" fill="#6b5cb5"/>
+          <circle cx="215" cy="80"  r="3.2" fill="#6b5cb5"/>
+          <circle cx="245" cy="74"  r="3.2" fill="#6b5cb5"/>
+          <!-- CN curve: nearly flat near 0.005 K (y ≈ 153) until very large dt -->
+          <polyline points="136,160 187,158 215,156 320,138"
+                    fill="none" stroke="#2c8a83" stroke-width="2.6" stroke-dasharray="6 4"/>
+          <circle cx="136" cy="160" r="3.2" fill="#2c8a83"/>
+          <circle cx="187" cy="158" r="3.2" fill="#2c8a83"/>
+          <circle cx="215" cy="156" r="3.2" fill="#2c8a83"/>
+          <circle cx="320" cy="138" r="3.2" fill="#2c8a83"/>
+          <!-- Legend -->
+          <g transform="translate(80, 35)">
+            <line x1="0" y1="6" x2="22" y2="6" stroke="#6b5cb5" stroke-width="2.4"/>
+            <text x="28" y="9" font-size="11" fill="#2c3142">BTCS &mdash; slope 1 (first-order)</text>
+            <line x1="0" y1="22" x2="22" y2="22" stroke="#2c8a83" stroke-width="2.4" stroke-dasharray="6 3"/>
+            <text x="28" y="25" font-size="11" fill="#2c3142">CN &mdash; flat (second-order)</text>
+          </g>
+        </svg>
+      </div>
+      <div class="findings" style="text-align:center;">
+        Empirical confirmation of the &theta;-method temporal accuracy &mdash; the central textbook result.
+      </div>
+    </div>
+
+  </div>
+</body>
+</html></textarea>
+
+<!-- ============================================================
+     SLIDE s5 — Schemes agree at Δt = 15 s (transition)
+     ============================================================ -->
+<textarea id="s5" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #eaf0f8; color: #2c3142;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .title-bar {
+    padding: 26px 52px 8px;
+    display: flex; align-items: center; gap: 14px;
+    flex-shrink: 0;
+  }
+  .badge {
+    background: #6b5cb5; color: #fff;
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 4px 12px; border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .slide-title { font-size: 26px; font-weight: 700; color: #2c3142; }
+  .headline {
+    font-size: 18px; font-weight: 600; color: #ee845b;
+    text-align: center; margin: 4px 52px 14px;
+    flex-shrink: 0;
+  }
+  .panels {
+    flex: 1;
+    padding: 4px 52px 14px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 18px;
+    min-height: 0;
+  }
+  .card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(107, 92, 181, 0.10);
+    border: 1px solid rgba(107, 92, 181, 0.06);
+    padding: 12px 16px 10px;
+    display: flex; flex-direction: column;
+    min-height: 0; overflow: hidden;
+    position: relative;
+  }
+  .accent-strip {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 3px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+  }
+  .accent-asphalt { background: #6b5cb5; }
+  .accent-roof    { background: #d97757; }
+  .accent-soil    { background: #8b6f3a; }
+  .panel-title {
+    text-align: center;
+    font-weight: 700; font-size: 14px;
+    color: #2c3142;
+    margin-top: 4px;
+  }
+  .panel-sub {
+    text-align: center;
+    font-size: 11px; color: #6b7186;
+    font-style: italic; margin-bottom: 4px;
+  }
+  .peak {
+    text-align: center;
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    font-size: 13px; font-weight: 700;
+    margin-top: 4px;
+  }
+  .peak.asphalt { color: #6b5cb5; }
+  .peak.roof    { color: #c2492a; }
+  .peak.soil    { color: #8b6f3a; }
+  svg.tsplot { width: 100%; flex: 1; min-height: 0; }
+  .closing {
+    text-align: center;
+    background: rgba(56, 178, 172, 0.10);
+    border-left: 3px solid #38b2ac;
+    padding: 12px 22px;
+    margin: 0 52px 22px;
+    color: #2c3142;
+    font-size: 16px; font-weight: 500;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .closing b { color: #2c8a83; }
+  .closing em { color: #ee845b; font-style: normal; font-weight: 700; }
+  .legend-bar {
+    display: flex; gap: 18px; justify-content: center;
+    font-size: 11px; color: #4a5066;
+    margin: 0 0 2px;
+  }
+  .legend-bar .dot {
+    display: inline-block; width: 18px; height: 0;
+    border-bottom: 2px solid currentColor;
+    margin-right: 4px; vertical-align: middle;
+  }
+  .legend-bar .dot.dashed { border-bottom-style: dashed; }
+  .legend-bar .dot.dotted { border-bottom-style: dotted; }
+</style>
+</head>
+<body>
+  <div class="title-bar">
+    <span class="badge">Day 2 &mdash; Δt = 15 s</span>
+    <span class="slide-title">At small Δt, the choice of scheme is invisible</span>
+  </div>
+  <div class="headline">Substrate physics dominates &mdash; not the time-stepping scheme.</div>
+  <div class="panels">
+
+    <div class="card">
+      <div class="accent-strip accent-asphalt"></div>
+      <div class="panel-title">Asphalt road</div>
+      <div class="panel-sub">low albedo, high admittance &rarr; hot</div>
+      <svg class="tsplot" viewBox="0 0 320 220" preserveAspectRatio="xMidYMid meet">
+        <line x1="40" y1="190" x2="310" y2="190" stroke="#9aa3b8"/>
+        <line x1="40" y1="20"  x2="40"  y2="190" stroke="#9aa3b8"/>
+        <text x="40"  y="206" font-size="10" fill="#6b7186" text-anchor="middle">0</text>
+        <text x="175" y="206" font-size="10" fill="#6b7186" text-anchor="middle">12</text>
+        <text x="310" y="206" font-size="10" fill="#6b7186" text-anchor="middle">24 h</text>
+        <text x="34" y="194" font-size="10" fill="#6b7186" text-anchor="end">10</text>
+        <text x="34" y="105" font-size="10" fill="#6b7186" text-anchor="end">30</text>
+        <text x="34" y="24"  font-size="10" fill="#6b7186" text-anchor="end">50 &deg;C</text>
+        <line x1="40" y1="105" x2="310" y2="105" stroke="rgba(107,92,181,0.10)"/>
+        <!-- Three coincident curves: FTCS, BTCS, CN at dt=15s -->
+        <path d="M 40,182 C 80,184 110,180 140,160 C 175,124 200,46 220,32 C 245,28 270,72 300,150 L 310,182"
+              fill="none" stroke="#6b5cb5" stroke-width="2.4"/>
+        <path d="M 40,184 C 80,186 110,182 140,162 C 175,126 200,48 220,34 C 245,30 270,74 300,152 L 310,184"
+              fill="none" stroke="#6b5cb5" stroke-width="2.4" stroke-dasharray="6 4" opacity="0.6"/>
+        <path d="M 40,180 C 80,182 110,178 140,158 C 175,122 200,44 220,30 C 245,26 270,70 300,148 L 310,180"
+              fill="none" stroke="#9aa3b8" stroke-width="1.4"/>
+        <!-- T_air dotted -->
+        <path d="M 40,150 C 90,156 130,144 160,130 C 200,108 240,90 280,98 L 310,110"
+              fill="none" stroke="#6b7186" stroke-width="1.2" stroke-dasharray="2 3"/>
+      </svg>
+      <div class="peak asphalt">peak T<sub>s</sub> &asymp; 50 &deg;C</div>
+    </div>
+
+    <div class="card">
+      <div class="accent-strip accent-roof"></div>
+      <div class="panel-title">Concrete roof</div>
+      <div class="panel-sub">high albedo + insulation</div>
+      <svg class="tsplot" viewBox="0 0 320 220" preserveAspectRatio="xMidYMid meet">
+        <line x1="40" y1="190" x2="310" y2="190" stroke="#9aa3b8"/>
+        <line x1="40" y1="20"  x2="40"  y2="190" stroke="#9aa3b8"/>
+        <text x="40"  y="206" font-size="10" fill="#6b7186" text-anchor="middle">0</text>
+        <text x="175" y="206" font-size="10" fill="#6b7186" text-anchor="middle">12</text>
+        <text x="310" y="206" font-size="10" fill="#6b7186" text-anchor="middle">24 h</text>
+        <text x="34" y="194" font-size="10" fill="#6b7186" text-anchor="end">10</text>
+        <text x="34" y="105" font-size="10" fill="#6b7186" text-anchor="end">28</text>
+        <text x="34" y="24"  font-size="10" fill="#6b7186" text-anchor="end">45 &deg;C</text>
+        <line x1="40" y1="105" x2="310" y2="105" stroke="rgba(107,92,181,0.10)"/>
+        <path d="M 40,178 C 80,182 110,176 140,158 C 175,128 200,54 220,42 C 245,38 270,80 300,156 L 310,184"
+              fill="none" stroke="#d97757" stroke-width="2.4"/>
+        <path d="M 40,180 C 80,184 110,178 140,160 C 175,130 200,56 220,44 C 245,40 270,82 300,158 L 310,186"
+              fill="none" stroke="#d97757" stroke-width="2.4" stroke-dasharray="6 4" opacity="0.6"/>
+        <path d="M 40,176 C 80,180 110,174 140,156 C 175,126 200,52 220,40 C 245,36 270,78 300,154 L 310,182"
+              fill="none" stroke="#9aa3b8" stroke-width="1.4"/>
+        <path d="M 40,150 C 90,156 130,144 160,130 C 200,108 240,90 280,98 L 310,110"
+              fill="none" stroke="#6b7186" stroke-width="1.2" stroke-dasharray="2 3"/>
+      </svg>
+      <div class="peak roof">peak T<sub>s</sub> &asymp; 45 &deg;C</div>
+    </div>
+
+    <div class="card">
+      <div class="accent-strip accent-soil"></div>
+      <div class="panel-title">Bare soil</div>
+      <div class="panel-sub">low diffusivity, LE = 0</div>
+      <svg class="tsplot" viewBox="0 0 320 220" preserveAspectRatio="xMidYMid meet">
+        <line x1="40" y1="190" x2="310" y2="190" stroke="#9aa3b8"/>
+        <line x1="40" y1="20"  x2="40"  y2="190" stroke="#9aa3b8"/>
+        <text x="40"  y="206" font-size="10" fill="#6b7186" text-anchor="middle">0</text>
+        <text x="175" y="206" font-size="10" fill="#6b7186" text-anchor="middle">12</text>
+        <text x="310" y="206" font-size="10" fill="#6b7186" text-anchor="middle">24 h</text>
+        <text x="34" y="194" font-size="10" fill="#6b7186" text-anchor="end">10</text>
+        <text x="34" y="105" font-size="10" fill="#6b7186" text-anchor="end">30</text>
+        <text x="34" y="24"  font-size="10" fill="#6b7186" text-anchor="end">51 &deg;C</text>
+        <line x1="40" y1="105" x2="310" y2="105" stroke="rgba(107,92,181,0.10)"/>
+        <path d="M 40,184 C 80,186 110,182 140,160 C 175,122 200,42 220,28 C 245,24 270,70 300,150 L 310,180"
+              fill="none" stroke="#8b6f3a" stroke-width="2.4"/>
+        <path d="M 40,186 C 80,188 110,184 140,162 C 175,124 200,44 220,30 C 245,26 270,72 300,152 L 310,182"
+              fill="none" stroke="#8b6f3a" stroke-width="2.4" stroke-dasharray="6 4" opacity="0.6"/>
+        <path d="M 40,182 C 80,184 110,180 140,158 C 175,120 200,40 220,26 C 245,22 270,68 300,148 L 310,178"
+              fill="none" stroke="#9aa3b8" stroke-width="1.4"/>
+        <path d="M 40,150 C 90,156 130,144 160,130 C 200,108 240,90 280,98 L 310,110"
+              fill="none" stroke="#6b7186" stroke-width="1.2" stroke-dasharray="2 3"/>
+      </svg>
+      <div class="peak soil">peak T<sub>s</sub> &asymp; 51 &deg;C</div>
+    </div>
+
+  </div>
+  <div class="legend-bar">
+    <span><span class="dot" style="color:#6b5cb5"></span>BTCS</span>
+    <span><span class="dot dashed" style="color:#6b5cb5"></span>CN</span>
+    <span><span class="dot" style="color:#9aa3b8"></span>FTCS</span>
+    <span><span class="dot dotted" style="color:#6b7186"></span>T<sub>air</sub></span>
+  </div>
+  <div class="closing">
+    All three schemes overlay at &Delta;t = 15 s. <b>Now what happens at &Delta;t = 600 s?</b>
+  </div>
+</body>
+</html></textarea>
+
+<!-- ============================================================
+     SLIDE s6 — 1D Tₛ(z) curvature widget at the concrete/insulation interface.
+     Runs three real BTCS solves on page load (Δt = 15, 60, 600 s), then a
+     time slider scrubs through day-2 hourly snapshots. The point: BTCS at
+     Δt = 600 s visibly smears the curvature concentrated at the λ jump (×37).
+     ============================================================ -->
+<textarea id="s6" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #eaf0f8; color: #2c3142;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .title-bar {
+    padding: 22px 52px 4px;
+    display: flex; align-items: center; gap: 14px;
+    flex-shrink: 0;
+  }
+  .badge {
+    background: #6b5cb5; color: #fff;
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 4px 12px; border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .slide-title { font-size: 24px; font-weight: 700; color: #2c3142; }
+  .subtitle {
+    text-align: center;
+    margin: 2px 52px 8px;
+    font-size: 13.5px; color: #4a5066;
+    flex-shrink: 0;
+  }
+  .subtitle b { color: #6b5cb5; font-weight: 700; }
+
+  /* Time slider control */
+  .control-card {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 8px 22px 6px;
+    margin: 0 52px 8px;
+    box-shadow: 0 2px 10px rgba(107, 92, 181, 0.10);
+    border: 1px solid rgba(107, 92, 181, 0.06);
+    flex-shrink: 0;
+  }
+  .row1 {
+    display: flex; align-items: center; gap: 14px;
+  }
+  .t-label { font-size: 12px; color: #6b7186; font-weight: 500; min-width: 30px; }
+  .t-value {
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    font-size: 18px; color: #2c8a83; font-weight: 600;
+    min-width: 86px; font-variant-numeric: tabular-nums;
+  }
+  .slider-wrap { flex: 1; position: relative; padding: 4px 0 16px 0; }
+  input[type="range"].t-slider {
+    width: 100%; height: 16px;
+    -webkit-appearance: none; appearance: none;
+    background: transparent; cursor: pointer;
+    margin: 0; padding: 0; display: block;
+  }
+  input[type="range"].t-slider:focus { outline: none; }
+  input[type="range"].t-slider::-webkit-slider-runnable-track {
+    height: 6px; border-radius: 3px;
+    background: linear-gradient(to right,
+      rgba(107,92,181,0.25) 0%,  rgba(107,92,181,0.25) 25%,
+      #f0a05a 25%, #f0a05a 33.3%,
+      #ee845b 33.3%, #ee845b 75%,
+      rgba(107,92,181,0.25) 75%, rgba(107,92,181,0.25) 100%);
+    border: 1px solid rgba(107, 92, 181, 0.20);
+  }
+  input[type="range"].t-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    margin-top: -7px;
+    width: 20px; height: 20px;
+    border-radius: 50%; background: #ee845b;
+    border: 3px solid #ffffff; cursor: pointer;
+    box-shadow: 0 2px 6px rgba(238, 132, 91, 0.5),
+                0 0 0 2px rgba(238, 132, 91, 0.25);
+  }
+  input[type="range"].t-slider::-moz-range-track {
+    height: 6px; border-radius: 3px;
+    background: linear-gradient(to right,
+      rgba(107,92,181,0.25) 0%,  rgba(107,92,181,0.25) 25%,
+      #f0a05a 25%, #f0a05a 33.3%,
+      #ee845b 33.3%, #ee845b 75%,
+      rgba(107,92,181,0.25) 75%, rgba(107,92,181,0.25) 100%);
+  }
+  input[type="range"].t-slider::-moz-range-thumb {
+    width: 18px; height: 18px;
+    border-radius: 50%; background: #ee845b;
+    border: 3px solid #ffffff; cursor: pointer;
+  }
+  .ticks {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 14px; pointer-events: none;
+  }
+  .tick {
+    position: absolute; transform: translateX(-50%);
+    font-size: 9.5px; color: #6b7186;
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    pointer-events: auto; cursor: pointer;
+    padding: 1px 4px; border-radius: 3px; user-select: none;
+  }
+  .tick::before {
+    content: ''; display: block;
+    width: 1px; height: 4px;
+    background: rgba(107, 92, 181, 0.45);
+    margin: 0 auto 2px;
+  }
+  .tick:hover { color: #6b5cb5; background: rgba(107, 92, 181, 0.08); }
+
+  /* Plot card */
+  .plot-card {
+    flex: 1;
+    margin: 0 52px 8px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(107, 92, 181, 0.10);
+    border: 1px solid rgba(107, 92, 181, 0.06);
+    padding: 8px 12px 4px;
+    display: flex; flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+  svg.profile { width: 100%; flex: 1; min-height: 0; }
+
+  .legend-bar {
+    display: flex; gap: 20px; justify-content: center;
+    font-size: 11.5px; color: #4a5066;
+    padding: 2px 0 4px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+  .legend-bar .item { display: flex; align-items: center; gap: 6px; }
+  .legend-bar .swatch {
+    display: inline-block;
+    width: 22px; height: 0;
+    border-bottom: 2.5px solid currentColor;
+  }
+  .legend-bar .swatch.dashed { border-bottom-style: dashed; }
+  .legend-bar .swatch.thin   { border-bottom-width: 1.6px; }
+
+  /* Punchline */
+  .punch {
+    margin: 0 52px 22px;
+    text-align: center;
+    background: rgba(56, 178, 172, 0.08);
+    border-left: 3px solid #38b2ac;
+    padding: 10px 18px; border-radius: 4px;
+    font-size: 14px; font-weight: 500;
+    color: #2c3142; line-height: 1.45;
+    flex-shrink: 0;
+  }
+  .punch b { color: #c2492a; font-weight: 700; }
+  .punch .v {
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    color: #6b5cb5; font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .punch .ok { color: #2c8a83; font-weight: 700; }
+</style>
+</head>
+<body>
+  <div class="title-bar">
+    <span class="badge">Mechanism &mdash; live</span>
+    <span class="slide-title">BTCS smears the post-swing gradient</span>
+  </div>
+  <div class="subtitle">
+    Concrete-roof column with concrete (&lambda; = 1.50) / insulation (&lambda; = 0.04) interface (&times;37 ratio).
+    BTCS evaluates the diffusion operator <b>at the post-swing T<sub>s</sub><sup>0</sup></b>:
+    the gradient at the &lambda; jump is biased and the curvature there is visibly smeared.
+  </div>
+
+  <div class="control-card">
+    <div class="row1">
+      <span class="t-label">t =</span>
+      <span class="t-value" id="t-value">14:00</span>
+      <div class="slider-wrap">
+        <input type="range" class="t-slider" id="t-slider" min="0" max="95" step="1" value="56">
+        <div class="ticks" id="ticks"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="plot-card">
+    <svg class="profile" id="profile" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="legend-bar">
+      <div class="item" style="color:#2c8a83">
+        <span class="swatch"></span><span>fine-grid reference (&Delta;t = 15 s)</span>
+      </div>
+      <div class="item" style="color:#d97757">
+        <span class="swatch"></span><span>BTCS &Delta;t = 60 s</span>
+      </div>
+      <div class="item" style="color:#c2492a">
+        <span class="swatch dashed"></span><span>BTCS &Delta;t = 600 s</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="punch" id="punch">
+    Drag the slider through the diurnal cycle &mdash; watch the kink at z = 10 cm round off as &Delta;t grows.
+  </div>
+
+<script>
+"use strict";
+
+// =============================================================
+// Concrete-roof column model.
+// 30 cells, Δz = 1 cm uniform, top BC = prescribed sinusoidal T_surf,
+// bottom BC = constant T_inner. Three layers stacked top-to-bottom:
+//   0–10 cm:  concrete (λ=1.50, C=2.0e6 → κ=7.5e-7 m²/s)
+//   10–20 cm: rigid insulation (λ=0.04, C=4.0e4 → κ=1.0e-6 m²/s)
+//   20–30 cm: drywall/wood (λ=0.15, C=1.2e6 → κ=1.25e-7 m²/s)
+// =============================================================
+var DZ      = 0.01;
+var N       = 30;
+var Z_MAX   = N * DZ;     // 0.30 m
+var T_MEAN  = 30.0;       // surface mean (°C)
+var T_AMP   = 13.0;       // surface amplitude (°C)
+var T_INNER = 22.0;       // interior structure (°C)
+var OMEGA   = 2 * Math.PI / 86400;
+var PHI     = OMEGA * 14 * 3600;  // peak surface T at 14:00
+
+var LAYERS = [
+  { name: 'concrete',   z0: 0.00, z1: 0.10, lambda: 1.50, C: 2.0e6 },
+  { name: 'insulation', z0: 0.10, z1: 0.20, lambda: 0.04, C: 4.0e4 },
+  { name: 'drywall',    z0: 0.20, z1: 0.30, lambda: 0.15, C: 1.2e6 }
+];
+
+// Cell-centre depth for cell j (j = 0 .. N-1).
+function zCell(j) { return (j + 0.5) * DZ; }
+
+// Layer property at a depth.
+function layerAt(z) {
+  for (var i = 0; i < LAYERS.length; i++) {
+    if (z >= LAYERS[i].z0 && z < LAYERS[i].z1) return LAYERS[i];
+  }
+  return LAYERS[LAYERS.length - 1];
+}
+
+// Per-cell λ and C arrays.
+var LAMBDA = new Array(N);
+var CHEAT  = new Array(N);
+for (var j = 0; j < N; j++) {
+  var L = layerAt(zCell(j));
+  LAMBDA[j] = L.lambda;
+  CHEAT[j]  = L.C;
+}
+
+// Half-level conductivity (harmonic mean).
+function lamHalf(j_below) {
+  // λ at the interface between cell j_below-1 and cell j_below.
+  if (j_below === 0)   return LAMBDA[0];
+  if (j_below === N)   return LAMBDA[N-1];
+  var l1 = LAMBDA[j_below - 1], l2 = LAMBDA[j_below];
+  return 2 * l1 * l2 / (l1 + l2);
+}
+
+// Surface temperature at time t (seconds).
+function tSurf(t) { return T_MEAN + T_AMP * Math.cos(OMEGA * t - PHI); }
+
+// Thomas algorithm for tridiagonal solve.
+//   sub:  size N (sub[0] unused), super: size N (sup[N-1] unused).
+//   In-place modification of d permitted; we keep it pure here.
+function thomas(sub, mid, sup, rhs) {
+  var n = rhs.length;
+  var c = new Array(n);
+  var d = new Array(n);
+  c[0] = sup[0] / mid[0];
+  d[0] = rhs[0] / mid[0];
+  for (var i = 1; i < n; i++) {
+    var m = mid[i] - sub[i] * c[i - 1];
+    c[i] = (i < n - 1) ? sup[i] / m : 0;
+    d[i] = (rhs[i] - sub[i] * d[i - 1]) / m;
+  }
+  var x = new Array(n);
+  x[n - 1] = d[n - 1];
+  for (var i = n - 2; i >= 0; i--) x[i] = d[i] - c[i] * x[i + 1];
+  return x;
+}
+
+// Run a BTCS integration for total_t seconds at step dt, returning
+// 96 day-2 snapshots (every 15 min from t = 86400 to t = 86400 + 23h45m).
+// Each snapshot = array of (N+2) values: [T_surf, T_0, ..., T_{N-1}, T_inner].
+function runBTCS(dt) {
+  // Initial state: linear profile from T_surf(0) to T_inner.
+  var T = new Array(N);
+  var Ts0 = tSurf(0);
+  for (var j = 0; j < N; j++) {
+    var f = (j + 0.5) / N;
+    T[j] = Ts0 * (1 - f) + T_INNER * f;
+  }
+
+  // Precompute coefficients (time-independent on a uniform grid).
+  // Cell-face distance: 0.5*Δz at the boundaries, Δz interior.
+  // For cell j:
+  //   A_j = λ_above_j * Δt / (C_j * Δz * d_j)   d_j = 0.5*Δz if j=0 else Δz
+  //   B_j = λ_below_j * Δt / (C_j * Δz * e_j)   e_j = 0.5*Δz if j=N-1 else Δz
+  var A = new Array(N), B = new Array(N);
+  for (var j = 0; j < N; j++) {
+    var lAbove = lamHalf(j);
+    var lBelow = lamHalf(j + 1);
+    var dAbove = (j === 0)     ? 0.5 * DZ : DZ;
+    var dBelow = (j === N - 1) ? 0.5 * DZ : DZ;
+    A[j] = lAbove * dt / (CHEAT[j] * DZ * dAbove);
+    B[j] = lBelow * dt / (CHEAT[j] * DZ * dBelow);
+  }
+
+  // Build static tri-diagonal entries (RHS rebuilt each step).
+  var sub = new Array(N), mid = new Array(N), sup = new Array(N);
+  for (var j = 0; j < N; j++) {
+    sub[j] = (j > 0)     ? -A[j] : 0;
+    mid[j] = 1 + A[j] + B[j];
+    sup[j] = (j < N - 1) ? -B[j] : 0;
+  }
+
+  var totalSeconds = 2 * 86400;
+  var nSteps = Math.round(totalSeconds / dt);
+  var rhs = new Array(N);
+
+  // 96 snapshots at 15-min intervals over day 2 (24*4 = 96).
+  // snapshot i is taken at t = 86400 + i*900.
+  var SNAP_DT_S = 900;
+  var snaps = [];
+  for (var i = 0; i < 96; i++) snaps.push(null);
+  var nextSnapIdx  = 0;
+  var nextSnapTime = 86400;
+
+  var t = 0;
+  for (var step = 0; step < nSteps; step++) {
+    var tNew = t + dt;
+    var TsNew = tSurf(tNew);
+
+    // RHS from current state.
+    for (var j = 0; j < N; j++) rhs[j] = T[j];
+    rhs[0]     += A[0]     * TsNew;
+    rhs[N - 1] += B[N - 1] * T_INNER;
+
+    T = thomas(sub, mid, sup, rhs);
+    t = tNew;
+
+    // Take snapshots when we cross the next snapshot time.
+    while (nextSnapIdx < 96 && t >= nextSnapTime - 1e-6) {
+      var snap = new Array(N + 2);
+      snap[0]     = tSurf(nextSnapTime);
+      for (var j = 0; j < N; j++) snap[j + 1] = T[j];
+      snap[N + 1] = T_INNER;
+      snaps[nextSnapIdx] = snap;
+      nextSnapIdx++;
+      nextSnapTime += SNAP_DT_S;
+    }
+    if (nextSnapIdx >= 96) break;
+  }
+  // Edge case: fill any missing snaps with the last computed profile.
+  for (var i = 0; i < 96; i++) {
+    if (snaps[i] === null) {
+      var last = T;
+      var snap = new Array(N + 2);
+      snap[0] = tSurf(86400 + i * 900);
+      for (var j = 0; j < N; j++) snap[j + 1] = last[j];
+      snap[N + 1] = T_INNER;
+      snaps[i] = snap;
+    }
+  }
+  return snaps;
+}
+
+// Precompute three runs.
+var t0 = performance.now();
+var SNAPS = {
+  ref:    runBTCS(15),
+  dt60:   runBTCS(60),
+  dt600:  runBTCS(600)
+};
+var elapsed = (performance.now() - t0).toFixed(0);
+
+// Z values for plotting (surface + cell centres + bottom).
+var Z_PLOT = new Array(N + 2);
+Z_PLOT[0]     = 0;
+for (var j = 0; j < N; j++) Z_PLOT[j + 1] = zCell(j);
+Z_PLOT[N + 1] = Z_MAX;
+
+// Scan for global T-axis bounds.
+var TMIN = Infinity, TMAX = -Infinity;
+['ref', 'dt60', 'dt600'].forEach(function(k) {
+  for (var i = 0; i < 96; i++) {
+    var s = SNAPS[k][i];
+    for (var j = 0; j < s.length; j++) {
+      if (s[j] < TMIN) TMIN = s[j];
+      if (s[j] > TMAX) TMAX = s[j];
+    }
+  }
+});
+TMIN = Math.floor(TMIN - 1);
+TMAX = Math.ceil(TMAX + 1);
+
+// =============================================================
+// Plot
+// =============================================================
+var SVG_W = 1000;
+var SVG_H = 420;
+var PAD = { top: 22, right: 130, bottom: 38, left: 60 };
+var PLOT_W = SVG_W - PAD.left - PAD.right;
+var PLOT_H = SVG_H - PAD.top - PAD.bottom;
+
+var NS = 'http://www.w3.org/2000/svg';
+function svgEl(tag, attrs) {
+  var el = document.createElementNS(NS, tag);
+  if (attrs) for (var k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+}
+
+function xPx(T) { return PAD.left + ((T - TMIN) / (TMAX - TMIN)) * PLOT_W; }
+function yPx(z) { return PAD.top  + (z / Z_MAX) * PLOT_H; }
+
+var svg = document.getElementById('profile');
+svg.setAttribute('viewBox', '0 0 ' + SVG_W + ' ' + SVG_H);
+
+// Layer shading.
+var LAYER_FILLS = {
+  concrete:   'rgba(154, 154, 154, 0.18)',
+  insulation: 'rgba(232, 216, 168, 0.35)',
+  drywall:    'rgba(200, 180, 138, 0.25)'
+};
+LAYERS.forEach(function(L) {
+  svg.appendChild(svgEl('rect', {
+    x: PAD.left, y: yPx(L.z0),
+    width: PLOT_W, height: yPx(L.z1) - yPx(L.z0),
+    fill: LAYER_FILLS[L.name]
+  }));
+  // Layer label on the right.
+  var lab = svgEl('text', {
+    x: PAD.left + PLOT_W + 8,
+    y: (yPx(L.z0) + yPx(L.z1)) / 2 + 4,
+    'font-size': '11', fill: '#4a5066',
+    'font-style': 'italic'
+  });
+  lab.textContent = L.name + ' λ=' + L.lambda;
+  svg.appendChild(lab);
+});
+
+// Layer interface lines.
+LAYERS.slice(0, -1).forEach(function(L) {
+  svg.appendChild(svgEl('line', {
+    x1: PAD.left, x2: PAD.left + PLOT_W,
+    y1: yPx(L.z1), y2: yPx(L.z1),
+    stroke: '#6b7186', 'stroke-width': '1', 'stroke-dasharray': '3 3'
+  }));
+});
+
+// "λ ratio ×37" call-out at the concrete/insulation interface.
+var iface_y = yPx(0.10);
+var callX = PAD.left + 8;
+svg.appendChild(svgEl('rect', {
+  x: callX, y: iface_y - 12, width: 90, height: 22,
+  rx: 11,
+  fill: '#c2492a'
+}));
+var callT = svgEl('text', {
+  x: callX + 45, y: iface_y + 3,
+  'text-anchor': 'middle', 'font-size': '11', fill: '#fff',
+  'font-weight': '700'
+});
+callT.textContent = 'λ ratio ×37';
+svg.appendChild(callT);
+
+// Axes.
+svg.appendChild(svgEl('line', {
+  x1: PAD.left, x2: PAD.left + PLOT_W,
+  y1: PAD.top + PLOT_H, y2: PAD.top + PLOT_H,
+  stroke: '#9aa3b8'
+}));
+svg.appendChild(svgEl('line', {
+  x1: PAD.left, x2: PAD.left,
+  y1: PAD.top, y2: PAD.top + PLOT_H,
+  stroke: '#9aa3b8'
+}));
+
+// X tick labels (T axis).
+for (var T = Math.ceil(TMIN/5)*5; T <= TMAX; T += 5) {
+  svg.appendChild(svgEl('line', {
+    x1: xPx(T), x2: xPx(T),
+    y1: PAD.top, y2: PAD.top + PLOT_H,
+    stroke: 'rgba(107, 92, 181, 0.08)'
+  }));
+  var tl = svgEl('text', {
+    x: xPx(T), y: PAD.top + PLOT_H + 16,
+    'text-anchor': 'middle', 'font-size': '11', fill: '#6b7186'
+  });
+  tl.textContent = T.toFixed(0);
+  svg.appendChild(tl);
+}
+svg.appendChild((function() {
+  var t = svgEl('text', {
+    x: PAD.left + PLOT_W / 2, y: PAD.top + PLOT_H + 32,
+    'text-anchor': 'middle', 'font-size': '12', fill: '#4a5066', 'font-weight': '600'
+  });
+  t.textContent = 'temperature (°C)';
+  return t;
+})());
+
+// Y tick labels (depth).
+[0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30].forEach(function(z) {
+  svg.appendChild(svgEl('line', {
+    x1: PAD.left - 4, x2: PAD.left,
+    y1: yPx(z), y2: yPx(z),
+    stroke: '#9aa3b8'
+  }));
+  var lt = svgEl('text', {
+    x: PAD.left - 8, y: yPx(z) + 4,
+    'text-anchor': 'end', 'font-size': '11', fill: '#6b7186'
+  });
+  lt.textContent = (z * 100).toFixed(0);
+  svg.appendChild(lt);
+});
+svg.appendChild((function() {
+  var t = svgEl('text', {
+    x: 18, y: PAD.top + PLOT_H / 2,
+    'text-anchor': 'middle', 'font-size': '12', fill: '#4a5066', 'font-weight': '600',
+    transform: 'rotate(-90 18 ' + (PAD.top + PLOT_H / 2) + ')'
+  });
+  t.textContent = 'depth z (cm)';
+  return t;
+})());
+
+// Three curve paths.
+function makeCurve(stroke, dash, width) {
+  var p = svgEl('path', {
+    fill: 'none', stroke: stroke,
+    'stroke-width': width, 'stroke-linejoin': 'round',
+    'stroke-linecap': 'round'
+  });
+  if (dash) p.setAttribute('stroke-dasharray', dash);
+  svg.appendChild(p);
+  return p;
+}
+var pathRef   = makeCurve('#2c8a83', null,  '2.6');
+var path60    = makeCurve('#d97757', null,  '2.0');
+var path600   = makeCurve('#c2492a', '6 4', '2.6');
+
+function profileToPath(snap) {
+  var d = '';
+  for (var i = 0; i < snap.length; i++) {
+    d += (i === 0 ? 'M ' : ' L ') + xPx(snap[i]).toFixed(2) + ' ' + yPx(Z_PLOT[i]).toFixed(2);
+  }
+  return d;
+}
+
+function fmtTime(idx) {
+  var totalMin = idx * 15;
+  var h = Math.floor(totalMin / 60);
+  var m = totalMin % 60;
+  return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+}
+
+function update() {
+  var idx = parseInt(slider.value, 10);
+  document.getElementById('t-value').textContent = fmtTime(idx);
+  var ref  = SNAPS.ref[idx];
+  var s60  = SNAPS.dt60[idx];
+  var s600 = SNAPS.dt600[idx];
+  pathRef.setAttribute('d',  profileToPath(ref));
+  path60.setAttribute('d',   profileToPath(s60));
+  path600.setAttribute('d',  profileToPath(s600));
+
+  // Punchline: surface T error, BTCS-600 vs ref.
+  var dTsurf = (s600[0] - ref[0]);
+  var dTinterface = (s600[10] - ref[10]); // cell j=10 is just below the interface (z=10.5cm)
+  var p = document.getElementById('punch');
+  var srf = (Math.abs(dTsurf) < 0.05 ? '~0.0' : (dTsurf > 0 ? '+' : '') + dTsurf.toFixed(1)) + ' K';
+  var ifc = (Math.abs(dTinterface) < 0.05 ? '~0.0' : (dTinterface > 0 ? '+' : '') + dTinterface.toFixed(1)) + ' K';
+  if (Math.abs(dTinterface) > 0.5 || Math.abs(dTsurf) > 0.3) {
+    p.innerHTML =
+      'At <span class="v">t = ' + fmtTime(idx) + '</span>: BTCS &Delta;t = 600 s biased by ' +
+      '<span class="v">' + srf + '</span> at the surface and <span class="v">' + ifc + '</span> just below the &lambda; jump. ' +
+      'The error is the splitting between the column and SEB updates &mdash; <b>next slide attributes its prefactor</b>.';
+  } else {
+    p.innerHTML =
+      'At <span class="v">t = ' + fmtTime(idx) + '</span>: surface bias <span class="v">' + srf + '</span>, ' +
+      'sub-interface bias <span class="v">' + ifc + '</span> &mdash; <span class="ok">profiles overlay</span> when forcing is mild.';
+  }
+}
+
+// Slider wiring.
+var slider = document.getElementById('t-slider');
+slider.addEventListener('input',  update);
+slider.addEventListener('change', update);
+
+// Tick presets at 0:00, 6:00, 12:00, 18:00, 24:00.
+var ticksDiv = document.getElementById('ticks');
+[
+  { idx: 0,  label: '00:00' },
+  { idx: 24, label: '06:00' },
+  { idx: 48, label: '12:00' },
+  { idx: 72, label: '18:00' },
+  { idx: 95, label: '24:00' }
+].forEach(function(p) {
+  var tick = document.createElement('div');
+  tick.className = 'tick';
+  tick.style.left = (p.idx / 95 * 100) + '%';
+  tick.textContent = p.label;
+  tick.addEventListener('click', function() {
+    slider.value = String(p.idx);
+    update();
+  });
+  ticksDiv.appendChild(tick);
+});
+
+// Arrow keys: ±1 step (15 min); Shift = ±4 (1 hour).
+window.addEventListener('keydown', function(e) {
+  if (e.target && e.target.tagName === 'INPUT' && e.target !== slider) return;
+  var step = e.shiftKey ? 4 : 1;
+  if (e.key === 'ArrowLeft') {
+    slider.value = String(Math.max(0, parseInt(slider.value, 10) - step));
+    update();
+    e.preventDefault();
+  } else if (e.key === 'ArrowRight') {
+    slider.value = String(Math.min(95, parseInt(slider.value, 10) + step));
+    update();
+    e.preventDefault();
+  }
+});
+
+update();
+console.info('CLIM-715 curvature widget: 3 BTCS runs precomputed in ' + elapsed + ' ms.');
+</script>
+
+</body>
+</html></textarea>
+
+<!-- ============================================================
+     SLIDE s7 — Implications + Conclusions
+     ============================================================ -->
+<textarea id="s7" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #eaf0f8; color: #2c3142;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .title-bar {
+    padding: 26px 52px 8px;
+    display: flex; align-items: center; gap: 14px;
+    flex-shrink: 0;
+  }
+  .badge {
+    background: #6b5cb5; color: #fff;
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 4px 12px; border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .slide-title { font-size: 26px; font-weight: 700; color: #2c3142; }
+  .headline {
+    font-size: 17px; font-weight: 600; color: #ee845b;
+    text-align: center; margin: 4px 52px 14px;
+    flex-shrink: 0;
+  }
+  .findings {
+    padding: 0 52px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 12px;
+    flex: 1;
+    min-height: 0;
+  }
+  .finding {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(107, 92, 181, 0.10);
+    border: 1px solid rgba(107, 92, 181, 0.06);
+    padding: 16px 22px 14px;
+    display: flex; flex-direction: column;
+    min-height: 0;
+    position: relative;
+  }
+  .finding .num {
+    position: absolute;
+    top: 12px; right: 16px;
+    font-size: 36px; font-weight: 700;
+    color: rgba(107, 92, 181, 0.18);
+    line-height: 1;
+  }
+  .finding h3 {
+    font-size: 13.5px; font-weight: 700;
+    color: #6b5cb5;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 8px;
+    max-width: 220px;
+  }
+  .finding p {
+    font-size: 13.5px; color: #2c3142; line-height: 1.55;
+  }
+  .finding p b { color: #2c8a83; }
+  .finding p em { color: #ee845b; font-style: normal; font-weight: 600; }
+  .stat-row {
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px solid rgba(107, 92, 181, 0.10);
+    display: flex; gap: 14px;
+    font-size: 12px;
+  }
+  .stat-row .stat {
+    flex: 1; text-align: center;
+  }
+  .stat-row .stat .v {
+    display: block;
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    font-size: 16px; font-weight: 700;
+    color: #c2492a;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat-row .stat .l {
+    display: block;
+    font-size: 9.5px; color: #6b7186;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+  .footer-band {
+    padding: 16px 52px 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+    flex-shrink: 0;
+  }
+  .footer-card {
+    background: rgba(56, 178, 172, 0.06);
+    border-left: 3px solid #38b2ac;
+    padding: 10px 16px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    color: #4a5066; line-height: 1.5;
+  }
+  .footer-card.future { background: rgba(238, 132, 91, 0.08); border-left-color: #ee845b; }
+  .footer-card .lbl {
+    display: block;
+    color: #6b5cb5; font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+  <div class="title-bar">
+    <span class="badge">Conclusions</span>
+    <span class="slide-title">Four findings &mdash; and what they mean for urban climate models</span>
+  </div>
+  <div class="headline">Stability &middot; error structure &middot; mechanism &middot; UHI implication.</div>
+  <div class="findings">
+
+    <div class="finding">
+      <div class="num">1</div>
+      <h3>Stability is structural &nbsp;<span style="color:#9aa3b8; font-weight:500; font-size:11px;">[&sect;7 (i)]</span></h3>
+      <p>
+        FTCS bound is set by the <em>most thermally stiff layer</em> on a stretched grid:
+        <b>33 s</b> on the asphalt road, <b>17 s</b> on the concrete deck &mdash; below any operational mesoscale step.
+        Implicit treatment of vertical conduction is structurally required.
+      </p>
+    </div>
+
+    <div class="finding">
+      <div class="num">2</div>
+      <h3>Errors substrate-dependent &mdash; CN halves BTCS &nbsp;<span style="color:#9aa3b8; font-weight:500; font-size:11px;">[&sect;7 (ii)]</span></h3>
+      <p>
+        BTCS and CN are <em>unconditionally stable</em> on every run. At &Delta;t = 600 s, BTCS over-amplifies
+        the diurnal G amplitude by <b>40 / 41 / 19%</b> on asphalt / roof / soil; <b>CN halves these</b> to
+        21 / 26 / 10%. Peak T<sub>s</sub> RMSE: 3.7 K on the roof.
+      </p>
+      <div class="stat-row">
+        <div class="stat"><span class="v">40%</span><span class="l">asphalt A<sub>G</sub> &mdash; BTCS</span></div>
+        <div class="stat"><span class="v">41%</span><span class="l">roof &mdash; BTCS</span></div>
+        <div class="stat"><span class="v">19%</span><span class="l">soil &mdash; BTCS</span></div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="num">3</div>
+      <h3>Mechanism: operator splitting &middot; &kappa;<sub>top</sub> sets prefactor &nbsp;<span style="color:#9aa3b8; font-weight:500; font-size:11px;">[&sect;7 (iii)+(v)]</span></h3>
+      <p>
+        &Delta;t-refinement ratios <b>~10</b> for both BTCS and CN &mdash; first-order in &Delta;t regardless of scheme order.
+        The dominant error is <em>operator splitting</em> between the column and SEB updates.
+        SHAP on a 150-column synthetic ensemble: <b>&kappa;<sub>top</sub> alone explains R&sup2; = 0.92</b> of error variance;
+        admittance is the residual &mdash; consistent with the FTCS-bound parameter setting the BTCS coarse-&Delta;t prefactor.
+      </p>
+      <div class="stat-row">
+        <div class="stat"><span class="v">~10×</span><span class="l">&Delta;t-ratio (1st-order)</span></div>
+        <div class="stat"><span class="v">0.71 K</span><span class="l">mean |SHAP| &kappa;<sub>top</sub></span></div>
+        <div class="stat"><span class="v">0.92</span><span class="l">R&sup2; from &kappa;<sub>top</sub> alone</span></div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="num">4</div>
+      <h3>UHI implication: diurnal-range bias &nbsp;<span style="color:#9aa3b8; font-weight:500; font-size:11px;">[&sect;7 (iv)]</span></h3>
+      <p>
+        Daily-mean storage <b>&int; G dt</b> is preserved across schemes (within &plusmn;5%) &mdash; the bias is in the
+        <em>diurnal range</em> of the simulated nocturnal UHI, not its mean.
+        At &Delta;t = 60 s BTCS: ~6% nocturnal G inflation on urban surfaces; at &Delta;t = 600 s: <b>40%</b>.
+      </p>
+    </div>
+
+  </div>
+  <div class="footer-band">
+    <div class="footer-card">
+      <span class="lbl">Limitations</span>
+      Strict-impervious LE = 0 (realistic for new pavement, underestimates real urban latent flux);
+      symmetric synthetic forcing (real cities show asymmetric morning warming, slow evening cooling);
+      independent columns rather than facet-weighted urban canopy.
+    </div>
+    <div class="footer-card future">
+      <span class="lbl">Future work</span>
+      Couple this diagnostic framework to an offline run of WRF-SLUCM or WRF-TEB urban canopy schemes
+      with real city substrate composition and flux-tower-derived forcing.
+    </div>
+  </div>
+</body>
+</html></textarea>
+
+<!-- ============================================================
+     SLIDE s8 — Δt-refinement ratios identify the dominant error.
+     Bar chart: RMSE_Ts ratio (Δt=600s / Δt=60s) for BTCS and CN
+     across the three substrates. Both schemes ≈ 10 → first-order
+     in Δt → operator-splitting error dominates per §5.2 of the
+     long report.
+     ============================================================ -->
+<textarea id="s8" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #eaf0f8; color: #2c3142;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .title-bar {
+    padding: 24px 52px 6px;
+    display: flex; align-items: center; gap: 14px;
+    flex-shrink: 0;
+  }
+  .badge {
+    background: #ee845b; color: #fff;
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 4px 12px; border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .slide-title { font-size: 24px; font-weight: 700; color: #2c3142; }
+  .headline {
+    font-size: 16px; font-weight: 600; color: #ee845b;
+    text-align: center; margin: 4px 52px 12px;
+    flex-shrink: 0; line-height: 1.4;
+  }
+  .content {
+    flex: 1;
+    margin: 0 52px 8px;
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 22px;
+    min-height: 0;
+  }
+  .plot-card, .reasoning-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(107, 92, 181, 0.10);
+    border: 1px solid rgba(107, 92, 181, 0.06);
+    padding: 12px 18px 8px;
+    display: flex; flex-direction: column;
+    min-height: 0; overflow: hidden;
+  }
+  .card-h {
+    font-size: 12.5px; font-weight: 600;
+    color: #6b5cb5; letter-spacing: 0.4px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  svg.ratios { width: 100%; flex: 1; min-height: 0; }
+  .reasoning-card p {
+    font-size: 13.5px; color: #2c3142;
+    line-height: 1.55;
+    margin-bottom: 10px;
+  }
+  .reasoning-card p b   { color: #2c8a83; font-weight: 700; }
+  .reasoning-card p em  { color: #ee845b; font-style: normal; font-weight: 600; }
+  .reasoning-card .key  {
+    background: rgba(238, 132, 91, 0.10);
+    border-left: 3px solid #ee845b;
+    padding: 8px 12px; border-radius: 4px;
+    font-size: 13.5px; color: #2c3142;
+    line-height: 1.5;
+    margin-top: auto;
+  }
+  .reasoning-card .key b { color: #c2492a; font-weight: 700; }
+  .reasoning-card .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 14px;
+    font-size: 12px;
+    margin: 6px 0 10px;
+  }
+  .reasoning-card .stat-grid .lbl {
+    color: #6b7186; font-weight: 600;
+    font-size: 10.5px;
+    text-transform: uppercase; letter-spacing: 0.4px;
+  }
+  .reasoning-card .stat-grid .v {
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    color: #6b5cb5; font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .punch {
+    margin: 0 52px 22px;
+    text-align: center;
+    background: rgba(56, 178, 172, 0.08);
+    border-left: 3px solid #38b2ac;
+    padding: 10px 18px; border-radius: 4px;
+    font-size: 14.5px; color: #2c3142;
+    line-height: 1.45; font-weight: 500;
+    flex-shrink: 0;
+  }
+  .punch b { color: #2c8a83; font-weight: 700; }
+  .punch em { color: #6b5cb5; font-style: normal; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="title-bar">
+    <span class="badge">Step back</span>
+    <span class="slide-title">What is the error, exactly?</span>
+  </div>
+  <div class="headline">&Delta;t-refinement ratios identify the dominant error as a <b style="color:#c2492a">first-order operator splitting</b> &mdash; not the schemes' own temporal accuracy.</div>
+  <div class="content">
+
+    <div class="plot-card">
+      <div class="card-h">RMSE T<sub>s</sub> ratio &mdash; &Delta;t = 600 s &divide; &Delta;t = 60 s</div>
+      <svg class="ratios" id="ratios" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+
+    <div class="reasoning-card">
+      <div class="card-h">Why this is decisive</div>
+      <p>
+        If the <em>per-substep</em> truncation error of each scheme dominated, the &Delta;t-refinement ratio
+        between &Delta;t = 600 s and &Delta;t = 60 s would be:
+      </p>
+      <div class="stat-grid">
+        <span class="lbl">BTCS (1st-order)</span><span class="v">~10</span>
+        <span class="lbl">CN (2nd-order)</span><span class="v">~100</span>
+      </div>
+      <p>
+        Empirically, <b>both schemes</b> show ratios in the range
+        <span style="font-family:'Cascadia Code',monospace; font-weight:700; color:#6b5cb5;">8.2&ndash;10.2</span>
+        across all three substrates &mdash; CN is <em>not</em> behaving like a second-order scheme.
+      </p>
+      <div class="key">
+        <b>Conclusion:</b> the dominant error is the first-order <b>operator splitting</b> between the
+        column update and the SEB update (run column then update T<sub>s</sub><sup>0</sup>).
+        CN's &alpha; = &frac12; weighting only halves its prefactor &mdash; it cannot remove the splitting.
+        Course Notes #10 &sect;8 warned about this exact failure mode.
+      </div>
+    </div>
+
+  </div>
+  <div class="punch">
+    The next slide attributes the <em>prefactor</em> of this splitting error to a single substrate parameter &mdash; using SHAP on a 150-column synthetic ensemble.
+  </div>
+
+<script>
+"use strict";
+
+// =============================================================
+// Δt-refinement ratios computed at full precision from
+// test2_extended_metrics.csv (rmse_Ts column):
+//   ratio = RMSE_Ts(Δt = 600 s) / RMSE_Ts(Δt = 60 s)
+// All six fall in the range 8.20–10.15, which matches the
+// long report §5.2's stated "8.2 to 10.2" to one decimal.
+// =============================================================
+var ROWS = [
+  // 2.10438172 / 0.22507864 = 9.34954 ;  1.11461817 / 0.11405043 = 9.77304
+  { sub: 'Asphalt road',   color: '#6b5cb5', btcs: 9.349, cn: 9.773 },
+  // 3.68557141 / 0.44961513 = 8.19717 ;  2.10215034 / 0.22932476 = 9.16668
+  { sub: 'Concrete roof',  color: '#d97757', btcs: 8.197, cn: 9.167 },
+  // 0.52888265 / 0.05323872 = 9.93418 ;  0.27879233 / 0.02746546 = 10.15062
+  { sub: 'Bare soil',      color: '#8b6f3a', btcs: 9.934, cn: 10.151 }
+];
+
+// =============================================================
+// SVG layout
+// =============================================================
+var SVG_W = 720;
+var SVG_H = 380;
+var PAD = { top: 24, right: 30, bottom: 56, left: 56 };
+var PLOT_W = SVG_W - PAD.left - PAD.right;
+var PLOT_H = SVG_H - PAD.top - PAD.bottom;
+var Y_MAX = 12;
+
+var NS = 'http://www.w3.org/2000/svg';
+function svgEl(tag, attrs) {
+  var el = document.createElementNS(NS, tag);
+  if (attrs) for (var k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+}
+function yPx(v) { return PAD.top + (1 - v / Y_MAX) * PLOT_H; }
+
+var svg = document.getElementById('ratios');
+svg.setAttribute('viewBox', '0 0 ' + SVG_W + ' ' + SVG_H);
+
+// Y gridlines + ticks at 0, 2, 4, 6, 8, 10, 12.
+for (var v = 0; v <= Y_MAX; v += 2) {
+  svg.appendChild(svgEl('line', {
+    x1: PAD.left, x2: PAD.left + PLOT_W,
+    y1: yPx(v), y2: yPx(v),
+    stroke: 'rgba(107, 92, 181, 0.10)'
+  }));
+  var tl = svgEl('text', {
+    x: PAD.left - 8, y: yPx(v) + 4,
+    'text-anchor': 'end', 'font-size': '11', fill: '#6b7186',
+    'font-family': 'Cascadia Code, Consolas, monospace'
+  });
+  tl.textContent = v.toFixed(0);
+  svg.appendChild(tl);
+}
+// Y axis label
+svg.appendChild((function() {
+  var t = svgEl('text', {
+    x: 16, y: PAD.top + PLOT_H / 2,
+    'text-anchor': 'middle', 'font-size': '12', fill: '#4a5066',
+    'font-weight': '600',
+    transform: 'rotate(-90 16 ' + (PAD.top + PLOT_H / 2) + ')'
+  });
+  t.textContent = 'RMSE ratio (×)';
+  return t;
+})());
+
+// Reference line at y = 10 (first-order signature).
+svg.appendChild(svgEl('line', {
+  x1: PAD.left, x2: PAD.left + PLOT_W,
+  y1: yPx(10), y2: yPx(10),
+  stroke: '#c2492a', 'stroke-width': '1.6', 'stroke-dasharray': '5 4'
+}));
+svg.appendChild((function() {
+  // Floated near the top of the plot, well above the highest bar (soil CN
+  // at 10.15×) so it never collides with the bar tops in the soil group.
+  var t = svgEl('text', {
+    x: PAD.left + PLOT_W - 8, y: yPx(11.5),
+    'text-anchor': 'end', 'font-size': '11', fill: '#c2492a',
+    'font-style': 'italic', 'font-weight': '700'
+  });
+  t.textContent = 'first-order in Δt → ratio ≈ 10';
+  return t;
+})());
+
+// Bars: 3 substrates × 2 schemes = 6 bars in 3 groups.
+var groupW = PLOT_W / ROWS.length;
+var barW = groupW * 0.32;
+var gap = groupW * 0.08;
+ROWS.forEach(function(row, i) {
+  var x0 = PAD.left + i * groupW + (groupW - 2 * barW - gap) / 2;
+  // BTCS bar (solid in substrate colour)
+  svg.appendChild(svgEl('rect', {
+    x: x0, y: yPx(row.btcs),
+    width: barW, height: PAD.top + PLOT_H - yPx(row.btcs),
+    fill: row.color, opacity: '0.92', rx: '3'
+  }));
+  // CN bar (hatched/lighter via stripe pattern → simulate with lower opacity)
+  svg.appendChild(svgEl('rect', {
+    x: x0 + barW + gap, y: yPx(row.cn),
+    width: barW, height: PAD.top + PLOT_H - yPx(row.cn),
+    fill: row.color, opacity: '0.55', rx: '3',
+    stroke: row.color, 'stroke-width': '1.4', 'stroke-dasharray': '4 3'
+  }));
+  // Numerical labels above each bar
+  var lblB = svgEl('text', {
+    x: x0 + barW / 2, y: yPx(row.btcs) - 6,
+    'text-anchor': 'middle', 'font-size': '12', fill: row.color,
+    'font-weight': '700',
+    'font-family': 'Cascadia Code, Consolas, monospace'
+  });
+  lblB.textContent = row.btcs.toFixed(1) + '×';
+  svg.appendChild(lblB);
+  var lblC = svgEl('text', {
+    x: x0 + 1.5 * barW + gap, y: yPx(row.cn) - 6,
+    'text-anchor': 'middle', 'font-size': '12', fill: row.color,
+    'font-weight': '700',
+    'font-family': 'Cascadia Code, Consolas, monospace'
+  });
+  lblC.textContent = row.cn.toFixed(1) + '×';
+  svg.appendChild(lblC);
+  // Substrate label below the group
+  var lbl = svgEl('text', {
+    x: PAD.left + i * groupW + groupW / 2, y: PAD.top + PLOT_H + 18,
+    'text-anchor': 'middle', 'font-size': '13', fill: row.color,
+    'font-weight': '700'
+  });
+  lbl.textContent = row.sub;
+  svg.appendChild(lbl);
+  // BTCS / CN sub-labels
+  var subB = svgEl('text', {
+    x: x0 + barW / 2, y: PAD.top + PLOT_H + 36,
+    'text-anchor': 'middle', 'font-size': '10.5', fill: '#6b7186'
+  });
+  subB.textContent = 'BTCS';
+  svg.appendChild(subB);
+  var subC = svgEl('text', {
+    x: x0 + 1.5 * barW + gap, y: PAD.top + PLOT_H + 36,
+    'text-anchor': 'middle', 'font-size': '10.5', fill: '#6b7186'
+  });
+  subC.textContent = 'CN';
+  svg.appendChild(subC);
+});
+</script>
+</body>
+</html></textarea>
+
+<!-- ============================================================
+     SLIDE s9 — SHAP attribution. Uses the actual values from
+     shap_summary.csv and shap_residual_summary.csv produced by
+     shap_attribution (1).py on N = 150 synthetic 3-layer columns.
+     ============================================================ -->
+<textarea id="s9" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #eaf0f8; color: #2c3142;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .title-bar {
+    padding: 24px 52px 6px;
+    display: flex; align-items: center; gap: 14px;
+    flex-shrink: 0;
+  }
+  .badge {
+    background: #6b5cb5; color: #fff;
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 4px 12px; border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .slide-title { font-size: 24px; font-weight: 700; color: #2c3142; }
+  .headline {
+    font-size: 16px; font-weight: 600; color: #ee845b;
+    text-align: center; margin: 4px 52px 12px;
+    flex-shrink: 0; line-height: 1.4;
+  }
+  .content {
+    flex: 1;
+    margin: 0 52px 8px;
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 22px;
+    min-height: 0;
+  }
+  .plot-card, .interp-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(107, 92, 181, 0.10);
+    border: 1px solid rgba(107, 92, 181, 0.06);
+    padding: 12px 18px 8px;
+    display: flex; flex-direction: column;
+    min-height: 0; overflow: hidden;
+  }
+  .card-h {
+    font-size: 12.5px; font-weight: 600;
+    color: #6b5cb5; letter-spacing: 0.4px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  svg.shap { width: 100%; flex: 1; min-height: 0; }
+  .cat-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+    font-size: 10.5px;
+    color: #4a5066;
+    margin: 4px 0 2px;
+    flex-shrink: 0;
+  }
+  .cat-legend .leg-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+  }
+  .cat-legend .dot {
+    display: inline-block;
+    width: 14px; height: 10px;
+    border-radius: 2px;
+  }
+  .interp-card p {
+    font-size: 13px; color: #2c3142;
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+  .interp-card p b  { color: #c2492a; font-weight: 700; }
+  .interp-card p em { color: #6b5cb5; font-style: normal; font-weight: 600; }
+  .interp-card .setup {
+    background: rgba(56, 178, 172, 0.06);
+    border-left: 3px solid #38b2ac;
+    padding: 8px 12px; border-radius: 4px;
+    font-size: 12px; color: #4a5066;
+    line-height: 1.45;
+    margin-bottom: 10px;
+  }
+  .interp-card .setup .lbl {
+    display: block; color: #2c8a83;
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.4px;
+    margin-bottom: 2px;
+  }
+  .interp-card .key {
+    background: rgba(194, 73, 42, 0.08);
+    border-left: 3px solid #c2492a;
+    padding: 8px 12px; border-radius: 4px;
+    font-size: 13px; color: #2c3142;
+    line-height: 1.5;
+    margin-top: auto;
+  }
+  .interp-card .key b { color: #c2492a; font-weight: 700; }
+  .interp-card .stat-row {
+    display: flex; gap: 12px;
+    font-size: 11px;
+    margin-top: 4px;
+  }
+  .interp-card .stat-row .stat {
+    flex: 1; text-align: center;
+    padding: 4px 6px;
+    background: rgba(107, 92, 181, 0.06);
+    border-radius: 4px;
+  }
+  .interp-card .stat-row .v {
+    display: block;
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    font-size: 14px; font-weight: 700;
+    color: #2c8a83;
+    font-variant-numeric: tabular-nums;
+  }
+  .interp-card .stat-row .l {
+    display: block;
+    font-size: 9.5px; color: #6b7186;
+    text-transform: uppercase; letter-spacing: 0.4px;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+  .punch {
+    margin: 0 52px 22px;
+    text-align: center;
+    background: rgba(238, 132, 91, 0.10);
+    border-left: 3px solid #ee845b;
+    padding: 10px 18px; border-radius: 4px;
+    font-size: 14.5px; color: #2c3142;
+    line-height: 1.45; font-weight: 500;
+    flex-shrink: 0;
+  }
+  .punch b { color: #c2492a; font-weight: 700; }
+  .punch em { color: #6b5cb5; font-style: normal; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="title-bar">
+    <span class="badge">Independent attribution</span>
+    <span class="slide-title">SHAP on a 150-column synthetic ensemble</span>
+  </div>
+  <div class="headline">&kappa;<sub>top</sub> alone explains <b style="color:#c2492a">R&sup2; = 0.92</b> of the variance in BTCS coarse-&Delta;t error.</div>
+  <div class="content">
+
+    <div class="plot-card">
+      <div class="card-h">SHAP feature importance &mdash; mean |SHAP| over 150 columns</div>
+      <div class="cat-legend">
+        <span class="leg-item"><span class="dot" style="background:#2c8a83"></span>top-cell diffusivity (FTCS bound)</span>
+        <span class="leg-item"><span class="dot" style="background:#1565C0"></span>bulk admittance</span>
+        <span class="leg-item"><span class="dot" style="background:#ee845b"></span>layer interface</span>
+        <span class="leg-item"><span class="dot" style="background:#999999"></span>thickness</span>
+      </div>
+      <svg class="shap" id="shap" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+
+    <div class="interp-card">
+      <div class="card-h">Setup &amp; finding</div>
+      <div class="setup">
+        <span class="lbl">Synthetic ensemble</span>
+        N = 150 three-layer substrate columns sampled from a wide prior (&lambda; &isin; [0.05, 2.50] W m<sup>&minus;1</sup> K<sup>&minus;1</sup>; C &isin; [0.1, 3.0] &times; 10<sup>6</sup>).
+        BTCS &Delta;t = 600 s vs BTCS &Delta;t = 15 s reference, day-2 RMSE T<sub>s</sub>.
+        GradientBoostingRegressor + SHAP TreeExplainer.
+      </div>
+      <div class="stat-row">
+        <div class="stat"><span class="v">0.96</span><span class="l">in-sample R&sup2;</span></div>
+        <div class="stat"><span class="v">0.61</span><span class="l">5-fold CV R&sup2;</span></div>
+        <div class="stat"><span class="v">0.92</span><span class="l">&kappa;<sub>top</sub> alone R&sup2;</span></div>
+      </div>
+      <p style="margin-top:10px;">
+        After <em>&kappa;<sub>top</sub> is partialled out</em>, the strongest residual feature is bulk admittance
+        &mu;<sub>eff</sub> (mean |SHAP| = 0.082 K), with layer-interface descriptors smaller still.
+      </p>
+      <div class="key">
+        The same parameter that sets the FTCS stability bound (&kappa;<sub>top</sub>) also sets the
+        <b>prefactor of the BTCS coarse-&Delta;t splitting error</b>. Higher &kappa;<sub>top</sub>
+        &rarr; faster top-cell diffusion &rarr; larger T<sub>s</sub><sup>0</sup> swing per step
+        &rarr; bigger splitting error.
+      </div>
+    </div>
+
+  </div>
+  <div class="punch">
+    Reconciles the three-substrate ordering: soil &kappa;<sub>top</sub> 2.3 &times; 10<sup>&minus;7</sup>, asphalt 3.8 &times; 10<sup>&minus;7</sup>, concrete 7.1 &times; 10<sup>&minus;7</sup> &mdash; <em>error ordering follows &kappa;<sub>top</sub> ordering</em>.
+  </div>
+
+<script>
+"use strict";
+
+// =============================================================
+// SHAP feature importance — values from shap_summary.csv.
+// =============================================================
+var FEATURES = [
+  // κ_top bar uses the same teal as its stat tile on the right panel
+  // (R² = 0.92 column) so the visual coupling is immediate.
+  { key: 'kappa_top',        label: 'κ_top',                 cat: 'dom',   shap: 0.7085, color: '#2c8a83' },
+  { key: 'mu_eff',           label: 'μ_eff (admittance)',    cat: 'adm',   shap: 0.1962, color: '#1565C0' },
+  { key: 'max_contrast',     label: 'max λ contrast',        cat: 'iface', shap: 0.1791, color: '#ee845b' },
+  { key: 'h_top',            label: 'h_top',                 cat: 'thk',   shap: 0.1430, color: '#999999' },
+  { key: 'first_iface_depth',label: '1st interface depth',   cat: 'iface', shap: 0.1380, color: '#ee845b' },
+  { key: 'n_interfaces',     label: '# interfaces',          cat: 'iface', shap: 0.0383, color: '#ee845b' }
+];
+
+// =============================================================
+// SVG — horizontal bar chart with annotations.
+// =============================================================
+var SVG_W = 720;
+var SVG_H = 380;
+var PAD = { top: 14, right: 80, bottom: 50, left: 170 };
+var PLOT_W = SVG_W - PAD.left - PAD.right;
+var PLOT_H = SVG_H - PAD.top - PAD.bottom;
+var X_MAX = 0.80;
+
+var NS = 'http://www.w3.org/2000/svg';
+function svgEl(tag, attrs) {
+  var el = document.createElementNS(NS, tag);
+  if (attrs) for (var k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+}
+function xPx(v) { return PAD.left + (v / X_MAX) * PLOT_W; }
+
+var svg = document.getElementById('shap');
+svg.setAttribute('viewBox', '0 0 ' + SVG_W + ' ' + SVG_H);
+
+// X gridlines + ticks at 0, 0.2, 0.4, 0.6, 0.8.
+[0, 0.2, 0.4, 0.6, 0.8].forEach(function(v) {
+  svg.appendChild(svgEl('line', {
+    x1: xPx(v), x2: xPx(v),
+    y1: PAD.top, y2: PAD.top + PLOT_H,
+    stroke: 'rgba(107, 92, 181, 0.10)'
+  }));
+  var t = svgEl('text', {
+    x: xPx(v), y: PAD.top + PLOT_H + 16,
+    'text-anchor': 'middle', 'font-size': '11', fill: '#6b7186',
+    'font-family': 'Cascadia Code, Consolas, monospace'
+  });
+  t.textContent = v.toFixed(1);
+  svg.appendChild(t);
+});
+svg.appendChild((function() {
+  var t = svgEl('text', {
+    x: PAD.left + PLOT_W / 2, y: PAD.top + PLOT_H + 36,
+    'text-anchor': 'middle', 'font-size': '12', fill: '#4a5066',
+    'font-weight': '600'
+  });
+  t.textContent = 'mean |SHAP| (K)';
+  return t;
+})());
+
+// Bars (one per feature, with feature label at left and SHAP value at right).
+var rowH = PLOT_H / FEATURES.length;
+var barH = rowH * 0.62;
+FEATURES.forEach(function(f, i) {
+  var yC = PAD.top + (i + 0.5) * rowH;
+  var w = xPx(f.shap) - PAD.left;
+  // Bar
+  svg.appendChild(svgEl('rect', {
+    x: PAD.left, y: yC - barH / 2,
+    width: w, height: barH,
+    fill: f.color, opacity: f.cat === 'dom' ? '0.95' : '0.85',
+    rx: '3'
+  }));
+  // Feature label (left of axis)
+  var lbl = svgEl('text', {
+    x: PAD.left - 12, y: yC + 4,
+    'text-anchor': 'end', 'font-size': '13', fill: '#2c3142',
+    'font-weight': f.cat === 'dom' ? '700' : '500'
+  });
+  lbl.textContent = f.label;
+  svg.appendChild(lbl);
+  // Value (right of bar)
+  var val = svgEl('text', {
+    x: xPx(f.shap) + 8, y: yC + 4,
+    'text-anchor': 'start', 'font-size': '12.5', fill: f.color,
+    'font-weight': '700',
+    'font-family': 'Cascadia Code, Consolas, monospace'
+  });
+  val.textContent = f.shap.toFixed(2);
+  svg.appendChild(val);
+});
+
+// (Category legend is rendered as plain HTML above the SVG to avoid
+// pixel collisions with the κ_top bar — see .cat-legend in the style block.)
+
+// "R² = 0.92 alone" annotation pinned next to the dominant bar,
+// matching the bar colour for visual coupling.
+(function() {
+  var domY = PAD.top + 0.5 * rowH;
+  var annot = svgEl('text', {
+    x: xPx(0.71) + 60, y: domY + 4,
+    'text-anchor': 'start', 'font-size': '11', fill: '#2c8a83',
+    'font-weight': '700', 'font-style': 'italic'
+  });
+  annot.textContent = '← R² = 0.92 alone';
+  svg.appendChild(annot);
+})();
+</script>
+</body>
+</html></textarea>
+
+<script>
+"use strict";
+
+// ============================================================
+// Slide-deck harness — pattern lifted from the qualifier deck.
+// SLIDE_ORDER is the displayed sequence. Entries are either:
+//   - a textarea ID string ('s0', 's1', ...) → rendered via srcdoc
+//   - a relative .html path → rendered via iframe.src (existing standalone viz)
+// Any string ending in .html is treated as an external file.
+// ============================================================
+var SLIDE_ORDER = [
+    's0',                                              // 1: Title
+    's1',                                              // 2: UHI hook
+    'CLIM715_Substrate_3D_Visualization_v3.html',     // 3: 3D substrate viz
+    's2',                                              // 4: Physics + θ-method
+    'window_von_neuman.html',                         // 5: Von Neumann live
+    's3',                                              // 6: 17-second problem
+    's4',                                              // 7: Verification
+    's5',                                              // 8: Schemes agree at Δt=15s
+    'window_delta_t.html',                            // 9: Δt refinement live
+    's6',                                              // 10: Curvature widget (splitting-error mechanism)
+    's8',                                              // 11: Δt-refinement ratios → splitting error
+    's9',                                              // 12: SHAP attribution → κ_top dominates
+    's7'                                               // 13: Conclusions
+];
+
+var totalSlides = SLIDE_ORDER.length;
+var container = document.getElementById('frames-container');
+var iframes = [];
+var currentSlide = 0;
+var broadcasting = false;
+
+// Cross-window slide sync (e.g., second monitor showing the same deck).
+var channel = null;
+try { channel = new BroadcastChannel('clim715-deck-sync'); } catch (e) { }
+function broadcastSlide(n) {
+    if (channel && !broadcasting) channel.postMessage({ type: 'slide-change', slide: n });
+}
+if (channel) {
+    channel.onmessage = function (e) {
+        if (e.data && e.data.type === 'slide-change' && typeof e.data.slide === 'number') {
+            broadcasting = true;
+            showSlide(e.data.slide);
+            broadcasting = false;
+        }
+    };
+}
+
+function nextSlide() { if (currentSlide < totalSlides - 1) showSlide(currentSlide + 1); }
+function prevSlide() { if (currentSlide > 0) showSlide(currentSlide - 1); }
+
+function showSlide(n) {
+    if (n < 0 || n >= totalSlides) return;
+    iframes[currentSlide].classList.remove('active');
+    currentSlide = n;
+    iframes[currentSlide].classList.add('active');
+    document.getElementById('slide-number').textContent = 'Slide ' + (currentSlide + 1) + ' / ' + totalSlides;
+    try { iframes[currentSlide].focus(); } catch (e) {}
+    try { iframes[currentSlide].contentWindow.focus(); } catch (e) {}
+    broadcastSlide(n);
+}
+
+// Attach M/K listeners to the inner iframe document so navigation works
+// even when focus is inside the active slide (e.g., a slider has focus).
+function attachMKListener(frame) {
+    try {
+        frame.contentWindow.addEventListener('keydown', function (e) {
+            if (e.key === 'm' || e.key === 'M') { e.preventDefault(); e.stopPropagation(); nextSlide(); }
+            else if (e.key === 'k' || e.key === 'K') { e.preventDefault(); e.stopPropagation(); prevSlide(); }
+        }, true);
+    } catch (ex) { /* cross-origin or not yet loaded — silently skip */ }
+}
+
+// Build all iframes up-front so navigation is instantaneous.
+for (var i = 0; i < totalSlides; i++) {
+    var entry = SLIDE_ORDER[i];
+    var frame = document.createElement('iframe');
+    frame.className = 'slide-frame' + (i === 0 ? ' active' : '');
+    frame.setAttribute('allow', 'fullscreen; autoplay');
+    if (typeof entry === 'string' && /\.html$/i.test(entry)) {
+        // External file — relative paths inside the file resolve against the file itself.
+        frame.src = entry;
+    } else {
+        // Inline textarea.
+        var slideHtml = document.getElementById(entry).value;
+        frame.srcdoc = slideHtml;
+    }
+    container.appendChild(frame);
+    iframes.push(frame);
+    (function (f) { f.addEventListener('load', function () { attachMKListener(f); }); })(frame);
+}
+
+// Top-level M/K listener (caught here whenever the parent has focus).
+window.addEventListener('keydown', function (e) {
+    if (e.key === 'm' || e.key === 'M') { e.preventDefault(); nextSlide(); }
+    else if (e.key === 'k' || e.key === 'K') { e.preventDefault(); prevSlide(); }
+});
+
+// Receive M/K relays from cross-origin (file://) iframes — slides 3, 5, 9 are
+// loaded via iframe.src and Chrome treats each file:// URL as a unique origin,
+// so the contentWindow keydown listener from attachMKListener() silently
+// SecurityError's. The relay scripts in those three external HTML files post
+// here instead.
+window.addEventListener('message', function (e) {
+    if (e.data && e.data.type === 'deck-nav') {
+        if (e.data.dir === 'next') nextSlide();
+        else if (e.data.dir === 'prev') prevSlide();
+    }
+});
+
+// Initial slide-counter text and focus.
+document.getElementById('slide-number').textContent = 'Slide 1 / ' + totalSlides;
+if (iframes[0]) iframes[0].addEventListener('load', function () { iframes[0].focus(); });
+</script>
+</body>
+</html>

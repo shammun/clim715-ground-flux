@@ -1,0 +1,4619 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhD Qualifier — Final Presentation — Shammunul Islam</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body,
+        html {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: #E8EDF2;
+            font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+        }
+
+        .slide-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            border: none;
+            display: none;
+        }
+
+        .slide-frame.active {
+            display: block;
+        }
+
+        #slide-number {
+            position: fixed;
+            top: 8px;
+            right: 24px;
+            color: #1565C0;
+            font-size: 16px;
+            font-weight: 700;
+            font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+            z-index: 99999;
+            pointer-events: none;
+            background: rgba(232, 237, 242, 0.85);
+            padding: 4px 14px;
+            border-radius: 4px;
+            letter-spacing: 0.3px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="slide-number">Slide 1</div>
+    <div id="frames-container"></div>
+    <textarea id="s0" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slide 1 — Title</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex;
+    align-items: center; justify-content: center;
+}
+.slide {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    justify-content: center; padding: 60px 80px;
+}
+.title { font-size: 36px; font-weight: 700; color: #2C2C2C; line-height: 1.25; margin-bottom: 20px; }
+.subtitle { font-size: 22px; font-style: italic; color: #B35C1E; margin-bottom: 60px; }
+.divider { width: 70px; height: 3px; background: #3A7D7E; border-radius: 2px; margin-bottom: 32px; }
+.author { font-size: 19px; font-weight: 700; color: #2C2C2C; margin-bottom: 6px; }
+.info-line { font-size: 16px; color: #555; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="slide">
+    <div class="title">Sensitivity of Intra-Urban Land Surface Temperature Variability to Meteorological Conditions</div>
+    <div class="subtitle">ECOSTRESS Observations and Hierarchical GAM Analysis</div>
+    <div class="divider"></div>
+    <div class="author">Shammunul Islam</div>
+    <div class="info-line">
+        PhD Student &middot; Climate Dynamics<br>
+        Advisor: Dr. Luis Ortiz<br>
+        Department of Atmospheric, Oceanic and Earth Sciences &middot; George Mason University<br>
+        <br>May 2026
+    </div>
+</div>
+</body>
+</html></textarea>
+    <textarea id="s1" style="display:none"><!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide 2 — Motivating Comparison</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body,
+        html {
+            width: 100vw;
+            height: 100vh;
+            font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+            background: #E8EDF2;
+            color: #2C2C2C;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .title-bar {
+            padding: 28px 48px 12px 48px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .badge {
+            background: #3A7D7E;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            padding: 4px 13px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .slide-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #2C2C2C;
+        }
+
+        .framing {
+            font-size: 20px;
+            font-weight: 600;
+            color: #B35C1E;
+            text-align: center;
+            margin: 0;
+            flex-shrink: 0;
+        }
+
+        .content {
+            flex: 1;
+            padding: 8px 48px 16px 48px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            min-height: 0;
+        }
+
+        .image-frame {
+            flex: 1;
+            width: 100%;
+            max-width: 100%;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(100, 110, 140, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .image-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 8px;
+        }
+
+        /* Fallback placeholder when image not found */
+        .placeholder {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .placeholder-icon {
+            font-size: 36px;
+            color: #ccc;
+        }
+
+        .image-frame img[src=""] ~ .placeholder,
+        .image-frame img.error ~ .placeholder {
+            display: flex;
+        }
+
+        .caption {
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="title-bar">
+        <span class="badge">MOTIVATION</span>
+        <span class="slide-title">Intra-Urban LST Variability</span>
+    </div>
+
+    <div class="content">
+        <div class="framing">Similar air temperature — very different surface temperature patterns across the city</div>
+        <div class="framing">Standard deviation of land surface temperature &ndash; &sigma;<sub>LST</sub></div>
+
+        <div class="image-frame">
+            <img src="slide2_low_vs_high_variance.png" alt="ECOSTRESS LST Spatial Variance Comparison — NYC, 70m"
+                 onerror="this.classList.add('error'); this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="placeholder">
+                <div class="placeholder-icon">🗺️</div>
+                <div>Place <strong>slide2_low_vs_high_variance.png</strong> in the same folder</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html></textarea>
+    <textarea id="s2" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Drives σ_LST and Why the Response Is Nonlinear</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 28px 48px 12px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #3A7D7E; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title {
+    font-size: 26px; font-weight: 700; color: #2C2C2C;
+}
+.content {
+    flex: 1; padding: 10px 48px 18px 48px;
+    display: flex; flex-direction: column; gap: 14px;
+    overflow-y: auto;
+}
+.sub { font-size: 0.72em; vertical-align: sub; line-height: 0; }
+.sym { font-style: italic; }
+
+.info-card {
+    background: #fff; border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(100,110,140,0.10);
+    padding: 18px 24px; transition: all 0.3s ease;
+}
+.info-card:hover { box-shadow: 0 4px 16px rgba(100,110,140,0.18); }
+.card-title { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+.card-body { font-size: 16px; line-height: 1.55; color: #444; }
+.info-card { padding: 14px 22px; } .card-body { font-size: 15px; }
+</style>
+</head>
+<body style="">
+<div class="title-bar">
+    <span class="badge">PHYSICS</span>
+    <span class="slide-title">What Drives σ_LST and Why the Response Is Nonlinear</span>
+</div>
+<div class="content">
+
+<div class="info-card" style="border-left: 4px solid #C62828;">
+    <div class="card-title" style="color: #C62828;">Impervious Surfaces</div>
+    <div class="card-body">No moisture → nearly all absorbed energy goes to sensible heat → surface heats up strongly</div>
+</div>
+<div class="info-card" style="border-left: 4px solid #2E7D32;">
+    <div class="card-title" style="color: #2E7D32;">Vegetated Surfaces</div>
+    <div class="card-body">Evapotranspiration converts absorbed energy to latent heat → surface stays cooler</div>
+</div>
+<div class="info-card" style="border-left: 4px solid #6B7B8D;">
+    <div class="card-title" style="color: #6B7B8D;">Low Temperatures</div>
+    <div class="card-body">Weak radiative forcing, vegetation dormant — both surfaces close to air temperature. σ<sub>LST</sub> low.</div>
+</div>
+<div class="info-card" style="border-left: 4px solid #E65100;">
+    <div class="card-title" style="color: #E65100;">Rising Temperatures</div>
+    <div class="card-body">Radiation increases, vegetation transpires actively, impervious surfaces heat strongly — energy partitioning contrast widens → σ<sub>LST</sub> rises steeply.</div>
+</div>
+<div class="info-card" style="border-left: 4px solid #4A148C;">
+    <div class="card-title" style="color: #4A148C;">Very High Temperatures</div>
+    <div class="card-body">Soil moisture depletion, stomatal closure, VPD saturation — contrast-generating mechanism weakens → σ<sub>LST</sub> sensitivity flattens.</div>
+</div>
+
+</div>
+
+</body>
+</html></textarea>
+    <textarea id="s3" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Is Known: Meteorological Modulation</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 28px 48px 12px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #3A7D7E; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 26px; font-weight: 700; color: #2C2C2C; }
+.sub { font-size: 0.72em; vertical-align: sub; line-height: 0; }
+.table-area { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 10px 48px 16px 48px; }
+.lit-table { width: 100%; border-collapse: separate; border-spacing: 0 9px; }
+.lit-table thead th {
+    background: #3A7D7E; color: #fff;
+    font-size: 14px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 10px 18px; text-align: left; border: none;
+}
+.lit-row { transition: opacity 0.35s ease, box-shadow 0.35s ease; }
+.lit-row.muted  { opacity: 0.15; }
+.lit-row.dimmed { opacity: 0.55; }
+.lit-row.active { opacity: 1; }
+.lit-row td {
+    background: #F5F5F5; border: 1px solid #D0D4D8;
+    padding: 14px 20px; font-size: 15px; line-height: 1.5;
+    vertical-align: top; transition: border-color 0.35s ease, box-shadow 0.35s ease;
+}
+.lit-row.active td:first-child { border-left: 4px solid #3A7D7E; }
+.lit-row.active td { box-shadow: 0 2px 8px rgba(58,125,126,0.12); }
+.bottom-bar {
+    background: #FFFFFF; border-top: 1px solid #D1D9E0;
+    padding: 10px 48px 18px 48px;
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+}
+.step-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid #6B7B8D; display: flex;
+    align-items: center; justify-content: center;
+    font-size: 13px; color: #6B7B8D; cursor: pointer;
+    transition: all 0.3s ease; background: transparent; font-weight: 500;
+}
+.step-dot.active { background: #3A7D7E; border-color: #3A7D7E; color: #fff; font-weight: 600; }
+.step-title-text { font-size: 14px; color: #5A5A5A; margin-left: 16px; min-width: 320px; font-style: italic; }
+.footnote { padding: 4px 48px 6px 48px; font-size: 13px; color: #6B7B8D; font-style: italic; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">LITERATURE</span>
+    <span class="slide-title">What Is Known: Meteorological Modulation of UHI</span>
+</div>
+<div class="table-area">
+    <table class="lit-table">
+        <thead><tr>
+            <th style="width:42%;border-radius: 4px 0 0 4px;">Established</th>
+            <th style="width:35%;">But limited to…</th>
+            <th style="width:23%;border-radius: 0 4px 4px 0;">Reference</th>
+        </tr></thead>
+        <tbody>
+        <tr class="lit-row active" id="row0">
+            <td style="border-radius: 4px 0 0 4px; border-left: 4px solid transparent;">Precipitation-modulated, nonlinear scaling of surface UHI controlled by water and energy limits on ET — across &gt;30,000 cities globally</td>
+            <td style="color: #8B4513;">City as single observation, not a within-city distribution</td>
+            <td style="border-radius: 0 4px 4px 0; color: #6B7B8D; font-size: 13px;">Manoli et al. 2019</td>
+        </tr>
+        <tr class="lit-row muted" id="row1">
+            <td style="border-radius: 4px 0 0 4px; border-left: 4px solid transparent;">Within-city temperature spread is wider on hotter days and warmer seasons (≤8.7 °C across Shenzhen stations; widening LST contrasts in warmer Sydney seasons; UHI as a distribution — 22 % of urban pixels cooler than rural in Portland)</td>
+            <td style="color: #8B4513;">Categorical comparisons (warm vs. cool, summer vs. winter); no continuous sensitivity coefficient</td>
+            <td style="border-radius: 0 4px 4px 0; color: #6B7B8D; font-size: 13px;">Cao et al. 2021; Naserikia et al. 2023; Potgieter et al. 2021; Moffett et al. 2019; Buyantuyev &amp; Wu 2010</td>
+        </tr>
+        <tr class="lit-row muted" id="row2">
+            <td style="border-radius: 4px 0 0 4px; border-left: 4px solid transparent;">Antecedent moisture pre-conditions surface energy balance: dry weeks trigger soil-moisture-limited stomatal closure → wider impervious-vegetated LST gap; wet weeks sustain uniform ET → narrower gap</td>
+            <td style="color: #8B4513;">Established mechanistically; never tested as a continuous predictor of σ<sub>LST</sub></td>
+            <td style="border-radius: 0 4px 4px 0; color: #6B7B8D; font-size: 13px;">Hao et al. 2018, 2023; Manoli et al. 2019; Zhao et al. 2018</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="footnote">Existing studies establish that meteorology modulates UHI <em>qualitatively</em>. None have provided a sensitivity coefficient (∂σ<sub>LST</sub>/∂T<sub>air</sub>, ∂σ<sub>LST</sub>/∂RH, ∂σ<sub>LST</sub>/∂precip<sub>7d</sub>) with uncertainty bounds usable for projection or planning.</div>
+<div class="bottom-bar">
+    <div class="step-dot active" onclick="goToStep(0)">1</div>
+    <div class="step-dot" onclick="goToStep(1)">2</div>
+    <div class="step-dot" onclick="goToStep(2)">3</div>
+    <div class="step-title-text" id="stepTitle"></div>
+</div>
+<script>
+    let currentStep = 0;
+    const totalSteps = 3;
+    const rows = [document.getElementById("row0"), document.getElementById("row1"),
+    document.getElementById("row2")];
+    const stepTitle = document.getElementById('stepTitle');
+    const dots = document.querySelectorAll('.step-dot');
+    const stepTitles = [
+        "Climate-modulated UHI scaling — Manoli et al.",
+        "Intra-urban thermal contrast — Cao, Naserikia, Potgieter, Moffett",
+        "Antecedent moisture mechanism — Hao, Manoli, Zhao"
+    ];
+    function setRowClass(el, cls) { el.className = 'lit-row ' + cls; }
+    function updateView() {
+        dots.forEach((dot, i) => dot.classList.toggle('active', i === currentStep));
+        stepTitle.innerHTML = stepTitles[currentStep];
+        rows.forEach((row, i) => {
+            if (i === currentStep) setRowClass(row, 'active');
+            else if (i < currentStep) setRowClass(row, 'dimmed');
+            else setRowClass(row, 'muted');
+        });
+    }
+    function goToStep(step) {
+        if (step < 0 || step >= totalSteps) return;
+        currentStep = step;
+        updateView();
+    }
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.code === 'Space' || e.key === 'n' || e.key === 'N') {
+            e.preventDefault();
+            if (currentStep < totalSteps - 1) { currentStep++; updateView(); }
+        } else if (e.key === 'ArrowLeft' || e.key === 'p' || e.key === 'P') {
+            e.preventDefault();
+            if (currentStep > 0) { currentStep--; updateView(); }
+        }
+    });
+    updateView();
+</script>
+</body>
+</html></textarea>
+    <textarea id="s4" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Is Known: Vegetation, Morphology, and Spatial Patterns</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 28px 48px 12px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #3A7D7E; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 26px; font-weight: 700; color: #2C2C2C; }
+.sub { font-size: 0.72em; vertical-align: sub; line-height: 0; }
+.table-area { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 10px 48px 16px 48px; }
+.lit-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+.lit-table thead th {
+    background: #3A7D7E; color: #fff;
+    font-size: 14px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 10px 18px; text-align: left; border: none;
+}
+.lit-row { transition: opacity 0.35s ease, box-shadow 0.35s ease; }
+.lit-row.muted  { opacity: 0.15; }
+.lit-row.dimmed { opacity: 0.55; }
+.lit-row.active { opacity: 1; }
+.lit-row td {
+    background: #F5F5F5; border: 1px solid #D0D4D8;
+    padding: 12px 20px; font-size: 14.5px; line-height: 1.45;
+    vertical-align: top; transition: border-color 0.35s ease, box-shadow 0.35s ease;
+}
+.lit-row.active td:first-child { border-left: 4px solid #3A7D7E; }
+.lit-row.active td { box-shadow: 0 2px 8px rgba(58,125,126,0.12); }
+.bottom-bar {
+    background: #FFFFFF; border-top: 1px solid #D1D9E0;
+    padding: 10px 48px 18px 48px;
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+}
+.step-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid #6B7B8D; display: flex;
+    align-items: center; justify-content: center;
+    font-size: 13px; color: #6B7B8D; cursor: pointer;
+    transition: all 0.3s ease; background: transparent; font-weight: 500;
+}
+.step-dot.active { background: #3A7D7E; border-color: #3A7D7E; color: #fff; font-weight: 600; }
+.step-title-text { font-size: 14px; color: #5A5A5A; margin-left: 16px; min-width: 320px; font-style: italic; }
+.footnote { padding: 4px 48px 6px 48px; font-size: 13px; color: #6B7B8D; font-style: italic; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">LITERATURE</span>
+    <span class="slide-title">What Is Known: Vegetation, Morphology, Spatial Patterns</span>
+</div>
+<div class="table-area">
+    <table class="lit-table">
+        <thead><tr>
+            <th style="width:42%;border-radius: 4px 0 0 4px;">Established</th>
+            <th style="width:35%;">But limited to…</th>
+            <th style="width:23%;border-radius: 0 4px 4px 0;">Reference</th>
+        </tr></thead>
+        <tbody>
+        <tr class="lit-row active" id="row0">
+            <td style="border-radius: 4px 0 0 4px; border-left: 4px solid transparent;">Nonlinear, threshold canopy cooling — strongest above ~40 % canopy at 60–90 m block scale; effect amplified on hottest days; drought reduced cooling 15.3 % (trees) / 25.0 % (grass) in LA</td>
+            <td style="color: #8B4513;">Single city; air temperature only; pre/post or threshold tests, no continuous sensitivity</td>
+            <td style="border-radius: 0 4px 4px 0; color: #6B7B8D; font-size: 13px;">Ziter et al. 2019; Allen et al. 2021</td>
+        </tr>
+        <tr class="lit-row muted" id="row1">
+            <td style="border-radius: 4px 0 0 4px; border-left: 4px solid transparent;">Spatial <em>arrangement</em> matters independent of composition: re-arranging identical land cover changed LST maxima by up to 4.2 °C; urban form explains ~70 % of LST inequality across 683 European cities</td>
+            <td style="color: #8B4513;">Simulated landscapes / cross-sectional only; no temporal meteorological coupling</td>
+            <td style="border-radius: 0 4px 4px 0; color: #6B7B8D; font-size: 13px;">Osborne &amp; Alvares-Sanches 2019; Mashhoodi &amp; Muñoz Unceta 2024</td>
+        </tr>
+        <tr class="lit-row muted" id="row2">
+            <td style="border-radius: 4px 0 0 4px; border-left: 4px solid transparent;">Both horizontal density <em>and</em> vertical structure of buildings shape LST: density + compactness + height dominate (Wuhan, RF); taller blocks → cooler day, warmer night (Beijing, 1,536 blocks)</td>
+            <td style="color: #8B4513;">Single city; LST as outcome, not within-city <em>spread</em>; pixel-level not distribution-level</td>
+            <td style="border-radius: 0 4px 4px 0; color: #6B7B8D; font-size: 13px;">Han 2023; Li &amp; Hu 2022; Wang et al. 2022</td>
+        </tr>
+        <tr class="lit-row muted" id="row3">
+            <td style="border-radius: 4px 0 0 4px; border-left: 4px solid transparent;">Directional thermal anisotropy scales with H/W ratio and incoming irradiance — heterogeneous skylines produce more varied shadow / sky-view-factor mosaics → richer surface temperature field</td>
+            <td style="color: #8B4513;">Modeled / simulation framework; not joined with continuous meteorological forcing on a within-city distribution</td>
+            <td style="border-radius: 0 4px 4px 0; color: #6B7B8D; font-size: 13px;">Krayenhoff &amp; Voogt 2016; Yang &amp; Li 2015</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="footnote">Vegetation and morphology are rarely studied <em>jointly</em> with meteorological variables on a within-city distribution. Cross-city analyses treat cities as single observations; pixel-level analyses hold meteorology constant.</div>
+<div class="bottom-bar">
+    <div class="step-dot active" onclick="goToStep(0)">1</div>
+    <div class="step-dot" onclick="goToStep(1)">2</div>
+    <div class="step-dot" onclick="goToStep(2)">3</div>
+    <div class="step-dot" onclick="goToStep(3)">4</div>
+    <div class="step-title-text" id="stepTitle"></div>
+</div>
+<script>
+    let currentStep = 0;
+    const totalSteps = 4;
+    const rows = [document.getElementById("row0"), document.getElementById("row1"),
+    document.getElementById("row2"), document.getElementById("row3")];
+    const stepTitle = document.getElementById('stepTitle');
+    const dots = document.querySelectorAll('.step-dot');
+    const stepTitles = [
+        "Vegetation cooling — Ziter, Allen",
+        "Spatial arrangement &amp; form — Osborne, Mashhoodi",
+        "Building morphology — Han, Li &amp; Hu, Wang",
+        "Directional anisotropy — Krayenhoff &amp; Voogt"
+    ];
+    function setRowClass(el, cls) { el.className = 'lit-row ' + cls; }
+    function updateView() {
+        dots.forEach((dot, i) => dot.classList.toggle('active', i === currentStep));
+        stepTitle.innerHTML = stepTitles[currentStep];
+        rows.forEach((row, i) => {
+            if (i === currentStep) setRowClass(row, 'active');
+            else if (i < currentStep) setRowClass(row, 'dimmed');
+            else setRowClass(row, 'muted');
+        });
+    }
+    function goToStep(step) {
+        if (step < 0 || step >= totalSteps) return;
+        currentStep = step;
+        updateView();
+    }
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.code === 'Space' || e.key === 'n' || e.key === 'N') {
+            e.preventDefault();
+            if (currentStep < totalSteps - 1) { currentStep++; updateView(); }
+        } else if (e.key === 'ArrowLeft' || e.key === 'p' || e.key === 'P') {
+            e.preventDefault();
+            if (currentStep > 0) { currentStep--; updateView(); }
+        }
+    });
+    updateView();
+</script>
+</body>
+</html></textarea>
+    <textarea id="s5" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Knowledge Gap</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 28px 48px 12px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #3A7D7E; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title {
+    font-size: 26px; font-weight: 700; color: #2C2C2C;
+}
+.content {
+    flex: 1; padding: 10px 48px 18px 48px;
+    display: flex; flex-direction: column; gap: 14px;
+    overflow-y: auto;
+}
+.sub { font-size: 0.72em; vertical-align: sub; line-height: 0; }
+.sym { font-style: italic; }
+
+.info-card {
+    background: #fff; border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(100,110,140,0.10);
+    padding: 18px 24px; transition: all 0.3s ease;
+}
+.info-card:hover { box-shadow: 0 4px 16px rgba(100,110,140,0.18); }
+.card-title { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+.card-body { font-size: 16px; line-height: 1.55; color: #444; }
+
+.summary-box {
+    background: #fff; border-radius: 8px; padding: 16px 24px;
+    border-left: 4px solid #3A7D7E; margin-top: 4px;
+    font-size: 16px; line-height: 1.5; color: #2C2C2C;
+    box-shadow: 0 2px 8px rgba(100,110,140,0.10);
+}
+
+</style>
+</head>
+<body style="">
+<div class="title-bar">
+    <span class="badge">GAP</span>
+    <span class="slide-title">The Knowledge Gap</span>
+</div>
+<div class="content">
+
+<div class="info-card" style="border-left: 4px solid #C62828;">
+    <div class="card-title" style="color: #C62828;">How much?</div>
+    <div class="card-body">No study has quantified the sensitivity ∂σ<sub>LST</sub>/∂T<sub>air</sub></div>
+</div>
+<div class="info-card" style="border-left: 4px solid #E65100;">
+    <div class="card-title" style="color: #E65100;">Is it nonlinear?</div>
+    <div class="card-body">We expect to have three regimes, but no study has tested this with a flexible model</div>
+</div>
+<div class="info-card" style="border-left: 4px solid #4A148C;">
+    <div class="card-title" style="color: #4A148C;">Does urban form modulate it?</div>
+    <div class="card-body">Single-city studies cannot separate morphology from city-specific baselines</div>
+</div>
+<div class="info-card" style="border-left: 4px solid #1565C0;">
+    <div class="card-title" style="color: #1565C0;">Can we project it?</div>
+    <div class="card-body">No uncertainty quantification exists</div>
+</div>
+</div>
+
+</body>
+</html></textarea>
+    <textarea id="s6" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Research Question and Hypotheses</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 24px 48px 10px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #3A7D7E; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 26px; font-weight: 700; color: #2C2C2C; }
+.content {
+    flex: 1; padding: 6px 48px 8px 48px;
+    display: flex; flex-direction: column; gap: 9px;
+    overflow-y: auto;
+}
+.sub { font-size: 0.72em; vertical-align: sub; line-height: 0; }
+
+.hyp-row {
+    display: flex; align-items: stretch;
+    background: #fff; border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(100,110,140,0.10);
+    overflow: hidden;
+    transition: opacity 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+    border-left: 4px solid transparent;
+}
+.hyp-row.active { border-left: 4px solid #3A7D7E; box-shadow: 0 3px 14px rgba(58,125,126,0.18); opacity: 1; }
+.hyp-row.dimmed { opacity: 0.55; }
+.hyp-row.muted  { opacity: 0.15; }
+.hyp-label { width: 175px; min-width: 175px; padding: 13px 16px; display: flex; flex-direction: column; justify-content: center; border-right: 2px solid #E8EDF2; }
+.hyp-id { font-size: 13px; font-weight: 700; color: #3A7D7E; letter-spacing: 1px; margin-bottom: 4px; }
+.hyp-name { font-size: 15px; font-weight: 700; color: #2C2C2C; line-height: 1.3; }
+.hyp-body { flex: 1; display: flex; align-items: stretch; }
+.hyp-claim { flex: 1; padding: 13px 18px; display: flex; flex-direction: column; justify-content: center; }
+.hyp-claim-header { font-size: 11px; font-weight: 700; color: #6B7B8D; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.hyp-claim-text { font-size: 14px; line-height: 1.4; color: #2C2C2C; }
+.nav-bar { padding: 6px 48px 14px 48px; display: flex; justify-content: center; align-items: center; gap: 10px; }
+.nav-dot {
+    width: 28px; height: 28px; border-radius: 50%; border: 2px solid #3A7D7E;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: #3A7D7E;
+    cursor: pointer; transition: all 0.25s ease; background: transparent;
+}
+.nav-dot.active { background: #3A7D7E; color: #fff; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">HYPOTHESES</span>
+    <span class="slide-title">Research Question and Hypotheses</span>
+</div>
+<div class="content">
+
+<div class="hyp-row active" id="row0">
+    <div class="hyp-label">
+        <div class="hyp-id">H1</div>
+        <div class="hyp-name">Meteorological sensitivities</div>
+    </div>
+    <div class="hyp-body">
+        <div class="hyp-claim">
+            <div class="hyp-claim-header">Prediction</div>
+            <div class="hyp-claim-text">∂σ<sub>LST</sub>/∂T<sub>air</sub>, ∂σ<sub>LST</sub>/∂RH, ∂σ<sub>LST</sub>/∂precip<sub>7d</sub> are each ≠ 0 in at least one of day/night</div>
+        </div>
+    </div>
+</div>
+
+<div class="hyp-row dimmed" id="row1">
+    <div class="hyp-label">
+        <div class="hyp-id">H2</div>
+        <div class="hyp-name">Day vs. Night contrast</div>
+    </div>
+    <div class="hyp-body">
+        <div class="hyp-claim">
+            <div class="hyp-claim-header">Prediction</div>
+            <div class="hyp-claim-text">Sensitivities differ between daytime and nighttime — day-minus-night CI excludes 0</div>
+        </div>
+    </div>
+</div>
+
+<div class="hyp-row dimmed" id="row2">
+    <div class="hyp-label">
+        <div class="hyp-id">H3</div>
+        <div class="hyp-name">Morphological heterogeneity</div>
+    </div>
+    <div class="hyp-body">
+        <div class="hyp-claim">
+            <div class="hyp-claim-header">Prediction</div>
+            <div class="hyp-claim-text">β<sub>2</sub> (H_BldgFrac) and β<sub>4</sub> (H_BldgHt) &gt; 0 — heterogeneous cities have wider σ<sub>LST</sub></div>
+        </div>
+    </div>
+</div>
+
+<div class="hyp-row dimmed" id="row3">
+    <div class="hyp-label">
+        <div class="hyp-id">H4</div>
+        <div class="hyp-name">T × Rainfall interaction</div>
+    </div>
+    <div class="hyp-body">
+        <div class="hyp-claim">
+            <div class="hyp-claim-header">Prediction</div>
+            <div class="hyp-claim-text">∂²σ<sub>LST</sub>/(∂T<sub>air</sub>·∂precip<sub>7d</sub>) ≠ 0 — joint effect beyond two main effects</div>
+        </div>
+    </div>
+</div>
+
+</div>
+<div class="nav-bar">
+    <div class="nav-dot active" data-step="1" onclick="goTo(1)">1</div>
+    <div class="nav-dot" data-step="2" onclick="goTo(2)">2</div>
+    <div class="nav-dot" data-step="3" onclick="goTo(3)">3</div>
+    <div class="nav-dot" data-step="4" onclick="goTo(4)">4</div>
+</div>
+<script>
+    let step = 1;
+    const maxStep = 4;
+    function render() {
+        const rows = [document.getElementById("row0"), document.getElementById("row1"),
+        document.getElementById("row2"), document.getElementById("row3")];
+        rows.forEach((row, i) => {
+            const num = i + 1;
+            row.className = 'hyp-row';
+            if (num === step) row.classList.add('active');
+            else if (num < step) row.classList.add('dimmed');
+            else row.classList.add('dimmed');
+        });
+        document.querySelectorAll('.nav-dot').forEach(d => {
+            d.classList.toggle('active', +d.dataset.step === step);
+        });
+    }
+    function goTo(s) { step = Math.max(1, Math.min(maxStep, s)); render(); }
+    document.addEventListener('keydown', e => {
+        if (['ArrowRight', 'Space', 'KeyN'].includes(e.code)) { e.preventDefault(); goTo(step + 1); }
+        if (['ArrowLeft', 'KeyP'].includes(e.code)) { e.preventDefault(); goTo(step - 1); }
+    });
+    render();
+</script>
+</body>
+</html></textarea>
+    <textarea id="s7" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Area: Four U.S. Cities -- July 2018 to June 2025 (1583 images)</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 22px 48px 8px 48px;
+    display: flex; align-items: center; gap: 16px; flex-shrink: 0;
+}
+.badge {
+    background: #3A7D7E; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 26px; font-weight: 700; color: #2C2C2C; }
+.framing {
+    font-size: 17px; color: #555;
+    padding: 0 48px 6px 48px; flex-shrink: 0;
+}
+.framing .em { color: #B35C1E; font-weight: 600; }
+.content {
+    flex: 1; padding: 4px 48px 14px 48px;
+    display: flex; flex-direction: column; gap: 8px; min-height: 0;
+}
+.image-frame {
+    flex: 1; width: 100%; max-width: 100%;
+    background: #fff; border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(100,110,140,0.12);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; min-height: 0;
+}
+.image-frame img { width: 100%; height: 100%; object-fit: contain; padding: 6px; }
+.placeholder {
+    display: none; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 10px; color: #999; font-size: 14px;
+}
+.placeholder-icon { font-size: 36px; color: #ccc; }
+
+.bottom-bar {
+    display: flex; gap: 14px; flex-shrink: 0;
+}
+.city-card {
+    flex: 1; background: #fff; border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    padding: 10px 14px;
+    border-top: 3px solid #3A7D7E;
+}
+.city-card.nyc  { border-top-color: #4FA4A6; }
+.city-card.hou  { border-top-color: #C24A3A; }
+.city-card.chi  { border-top-color: #C77A2E; }
+.city-card.atl  { border-top-color: #6E5BA8; }
+.city-name { font-size: 14px; font-weight: 700; color: #2C2C2C; }
+.city-meta { font-size: 12px; color: #6B7B8D; line-height: 1.45; margin-top: 3px; }
+.city-meta b { color: #2C2C2C; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">DATA</span>
+    <span class="slide-title">Study Area: Four U.S. Cities &mdash; July 2018 to June 2025 (1583 images)</span>
+</div>
+<div class="framing">
+    Two contrasting <span class="em">climate regimes</span> (humid continental, humid subtropical) × two contrasting <span class="em">morphological signatures</span> (compact high-rise, sprawling low-rise). Multi-city design isolates city-constant building effects from city intercepts.
+</div>
+<div class="content">
+    <div class="image-frame">
+        <img src="study_area_4cities.png" alt="Four-city study area: NYC, Houston, Chicago, Atlanta"
+             onerror="this.classList.add('error'); this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="placeholder">
+            <div class="placeholder-icon">🗺️</div>
+            <div>Place <strong>study_area_4cities.png</strong> in the same folder</div>
+        </div>
+    </div>
+    <div class="bottom-bar">
+        <div class="city-card nyc">
+            <div class="city-name">NYC — humid continental</div>
+            <div class="city-meta">compact high-rise · <b>229</b> images</div>
+        </div>
+        <div class="city-card hou">
+            <div class="city-name">Houston — humid subtropical</div>
+            <div class="city-meta">sprawling low-rise · <b>322</b> images</div>
+        </div>
+        <div class="city-card chi">
+            <div class="city-name">Chicago — humid continental</div>
+            <div class="city-meta">compact high-rise · <b>626</b> images</div>
+        </div>
+        <div class="city-card atl">
+            <div class="city-name">Atlanta — humid subtropical</div>
+            <div class="city-meta">sprawling low-rise · <b>406</b> images</div>
+        </div>
+    </div>
+</div>
+</body>
+</html></textarea>
+    <textarea id="s8" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Sources — Four-City Sample</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+      background: #E8EDF2;
+      width: 100vw; height: 100vh;
+      overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    .title-bar {
+      padding: 20px 48px 8px 48px;
+      display: flex; align-items: center; gap: 18px;
+      flex-shrink: 0;
+    }
+    .badge {
+      background: #3A7D7E; color: #fff;
+      font-size: 13px; font-weight: 600;
+      padding: 5px 16px; border-radius: 4px;
+      letter-spacing: 0.5px; text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .slide-title {
+      font-size: 28px; font-weight: 600;
+      color: #2C2C2C; letter-spacing: -0.3px;
+    }
+    .col-headers {
+      display: flex; align-items: center;
+      padding: 2px 48px 5px 48px;
+      flex-shrink: 0;
+    }
+    .ch { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #6B7B8D; font-weight: 600; }
+    .ch-src  { width: 160px; flex-shrink: 0; }
+    .ch-var  { flex: 2.2; padding-left: 16px; }
+    .ch-res  { flex: 1.3; padding-left: 16px; }
+    .ch-per  { flex: 1;   padding-left: 16px; }
+    .ch-role { flex: 2.8; padding-left: 16px; }
+    .panels-container {
+      flex: 1; display: flex; flex-direction: column;
+      gap: 10px; padding: 0 48px 8px 48px; min-height: 0;
+      position: relative;
+    }
+    .row-panel {
+      flex: 1; background: #F5F5F5;
+      border: 1px solid #D0D4D8; border-radius: 6px;
+      display: flex; flex-direction: row;
+      overflow: hidden; min-height: 0;
+      transition: opacity 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+      position: relative; z-index: 2; cursor: default;
+    }
+    .row-panel.normal      { opacity: 1; border-color: #B0B4B8; box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
+    .row-panel.active      { opacity: 1; border-color: #3A7D7E; box-shadow: 0 2px 14px rgba(58,125,126,0.18); }
+    .row-panel.dimmed      { opacity: 0.40; border-color: #D0D4D8; box-shadow: none; }
+    .row-panel.muted       { opacity: 0.15; border-color: #D0D4D8; box-shadow: none; }
+    .row-panel.full        { opacity: 1; border-color: #B0B4B8; box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
+    .row-panel.full-hover  { opacity: 1; border-color: #3A7D7E; box-shadow: 0 2px 14px rgba(58,125,126,0.18); }
+
+    .col-src {
+      background: #3A7D7E; color: #fff;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      padding: 14px 12px;
+      width: 160px; flex-shrink: 0;
+      text-align: center; gap: 5px;
+    }
+    .src-cat  { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; opacity: 0.8; font-weight: 600; line-height: 1.3; }
+    .src-name { font-size: 16px; font-weight: 700; line-height: 1.3; }
+    .cell {
+      display: flex; align-items: center;
+      padding: 10px 10px 10px 16px;
+      border-left: 2px solid #E0E4E8;
+      min-width: 0;
+      font-size: 14.5px; color: #2C2C2C; line-height: 1.45;
+    }
+    .cell.var  { flex: 2.2; }
+    .cell.res  { flex: 1.3; color: #4A4A4A; font-size: 13.5px; }
+    .cell.per  { flex: 1;   color: #4A4A4A; font-size: 13.5px; }
+    .cell.role { flex: 2.8; color: #3A3A3A; font-size: 14.5px; }
+    .num-tag {
+      display: inline-block;
+      background: #EAF4F4; color: #3A7D7E;
+      font-size: 12.5px; font-weight: 600;
+      padding: 2px 8px; border-radius: 3px;
+      margin-top: 4px; white-space: nowrap;
+    }
+    .role-inner { display: flex; flex-direction: column; gap: 4px; }
+
+    /* Image tooltip */
+    .img-tooltip {
+      position: fixed;
+      z-index: 1000;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      background: rgba(232, 237, 242, 0.95);
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+      backdrop-filter: blur(6px);
+      max-width: 540px;
+      max-height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .img-tooltip.visible { opacity: 1; }
+    .img-tooltip img {
+      max-width: 520px;
+      max-height: 380px;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+    .img-tooltip .placeholder-box {
+      width: 480px; height: 320px;
+      background: #fff;
+      border: 2px dashed #B0B4B8;
+      border-radius: 8px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 10px; color: #888; font-size: 14px;
+      font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    }
+    .placeholder-box .icon { font-size: 36px; color: #ccc; }
+    .placeholder-box strong { color: #3A7D7E; }
+    .img-tooltip.dual { max-width: 880px; gap: 10px; }
+    .img-tooltip.dual img { max-width: 410px; max-height: 360px; }
+
+    .footnote {
+      padding: 4px 48px 10px 48px;
+      font-size: 13px; color: #6B7B8D;
+      font-style: italic; flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="title-bar">
+    <div class="badge">Data</div>
+    <div class="slide-title">Data Sources</div>
+  </div>
+
+  <div class="col-headers">
+    <div class="ch ch-src">Source</div>
+    <div class="ch ch-var">Variable</div>
+    <div class="ch ch-res">Resolution</div>
+    <div class="ch ch-per">Period</div>
+    <div class="ch ch-role">Role</div>
+  </div>
+
+  <div class="panels-container">
+
+    <!-- Row 1: ECOSTRESS -->
+    <div class="row-panel normal" id="row0" data-tooltip="tip0">
+      <div class="col-src">
+        <div class="src-cat">Satellite LST</div>
+        <div class="src-name">ECOSTRESS</div>
+        <div style="font-size:11px; opacity:0.7;">NASA / ISS</div>
+      </div>
+      <div class="cell var">Land Surface Temperature (ECO2LSTE L-2)</div>
+      <div class="cell res">~70 m, varying overpass times (day + night, non-sun-synchronous)</div>
+      <div class="cell per">Aug 2018 – Jun 2025</div>
+      <div class="cell role">
+        <div class="role-inner">
+          <div>Predictand: σ<sub>LST</sub> (per overpass)</div>
+          <div class="num-tag">1,583 QC images · 4 cities</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2: ERA5 (now includes precip_7d) -->
+    <div class="row-panel normal" id="row1" data-tooltip="tip1">
+      <div class="col-src">
+        <div class="src-cat">Reanalysis</div>
+        <div class="src-name">ERA5</div>
+        <div style="font-size:11px; opacity:0.7;">ECMWF</div>
+      </div>
+      <div class="cell var">2-m air temperature (T<sub>air</sub>), wind speed, Wind Direction, relative humidity (RH), <strong>total rainfall in previous 7 days (precip<sub>7d</sub>)</strong></div>
+      <div class="cell res">~25 km, hourly</div>
+      <div class="cell per">Per overpass, city-averaged</div>
+      <div class="cell role">
+        <div class="role-inner">
+          <div>Meteorological variables</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 3: Landsat NDVI -->
+    <div class="row-panel normal" id="row2" data-tooltip="tip2">
+      <div class="col-src">
+        <div class="src-cat">Vegetation</div>
+        <div class="src-name">Landsat 8/9</div>
+        <div style="font-size:11px; opacity:0.7;">USGS / NASA · GEE</div>
+      </div>
+      <div class="cell var">Normalized Vegetation Index (NDVI) — monthly composites via Google Earth Engine</div>
+      <div class="cell res">30 m → 70 m bilinear</div>
+      <div class="cell per">Monthly, gap-filled</div>
+      <div class="cell role">
+        <div class="role-inner">
+          <div>Vegetation: mean of NDVI (M_NDVI) + standard deviation of NDVI (H_NDVI)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 4: uMORPH -->
+    <div class="row-panel normal" id="row3" data-tooltip="tip3">
+      <div class="col-src">
+        <div class="src-cat">Morphology</div>
+        <div class="src-name">uMORPH</div>
+        <div style="font-size:11px; opacity:0.7;">CONUS, Jain et al. 2026</div>
+      </div>
+      <div class="cell var">Building height + plan-area fraction</div>
+      <div class="cell res">100 m → 70 m bilinear</div>
+      <div class="cell per">Static (city-constant)</div>
+      <div class="cell role">
+        <div class="role-inner">
+          <div>M_BldgFrac, H_BldgFrac, M_BldgHt, H_BldgHt — H3 tests</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footnote">σ<sub>LST</sub> = within-image spatial standard deviation of LST.</div>
+
+  <!-- Tooltips -->
+  <div class="img-tooltip" id="tip0">
+    <img src="four_city_lst_maps.png" alt="ECOSTRESS LST — four cities"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+    <div class="placeholder-box" style="display:none;">
+      <div class="icon">🛰️</div>
+      <div>Place <strong>four_city_lst_maps.png</strong> in the same folder</div>
+      <div style="font-size:12px; color:#aaa;">ECOSTRESS 70-m LST — four cities</div>
+    </div>
+  </div>
+
+  <div class="img-tooltip dual" id="tip1">
+    <img src="four_city_relative_humidity_maps.png" alt="ERA5 RH four cities"
+         onerror="this.style.display='none';">
+    <img src="four_city_wind_speed_maps.png" alt="ERA5 Wind speed four cities"
+         onerror="this.style.display='none';">
+  </div>
+
+  <div class="img-tooltip" id="tip2">
+    <img src="four_city_ndvi_maps.png" alt="Landsat NDVI — four cities"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+    <div class="placeholder-box" style="display:none;">
+      <div class="icon">🌿</div>
+      <div>Place <strong>four_city_ndvi_maps.png</strong> in the same folder</div>
+      <div style="font-size:12px; color:#aaa;">Landsat NDVI — four cities</div>
+    </div>
+  </div>
+
+  <div class="img-tooltip dual" id="tip3">
+    <img src="four_city_ucp3_maps_umorph.png" alt="uMORPH UCP3 four cities"
+         onerror="this.style.display='none';">
+    <img src="four_city_ucp5_maps_umorph.png" alt="uMORPH UCP5 four cities"
+         onerror="this.style.display='none';">
+  </div>
+
+  <script>
+    // Image paths are resolved to absolute URLs by the outer presentation script
+    // before this slide's HTML is placed into the iframe srcdoc.
+
+    var rows = [
+        document.getElementById('row0'),
+        document.getElementById('row1'),
+        document.getElementById('row2'),
+        document.getElementById('row3')
+    ];
+    var tips = [
+        document.getElementById('tip0'),
+        document.getElementById('tip1'),
+        document.getElementById('tip2'),
+        document.getElementById('tip3')
+    ];
+    var totalRows = 4;
+    var currentStep = -1;
+
+    function setRowState(idx, cls) { rows[idx].className = 'row-panel ' + cls; }
+    function hideAllTooltips() { tips.forEach(function (t) { t.classList.remove('visible'); }); }
+
+    function renderStep() {
+        hideAllTooltips();
+        if (currentStep < 0) {
+            rows.forEach(function (r, i) { setRowState(i, 'muted'); });
+        } else if (currentStep < totalRows) {
+            rows.forEach(function (r, i) {
+                if (i === currentStep) setRowState(i, 'active');
+                else if (i < currentStep) setRowState(i, 'dimmed');
+                else setRowState(i, 'muted');
+            });
+        } else {
+            rows.forEach(function (r, i) { setRowState(i, 'full'); });
+        }
+    }
+
+    function stepNext() { if (currentStep < totalRows) { currentStep++; renderStep(); } }
+    function stepPrev() { if (currentStep > -1) { currentStep--; renderStep(); } }
+
+    rows.forEach(function (row, idx) {
+        row.addEventListener('mouseenter', function () {
+            var canHover = (currentStep === idx) || (currentStep >= totalRows);
+            if (!canHover) return;
+            if (currentStep >= totalRows) row.className = 'row-panel full-hover';
+            tips[idx].classList.add('visible');
+        });
+        row.addEventListener('mouseleave', function () {
+            if (currentStep >= totalRows) row.className = 'row-panel full';
+            tips[idx].classList.remove('visible');
+        });
+        row.addEventListener('mousemove', function (e) {
+            var tip = tips[idx];
+            if (tip && tip.classList.contains('visible')) {
+                var x = e.clientX + 20;
+                var y = e.clientY - 200;
+                var tw = tip.classList.contains('dual') ? 900 : 560;
+                var th = 420;
+                if (x + tw > window.innerWidth) x = e.clientX - tw - 20;
+                if (y < 10) y = 10;
+                if (y + th > window.innerHeight - 10) y = window.innerHeight - th - 10;
+                tip.style.left = x + 'px';
+                tip.style.top = y + 'px';
+            }
+        });
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'n' || e.key === 'N' || e.key === 'ArrowRight' || e.key === ' ') {
+            e.preventDefault(); stepNext();
+        } else if (e.key === 'p' || e.key === 'P' || e.key === 'ArrowLeft') {
+            e.preventDefault(); stepPrev();
+        }
+    });
+
+    renderStep();
+</script>
+
+</body>
+</html></textarea>
+    <textarea id="s9" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Predictor Variables</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 24px 48px 10px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #3A7D7E; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 26px; font-weight: 700; color: #2C2C2C; }
+.content {
+    flex: 1; padding: 6px 48px 18px 48px;
+    display: flex; flex-direction: column; gap: 10px;
+    overflow-y: auto;
+}
+.sub { font-size: 0.72em; vertical-align: sub; line-height: 0; }
+.info-card {
+    background: #fff; border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(100,110,140,0.10);
+    padding: 14px 22px; transition: all 0.3s ease;
+}
+.info-card:hover { box-shadow: 0 4px 16px rgba(100,110,140,0.18); }
+.card-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+.card-body { font-size: 14.5px; line-height: 1.55; color: #444; }
+.card-body b { color: #2C2C2C; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">METHODS</span>
+    <span class="slide-title">Predictor Variables</span>
+</div>
+<div class="content">
+
+<div class="info-card" style="border-left: 4px solid #1565C0;">
+    <div class="card-title" style="color: #1565C0;">Meteorological — image-mean (ERA5)</div>
+    <div class="card-body">
+      <b>T_air</b> — 2-m air temperature &nbsp;|&nbsp;
+      <b>RH</b> — VPD / driving force for ET (derived from T2M + D2M) &nbsp;|&nbsp;
+      <b>precip<sub>7d</sub></b> — antecedent moisture (168-hr rolling sum) &nbsp;|&nbsp;
+      <b>Wind, WindDir</b> — Wind speed and wind direction (advection)
+    </div>
+</div>
+
+<div class="info-card" style="border-left: 4px solid #2E7D32;">
+    <div class="card-title" style="color: #2E7D32;">Vegetation — image-mean &amp; heterogeneity (Landsat)</div>
+    <div class="card-body">
+      <b>M_NDVI</b> — Mean of building height (city-wide greenness, seasonal phenology) &nbsp;|&nbsp;
+      <b>H_NDVI</b> — Standard deviation of NDVI (heterogeneity of vegetation distribution)
+    </div>
+</div>
+
+<div class="info-card" style="border-left: 4px solid #4A148C;">
+    <div class="card-title" style="color: #4A148C;">Urban morphology — city-constant (uMORPH) — H3 tests</div>
+    <div class="card-body">
+      <b>M_BldgFrac, H_BldgFrac</b> — mean &amp; standard deviation of plan-area fraction &nbsp;|&nbsp;
+      <b>M_BldgHt, H_BldgHt</b> — mean &amp; standard deviation of building height (m). 
+    </div>
+</div>
+
+<div class="info-card" style="border-left: 4px solid #B35C1E;">
+    <div class="card-title" style="color: #B35C1E;">Categorical / cyclic / random</div>
+    <div class="card-body">
+      <b>Day/Night</b> (factor + by-Day/Night smooths) &nbsp;|&nbsp;
+      <b>month</b> (cyclic cubic spline, k=8) &nbsp;|&nbsp;
+      <b>c</b> City(random intercept, b(c))
+    </div>
+</div>
+
+<div class="info-card" style="border-left: 4px solid #6B7B8D;">
+    <div class="card-title" style="color: #6B7B8D;">Tensor interaction (H4)</div>
+    <div class="card-body">
+      <b>ti(T<sub>air</sub>, precip<sub>7d</sub>)</b> — pure interaction surface (marginals removed). Tests whether ∂σ<sub>LST</sub>/∂T<sub>air</sub> shifts with antecedent rainfall
+    </div>
+</div>
+
+</div>
+</body>
+</html></textarea>
+    <textarea id="s10" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Is HGAM and Why Use It Here — Part 1</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 22px 48px 8px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #3A7D7E; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 24px; font-weight: 700; color: #2C2C2C; }
+.content {
+    flex: 1; padding: 4px 48px 14px 48px;
+    display: flex; flex-direction: column; gap: 9px;
+    overflow-y: auto;
+}
+.sub { font-size: 0.72em; vertical-align: sub; line-height: 0; }
+
+.eq-block {
+    background: #fff; border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(100,110,140,0.10);
+    padding: 12px 20px;
+    font-family: 'Segoe UI', monospace;
+    font-size: 13px; line-height: 1.85; color: #2C2C2C;
+    overflow-x: auto;
+}
+.eq-block .lhs   { color: #B35C1E; font-weight: 700; }
+.eq-block .smooth { color: #1565C0; }
+.eq-block .ti     { color: #4A148C; font-weight: 700; }
+.eq-block .lin    { color: #2E7D32; }
+.eq-block .ranef  { color: #C62828; }
+.eq-block .comment { color: #6B7B8D; font-style: italic; font-size: 12px; }
+
+.info-card {
+    background: #fff; border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(100,110,140,0.10);
+    padding: 13px 22px;
+}
+.card-title { font-size: 15.5px; font-weight: 700; margin-bottom: 5px; }
+.card-body  { font-size: 14.5px; line-height: 1.55; color: #444; }
+.card-body code { background: #EAF4F4; color: #2C2C2C; padding: 1px 5px; border-radius: 3px; font-size: 13.5px; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">METHODS &mdash; PART 1</span>
+    <span class="slide-title">What Is HGAM and Why Use It Here (4 cities, n = 1,583)</span>
+</div>
+<div class="content">
+
+<div class="eq-block">
+<span class="lhs">σ_LST</span>(image t in city c) =<br>
+&nbsp;&nbsp;<span class="smooth">s(T_air | Day/Night)</span> + <span class="smooth">s(Wind | Day/Night)</span> + <span class="smooth">s(WindDir | Day/Night)</span><br>
+&nbsp;+ <span class="smooth">s(RH | Day/Night)</span> + <span class="smooth">s(precip_7d | Day/Night)</span><br>
+&nbsp;+ <span class="smooth">s(M_NDVI | Day/Night)</span> + <span class="smooth">s(H_NDVI | Day/Night)</span><br>
+&nbsp;+ <span class="ti">ti(T_air, precip_7d)</span><br>
+&nbsp;+ <span class="lin">β₁·M_BldgFrac + β₂·H_BldgFrac + β₃·M_BldgHt + β₄·H_BldgHt</span><br>
+&nbsp;+ <span class="smooth">s(month, bs='cc')</span> + Day/Night + <span class="ranef">b(c)</span> + ε<br>
+<span class="comment">Family: Gamma · Link: log · Method: REML · n = 1,583 images, 4 cities</span>
+</div>
+
+<div class="info-card" style="border-left: 4px solid #3A7D7E;">
+    <div class="card-title" style="color: #3A7D7E;">Smooth functions &mdash; flexible curves, not fixed slopes</div>
+    <div class="card-body">Each predictor's effect is a penalised spline <code>s(X)</code>, free to bend where data supports it. A roughness penalty (REML-tuned) prevents overfitting. Returns derivatives + CIs at every point &mdash; interpretable sensitivities.</div>
+</div>
+
+<div class="info-card" style="border-left: 4px solid #B35C1E;">
+    <div class="card-title" style="color: #B35C1E;">By-Day/Night factor smooths</div>
+    <div class="card-body">Each meteorological smooth is fit separately for daytime and nighttime overpasses, sharing a smoothing penalty. </div>
+</div>
+
+</div>
+</body>
+</html></textarea>
+    <textarea id="s11" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HGAM — Part 2: Tensor, Distribution, and Hierarchy</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 22px 48px 8px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #3A7D7E; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 24px; font-weight: 700; color: #2C2C2C; }
+.content {
+    flex: 1; padding: 4px 48px 14px 48px;
+    display: flex; flex-direction: column; gap: 9px;
+    overflow-y: auto;
+}
+.sub { font-size: 0.72em; vertical-align: sub; line-height: 0; }
+
+.eq-block {
+    background: #fff; border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(100,110,140,0.10);
+    padding: 12px 20px;
+    font-family: 'Segoe UI', monospace;
+    font-size: 13px; line-height: 1.85; color: #2C2C2C;
+    overflow-x: auto;
+}
+.eq-block .lhs   { color: #B35C1E; font-weight: 700; }
+.eq-block .smooth { color: #1565C0; }
+.eq-block .ti     { color: #4A148C; font-weight: 700; }
+.eq-block .lin    { color: #2E7D32; }
+.eq-block .ranef  { color: #C62828; }
+.eq-block .comment { color: #6B7B8D; font-style: italic; font-size: 12px; }
+
+.info-card {
+    background: #fff; border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(100,110,140,0.10);
+    padding: 12px 22px;
+}
+.card-title { font-size: 15.5px; font-weight: 700; margin-bottom: 5px; }
+.card-body  { font-size: 14.5px; line-height: 1.55; color: #444; }
+.card-body code { background: #EAF4F4; color: #2C2C2C; padding: 1px 5px; border-radius: 3px; font-size: 13.5px; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">METHODS &mdash; PART 2</span>
+    <span class="slide-title">HGAM &mdash; Tensor Interaction, Distribution Family, Hierarchy</span>
+</div>
+<div class="content">
+
+<div class="eq-block">
+<span class="lhs">σ_LST</span>(image t in city c) =<br>
+&nbsp;&nbsp;<span class="smooth">s(T_air | Day/Night)</span> + <span class="smooth">s(Wind | Day/Night)</span> + <span class="smooth">s(WindDir | Day/Night)</span><br>
+&nbsp;+ <span class="smooth">s(RH | Day/Night)</span> + <span class="smooth">s(precip_7d | Day/Night)</span><br>
+&nbsp;+ <span class="smooth">s(M_NDVI | Day/Night)</span> + <span class="smooth">s(H_NDVI | Day/Night)</span><br>
+&nbsp;+ <span class="ti">ti(T_air, precip_7d)</span><br>
+&nbsp;+ <span class="lin">β₁·M_BldgFrac + β₂·H_BldgFrac + β₃·M_BldgHt + β₄·H_BldgHt</span><br>
+&nbsp;+ <span class="smooth">s(month, bs='cc')</span> + Day/Night + <span class="ranef">b(c)</span> + ε<br>
+<span class="comment">Family: Gamma · Link: log · Method: REML · n = 1,583 images, 4 cities</span>
+</div>
+
+<div class="info-card" style="border-left: 4px solid #4A148C;">
+    <div class="card-title" style="color: #4A148C;">Tensor interaction <code>ti(T<sub>air</sub>, precip<sub>7d</sub>)</code></div>
+    <div class="card-body">A 2-D smooth surface that captures how the σ<sub>LST</sub> response to T<sub>air</sub> shifts as antecedent rainfall changes.</div>
+</div>
+
+<div class="info-card" style="border-left: 4px solid #1565C0;">
+    <div class="card-title" style="color: #1565C0;">Gamma family + log link</div>
+    <div class="card-body">σ<sub>LST</sub> is strictly positive, right-skewed. Gamma family + log link is the standard choice. Effects are multiplicative on the original scale.</div>
+</div>
+
+</div>
+</body>
+</html></textarea>
+    <textarea id="s12" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sensitivity</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 22px 48px 6px 48px;
+    display: flex; align-items: center; gap: 16px; flex-shrink: 0;
+}
+.badge {
+    background: #3A7D7E; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 26px; font-weight: 700; color: #2C2C2C; }
+.framing {
+    font-size: 16px; color: #555;
+    padding: 0 48px 6px 48px; flex-shrink: 0;
+}
+.framing .em { color: #B35C1E; font-weight: 600; }
+.image-frame {
+    flex: 1; margin: 0 48px 8px 48px;
+    background: #fff; border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(100,110,140,0.12);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; min-height: 0;
+    gap: 6px; padding: 6px;
+}
+.image-frame .panel {
+    flex: 1; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    min-width: 0;
+}
+.image-frame .panel img { width: 100%; height: 100%; object-fit: contain; }
+.placeholder {
+    display: none; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 10px; color: #999; font-size: 14px;
+}
+.placeholder-icon { font-size: 36px; color: #ccc; }
+.image-frame img.error ~ .placeholder { display: flex; }
+
+.below-bar {
+    display: flex; gap: 14px; padding: 0 48px 14px 48px; flex-shrink: 0;
+}
+.metric {
+    flex: 1; background: #fff; border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    padding: 10px 14px;
+    display: flex; flex-direction: column; align-items: center;
+    border-top: 3px solid #3A7D7E;
+}
+.metric .label { font-size: 11px; color: #6B7B8D; text-transform: uppercase; letter-spacing: 1px; }
+.metric .value { font-size: 18px; font-weight: 700; color: #2C2C2C; margin-top: 2px; }
+.metric .ci    { font-size: 12px; color: #6B7B8D; margin-top: 2px; }
+.metric.day { border-top-color: #C77A2E; }
+.metric.night { border-top-color: #4A148C; }
+.metric.r2 { border-top-color: #2E7D32; }
+.metric.morph { border-top-color: #1565C0; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">RESULTS</span>
+    <span class="slide-title">Sensitivity — Fitted σ<sub>LST</sub> response curves</span>
+</div>
+<div class="framing">
+    HGAM partial effects of <span class="em">T<sub>air</sub></span> and <span class="em">RH</span> on σ<sub>LST</sub> — separately for daytime and nighttime. Shaded bands are 95 % simultaneous CIs (Marra &amp; Wood 2012; Simpson 2018).
+</div>
+
+<div class="image-frame">
+    <div class="panel">
+        <img src="merged_1.png" alt="Partial Effects of T_air and RH on σ_LST — Day vs Night (merged)">
+    </div>
+</div>
+
+</body>
+</html></textarea>
+    <textarea id="s13" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>H1 Results — Meteorological Sensitivities</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 22px 48px 8px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #3A7D7E; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 26px; font-weight: 700; color: #2C2C2C; }
+.sub { font-size: 0.72em; vertical-align: sub; line-height: 0; }
+.framing {
+    padding: 0 48px 8px 48px;
+    font-size: 14px; color: #555;
+}
+.framing .em { color: #B35C1E; font-weight: 600; }
+.content {
+    flex: 1; padding: 0 48px 14px 48px;
+    display: flex; flex-direction: column; gap: 10px;
+    min-height: 0;
+}
+.metric-table { width: 100%; border-collapse: collapse; }
+.metric-table th {
+    background: #3A7D7E; color: #fff; padding: 9px 14px;
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;
+    text-align: left; border: none;
+}
+.metric-table th:first-child { border-radius: 4px 0 0 4px; }
+.metric-table th:last-child  { border-radius: 0 4px 4px 0; }
+.metric-table td {
+    padding: 10px 14px; font-size: 13.5px; line-height: 1.4;
+    border-bottom: 1px solid #E0E4E8; color: #2C2C2C;
+    vertical-align: top;
+}
+.metric-table tr:last-child td { border-bottom: none; }
+.metric-table tr:nth-child(even) td { background: #F8F9FA; }
+.metric-table .pred { font-weight: 700; }
+.metric-table .supported { color: #2E7D32; font-weight: 700; }
+.metric-table .not-supported { color: #C62828; font-weight: 700; }
+.metric-table .marginal { color: #B35C1E; font-weight: 700; }
+.metric-table .ci-pos  { color: #2E7D32; }
+.metric-table .ci-zero { color: #6B7B8D; }
+.metric-table .ci-neg  { color: #C62828; }
+
+.verdict-box {
+    background: #fff; border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    padding: 12px 18px; font-size: 14px; line-height: 1.55;
+    border-left: 4px solid #2E7D32;
+}
+.verdict-box b { color: #2E7D32; }
+.verdict-box .note { color: #6B7B8D; font-style: italic; font-size: 13px; margin-top: 4px; display: block; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">H1 RESULTS</span>
+    <span class="slide-title">Meteorological Sensitivities — Bootstrap-Supported</span>
+</div>
+<div class="framing">
+    <span class="em">Bootstrap CIs</span> resample images and refit.
+</div>
+<div class="content">
+
+<table class="metric-table">
+<thead><tr><th style="width:18%">Predictor</th><th style="width:32%">Daytime — slope [95 % CI]</th><th style="width:32%">Nighttime — slope [95 % CI]</th><th style="width:18%">Results</th></tr></thead>
+<tbody>
+<tr>
+    <td class="pred">∂σ<sub>LST</sub>/∂T<sub>air</sub><br><span style="font-size:12px; color:#6B7B8D;">(°C/°C)</span></td>
+    <td><b class="ci-pos">+0.066</b><br>bootstrap [+0.058, +0.077]</td>
+    <td><b class="ci-pos">+0.071</b><br>bootstrap [+0.062, +0.081]</td>
+    <td class="supported">Supported<br><span style="font-size:11px; color:#6B7B8D; font-weight:normal;">interval excludes 0</span></td>
+</tr>
+<tr>
+    <td class="pred">∂σ<sub>LST</sub>/∂RH<br><span style="font-size:12px; color:#6B7B8D;">(%⁻¹)</span></td>
+    <td><b class="ci-neg">−0.004</b><br>bootstrap [−0.0073, −0.0002]</td>
+    <td><b class="ci-zero">−0.001</b><br>bootstrap [−0.0035, +0.0028]</td>
+    <td class="marginal">Day supported<br><span style="font-size:11px; color:#6B7B8D; font-weight:normal;">under bootstrap criterion</span></td>
+</tr>
+<tr>
+    <td class="pred">∂σ<sub>LST</sub>/∂precip<sub>7d</sub><br><span style="font-size:12px; color:#6B7B8D;">(mm⁻¹)</span></td>
+    <td><b class="ci-pos">+0.002</b><br>bootstrap [+0.0001, +0.0058]</td>
+    <td><b class="ci-pos">+0.004</b><br>bootstrap [+0.0017, +0.0092]</td>
+    <td class="marginal">Day &amp; Night supported<br><span style="font-size:11px; color:#6B7B8D; font-weight:normal;">under bootstrap criterion</span></td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</body>
+</html></textarea>
+    <textarea id="s14" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>H2 Results — Day vs. Night Contrast</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 22px 48px 8px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #3A7D7E; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 26px; font-weight: 700; color: #2C2C2C; }
+.sub { font-size: 0.72em; vertical-align: sub; line-height: 0; }
+.framing {
+    padding: 0 48px 8px 48px;
+    font-size: 14px; color: #555;
+}
+.framing .em { color: #B35C1E; font-weight: 600; }
+.content {
+    flex: 1; padding: 0 48px 14px 48px;
+    display: flex; flex-direction: column; gap: 12px;
+    min-height: 0;
+}
+.metric-table { width: 100%; border-collapse: collapse; }
+.metric-table th {
+    background: #3A7D7E; color: #fff; padding: 9px 14px;
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;
+    text-align: left; border: none;
+}
+.metric-table th:first-child { border-radius: 4px 0 0 4px; }
+.metric-table th:last-child  { border-radius: 0 4px 4px 0; }
+.metric-table td {
+    padding: 10px 14px; font-size: 14px; line-height: 1.45;
+    border-bottom: 1px solid #E0E4E8; color: #2C2C2C;
+}
+.metric-table tr:last-child td { border-bottom: none; }
+.metric-table tr:nth-child(even) td { background: #F8F9FA; }
+.metric-table .pred { font-weight: 700; }
+.metric-table .ci-zero { color: #6B7B8D; }
+
+.verdict-box {
+    background: #fff; border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    padding: 12px 18px; font-size: 14px; line-height: 1.55;
+    border-left: 4px solid #C62828;
+}
+.verdict-box b { color: #C62828; }
+.verdict-box .why {
+    background: #FFF8F2; border-radius: 6px;
+    padding: 10px 14px; margin-top: 8px;
+    font-size: 13.5px; color: #444;
+}
+.verdict-box .why h4 { font-size: 12px; color: #B35C1E; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.verdict-box ul { margin: 6px 0 0 22px; font-size: 13.5px; line-height: 1.5; }
+.note { color: #6B7B8D; font-style: italic; font-size: 13px; margin-top: 6px; display: block; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">H2 RESULTS</span>
+    <span class="slide-title">Day vs. Night Contrast — Not Resolvable in 4 Cities</span>
+</div>
+<div class="framing">
+    For each predictor: <span class="em">Δ = mean Day-slope − mean Night-slope</span>. SE(Δ) is computed from the joint posterior covariance (the two slopes share information from the same fit, so an independent-difference SE would over-estimate uncertainty).
+</div>
+<div class="content">
+
+<table class="metric-table">
+<thead><tr><th style="width:30%">Predictor</th><th style="width:42%">Day − Night Δ [95 % CI]</th><th style="width:14%">p-value</th><th style="width:14%">Results</th></tr></thead>
+<tbody>
+<tr>
+    <td class="pred">∂σ<sub>LST</sub>/∂T<sub>air</sub> contrast (°C/°C)</td>
+    <td><b class="ci-zero">−0.005</b> &nbsp; [−0.057, +0.047]</td>
+    <td>0.84</td>
+    <td>Not supported</td>
+</tr>
+<tr>
+    <td class="pred">∂σ<sub>LST</sub>/∂RH contrast (%⁻¹)</td>
+    <td><b class="ci-zero">−0.003</b> &nbsp; [−0.020, +0.014]</td>
+    <td>0.73</td>
+    <td>Not supported</td>
+</tr>
+<tr>
+    <td class="pred">∂σ<sub>LST</sub>/∂precip<sub>7d</sub> contrast (mm⁻¹)</td>
+    <td><b class="ci-zero">−0.002</b> &nbsp; [−0.010, +0.006]</td>
+    <td>0.59</td>
+    <td>Not supported</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</body>
+</html></textarea>
+    <textarea id="s15" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>H3 Results — Morphological Heterogeneity</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 22px 48px 8px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #3A7D7E; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 26px; font-weight: 700; color: #2C2C2C; }
+.sub { font-size: 0.72em; vertical-align: sub; line-height: 0; }
+.framing {
+    padding: 0 48px 8px 48px;
+    font-size: 14px; color: #555;
+}
+.framing .em { color: #B35C1E; font-weight: 600; }
+.content {
+    flex: 1; padding: 0 48px 14px 48px;
+    display: flex; flex-direction: column; gap: 10px;
+    min-height: 0;
+}
+.row {
+    display: flex; gap: 12px;
+}
+.beta-box, .loco-box {
+    background: #fff; border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    padding: 12px 16px;
+    border-left: 4px solid #2E7D32;
+    flex: 1;
+}
+.loco-box { border-left-color: #1565C0; }
+.box-title {
+    font-size: 12px; color: #6B7B8D;
+    text-transform: uppercase; letter-spacing: 1px;
+    font-weight: 700; margin-bottom: 6px;
+}
+.beta-value {
+    font-size: 28px; font-weight: 700; color: #2E7D32;
+    margin-bottom: 3px;
+}
+.beta-ci { font-size: 13px; color: #2C2C2C; line-height: 1.45; }
+.beta-meaning { font-size: 12.5px; color: #6B7B8D; margin-top: 6px; line-height: 1.4; }
+
+table.tiny { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 4px; }
+table.tiny th, table.tiny td { padding: 4px 8px; border-bottom: 1px solid #E0E4E8; text-align: left; }
+table.tiny th { color: #6B7B8D; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 11px; }
+
+.context-table { width: 100%; border-collapse: collapse; }
+.context-table th {
+    background: #3A7D7E; color: #fff; padding: 8px 12px;
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;
+    text-align: left; border: none;
+}
+.context-table th:first-child { border-radius: 4px 0 0 4px; }
+.context-table th:last-child  { border-radius: 0 4px 4px 0; }
+.context-table td {
+    padding: 7px 12px; font-size: 13px; line-height: 1.4;
+    border-bottom: 1px solid #E0E4E8; color: #2C2C2C;
+}
+.context-table tr:last-child td { border-bottom: none; }
+.context-table tr:nth-child(even) td { background: #F8F9FA; }
+.context-table .ns { color: #6B7B8D; }
+.context-table .deferred { color: #B35C1E; font-style: italic; }
+
+.verdict-mini {
+    background: #fff; border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    padding: 10px 16px; font-size: 13.5px; line-height: 1.5;
+    border-left: 4px solid #2E7D32; color: #2C2C2C;
+}
+.verdict-mini b { color: #2E7D32; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">H3 RESULTS</span>
+    <span class="slide-title">Morphological Heterogeneity — H_BldgHt Effect Supported</span>
+</div>
+<div class="content">
+
+<div class="row">
+    <div class="beta-box">
+        <div class="box-title">β<sub>4</sub> on H_BldgHt (within-city SD of building height)</div>
+        <div class="beta-value">+0.086</div>
+        <div class="beta-ci">95 % Wald CI [+0.032, +0.140] &nbsp;·&nbsp; <b>p = 0.0017</b> &nbsp;·&nbsp; VIF = 1.81</div>
+        <div class="beta-meaning">On the log link: a one-unit (1 m) increase in H_BldgHt corresponds to a ~9 % increase in baseline σ<sub>LST</sub> after controlling for meteorology, vegetation, season. Mechanism: directional thermal anisotropy — heterogeneous skylines project richer mosaics of shadows / sky-view factors / canyon geometries onto the surface (Krayenhoff &amp; Voogt 2016).</div>
+    </div>
+
+    <div class="loco-box">
+        <div class="box-title">Leave-one-city-out robustness — β<sub>4</sub> sign-stable</div>
+        <table class="tiny">
+            <thead><tr><th>Held out</th><th>β<sub>4</sub> refit</th><th>City H_BldgHt</th></tr></thead>
+            <tbody>
+            <tr><td>NYC</td><td>+0.138</td><td>9.8 m (high)</td></tr>
+            <tr><td>Houston</td><td>+0.064</td><td>5.4 m (low)</td></tr>
+            <tr><td>Chicago</td><td>+0.075</td><td>9.0 m (≈ mean)</td></tr>
+            <tr><td>Atlanta</td><td>+0.049</td><td>6.7 m</td></tr>
+            </tbody>
+        </table>
+        <div class="beta-meaning" style="margin-top: 6px;">All four refits return positive β<sub>4</sub>; magnitude depends on which city is held out (CHI = lowest leverage).</div>
+    </div>
+</div>
+
+</div>
+</body>
+</html></textarea>
+    <textarea id="s16" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>H4 Results — T<sub>air</sub> × Rainfall Interaction</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 22px 48px 8px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #3A7D7E; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 26px; font-weight: 700; color: #2C2C2C; }
+.sub { font-size: 0.72em; vertical-align: sub; line-height: 0; }
+.framing {
+    padding: 0 48px 8px 48px;
+    font-size: 14px; color: #555;
+}
+.framing .em { color: #B35C1E; font-weight: 600; }
+.content {
+    flex: 1; padding: 0 48px 14px 48px;
+    display: flex; flex-direction: column; gap: 10px;
+    min-height: 0;
+}
+.tests-row { display: flex; gap: 12px; }
+
+.test-box {
+    background: #fff; border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    padding: 12px 16px;
+    border-left: 4px solid #B35C1E;
+    flex: 1;
+}
+.box-title {
+    font-size: 12px; color: #6B7B8D;
+    text-transform: uppercase; letter-spacing: 1px;
+    font-weight: 700; margin-bottom: 6px;
+}
+.test-summary { font-size: 14px; line-height: 1.5; color: #2C2C2C; }
+.test-summary b { color: #2C2C2C; }
+.headline {
+    font-size: 17px; font-weight: 700;
+    color: #B35C1E; margin: 4px 0 6px 0;
+}
+
+.metric-row { display: flex; gap: 10px; margin-top: 6px; }
+.metric-mini {
+    flex: 1; background: #FAF6F2;
+    border-radius: 5px; padding: 7px 10px;
+}
+.metric-mini .label { font-size: 10.5px; color: #6B7B8D; text-transform: uppercase; letter-spacing: 0.5px; }
+.metric-mini .value { font-size: 13.5px; font-weight: 700; color: #2C2C2C; margin-top: 2px; }
+
+.robust-table { width: 100%; border-collapse: collapse; }
+.robust-table th {
+    background: #3A7D7E; color: #fff; padding: 8px 12px;
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;
+    text-align: left; border: none;
+}
+.robust-table th:first-child { border-radius: 4px 0 0 4px; }
+.robust-table th:last-child  { border-radius: 0 4px 4px 0; }
+.robust-table td {
+    padding: 7px 12px; font-size: 13px; line-height: 1.4;
+    border-bottom: 1px solid #E0E4E8; color: #2C2C2C;
+}
+.robust-table tr:last-child td { border-bottom: none; }
+.robust-table tr:nth-child(even) td { background: #F8F9FA; }
+
+.verdict-mini {
+    background: #fff; border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    padding: 10px 16px; font-size: 13.5px; line-height: 1.5;
+    border-left: 4px solid #B35C1E; color: #2C2C2C;
+}
+.verdict-mini b { color: #B35C1E; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">H4 RESULTS</span>
+    <span class="slide-title">T<sub>air</sub> × precip<sub>7d</sub> Interaction — Positive Sign, Not Yet Resolved</span>
+</div>
+<div class="framing">
+    Two complementary tests on <span class="em">∂²σ<sub>LST</sub>/(∂T<sub>air</sub>·∂precip<sub>7d</sub>)</span> — the rate at which the σ<sub>LST</sub>-vs-T<sub>air</sub> slope shifts as antecedent rainfall changes. Tested via the tensor surface ti(T<sub>air</sub>, precip<sub>7d</sub>).
+</div>
+<div class="content">
+
+<div class="tests-row">
+    <div class="test-box">
+        <div class="box-title">Test 1 — Tensor non-additivity (model summary)</div>
+        <div class="test-summary">
+            Asks: is the joint surface meaningfully more than the two main smooths add together?
+        </div>
+        <div class="metric-row">
+            <div class="metric-mini">
+                <div class="label">EDF of ti() surface</div>
+                <div class="value">1.0</div>
+            </div>
+            <div class="metric-mini">
+                <div class="label">p-value</div>
+                <div class="value">0.118</div>
+            </div>
+        </div>
+        <div class="test-summary" style="margin-top:6px; color:#6B7B8D; font-size: 12.5px;">
+            EDF = 1 means the interaction is essentially linear on the log link at this n; p &gt; 0.05.
+        </div>
+    </div>
+
+    <div class="test-box" style="border-left-color: #4A148C;">
+        <div class="box-title">Test 2 — Empirical-mean cross-derivative (5,000 posterior draws · 50 × 50 grid)</div>
+        <div class="test-summary">
+            Direct physical estimate: average shift in slope per mm of antecedent rainfall.
+        </div>
+        <div class="headline">+1.1 × 10⁻⁴</div>
+        <div class="test-summary">
+            95 % credible interval &nbsp; <b>[−2.2 × 10⁻⁵, +2.4 × 10⁻⁴]</b> — includes 0
+        </div>
+        <div class="test-summary" style="margin-top:6px; color:#6B7B8D; font-size: 12.5px;">
+            Image-level bootstrap returns wider CI also including 0. Sign is positive (consistent with theory) but not statistically resolved.
+        </div>
+    </div>
+</div>
+
+</div>
+</body>
+</html></textarea>
+    <textarea id="s17" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>H4 Results — Robustness and Verdict</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 22px 48px 8px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #3A7D7E; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 26px; font-weight: 700; color: #2C2C2C; }
+.sub { font-size: 0.72em; vertical-align: sub; line-height: 0; }
+.framing {
+    padding: 0 48px 8px 48px;
+    font-size: 14px; color: #555;
+}
+.framing .em { color: #B35C1E; font-weight: 600; }
+.content {
+    flex: 1; padding: 0 48px 14px 48px;
+    display: flex; flex-direction: column; gap: 14px;
+    min-height: 0;
+}
+.robust-table { width: 100%; border-collapse: collapse; }
+.robust-table th {
+    background: #3A7D7E; color: #fff; padding: 10px 14px;
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;
+    text-align: left; border: none;
+}
+.robust-table th:first-child { border-radius: 4px 0 0 4px; }
+.robust-table th:last-child  { border-radius: 0 4px 4px 0; }
+.robust-table td {
+    padding: 12px 14px; font-size: 14px; line-height: 1.5;
+    border-bottom: 1px solid #E0E4E8; color: #2C2C2C;
+    vertical-align: top;
+}
+.robust-table tr:last-child td { border-bottom: none; }
+.robust-table tr:nth-child(even) td { background: #F8F9FA; }
+
+.verdict-mini {
+    background: #fff; border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    padding: 14px 18px; font-size: 14px; line-height: 1.6; color: #2C2C2C;
+    border-left: 4px solid #B35C1E;
+}
+.verdict-mini b { color: #B35C1E; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">H4 RESULTS</span>
+    <span class="slide-title">T<sub>air</sub> &times; precip<sub>7d</sub> Interaction &mdash; Robustness and Result</span>
+</div>
+<div class="framing">
+    Robustness checks on the cross-derivative <span class="em">&part;&sup2;&sigma;<sub>LST</sub>/(&part;T<sub>air</sub>&middot;&part;precip<sub>7d</sub>)</span> and the overall H4 verdict.
+</div>
+<div class="content">
+
+<table class="robust-table">
+    <thead><tr><th style="width:48%">Robustness</th><th>Result</th></tr></thead>
+    <tbody>
+    <tr><td>Alternative &sigma;<sub>LST</sub> metrics (IQR; trimmed P95&minus;P5 range)</td><td>Sign + magnitude preserved</td></tr>
+    <tr><td>Leave-one-year-out (2018&ndash;2025)</td><td>Cross-derivative ranges &minus;5.9 &times; 10&#8315;&#8309; to +4.4 &times; 10&#8315;&#8308;; only 2024 fold slightly negative, sits within bootstrap envelope</td></tr>
+    <tr><td>5,000 posterior draws on 50 &times; 50 grid (vs. coarse default)</td><td>Reproduces +1.1 &times; 10&#8315;&#8308; &mdash; not a sampling-grid artifact</td></tr>
+    </tbody>
+</table>
+
+<div class="verdict-mini">
+    <b>H4 &mdash; Not yet supported.</b> Sign is positive (consistent with the moisture pre-conditioning mechanism &mdash; wet weeks let vegetated patches transpire freely &rarr; steeper T<sub>air</sub> response; Manoli et al. 2019; Hao et al. 2023).
+</div>
+
+</div>
+</body>
+</html></textarea>
+    <textarea id="s18" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Synthesis, Limitations, and Next Steps</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 22px 48px 8px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #3A7D7E; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 26px; font-weight: 700; color: #2C2C2C; }
+.sub { font-size: 0.72em; vertical-align: sub; line-height: 0; }
+.content {
+    flex: 1; padding: 6px 48px 16px 48px;
+    display: flex; flex-direction: column; gap: 10px;
+    overflow-y: auto;
+}
+.summary-row {
+    display: flex; gap: 12px;
+}
+.verdict-card {
+    flex: 1; background: #fff; border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    padding: 11px 14px;
+    border-left: 4px solid #3A7D7E;
+}
+.verdict-card .h-id {
+    font-size: 12px; color: #6B7B8D;
+    text-transform: uppercase; letter-spacing: 1px;
+    font-weight: 700;
+}
+.verdict-card .verdict {
+    font-size: 13.5px; font-weight: 700;
+    margin-top: 3px;
+}
+.verdict-card .verdict.supported     { color: #2E7D32; }
+.verdict-card .verdict.partial       { color: #B35C1E; }
+.verdict-card .verdict.not-supported { color: #C62828; }
+.verdict-card .verdict.deferred      { color: #6B7B8D; }
+.verdict-card .body { font-size: 12.5px; color: #444; line-height: 1.45; margin-top: 4px; }
+
+.info-card {
+    background: #fff; border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(100,110,140,0.10);
+    padding: 11px 18px;
+}
+.card-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.card-body { font-size: 13.5px; line-height: 1.55; color: #444; }
+.card-body b { color: #2C2C2C; }
+.card-body ul { margin: 3px 0 0 22px; }
+.card-body li { margin-bottom: 2px; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">SYNTHESIS</span>
+    <span class="slide-title">Findings, Limitations, Next Steps</span>
+</div>
+<div class="content">
+
+<div class="summary-row">
+    <div class="verdict-card" style="border-left-color: #2E7D32;">
+        <div class="h-id">H1 — Meteorological sensitivities</div>
+        <div class="verdict supported">Supported</div>
+        <div class="body">Continuous slope ≈ +0.07 °C/°C for T<sub>air</sub> (day &amp; night). RH dampens (day, bootstrap). precip<sub>7d</sub> amplifies (day &amp; night, bootstrap).</div>
+    </div>
+    <div class="verdict-card" style="border-left-color: #C62828;">
+        <div class="h-id">H2 — Day vs. night</div>
+        <div class="verdict not-supported">Not resolvable in 4 cities</div>
+        <div class="body">All three contrasts have CIs containing 0.</div>
+    </div>
+    <div class="verdict-card" style="border-left-color: #B35C1E;">
+        <div class="h-id">H3 — Morphological heterogeneity</div>
+        <div class="verdict partial">Partially supported</div>
+        <div class="body">β<sub>4</sub> (H_BldgHt) = +0.086, p = 0.0017; sign-stable under leave-one-city-out. β<sub>2</sub> (H_BldgFrac) deferred (rank-deficient).</div>
+    </div>
+    <div class="verdict-card" style="border-left-color: #B35C1E;">
+        <div class="h-id">H4 — T<sub>air</sub> × precip<sub>7d</sub></div>
+        <div class="verdict partial">Sign positive, not yet resolved</div>
+        <div class="body">Cross-derivative +1.1×10⁻⁴, CI [−2.2×10⁻⁵, +2.4×10⁻⁴].</div>
+    </div>
+</div>
+
+<div class="info-card" style="border-left: 4px solid #3A7D7E;">
+    <div class="card-title" style="color: #3A7D7E;">What this 4-city analysis establishes</div>
+    <div class="card-body">First multi-city, continuous sensitivity coefficients for σ<sub>LST</sub>. HGAM R² = 0.583 vs. linear 0.383 vs. RF 0.438 — the smooth-functions framework extracts more generalisable signal than RF at this n while preserving interpretable derivatives.</div>
+</div>
+
+<div class="info-card" style="border-left: 4px solid #6B7B8D;">
+    <div class="card-title" style="color: #6B7B8D;">Limitations</div>
+    <div class="card-body">
+        <ul>
+            <li>4 cities span only 2 climate zones (humid continental, humid subtropical) — limits H2 discrimination</li
+            <li>City-constant morphology rank-deficient at n<sub>cities</sub> = 4 (one term must drop)</li>
+        </ul>
+    </div>
+</div>
+
+<div class="info-card" style="border-left: 4px solid #1565C0;">
+    <div class="card-title" style="color: #1565C0;">Next steps — 8-city extension</div>
+    <div class="card-body">Add Phoenix (hot desert), Los Angeles (Mediterranean), Seattle (oceanic), Denver (semi-arid). Restores cross-city degrees of freedom for joint H_BldgFrac + H_BldgHt; expands precipitation contrast for H4 power. Target: <em>Urban Climate</em>.</div>
+</div>
+
+</div>
+</body>
+</html></textarea>
+    <textarea id="s19" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backup — Confidence Intervals: What They Mean and Why We Use Each</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 22px 48px 8px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #6B7B8D; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 24px; font-weight: 700; color: #2C2C2C; }
+.sub { font-size: 0.72em; vertical-align: sub; line-height: 0; }
+.content {
+    flex: 1; padding: 4px 48px 14px 48px;
+    display: flex; flex-direction: column; gap: 8px;
+    overflow-y: auto;
+}
+.ci-card {
+    background: #fff; border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    padding: 10px 16px;
+    border-left: 4px solid #3A7D7E;
+}
+.ci-card .h {
+    font-size: 14px; font-weight: 700; color: #2C2C2C;
+    margin-bottom: 3px;
+}
+.ci-card .h .label {
+    background: #EAF4F4; color: #3A7D7E;
+    padding: 2px 8px; border-radius: 3px;
+    font-size: 11.5px; margin-right: 8px; letter-spacing: 0.5px;
+    font-weight: 700; text-transform: uppercase;
+}
+.ci-card .body { font-size: 12.5px; line-height: 1.5; color: #444; }
+.ci-card .body b { color: #2C2C2C; }
+.ci-card .when {
+    color: #6B7B8D; font-style: italic; font-size: 12px;
+    margin-top: 3px; display: block;
+}
+
+.ci-card.simul     { border-left-color: #1565C0; }
+.ci-card.simul .label   { background: #E3F2FD; color: #1565C0; }
+.ci-card.boot      { border-left-color: #2E7D32; }
+.ci-card.boot .label    { background: #E8F5E9; color: #2E7D32; }
+.ci-card.cred      { border-left-color: #4A148C; }
+.ci-card.cred .label    { background: #F3E5F5; color: #4A148C; }
+.ci-card.parametric { border-left-color: #B35C1E; }
+.ci-card.parametric .label { background: #FFF8F2; color: #B35C1E; }
+
+.takeaway {
+    background: #FFFCF5; border-radius: 8px;
+    border-left: 4px solid #B35C1E;
+    padding: 10px 16px; font-size: 13px; line-height: 1.55; color: #2C2C2C;
+}
+.takeaway b { color: #B35C1E; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">BACKUP — INFERENCE</span>
+    <span class="slide-title">CIs: What Each One Means and Why We Report Several</span>
+</div>
+<div class="content">
+
+<div class="ci-card parametric">
+    <div class="h"><span class="label">Parametric (Wald) CI</span> Standard model output</div>
+    <div class="body">
+        <b>Definition:</b> point estimate ± 1.96 × SE, with SE from the model's information matrix. Assumes the sampling distribution of the slope is approximately normal.
+        <span class="when">Used for: ordinary linear coefficients (β<sub>1</sub>–β<sub>4</sub> on morphology) and for day-minus-night contrasts where SE is computed via the joint coefficient covariance.</span>
+    </div>
+</div>
+
+<div class="ci-card simul">
+    <div class="h"><span class="label">Simultaneous CI</span> Whole-curve inference</div>
+    <div class="body">
+        <b>Definition:</b> a band that covers the slope at <em>every</em> point along the smooth curve at once with 95 % probability — not at any single point. Constructed by simulating from the joint posterior of the spline coefficients and taking quantiles of the worst-case deviation across the predictor range (Marra &amp; Wood 2012; Simpson 2018).
+        <b>Wider than pointwise:</b> it has to guard against false positives at every point along the curve.
+        <span class="when">Used for: derivative-of-smooth slopes (∂σ<sub>LST</sub>/∂T<sub>air</sub> etc.). The <em>conservative</em> standard for whole-curve sensitivity inference.</span>
+    </div>
+</div>
+
+<div class="ci-card boot">
+    <div class="h"><span class="label">Bootstrap CI</span> Image-level resampling</div>
+    <div class="body">
+        <b>Definition:</b> resample 1,583 images with replacement (1,000 reps), refit the full HGAM each time, recompute the empirical-distribution-weighted mean derivative, take the [2.5 %, 97.5 %] quantiles. Makes <em>no</em> distributional assumption on the slope.
+        <b>Targets the mean directly:</b> sharper than the simultaneous band when the question is about the average slope rather than the whole curve. At our n, bootstrap intervals are 2–5× narrower.
+        <span class="when">Used for: the empirical-mean sensitivities. RH (day) and precip<sub>7d</sub> are bootstrap-supported even though their simultaneous bands include 0.</span>
+    </div>
+</div>
+
+<div class="ci-card cred">
+    <div class="h"><span class="label">Credible Interval (Bayesian posterior)</span> H4 cross-derivative</div>
+    <div class="body">
+        <b>Definition:</b> draw 5,000 samples from the joint posterior distribution of the spline coefficients on a 50 × 50 (T<sub>air</sub>, precip<sub>7d</sub>) grid, recompute the cross-derivative for each draw, take the central 95 %.
+        <b>Why a credible interval and not a frequentist CI:</b> the cross-derivative is a derived quantity that depends on the whole tensor surface; the posterior naturally propagates uncertainty across all coefficients without needing a closed-form SE.
+        <span class="when">Used for: H4 (∂²σ<sub>LST</sub>/(∂T<sub>air</sub>·∂precip<sub>7d</sub>)). Verified against the image-level bootstrap which gives a wider interval — both include 0.</span>
+    </div>
+</div>
+
+<div class="takeaway">
+    <b>How to read multiple intervals on the same number:</b> they answer slightly different questions. The simultaneous band is the strictest "is anywhere along this curve different from zero" guarantee. The bootstrap targets the empirical-weighted mean directly. When the bootstrap excludes 0 but the simultaneous band does not (RH day; precip<sub>7d</sub>), the curve has real structure but the structure is not strong enough to clear a uniform whole-curve threshold — we report both and let the reader judge.
+</div>
+
+</div>
+</body>
+</html></textarea>
+    <textarea id="s20" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backup — Four Cities Now, Four Planned</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 24px 48px 10px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #6B7B8D; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 26px; font-weight: 700; color: #2C2C2C; }
+.content {
+    flex: 1; padding: 6px 48px 16px 48px;
+    display: flex; flex-direction: column; gap: 10px;
+    overflow-y: auto;
+}
+.sub { font-size: 0.72em; vertical-align: sub; line-height: 0; }
+.section-label {
+    font-size: 12px; color: #6B7B8D;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    font-weight: 700; margin-top: 4px;
+}
+.section-label.now { color: #2E7D32; }
+.section-label.planned { color: #B35C1E; }
+
+.metric-table { width: 100%; border-collapse: collapse; }
+.metric-table th {
+    background: #3A7D7E; color: #fff; padding: 9px 14px;
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;
+    text-align: left; border: none;
+}
+.metric-table th:first-child { border-radius: 4px 0 0 4px; }
+.metric-table th:last-child  { border-radius: 0 4px 4px 0; }
+.metric-table td {
+    padding: 8px 14px; font-size: 13.5px; line-height: 1.4;
+    border-bottom: 1px solid #E0E4E8; color: #2C2C2C;
+}
+.metric-table tr:last-child td { border-bottom: none; }
+.metric-table tr:nth-child(even) td { background: #F8F9FA; }
+.metric-table tr.now td { background: #F1F8F1; }
+.metric-table tr.now:nth-child(even) td { background: #E8F5E9; }
+.metric-table tr.planned td { background: #FFFCF5; }
+.metric-table tr.planned:nth-child(even) td { background: #FFF8F2; }
+.metric-table .city-name { font-weight: 700; }
+.metric-table .n-count { color: #2E7D32; font-weight: 700; }
+.metric-table .deferred { color: #B35C1E; font-style: italic; }
+
+.note {
+    font-size: 12.5px; color: #6B7B8D;
+    font-style: italic; line-height: 1.5;
+    background: #fff; border-radius: 6px;
+    padding: 9px 14px; box-shadow: 0 1px 4px rgba(100,110,140,0.08);
+}
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">BACKUP — STUDY DESIGN</span>
+    <span class="slide-title">Four Cities (Current Sample) + Four Planned</span>
+</div>
+<div class="content">
+
+<table class="metric-table">
+    <thead><tr><th>City</th><th>Köppen</th><th>Morphology</th><th>n (images)</th><th>Why included</th></tr></thead>
+    <tbody>
+    <tr class="now"><td class="city-name">New York</td><td>Cfa</td><td>Compact high-rise</td><td class="n-count">229</td><td>Highest H_BldgHt in sample</td></tr>
+    <tr class="now"><td class="city-name">Houston</td><td>Cfa</td><td>Sprawling low-rise</td><td class="n-count">322</td><td>Lowest H_BldgHt — leverage at the bottom of the range</td></tr>
+    <tr class="now"><td class="city-name">Chicago</td><td>Dfa</td><td>Compact high-rise</td><td class="n-count">626</td><td>Cold-regime behavior; H_BldgHt close to 4-city mean</td></tr>
+    <tr class="now"><td class="city-name">Atlanta</td><td>Cfa</td><td>Sprawling low-rise</td><td class="n-count">406</td><td>High vegetation fraction; intermediate morphology</td></tr>
+    <tr class="planned"><td class="city-name">Phoenix</td><td>BWh</td><td>Low-rise arid</td><td class="deferred">planned</td><td>Hot desert — moisture-limited regime; expands precip<sub>7d</sub> contrast for H4</td></tr>
+    <tr class="planned"><td class="city-name">Los Angeles</td><td>Csb</td><td>Medium-rise mixed</td><td class="deferred">planned</td><td>Mediterranean — seasonal drought; H_BldgFrac contrast</td></tr>
+    <tr class="planned"><td class="city-name">Seattle</td><td>Csb</td><td>Low-medium-rise</td><td class="deferred">planned</td><td>Oceanic — high precipitation, marine boundary layer</td></tr>
+    <tr class="planned"><td class="city-name">Denver</td><td>BSk</td><td>Medium-rise</td><td class="deferred">planned</td><td>Semi-arid + elevation</td></tr>
+    </tbody>
+</table>
+
+<div class="section-label now">Currently fitted (n = 1,583 images)</div>
+<div class="note">Two climate zones (humid continental Dfa: NYC, CHI; humid subtropical Cfa: HOU, ATL). Cross-city contrast in H_BldgHt is sufficient to identify β<sub>4</sub>; H_BldgFrac is rank-deficient (Pearson r = 0.79 with H_BldgHt across 4 cities) and is dropped to maintain identifiability.</div>
+
+<div class="section-label planned">Planned 8-city extension</div>
+<div class="note">Adding the four planned cities expands the sample to 5 Köppen zones (BWh, BSk, Cfa, Csb, Dfa) and restores the cross-city degrees of freedom needed to estimate β<sub>2</sub> (H_BldgFrac) jointly with β<sub>4</sub> (H_BldgHt). Phoenix + Seattle + Denver also widen the antecedent-precipitation contrast — improving statistical power for H4.</div>
+
+</div>
+</body>
+</html></textarea>
+    <textarea id="s21" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backup — Full HGAM Equation</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 24px 48px 10px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #6B7B8D; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 26px; font-weight: 700; color: #2C2C2C; }
+.content {
+    flex: 1; padding: 6px 48px 16px 48px;
+    display: flex; flex-direction: column; gap: 10px;
+    overflow-y: auto;
+}
+.sub { font-size: 0.72em; vertical-align: sub; line-height: 0; }
+
+.eq-block {
+    background: #fff; border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(100,110,140,0.10);
+    padding: 16px 22px;
+    font-family: 'Segoe UI', monospace;
+    font-size: 13.5px; line-height: 1.9; color: #2C2C2C;
+    overflow-x: auto;
+}
+.eq-block .lhs   { color: #B35C1E; font-weight: 700; }
+.eq-block .smooth { color: #1565C0; }
+.eq-block .ti     { color: #4A148C; font-weight: 700; }
+.eq-block .lin    { color: #2E7D32; }
+.eq-block .ranef  { color: #C62828; }
+.eq-block .comment { color: #6B7B8D; font-style: italic; font-size: 12px; }
+
+.term-table { width: 100%; border-collapse: collapse; }
+.term-table th {
+    background: #3A7D7E; color: #fff; padding: 8px 12px;
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;
+    text-align: left; border: none;
+}
+.term-table th:first-child { border-radius: 4px 0 0 4px; }
+.term-table th:last-child  { border-radius: 0 4px 4px 0; }
+.term-table td {
+    padding: 7px 12px; font-size: 12.5px; line-height: 1.45;
+    border-bottom: 1px solid #E0E4E8; color: #2C2C2C;
+    vertical-align: top;
+}
+.term-table tr:last-child td { border-bottom: none; }
+.term-table tr:nth-child(even) td { background: #F8F9FA; }
+.term-table .term { font-weight: 700; color: #2C2C2C; }
+.term-table .h-tag { background: #EAF4F4; color: #3A7D7E; padding: 1px 5px; border-radius: 3px; font-size: 11px; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">BACKUP — METHODS</span>
+    <span class="slide-title">Full HGAM Model Equation (Pedersen et al. 2019, Model G<sub>I</sub>)</span>
+</div>
+<div class="content">
+
+<div class="eq-block">
+<span class="lhs">σ_LST</span>(image t in city c) =<br>
+&nbsp;&nbsp;<span class="smooth">s(T_air | Day/Night)</span> + <span class="smooth">s(Wind | Day/Night)</span> + <span class="smooth">s(WindDir | Day/Night)</span><br>
+&nbsp;+ <span class="smooth">s(RH | Day/Night)</span> + <span class="smooth">s(precip_7d | Day/Night)</span><br>
+&nbsp;+ <span class="smooth">s(M_NDVI | Day/Night)</span> + <span class="smooth">s(H_NDVI | Day/Night)</span><br>
+&nbsp;+ <span class="ti">ti(T_air, precip_7d)</span> &nbsp; <span class="comment">// pure tensor interaction (H4)</span><br>
+&nbsp;+ <span class="lin">β₁·M_BldgFrac + β₂·H_BldgFrac + β₃·M_BldgHt + β₄·H_BldgHt</span> &nbsp; <span class="comment">// city-constant linear (H3)</span><br>
+&nbsp;+ <span class="smooth">s(month, bs='cc')</span> + Day/Night + <span class="ranef">b(c)</span> + ε<br>
+<br>
+<span class="comment">Family: Gamma · Link: log · Method: REML · n = 1,583 images, 4 cities</span>
+</div>
+
+<table class="term-table">
+    <thead><tr><th>Term</th><th>What it does</th><th>H tag</th></tr></thead>
+    <tbody>
+    <tr><td class="term">s(T_air | Day/Night)</td><td>By-factor smooth — separate flexible curve for daytime and nighttime overpasses; shared smoothing penalty</td><td><span class="h-tag">H1, H2</span></td></tr>
+    <tr><td class="term">s(RH | Day/Night)</td><td>Same — humidity dampening (compresses spread when air is humid)</td><td><span class="h-tag">H1, H2</span></td></tr>
+    <tr><td class="term">s(precip_7d | Day/Night)</td><td>Same — antecedent rainfall pre-conditions ET capacity</td><td><span class="h-tag">H1, H2</span></td></tr>
+    <tr><td class="term">s(Wind, WindDir, M_NDVI, H_NDVI | Day/Night)</td><td>Confounder smooths — varied with time of day / year; included to attribute variance correctly. WindDir uses cyclic basis (359° = 1°)</td><td>—</td></tr>
+    <tr><td class="term">ti(T_air, precip_7d)</td><td>2-D pure interaction surface (marginals removed by ti() rather than te()) — captures whether T_air slope shifts with antecedent rainfall</td><td><span class="h-tag">H4</span></td></tr>
+    <tr><td class="term">β₁..β₄ on city-constant morphology</td><td>Linear coefficients only — city-constant predictors take 4 unique values across 4 cities; smooth would interpolate, not smooth</td><td><span class="h-tag">H3</span></td></tr>
+    <tr><td class="term">s(month, bs='cc')</td><td>Cyclic cubic spline — December wraps to January; absorbs seasonal cycle so it does not alias into met smooths</td><td>—</td></tr>
+    <tr><td class="term">Day/Night</td><td>Categorical fixed effect — captures baseline level shift; by-Day/Night smooths integrate to 0 by construction</td><td>—</td></tr>
+    <tr><td class="term">b(c) ~ N(0, σ²<sub>city</sub>)</td><td>City-level random intercept — pools information across 4 cities, respects nested image-within-city structure</td><td>—</td></tr>
+    <tr><td class="term">Gamma family · log link</td><td>σ<sub>LST</sub> is strictly positive, right-skewed; effects are multiplicative on original scale. Standard for positive responses (Wood 2017)</td><td>—</td></tr>
+    </tbody>
+</table>
+
+</div>
+</body>
+</html></textarea>
+    <textarea id="s22" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backup — How H1 Was Tested</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 22px 48px 8px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #6B7B8D; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 24px; font-weight: 700; color: #2C2C2C; }
+.sub { font-size: 0.72em; vertical-align: sub; line-height: 0; }
+.content {
+    flex: 1; padding: 4px 48px 14px 48px;
+    display: flex; flex-direction: column; gap: 10px;
+    overflow-y: auto;
+}
+.step-card {
+    background: #fff; border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    padding: 11px 16px;
+    border-left: 4px solid #3A7D7E;
+}
+.step-card .h {
+    font-size: 14px; font-weight: 700; color: #3A7D7E;
+    margin-bottom: 4px;
+}
+.step-card .h .num {
+    background: #3A7D7E; color: #fff;
+    padding: 2px 8px; border-radius: 12px;
+    font-size: 12px; margin-right: 8px;
+}
+.step-card .body { font-size: 13.5px; line-height: 1.55; color: #444; }
+.step-card .body code {
+    background: #EAF4F4; color: #2C2C2C;
+    padding: 1px 5px; border-radius: 3px; font-size: 13px;
+}
+.step-card .body b { color: #2C2C2C; }
+
+.result-card {
+    background: #FCFEF8; border-radius: 8px;
+    border-left: 4px solid #2E7D32;
+    padding: 10px 16px; font-size: 13.5px; line-height: 1.55;
+}
+.result-card b { color: #2E7D32; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">BACKUP — H1 TEST</span>
+    <span class="slide-title">How H1 Was Tested: Empirical-Mean Smooth Derivative</span>
+</div>
+<div class="content">
+
+<div class="step-card">
+    <div class="h"><span class="num">1</span>Why an empirical-mean derivative, not a single coefficient</div>
+    <div class="body">A linear regression returns one slope. A smooth function s(T<sub>air</sub>) returns a <b>different</b> slope at every value of T<sub>air</sub> — gentle at the cold end, steep in the middle, possibly flatter at the warm end. To collapse this to one testable number we read off the slope at every observed predictor value and average those slopes, weighting by how often each value <em>actually occurs</em> in the data — the <b>empirical-distribution-weighted mean derivative</b>. That gives the average sensitivity across the conditions the cities actually experience, not at one cherry-picked point.</div>
+</div>
+
+<div class="step-card" style="border-left-color: #1565C0;">
+    <div class="h" style="color: #1565C0;"><span class="num" style="background:#1565C0;">2</span>Computing the slope and its uncertainty</div>
+    <div class="body">For each predictor we evaluate the smooth on a grid of 200 points spanning the empirical range, take a finite-difference derivative at each, then weight-average. For uncertainty we draw <b>10,000 sets of spline coefficients</b> from the model's posterior (multivariate-normal around the fitted coefficients with the model's coefficient covariance) and recompute the weighted-mean derivative for each draw. The 2.5 % and 97.5 % quantiles of those 10,000 means give us a <b>simultaneous CI</b> — wider than the more familiar pointwise band because it covers the slope <em>everywhere</em> on the curve at once (Marra &amp; Wood 2012; Simpson 2018). This is the conservative whole-curve standard.</div>
+</div>
+
+<div class="step-card" style="border-left-color: #2E7D32;">
+    <div class="h" style="color: #2E7D32;"><span class="num" style="background:#2E7D32;">3</span>Bootstrap as a sharper alternative</div>
+    <div class="body">In parallel, we resample the 1,583 images with replacement (1,000 reps), refit the full HGAM each time, recompute the empirical-mean derivative each time, and take the [2.5 %, 97.5 %] quantiles. This makes <b>no</b> distributional assumption and targets the mean directly — it is 2–5× narrower than the simultaneous band at our n. RH (day) and precip<sub>7d</sub> are bootstrap-supported even though their simultaneous bands include 0.</div>
+</div>
+
+<div class="result-card">
+    <b>H1 verdict:</b> ∂σ<sub>LST</sub>/∂T<sub>air</sub> = +0.066 °C/°C day · +0.071 °C/°C night, both intervals exclude 0 under <em>both</em> criteria. ∂σ<sub>LST</sub>/∂RH = −0.004 %⁻¹ day, bootstrap [−0.0073, −0.0002]. ∂σ<sub>LST</sub>/∂precip<sub>7d</sub> = +0.002 mm⁻¹ day · +0.004 mm⁻¹ night, both bootstrap-supported. <b>H1 supported.</b>
+</div>
+
+</div>
+</body>
+</html></textarea>
+    <textarea id="s23" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backup — How H2 Was Tested</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 22px 48px 8px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #6B7B8D; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 24px; font-weight: 700; color: #2C2C2C; }
+.sub { font-size: 0.72em; vertical-align: sub; line-height: 0; }
+.content {
+    flex: 1; padding: 4px 48px 14px 48px;
+    display: flex; flex-direction: column; gap: 10px;
+    overflow-y: auto;
+}
+.step-card {
+    background: #fff; border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    padding: 11px 16px;
+    border-left: 4px solid #3A7D7E;
+}
+.step-card .h {
+    font-size: 14px; font-weight: 700; color: #3A7D7E;
+    margin-bottom: 4px;
+}
+.step-card .h .num {
+    background: #3A7D7E; color: #fff;
+    padding: 2px 8px; border-radius: 12px;
+    font-size: 12px; margin-right: 8px;
+}
+.step-card .body { font-size: 13.5px; line-height: 1.55; color: #444; }
+.step-card .body code {
+    background: #EAF4F4; color: #2C2C2C;
+    padding: 1px 5px; border-radius: 3px; font-size: 13px;
+}
+.step-card .body b { color: #2C2C2C; }
+
+.result-card {
+    background: #FFF5F5; border-radius: 8px;
+    border-left: 4px solid #C62828;
+    padding: 10px 16px; font-size: 13.5px; line-height: 1.55;
+}
+.result-card b { color: #C62828; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">BACKUP — H2 TEST</span>
+    <span class="slide-title">How H2 Was Tested: Day-Minus-Night Contrast With Joint SE</span>
+</div>
+<div class="content">
+
+<div class="step-card">
+    <div class="h"><span class="num">1</span>Take the day and night mean slopes from H1 and difference them</div>
+    <div class="body">For each predictor, the H1 step already gave us a daytime mean slope and a nighttime mean slope. H2 simply takes the difference: <b>Δ = mean Day-slope − mean Night-slope</b>. If Δ is reliably above zero, daytime is steeper. If reliably below zero, nighttime is steeper. If the CI straddles 0, we cannot distinguish them at this n.</div>
+</div>
+
+<div class="step-card" style="border-left-color: #1565C0;">
+    <div class="h" style="color: #1565C0;"><span class="num" style="background:#1565C0;">2</span>SE(Δ) from joint coefficient covariance — not independent SEs</div>
+    <div class="body">The day and night smooths are estimated from the <b>same</b> model fit and share information; their estimates are not independent. So we do not naively combine SE<sub>day</sub>² + SE<sub>night</sub>². Instead, we use the model's full coefficient covariance matrix V<sub>β</sub> and propagate uncertainty:
+        <code>Var(Δ) = c<sup>T</sup> V<sub>β</sub> c</code>, where c is the linear contrast vector that picks out (mean Day-derivative − mean Night-derivative). This naturally accounts for the correlation between the two estimates. The 95 % CI on Δ is Δ ± 1.96 × SE(Δ).</div>
+</div>
+
+<div class="step-card" style="border-left-color: #2E7D32;">
+    <div class="h" style="color: #2E7D32;"><span class="num" style="background:#2E7D32;">3</span>Bootstrap check + sample-balance check</div>
+    <div class="body">Repeat the full pipeline on 1,000 image-level bootstrap resamples — bootstrap interval is 2–3× narrower but does <b>not</b> change the verdict. Sample-balance: every city has ≥ 110 nighttime overpasses; the largest day:night ratio is 1.17 (Atlanta). The null is not driven by an unbalanced sample.</div>
+</div>
+
+<div class="result-card">
+    <b>H2 verdict — not supported in 4 cities.</b> Day−Night Δ for T<sub>air</sub>: −0.005 [−0.057, +0.047], p = 0.84. RH: −0.003 [−0.020, +0.014], p = 0.73. precip<sub>7d</sub>: −0.002 [−0.010, +0.006], p = 0.59. Most plausible reading: only 2 climate zones in the sample (Cfa + Dfa), broadly similar moisture regimes — per-city day/night signatures are cancelling on average. The 8-city extension adds Phoenix (BWh), LA (Csb), Seattle (Csb), Denver (BSk).
+</div>
+
+</div>
+</body>
+</html></textarea>
+    <textarea id="s24" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backup — How H3 Was Tested</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 22px 48px 8px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #6B7B8D; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 24px; font-weight: 700; color: #2C2C2C; }
+.sub { font-size: 0.72em; vertical-align: sub; line-height: 0; }
+.content {
+    flex: 1; padding: 4px 48px 14px 48px;
+    display: flex; flex-direction: column; gap: 10px;
+    overflow-y: auto;
+}
+.step-card {
+    background: #fff; border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    padding: 11px 16px;
+    border-left: 4px solid #3A7D7E;
+}
+.step-card .h {
+    font-size: 14px; font-weight: 700; color: #3A7D7E;
+    margin-bottom: 4px;
+}
+.step-card .h .num {
+    background: #3A7D7E; color: #fff;
+    padding: 2px 8px; border-radius: 12px;
+    font-size: 12px; margin-right: 8px;
+}
+.step-card .body { font-size: 13.5px; line-height: 1.55; color: #444; }
+.step-card .body code {
+    background: #EAF4F4; color: #2C2C2C;
+    padding: 1px 5px; border-radius: 3px; font-size: 13px;
+}
+.step-card .body b { color: #2C2C2C; }
+
+.result-card {
+    background: #FCFEF8; border-radius: 8px;
+    border-left: 4px solid #2E7D32;
+    padding: 10px 16px; font-size: 13.5px; line-height: 1.55;
+}
+.result-card b { color: #2E7D32; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">BACKUP — H3 TEST</span>
+    <span class="slide-title">How H3 Was Tested: Linear Coefficients + Leave-One-City-Out</span>
+</div>
+<div class="content">
+
+<div class="step-card">
+    <div class="h"><span class="num">1</span>Why linear, not smooth</div>
+    <div class="body">M_BldgFrac, H_BldgFrac, M_BldgHt, H_BldgHt are <b>city-constant</b> — they take exactly one value per city. Across 4 cities the predictor takes only 4 unique values, so a smooth would interpolate between four points rather than smooth a distribution. A linear coefficient is the only defensible specification at this n. Each β comes out of the model fit with an estimate, an SE, and a Wald 95 % CI.</div>
+</div>
+
+<div class="step-card" style="border-left-color: #B35C1E;">
+    <div class="h" style="color: #B35C1E;"><span class="num" style="background:#B35C1E;">2</span>Identifiability constraint at 4 cities</div>
+    <div class="body">The model's city-level block contains 1 random intercept + 4 morphology coefficients = 5 quantities, drawn from only 4 unique city-level rows. One morphology term must drop. We dropped <b>H_BldgFrac</b> because it correlates strongly with H_BldgHt across the 4 cities (Pearson <code>r = 0.79</code>) and the algorithm cannot separate them. β<sub>2</sub> is therefore deferred to the 8-city refit.</div>
+</div>
+
+<div class="step-card" style="border-left-color: #1565C0;">
+    <div class="h" style="color: #1565C0;"><span class="num" style="background:#1565C0;">3</span>Leave-one-city-out robustness</div>
+    <div class="body">Refit the full HGAM 4 times, each time holding out one city. β<sub>4</sub> is the test statistic. <b>Sign-stable in all four refits</b>: NYC out → +0.138; HOU out → +0.064; CHI out → +0.075; ATL out → +0.049. Magnitude depends on which city is held out (NYC and HOU sit at the high/low extremes of H_BldgHt; CHI is closest to the mean and gives the lowest-leverage refit). The geometric mean of the four refits is close to the full-fit estimate of +0.086 — that is the conclusion the paper relies on.</div>
+</div>
+
+<div class="step-card" style="border-left-color: #4A148C;">
+    <div class="h" style="color: #4A148C;"><span class="num" style="background:#4A148C;">4</span>Multicollinearity check</div>
+    <div class="body">Variance inflation factors for the three retained morphology coefficients: <b>VIF = 1.81, 1.48, 2.22</b> — all well below the conventional flag threshold of 5. Multicollinearity does not threaten the interpretation of β<sub>4</sub>.</div>
+</div>
+
+<div class="result-card">
+    <b>H3 verdict — partially supported.</b> β<sub>4</sub> on H_BldgHt = +0.086, 95 % CI [+0.032, +0.140], p = 0.0017 — supported. On the log link, a 1-m increase in H_BldgHt corresponds to ~9 % increase in baseline σ<sub>LST</sub>. Mechanism: directional thermal anisotropy (Krayenhoff &amp; Voogt 2016). H_BldgFrac arm: <em>deferred</em> to 8-city refit.
+</div>
+
+</div>
+</body>
+</html></textarea>
+    <textarea id="s25" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backup — How H4 Was Tested</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 22px 48px 8px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #6B7B8D; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 24px; font-weight: 700; color: #2C2C2C; }
+.sub { font-size: 0.72em; vertical-align: sub; line-height: 0; }
+.content {
+    flex: 1; padding: 4px 48px 14px 48px;
+    display: flex; flex-direction: column; gap: 10px;
+    overflow-y: auto;
+}
+.step-card {
+    background: #fff; border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    padding: 11px 16px;
+    border-left: 4px solid #3A7D7E;
+}
+.step-card .h {
+    font-size: 14px; font-weight: 700; color: #3A7D7E;
+    margin-bottom: 4px;
+}
+.step-card .h .num {
+    background: #3A7D7E; color: #fff;
+    padding: 2px 8px; border-radius: 12px;
+    font-size: 12px; margin-right: 8px;
+}
+.step-card .body { font-size: 13.5px; line-height: 1.55; color: #444; }
+.step-card .body code {
+    background: #EAF4F4; color: #2C2C2C;
+    padding: 1px 5px; border-radius: 3px; font-size: 13px;
+}
+.step-card .body b { color: #2C2C2C; }
+
+.result-card {
+    background: #FFFCF5; border-radius: 8px;
+    border-left: 4px solid #B35C1E;
+    padding: 10px 16px; font-size: 13.5px; line-height: 1.55;
+}
+.result-card b { color: #B35C1E; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">BACKUP — H4 TEST</span>
+    <span class="slide-title">How H4 Was Tested: Two Complementary Tests on the Tensor</span>
+</div>
+<div class="content">
+
+<div class="step-card">
+    <div class="h"><span class="num">1</span>Test 1 — Tensor non-additivity (model summary p-value)</div>
+    <div class="body">Asks: is the joint surface ti(T<sub>air</sub>, precip<sub>7d</sub>) <b>more</b> than the sum of the two main-effect smooths? If T<sub>air</sub> and precip<sub>7d</sub> acted independently, knowing them together would add nothing once the two main smooths are in the model — the tensor surface would be flat. The model summary returns a p-value for whether this is the case. A small p means meaningful non-additive curvature.
+        <br><br>
+        <b>Result:</b> tensor EDF = 1.0, p = 0.118. EDF = 1 means the interaction is essentially linear on the log link at this n; p &gt; 0.05.</div>
+</div>
+
+<div class="step-card" style="border-left-color: #4A148C;">
+    <div class="h" style="color: #4A148C;"><span class="num" style="background:#4A148C;">2</span>Test 2 — Empirical-mean cross-derivative (direct, more interpretable)</div>
+    <div class="body">A direct estimate with physical units: how much does the σ<sub>LST</sub>-vs-T<sub>air</sub> slope change per mm of additional antecedent rainfall?
+        <br><br>
+        Procedure: at each of <b>5,000 posterior draws</b>, evaluate the fitted surface on a <b>50 × 50 grid</b> spanning the empirical (T<sub>air</sub>, precip<sub>7d</sub>) range. Compute the cross-derivative at each grid point via finite differences, weight-average across grid points, and record. The 2.5 % and 97.5 % quantiles of those 5,000 means give the <b>credible interval</b>.
+        <br><br>
+        <b>Result:</b> mean cross-derivative = +1.1 × 10⁻⁴, 95 % credible interval [−2.2 × 10⁻⁵, +2.4 × 10⁻⁴]. Includes 0.</div>
+</div>
+
+<div class="step-card" style="border-left-color: #2E7D32;">
+    <div class="h" style="color: #2E7D32;"><span class="num" style="background:#2E7D32;">3</span>Why credible (Bayesian) here, not Wald (frequentist)</div>
+    <div class="body">The cross-derivative is a derived quantity that depends on the entire tensor surface. There is no closed-form SE for it. The posterior simulation propagates uncertainty across <em>all</em> the spline coefficients simultaneously — naturally and without distributional assumptions. Verified against an image-level bootstrap which gives a wider interval that also includes 0.</div>
+</div>
+
+<div class="step-card" style="border-left-color: #B35C1E;">
+    <div class="h" style="color: #B35C1E;"><span class="num" style="background:#B35C1E;">4</span>Robustness</div>
+    <div class="body">Sign and magnitude preserved under alternative σ<sub>LST</sub> metrics (IQR; trimmed P95−P5 range). Leave-one-year-out cross-derivative ranges −5.9 × 10⁻⁵ to +4.4 × 10⁻⁴ across 2018–2025 — only the 2024 fold returns a slightly negative point estimate, and that estimate sits within the bootstrap envelope. Result is not a sampling-grid artifact (verified at 50 × 50, 5,000 samples).</div>
+</div>
+
+<div class="result-card">
+    <b>H4 verdict — sign positive, not yet statistically resolved.</b> Both tests place the joint effect close to but indistinguishable from 0 at the 4-city sample size. The positive sign of the median is consistent with the moisture pre-conditioning mechanism — wet weeks let vegetated patches transpire freely, steepening the T<sub>air</sub> response (Manoli et al. 2019; Hao et al. 2023). The 8-city extension widens precipitation contrast (Phoenix, Seattle, LA, Denver) and is expected to raise statistical power for H4.
+</div>
+
+</div>
+</body>
+</html></textarea>
+    <textarea id="s26" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backup — ECOSTRESS Preprocessing and Quality Control</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 24px 48px 10px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #6B7B8D; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 26px; font-weight: 700; color: #2C2C2C; }
+.content {
+    flex: 1; padding: 6px 48px 16px 48px;
+    display: flex; flex-direction: column; gap: 12px;
+    overflow-y: auto;
+}
+.sub { font-size: 0.72em; vertical-align: sub; line-height: 0; }
+
+.metric-table { width: 100%; border-collapse: collapse; }
+.metric-table th {
+    background: #3A7D7E; color: #fff; padding: 10px 14px;
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;
+    text-align: left; border: none;
+}
+.metric-table th:first-child { border-radius: 4px 0 0 4px; }
+.metric-table th:last-child  { border-radius: 0 4px 4px 0; }
+.metric-table td {
+    padding: 10px 14px; font-size: 13.5px; line-height: 1.45;
+    border-bottom: 1px solid #E0E4E8; color: #2C2C2C;
+    vertical-align: top;
+}
+.metric-table tr:last-child td { border-bottom: none; }
+.metric-table tr:nth-child(even) td { background: #F8F9FA; }
+.metric-table .stage { font-weight: 700; color: #3A7D7E; }
+.metric-table b { color: #2C2C2C; }
+
+.split-row { display: flex; gap: 12px; }
+.split-card {
+    flex: 1; background: #fff; border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    padding: 11px 16px;
+    border-top: 3px solid #3A7D7E;
+}
+.split-card .city { font-size: 13.5px; font-weight: 700; color: #2C2C2C; }
+.split-card .n { font-size: 22px; font-weight: 700; color: #3A7D7E; margin-top: 2px; }
+.split-card .lab { font-size: 11px; color: #6B7B8D; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+
+.note {
+    background: #fff; border-radius: 6px;
+    padding: 9px 14px; font-size: 12.5px; color: #6B7B8D;
+    line-height: 1.5; box-shadow: 0 1px 4px rgba(100,110,140,0.08);
+    font-style: italic;
+}
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">BACKUP — DATA QC</span>
+    <span class="slide-title">ECOSTRESS Preprocessing and Quality Control</span>
+</div>
+<div class="content">
+
+<table class="metric-table">
+    <thead><tr><th style="width:8%">Stage</th><th style="width:32%">Method</th><th style="width:42%">Criteria</th><th style="width:18%">Effect</th></tr></thead>
+    <tbody>
+    <tr><td class="stage">1</td><td>QC-flag filtering + perfect-mask cloud filter</td><td>Retain only ECOSTRESS Level-2 pixels with QC flag = 0 (good quality, no cloud or aerosol contamination); reject any image with detectable cloud over the city footprint</td><td>Removes contaminated retrievals</td></tr>
+    <tr><td class="stage">2</td><td>Modified z-score outlier image rejection</td><td>Image rejected if &gt; 800 pixels have <code>|z_modified|</code> &gt; 2.8 — robust outlier flagging using median + median absolute deviation rather than mean + SD</td><td>Removes images with sensor / atmospheric anomalies</td></tr>
+    <tr><td class="stage">3</td><td>Antecedent-window truncation</td><td>Design matrix restricted to overpasses where the full 168-hr precip<sub>7d</sub> window is available — [2018-07-08, 2025-06-30]</td><td>Ensures complete predictor stack</td></tr>
+    </tbody>
+</table>
+
+<div class="split-row">
+    <div class="split-card" style="border-top-color: #4FA4A6;">
+        <div class="city">NYC</div>
+        <div class="n">229</div>
+        <div class="lab">QC images</div>
+    </div>
+    <div class="split-card" style="border-top-color: #C24A3A;">
+        <div class="city">Houston</div>
+        <div class="n">322</div>
+        <div class="lab">QC images</div>
+    </div>
+    <div class="split-card" style="border-top-color: #C77A2E;">
+        <div class="city">Chicago</div>
+        <div class="n">626</div>
+        <div class="lab">QC images</div>
+    </div>
+    <div class="split-card" style="border-top-color: #6E5BA8;">
+        <div class="city">Atlanta</div>
+        <div class="n">406</div>
+        <div class="lab">QC images</div>
+    </div>
+    <div class="split-card" style="border-top-color: #3A7D7E; background: #F1F8F1;">
+        <div class="city">Total</div>
+        <div class="n" style="color: #2E7D32;">1,583</div>
+        <div class="lab">QC images, 4 cities</div>
+    </div>
+</div>
+
+<div class="note">Each image clipped to city administrative boundary, projected to local UTM (NYC EPSG:32618, HOU 32615, CHI 32616, ATL 32616) and rasterized at 70 m to match ECOSTRESS native resolution. ECOSTRESS L-2 LST validated to ~1 K accuracy across multiple calibration sites (Hulley et al. 2022).</div>
+
+</div>
+</body>
+</html></textarea>
+    <textarea id="s27" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Detailed Physical Mechanism: Three-Regime Nonlinearity</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 28px 48px 12px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #3A7D7E; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title {
+    font-size: 26px; font-weight: 700; color: #2C2C2C;
+}
+.content {
+    flex: 1; padding: 10px 48px 18px 48px;
+    display: flex; flex-direction: column; gap: 14px;
+    overflow-y: auto;
+}
+.sub { font-size: 0.72em; vertical-align: sub; line-height: 0; }
+.sym { font-style: italic; }
+
+</style>
+</head>
+<body style="">
+<div class="title-bar">
+    <span class="badge">BACKUP 21</span>
+    <span class="slide-title">Detailed Physical Mechanism: Three-Regime Nonlinearity</span>
+</div>
+<div class="content">
+<div style="background:#fff; border-radius:10px; box-shadow:0 2px 8px rgba(100,110,140,0.10); padding:20px 24px; font-size:16px; line-height:1.65; color:#2C2C2C;"><b>Regime 1 — Low T:</b> Weak forcing, dormant vegetation, minimal contrast → σ<sub>LST</sub> low.<br><br><b>Regime 2 — Moderate T:</b> Radiation increases, impervious heats strongly, vegetation transpires actively → maximum divergence → σ<sub>LST</sub> rises steeply.<br><br><b>Regime 3 — High T:</b> Soil moisture depletion, stomatal closure, VPD saturation, thermal mass equilibrium → differential cooling weakens → flattening.<br><br><b>GAM's EDF of 5.79 is consistent with this three-regime structure — complexity of roughly a degree-5 to degree-6 polynomial.</b></div>
+</div>
+
+</body>
+</html></textarea>
+    <textarea id="s28" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backup — Cross-Method Comparison (4-city)</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 24px 48px 10px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #6B7B8D; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 26px; font-weight: 700; color: #2C2C2C; }
+.content {
+    flex: 1; padding: 6px 48px 16px 48px;
+    display: flex; flex-direction: column; gap: 12px;
+    overflow-y: auto;
+}
+.sub { font-size: 0.72em; vertical-align: sub; line-height: 0; }
+
+.metric-row {
+    display: flex; gap: 14px; margin-top: 4px;
+}
+.metric-card {
+    flex: 1; background: #fff; border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    padding: 13px 16px;
+    border-top: 3px solid #6B7B8D;
+}
+.metric-card.linear { border-top-color: #B35C1E; }
+.metric-card.hgam   { border-top-color: #2E7D32; }
+.metric-card.rf     { border-top-color: #1565C0; }
+.metric-card .name { font-size: 14px; font-weight: 700; color: #2C2C2C; }
+.metric-card .r2 { font-size: 24px; font-weight: 700; margin-top: 4px; }
+.metric-card .lab { font-size: 11px; color: #6B7B8D; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+.metric-card .note { font-size: 12.5px; color: #444; line-height: 1.45; margin-top: 6px; }
+.metric-card.linear .r2 { color: #B35C1E; }
+.metric-card.hgam .r2   { color: #2E7D32; }
+.metric-card.rf .r2     { color: #1565C0; }
+
+.takeaway {
+    background: #fff; border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    padding: 12px 18px;
+    border-left: 4px solid #2E7D32;
+    font-size: 13.5px; line-height: 1.55; color: #2C2C2C;
+}
+.takeaway b { color: #2E7D32; }
+.takeaway ul { margin: 4px 0 0 22px; }
+.takeaway li { margin-bottom: 3px; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">BACKUP — METHOD COMPARISON</span>
+    <span class="slide-title">Linear vs. HGAM vs. Random Forest (4-city, n = 1,583)</span>
+</div>
+<div class="content">
+
+<div class="metric-row">
+    <div class="metric-card linear">
+        <div class="name">Linear regression</div>
+        <div class="r2">0.383</div>
+        <div class="lab">Adj. R²</div>
+        <div class="note">Single fixed slope per predictor. Cannot represent nonlinear regimes (supply-limited ET, threshold canopy cooling, turbulent-mixing transitions).</div>
+    </div>
+    <div class="metric-card hgam">
+        <div class="name">HGAM (paper model)</div>
+        <div class="r2">0.583</div>
+        <div class="lab">Adj. R²</div>
+        <div class="note">Penalised splines (REML) + by-Day/Night factor smooths + tensor interaction + city random intercept. Returns derivatives + CIs at every point on every curve.</div>
+    </div>
+    <div class="metric-card rf">
+        <div class="name">Random Forest</div>
+        <div class="r2">0.438</div>
+        <div class="lab">Leave-one-year-out R²</div>
+        <div class="note">Captures nonlinearity automatically through tree splits, but does not return interpretable continuous derivatives or uncertainty bounds on those derivatives.</div>
+    </div>
+</div>
+
+<div class="takeaway">
+    <b>Why HGAM and not RF?</b>
+    <ul>
+        <li><b>Performance.</b> HGAM Adj. R² (0.583) <em>exceeds</em> RF leave-one-year-out R² (0.438) — the smoothing penalty (REML-tuned) prevents the overfitting RF suffers at this n.</li>
+        <li><b>Interpretability.</b> The scientific question is about ∂σ<sub>LST</sub>/∂T<sub>air</sub> (and the analogous derivatives for RH, precip<sub>7d</sub>) — not about pure prediction. RF cannot return these continuous derivatives with simultaneous CIs.</li>
+        <li><b>Hierarchical structure.</b> HGAM accommodates the nested image-within-city design through random intercepts; RF treats every observation as independent and would either ignore the nesting or absorb it into a city dummy.</li>
+        <li><b>Tensor interactions.</b> H4 needs a 2-D interaction surface with a closed-form decomposition into marginals + pure interaction (<code>ti()</code>); RF gives total importance only.</li>
+    </ul>
+</div>
+
+</div>
+</body>
+</html></textarea>
+    <textarea id="s29" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The 7-Stage Analysis Pipeline</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 22px 48px 8px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #3A7D7E; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 26px; font-weight: 700; color: #2C2C2C; }
+.framing {
+    padding: 0 48px 14px 48px;
+    font-size: 14px; color: #555; line-height: 1.5;
+}
+.framing .em { color: #3A7D7E; font-weight: 700; }
+.content {
+    flex: 1; padding: 0 56px 24px 56px;
+    display: flex; flex-direction: column;
+    min-height: 0;
+}
+.flow {
+    display: flex; flex-direction: column;
+    flex: 1; min-height: 0;
+    gap: 9px;
+}
+.stage {
+    flex: 1; min-height: 0;
+    display: grid;
+    grid-template-columns: 88px 200px 1fr;
+    align-items: center;
+    gap: 22px;
+    background: #fff; border-radius: 8px;
+    padding: 0 26px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    border-left: 4px solid #6B7B8D;
+}
+.stage.highlight {
+    border-left-color: #3A7D7E;
+    background: linear-gradient(90deg, #ECF6F6 0%, #FFFFFF 38%);
+    box-shadow: 0 2px 10px rgba(58,125,126,0.18);
+}
+.stage-num {
+    font-size: 12px; font-weight: 700; color: #6B7B8D;
+    letter-spacing: 1.4px; text-transform: uppercase;
+}
+.stage.highlight .stage-num { color: #3A7D7E; }
+.stage-title {
+    font-size: 17px; font-weight: 700;
+    color: #2C2C2C; line-height: 1.2;
+}
+.stage-cue {
+    font-size: 14px; color: #5C6770;
+    line-height: 1.4;
+}
+.stage-cue code {
+    font-family: 'Courier New', monospace; font-size: 13px;
+    background: #F0F2F5; padding: 1px 5px; border-radius: 3px;
+    color: #2C2C2C;
+}
+.stage-cue .sep {
+    color: #B0B7C0; margin: 0 8px;
+}
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">METHODS — WORKFLOW</span>
+    <span class="slide-title">The 7-Stage Analysis Pipeline</span>
+</div>
+<div class="framing">
+    From raw 4-city pixel parquet to H1&ndash;H4 hypothesis verdicts. Stages <span class="em">3 (REML Fitting)</span>, <span class="em">4 (Diagnostics)</span>, and <span class="em">6 (Inference 2)</span> are highlighted &mdash; each gets its own dedicated slide that follows.
+</div>
+<div class="content">
+
+<div class="flow">
+
+<div class="stage">
+    <div class="stage-num">[1] &middot; Data</div>
+    <div class="stage-title">Ingestion</div>
+    <div class="stage-cue">Pixel-level &rarr; image-level aggregation; tag <code>cluster_id</code></div>
+</div>
+
+<div class="stage">
+    <div class="stage-num">[2] &middot; Model</div>
+    <div class="stage-title">Specification (Eq. 2)</div>
+    <div class="stage-cue">Smooths + tensor + linear morphology + cyclic month + city RE</div>
+</div>
+
+<div class="stage highlight">
+    <div class="stage-num">[3] &middot; REML</div>
+    <div class="stage-title">Penalised ML Fit</div>
+    <div class="stage-cue">Smoothness chosen automatically</div>
+</div>
+
+<div class="stage highlight">
+    <div class="stage-num">[4] &middot; Diagnostics</div>
+    <div class="stage-title">Model Adequacy</div>
+    <div class="stage-cue">Residual checks <b>before</b> inference is trusted</div>
+</div>
+
+<div class="stage">
+    <div class="stage-num">[5] &middot; Inference 1</div>
+    <div class="stage-title">Single-Fit CIs</div>
+    <div class="stage-cue">Whole-curve simultaneous bands</div>
+</div>
+
+<div class="stage highlight">
+    <div class="stage-num">[6] &middot; Inference 2</div>
+    <div class="stage-title">Resampling &amp; CV</div>
+    <div class="stage-cue">Block bootstrap <span class="sep">&middot;</span> LOCO <span class="sep">&middot;</span> LOYO</div>
+</div>
+
+<div class="stage">
+    <div class="stage-num">[7] &middot; Verdicts</div>
+    <div class="stage-title">Hypothesis Tests</div>
+    <div class="stage-cue">Combine 5 + 6 &rarr; H1&ndash;H4</div>
+</div>
+
+</div>
+
+</div>
+</body>
+</html></textarea>
+    <textarea id="s30" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Cyclic Spline Solution</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 20px 48px 8px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #3A7D7E; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 26px; font-weight: 700; color: #2C2C2C; }
+.framing {
+    padding: 0 48px 12px 48px;
+    font-size: 13px; color: #555; line-height: 1.5;
+}
+.framing .em { color: #3A7D7E; font-weight: 700; }
+.content {
+    flex: 1; padding: 0 32px 16px 32px;
+    display: flex; flex-direction: column; gap: 12px;
+    min-height: 0;
+}
+.main-row {
+    display: flex; gap: 14px;
+    flex: 1; min-height: 0;
+}
+.figure-wrap {
+    flex: 0 0 60%;
+    background: #fff; border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    padding: 8px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    overflow: hidden;
+}
+.figure-wrap img {
+    max-width: 100%; max-height: calc(100% - 32px);
+    object-fit: contain;
+}
+.figure-caption {
+    font-size: 10.5px; color: #6B7B8D; margin-top: 4px;
+    text-align: center; line-height: 1.35;
+}
+.figure-caption b { color: #3A7D7E; }
+.figure-caption code {
+    font-family: 'Courier New', monospace; font-size: 10px;
+    background: #F0F2F5; padding: 1px 3px; border-radius: 3px;
+}
+
+.cards-col {
+    flex: 1; display: flex; flex-direction: column;
+    gap: 10px; min-width: 0;
+}
+.method-card {
+    background: #fff; border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    padding: 11px 14px;
+    flex: 1;
+    display: flex; flex-direction: column;
+    border-left: 4px solid #3A7D7E;
+}
+.method-card.sig { border-left-color: #1565C0; }
+.method-card.scale { border-left-color: #B35C1E; }
+
+.card-title {
+    font-size: 11px; color: #3A7D7E;
+    text-transform: uppercase; letter-spacing: 1.2px;
+    font-weight: 700; margin-bottom: 6px;
+}
+.method-card.sig .card-title { color: #1565C0; }
+.method-card.scale .card-title { color: #B35C1E; }
+
+.card-body {
+    font-size: 12.5px; line-height: 1.5; color: #444;
+    flex: 1;
+}
+.card-body b { color: #2C2C2C; }
+.card-body code {
+    font-family: 'Courier New', monospace; font-size: 11.5px;
+    background: #F0F2F5; padding: 1px 4px; border-radius: 3px;
+    color: #2C2C2C;
+}
+
+.headline-bar {
+    background: #fff; border-radius: 8px;
+    padding: 12px 18px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    border-left: 4px solid #2E7D32;
+    font-size: 14px; line-height: 1.5; color: #2C2C2C;
+}
+.headline-bar b { color: #2E7D32; font-weight: 700; }
+.headline-bar .key {
+    font-size: 15px; font-weight: 700; color: #2C2C2C;
+    display: block; margin-bottom: 3px;
+}
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">METHODS &mdash; SEASONAL</span>
+    <span class="slide-title">The Cyclic Spline Solution</span>
+</div>
+<div class="content">
+
+<div class="main-row">
+
+<div class="figure-wrap">
+    <img src="Presentation 3/figures/new_for_phase7/seasonal_component.png" alt="Seasonal component figure: Panel A raw scatter, Panel B cyclic spline with credible band, Panel C spline vs 12 monthly means">
+    <div class="figure-caption">
+        Three-panel figure. <b>Centre (Panel B)</b> is the focus &mdash; partial effect of <code>s(month, bs='cc', k=8)</code> on log&nbsp;σ<sub>LST</sub> with 95 % Bayesian credible band; vertical dashed line at month 12.5 marks the cyclic wrap. Panel A (left) is the raw image-level σ<sub>LST</sub> scatter against month; Panel C (right) overlays the spline with 12 monthly means for comparison.
+    </div>
+</div>
+
+<div class="cards-col">
+
+<div class="method-card">
+    <div class="card-title">The Method</div>
+    <div class="card-body">
+        Cyclic cubic spline (<code>bs='cc'</code>), <b>k = 8</b> knots.<br>
+        Periodic constraint at year-wrap (Dec &rarr; Jan).<br>
+        <b>6 free basis parameters</b> after centring.
+    </div>
+</div>
+
+<div class="method-card sig">
+    <div class="card-title">Statistical Significance</div>
+    <div class="card-body">
+        <b>EDF = 5.40</b> (of 6.0 ceiling)<br>
+        <b>F = 23.90</b>, <b>p &lt; 2e-16</b><br>
+        <b>&lambda; = 17.05</b>, REML-chosen
+    </div>
+</div>
+
+<div class="method-card scale">
+    <div class="card-title">Reading the Log Scale</div>
+    <div class="card-body">
+        Y-axis = partial effect on <b>log&nbsp;σ<sub>LST</sub></b> (Gamma+log link). Multiplicative reading:<br>
+        Summer trough &asymp; &minus;0.48 &rarr; <b>0.62&times;</b> annual mean.<br>
+        Winter peak &asymp; +0.34 &rarr; <b>1.40&times;</b> annual mean.
+    </div>
+</div>
+
+</div>
+
+</div>
+
+<div class="headline-bar">
+    <span class="key">Major finding</span>
+    Winter σ<sub>LST</sub> is roughly <b>2.3&times;</b> the summer value (1.40 / 0.62 &asymp; 2.26&times;) at the same meteorology &mdash; a substantial seasonal modulation of intra-urban LST heterogeneity, driven primarily by solar geometry (sun angle, shadow length), since T<sub>air</sub>, RH, precipitation and NDVI are already partialled out.
+</div>
+
+</div>
+</body>
+</html></textarea>
+    <textarea id="s31" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Block Bootstrap Architecture</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 22px 48px 6px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #3A7D7E; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 26px; font-weight: 700; color: #2C2C2C; }
+
+.content {
+    flex: 1; padding: 6px 56px 18px 56px;
+    display: flex; flex-direction: column; gap: 14px;
+    min-height: 0;
+}
+
+.section {
+    display: flex; gap: 18px;
+    align-items: baseline;
+}
+.section-label {
+    flex: 0 0 110px;
+    font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1.4px;
+    color: #6B7B8D;
+    padding-top: 2px;
+}
+.section.problem .section-label { color: #C62828; }
+.section.fix     .section-label { color: #2E7D32; }
+.section.proc    .section-label { color: #1565C0; }
+.section.result  .section-label { color: #4A148C; }
+
+.section-body {
+    flex: 1;
+    font-size: 14.5px; line-height: 1.55;
+    color: #333;
+}
+.section-body b { color: #2C2C2C; }
+.section-body code {
+    font-family: 'Courier New', monospace; font-size: 13.5px;
+    color: #2C2C2C;
+    background: rgba(20,30,40,0.06);
+    padding: 1px 5px; border-radius: 3px;
+}
+
+.steps { margin-top: 0; }
+.steps .step {
+    margin-bottom: 4px; padding-left: 0;
+}
+.steps .step .n {
+    display: inline-block;
+    color: #1565C0; font-weight: 700;
+    margin-right: 8px;
+}
+
+table.result-table {
+    width: 100%; border-collapse: collapse;
+    font-size: 13.5px;
+    margin-top: 2px;
+}
+table.result-table th {
+    background: #3A7D7E; color: #fff;
+    padding: 7px 11px; text-align: left;
+    font-size: 11.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    border-bottom: 1px solid #2A5C5D;
+}
+table.result-table td {
+    padding: 6px 11px;
+    border-bottom: 1px solid #E5E8EC;
+    color: #333;
+}
+table.result-table tr:last-child td { border-bottom: none; }
+table.result-table tr.flip td { background: #FFE0B2; font-weight: 600; }
+table.result-table .arm { font-weight: 600; color: #2C2C2C; }
+table.result-table .pos { color: #2E7D32; }
+table.result-table .neg { color: #C62828; }
+table.result-table .verdict {
+    color: #6B7B8D; font-style: italic;
+    font-size: 12.5px;
+}
+table.result-table tr.flip .verdict { color: #B35C1E; font-style: normal; }
+
+.tradeoff {
+    margin: 4px 0 0 128px;
+    font-size: 13px; color: #555; line-height: 1.5;
+    font-style: italic;
+    border-top: 1px solid #D0D5DC;
+    padding-top: 8px;
+}
+.tradeoff b { color: #2C2C2C; font-style: normal; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">METHODS &mdash; RESAMPLING</span>
+    <span class="slide-title">The Block Bootstrap Architecture</span>
+</div>
+<div class="content">
+
+<div class="section problem">
+    <div class="section-label">The problem</div>
+    <div class="section-body">
+        Standard bootstrap assumes scenes are independent. They aren't &mdash; scenes from the same city and month share weather and overlap on the 7-day antecedent-rainfall window. Treating them as independent over-counts the effective sample size and narrows the CIs artificially.
+    </div>
+</div>
+
+<div class="section fix">
+    <div class="section-label">The fix</div>
+    <div class="section-body">
+        Resample whole <code>(city, year, month)</code> clusters instead of individual scenes. Within-month correlation is preserved by construction.
+    </div>
+</div>
+
+<div class="section proc">
+    <div class="section-label">The procedure</div>
+    <div class="section-body steps">
+        <div class="step"><span class="n">1.</span>Group 1,583 scenes by <code>(city, year, month)</code> &rarr; <b>284 clusters</b>.</div>
+        <div class="step"><span class="n">2.</span>For each of <b>1,000 reps</b>: sample clusters with replacement to &sim;1,583 scenes; refit the HGAM; record the empirical-mean derivative for each predictor.</div>
+        <div class="step"><span class="n">3.</span>Take 2.5 / 97.5 percentiles of the 1,000 estimates &rarr; 95 % block-bootstrap CI.</div>
+    </div>
+</div>
+
+<div class="section result">
+    <div class="section-label">The result</div>
+    <div class="section-body">
+        <table class="result-table">
+            <thead><tr>
+                <th style="width:22%">Effect</th>
+                <th style="width:30%">Standard CI (95 %)</th>
+                <th style="width:30%">Block CI (95 %)</th>
+                <th style="width:18%">Results</th>
+            </tr></thead>
+            <tbody>
+                <tr><td class="arm">T<sub>air</sub> day</td><td class="pos">[+0.058, +0.077]</td><td class="pos">[+0.058, +0.077]</td><td class="verdict">unchanged</td></tr>
+                <tr><td class="arm">T<sub>air</sub> night</td><td class="pos">[+0.062, +0.081]</td><td class="pos">[+0.060, +0.083]</td><td class="verdict">unchanged</td></tr>
+                <tr><td class="arm">RH day</td><td class="neg">[&minus;0.0073, &minus;0.0002]</td><td class="neg">[&minus;0.0080, &minus;0.0002]</td><td class="verdict">unchanged</td></tr>
+                <tr><td class="arm">precip<sub>7d</sub> night</td><td class="pos">[+0.0017, +0.0092]</td><td class="pos">[+0.0013, +0.0103]</td><td class="verdict">unchanged</td></tr>
+                <tr class="flip"><td class="arm">precip<sub>7d</sub> day</td><td class="pos">[+0.00008, +0.0058]</td><td>[<span class="neg">&minus;0.00049</span>, +0.0058]</td><td class="verdict">flips to marginal</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="tradeoff">
+    Block CIs are <b>~10 % wider on average</b>. Standard bootstrap was directionally right but slightly under-stated uncertainty. The precip-night effect is supported under both procedures, so the mechanism story is preserved.
+</div>
+
+</div>
+</body>
+</html></textarea>
+    <textarea id="s32" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Model Adequacy &amp; Residual Diagnostics</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 22px 48px 6px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #3A7D7E; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 26px; font-weight: 700; color: #2C2C2C; }
+.framing {
+    padding: 0 48px 12px 48px;
+    font-size: 13px; color: #555; line-height: 1.5;
+    font-style: italic;
+}
+.framing b { color: #2C2C2C; font-style: normal; }
+
+.content {
+    flex: 1; padding: 0 48px 18px 48px;
+    display: flex; gap: 18px;
+    min-height: 0;
+}
+.figure-wrap {
+    flex: 0 0 60%;
+    background: #fff; border-radius: 8px;
+    padding: 8px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+}
+.figure-wrap img {
+    max-width: 100%; max-height: 100%;
+    object-fit: contain;
+}
+
+.cards-col {
+    flex: 1; display: flex; flex-direction: column;
+    gap: 9px; min-width: 0;
+}
+.panel-card {
+    background: #fff; border-radius: 8px;
+    padding: 10px 14px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    border-left: 4px solid #3A7D7E;
+    flex: 1;
+    display: flex; flex-direction: column;
+    justify-content: center;
+}
+.panel-card.b { border-left-color: #1565C0; }
+.panel-card.c { border-left-color: #2E7D32; }
+.panel-card.d { border-left-color: #B35C1E; }
+.panel-card.e { border-left-color: #5A6068; border-left-style: dashed; }
+
+.panel-card .panel-id {
+    font-size: 11px; color: #3A7D7E;
+    font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+.panel-card.b .panel-id { color: #1565C0; }
+.panel-card.c .panel-id { color: #2E7D32; }
+.panel-card.d .panel-id { color: #B35C1E; }
+.panel-card.e .panel-id { color: #5A6068; }
+
+.panel-card .metric {
+    font-size: 14px; font-weight: 700; color: #2C2C2C;
+    line-height: 1.35; margin-bottom: 3px;
+}
+.panel-card .verdict {
+    font-size: 12px; color: #555;
+    line-height: 1.4;
+}
+.panel-card .verdict code {
+    font-family: 'Courier New', monospace; font-size: 11px;
+    background: rgba(20,30,40,0.05);
+    padding: 1px 4px; border-radius: 3px;
+    color: #2C2C2C;
+}
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">METHODS &mdash; DIAGNOSTICS</span>
+    <span class="slide-title">Model Adequacy &amp; Residual Diagnostics</span>
+</div>
+<div class="content">
+
+<div class="figure-wrap">
+    <img src="Presentation 3/figures/new_for_phase7/residual_diagnostics.png" alt="Four-panel residual diagnostic figure: QQ plot, residuals vs fitted, per-city histograms, per-city ACF">
+</div>
+
+<div class="cards-col">
+
+<div class="panel-card">
+    <div class="panel-id">A &middot; Distribution</div>
+    <div class="metric">QQ correlation r = 0.993</div>
+    <div class="verdict">Gamma family is adequate (threshold &gt; 0.95).</div>
+</div>
+
+<div class="panel-card b">
+    <div class="panel-id">B &middot; Variance &amp; fit</div>
+    <div class="metric">No curvature, constant spread</div>
+    <div class="verdict">Cloud is flat across the fitted range; no diurnal residual pattern.</div>
+</div>
+
+<div class="panel-card c">
+    <div class="panel-id">C &middot; Per-city calibration</div>
+    <div class="metric">Max bias |0.081| in CHI</div>
+    <div class="verdict">All four cities below the 0.2 rule-of-thumb threshold.</div>
+</div>
+
+<div class="panel-card d">
+    <div class="panel-id">D &middot; Temporal independence</div>
+    <div class="metric">Lag-1 ACF &asymp; 0.10&ndash;0.18 per city</div>
+    <div class="verdict">Mild correlation between consecutive scenes &mdash; this is what justifies the block bootstrap.</div>
+</div>
+
+<div class="panel-card e">
+    <div class="panel-id">Structural &middot; Identifiability</div>
+    <div class="metric">All worst-pair concurvity &lt; 0.8</div>
+    <div class="verdict">The 18 smooths in Eq. 2 are mutually identifiable; no aliasing or rank deficit.</div>
+</div>
+
+</div>
+
+</div>
+</body>
+</html></textarea>
+    <textarea id="s33" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How REML Picks the Wiggliness</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 22px 48px 6px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #3A7D7E; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 26px; font-weight: 700; color: #2C2C2C; }
+.framing {
+    padding: 0 48px 14px 48px;
+    font-size: 13px; color: #555; line-height: 1.55;
+    font-style: italic;
+}
+.framing b { color: #2C2C2C; font-style: normal; }
+
+.content {
+    flex: 1; padding: 0 48px 18px 48px;
+    display: flex; flex-direction: column; gap: 18px;
+    min-height: 0;
+}
+
+/* Spectrum visualization */
+.spectrum-wrap {
+    background: #fff; border-radius: 8px;
+    padding: 30px 48px 22px 48px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    flex: 0 0 auto;
+}
+.spectrum-bar {
+    position: relative; height: 22px;
+    background: linear-gradient(90deg,
+        #E5C9C9 0%, #F0E5D5 20%, #D4E8D2 50%, #F0E5D5 80%, #E5C9C9 100%);
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+.spectrum-tick {
+    position: absolute; top: 100%;
+    transform: translateX(-50%);
+    margin-top: 6px;
+    font-size: 10px; color: #555;
+    font-family: 'Courier New', monospace;
+    white-space: nowrap;
+}
+.spectrum-tick::before {
+    content: ''; position: absolute;
+    left: 50%; bottom: 100%;
+    width: 1px; height: 6px;
+    background: #888;
+    margin-bottom: 2px;
+}
+.spectrum-marker {
+    position: absolute; top: -4px; bottom: -4px;
+    width: 3px; background: #3A7D7E;
+    transform: translateX(-50%);
+    box-shadow: 0 0 0 1px #fff;
+    z-index: 2;
+}
+.spectrum-marker::after {
+    content: '\25CF';
+    position: absolute; top: -10px; left: 50%;
+    transform: translateX(-50%);
+    color: #3A7D7E; font-size: 14px;
+}
+.spectrum-marker-label {
+    position: absolute; bottom: 100%; left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 14px;
+    background: #3A7D7E; color: #fff;
+    padding: 6px 11px; border-radius: 4px;
+    font-size: 11.5px; font-weight: 700;
+    line-height: 1.4; text-align: center;
+    white-space: nowrap;
+}
+.spectrum-marker-label::after {
+    content: ''; position: absolute;
+    top: 100%; left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #3A7D7E;
+}
+.spectrum-ends {
+    display: flex; justify-content: space-between;
+    margin-top: 30px;
+    font-size: 11.5px; color: #555;
+}
+.spectrum-ends .end-left { color: #B35C1E; font-weight: 600; }
+.spectrum-ends .end-right { color: #B35C1E; font-weight: 600; }
+.spectrum-ends .end-mid { color: #2E7D32; font-weight: 600; font-style: italic; }
+
+/* Cards row */
+.cards-row {
+    display: flex; gap: 14px;
+    flex: 1; min-height: 0;
+}
+.exp-card {
+    flex: 1;
+    background: #fff; border-radius: 8px;
+    padding: 14px 16px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    border-top: 4px solid #3A7D7E;
+    display: flex; flex-direction: column;
+}
+.exp-card.b { border-top-color: #1565C0; }
+.exp-card.c { border-top-color: #2E7D32; }
+
+.exp-card .step-label {
+    font-size: 10.5px; color: #3A7D7E;
+    font-weight: 700; letter-spacing: 1.2px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+.exp-card.b .step-label { color: #1565C0; }
+.exp-card.c .step-label { color: #2E7D32; }
+
+.exp-card h3 {
+    font-size: 15px; font-weight: 700; color: #2C2C2C;
+    margin-bottom: 9px; line-height: 1.3;
+}
+.exp-card p {
+    font-size: 12px; color: #444;
+    line-height: 1.5; margin-bottom: 7px;
+}
+.exp-card p:last-child { margin-bottom: 0; }
+.exp-card code {
+    font-family: 'Courier New', monospace; font-size: 11px;
+    background: rgba(20,30,40,0.05);
+    padding: 1px 4px; border-radius: 3px;
+    color: #2C2C2C;
+}
+.exp-card .formula {
+    background: #F4F1E8; border-left: 3px solid #B35C1E;
+    padding: 8px 10px; margin: 7px 0;
+    font-family: 'Courier New', monospace;
+    font-size: 11.5px; color: #2C2C2C;
+    border-radius: 0 4px 4px 0;
+    text-align: center;
+}
+.exp-card .key { font-weight: 700; color: #3A7D7E; }
+.exp-card.b .key { color: #1565C0; }
+.exp-card.c .key { color: #2E7D32; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">METHODS &mdash; SMOOTHNESS SELECTION</span>
+    <span class="slide-title">How REML Picks the Wiggliness</span>
+</div>
+<div class="framing">
+    Every spline has one knob &mdash; how wiggly to be. <b>Too low and it's a flat line; too high and it interpolates every monthly mean.</b> REML picks the knob automatically by penalising complexity inside the likelihood.
+</div>
+<div class="content">
+
+<div class="spectrum-wrap">
+    <div class="spectrum-bar">
+        <div class="spectrum-marker" style="left:88%">
+            <div class="spectrum-marker-label">REML choice<br>EDF = 5.40 &nbsp;&middot;&nbsp; &lambda; = 17.05</div>
+        </div>
+        <div class="spectrum-tick" style="left:0%">EDF&nbsp;1</div>
+        <div class="spectrum-tick" style="left:20%">2</div>
+        <div class="spectrum-tick" style="left:40%">3</div>
+        <div class="spectrum-tick" style="left:60%">4</div>
+        <div class="spectrum-tick" style="left:80%">5</div>
+        <div class="spectrum-tick" style="left:100%">6</div>
+    </div>
+    <div class="spectrum-ends">
+        <span class="end-left">&larr; Underfit &middot; flat line</span>
+        <span class="end-mid">Effective degrees of freedom</span>
+        <span class="end-right">Interpolation &middot; overfit &rarr;</span>
+    </div>
+</div>
+
+<div class="cards-row">
+
+<div class="exp-card">
+    <div class="step-label">The choice</div>
+    <h3>What &ldquo;wiggliness&rdquo; means</h3>
+    <p>The cyclic spline can land anywhere from a <span class="key">flat line</span> (1 EDF, data ignored) to an <span class="key">interpolation of all 12 monthly means</span> (6 EDF, every fluctuation fitted). Minimising training error alone always picks the wiggliest fit &mdash; and overfits.</p>
+</div>
+
+<div class="exp-card b">
+    <div class="step-label">The penalty</div>
+    <h3>Penalised likelihood</h3>
+    <p>REML adds a wiggliness penalty to the likelihood:</p>
+    <div class="formula">data fit &minus; &lambda; &middot; &int; ( f&Prime;(month) )<sup>2</sup> d&middot;month</div>
+    <p>Higher <code>&lambda;</code> &rarr; smoother fit. <span class="key">REML estimates &lambda;</span> by integrating out the spline coefficients first &mdash; an unbiased criterion (Wood, 2011).</p>
+</div>
+
+<div class="exp-card c">
+    <div class="step-label">The result</div>
+    <h3>What REML actually chose</h3>
+    <p><span class="key">&lambda; = 17.05</span> &rarr; EDF = 5.40 &mdash; close to the maximum of 6 but not interpolating. The seasonal cycle is captured at near-full flexibility while the spline still resists chasing noise.</p>
+    <p><span class="key">k-index = 0.816</span> confirms the basis was adequate &mdash; the spline did not run out of room for the structure in the data.</p>
+</div>
+
+</div>
+
+</div>
+</body>
+</html></textarea>
+    <textarea id="s34" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why One Seasonal Spline, Not Two</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 22px 48px 6px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #3A7D7E; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 26px; font-weight: 700; color: #2C2C2C; }
+.framing {
+    padding: 0 48px 14px 48px;
+    font-size: 13px; color: #555; line-height: 1.55;
+    font-style: italic;
+}
+.framing b { color: #2C2C2C; font-style: normal; }
+
+.content {
+    flex: 1; padding: 0 48px 18px 48px;
+    display: flex; gap: 18px;
+    min-height: 0;
+}
+.figure-wrap {
+    flex: 0 0 62%;
+    background: #fff; border-radius: 8px;
+    padding: 8px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+}
+.figure-wrap img {
+    flex: 1; max-width: 100%; min-height: 0;
+    object-fit: contain;
+}
+.figure-caption {
+    flex: 0 0 auto;
+    padding: 6px 12px 4px 12px;
+    font-size: 11px; color: #555;
+    line-height: 1.4; font-style: italic;
+    text-align: center;
+}
+.figure-caption b { color: #2C2C2C; font-style: normal; }
+
+.q-col {
+    flex: 1; display: flex; flex-direction: column;
+    gap: 14px; min-width: 0;
+}
+.q-card {
+    flex: 1;
+    background: #fff; border-radius: 8px;
+    padding: 14px 16px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    border-left: 4px solid #3A7D7E;
+    display: flex; flex-direction: column;
+}
+.q-card.b { border-left-color: #2E7D32; }
+
+.q-card .q-label {
+    font-size: 10.5px; color: #3A7D7E;
+    font-weight: 700; letter-spacing: 1.2px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+.q-card.b .q-label { color: #2E7D32; }
+
+.q-card h3 {
+    font-size: 15px; font-weight: 700; color: #2C2C2C;
+    margin-bottom: 7px; line-height: 1.3;
+}
+.q-card p {
+    font-size: 12px; color: #444;
+    line-height: 1.5; margin-bottom: 6px;
+}
+.q-card p:last-child { margin-bottom: 0; }
+.q-card code {
+    font-family: 'Courier New', monospace; font-size: 11px;
+    background: rgba(20,30,40,0.05);
+    padding: 1px 4px; border-radius: 3px;
+    color: #2C2C2C;
+}
+.q-card .key { font-weight: 700; color: #3A7D7E; }
+.q-card.b .key { color: #2E7D32; }
+.q-card .answer {
+    background: #E8F4F4; border-left: 3px solid #3A7D7E;
+    padding: 7px 10px; margin-top: 4px;
+    font-size: 12px; color: #2C2C2C;
+    border-radius: 0 4px 4px 0;
+}
+.q-card.b .answer { background: #E8F4E8; border-left-color: #2E7D32; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">METHODS &mdash; POOLING DECISION</span>
+    <span class="slide-title">Why One Seasonal Spline, Not Two</span>
+</div>
+<div class="content">
+
+<div class="figure-wrap">
+    <img src="Presentation 3/figures/new_for_phase7/seasonal_daynight_sensitivity.png" alt="Day vs night seasonal sensitivity curves overlaid; Pearson r = 0.968">
+    <div class="figure-caption">
+        Day (orange) vs night (blue) seasonal sensitivity curves, fit <b>separately</b> for diagnostic comparison. The two curves track each other through the year &mdash; <b>Pearson r = 0.968</b>.
+    </div>
+</div>
+
+<div class="q-col">
+
+<div class="q-card">
+    <div class="q-label">The finding</div>
+    <h3>Same cycle, day and night</h3>
+    <p>When fit separately, day and night seasonal patterns correlate at <span class="key">r = 0.968</span> across the calendar &mdash; the same shape and roughly the same amplitude.</p>
+    <div class="answer">Functionally, two splines for what is essentially one curve. <b>Two redundant fits cost ~6 extra effective degrees of freedom for no gain.</b></div>
+</div>
+
+<div class="q-card b">
+    <div class="q-label">The decision</div>
+    <h3>Pool into one shared spline</h3>
+    <p>Our model uses one <code>s(month, bs="cc", k=8)</code> shared between day and night &mdash; <span class="key">~5 EDF saved</span> for terms that actually need them.</p>
+    <div class="answer">Diurnal information is <b>not lost</b>: <code>DayNight</code> still enters as a fixed effect, and as a <code>by</code>-factor on every meteorological smooth (T_air, RH, precip_7d).</div>
+</div>
+
+</div>
+
+</div>
+</body>
+</html></textarea>
+    <textarea id="s35" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Naive Bootstrap Under-Covers</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 22px 48px 6px 48px;
+    display: flex; align-items: center; gap: 16px;
+}
+.badge {
+    background: #3A7D7E; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 26px; font-weight: 700; color: #2C2C2C; }
+.framing {
+    padding: 0 48px 14px 48px;
+    font-size: 13px; color: #555; line-height: 1.55;
+    font-style: italic;
+}
+.framing b { color: #2C2C2C; font-style: normal; }
+
+.content {
+    flex: 1; padding: 0 48px 18px 48px;
+    display: flex; flex-direction: column; gap: 12px;
+    min-height: 0;
+}
+
+.section {
+    display: flex; gap: 18px;
+    align-items: stretch;
+}
+.section-label {
+    flex: 0 0 110px;
+    display: flex; align-items: flex-start; justify-content: flex-end;
+    padding-top: 14px;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 1.2px; text-transform: uppercase;
+    text-align: right;
+}
+.section-label.problem { color: #C62828; }
+.section-label.reality { color: #1565C0; }
+.section-label.cost { color: #B35C1E; }
+
+.section-content {
+    flex: 1; min-width: 0;
+    background: #fff; border-radius: 8px;
+    padding: 13px 18px;
+    box-shadow: 0 1px 6px rgba(100,110,140,0.10);
+    border-left: 4px solid transparent;
+    font-size: 12.5px; color: #2C2C2C;
+    line-height: 1.55;
+}
+.section.problem .section-content { border-left-color: #C62828; }
+.section.reality .section-content { border-left-color: #1565C0; }
+.section.cost    .section-content { border-left-color: #B35C1E; }
+
+.section-content ul {
+    list-style: none; padding: 0; margin: 0;
+}
+.section-content li {
+    font-size: 13.5px; color: #2C2C2C;
+    line-height: 1.5; padding: 2px 0 2px 16px;
+    position: relative;
+}
+.section-content li::before {
+    content: '\25AA';
+    position: absolute; left: 0; top: 2px;
+    color: #888; font-size: 11px;
+}
+.section-content code {
+    font-family: 'Courier New', monospace; font-size: 12px;
+    background: rgba(20,30,40,0.05);
+    padding: 1px 4px; border-radius: 3px;
+}
+.section-content .key { font-weight: 700; color: #C62828; }
+.section.reality .section-content .key { color: #1565C0; }
+.section.cost    .section-content .key { color: #B35C1E; }
+
+.transition {
+    margin-top: 4px;
+    padding: 9px 16px;
+    background: #E8F4F4;
+    border-left: 3px solid #3A7D7E;
+    border-radius: 0 4px 4px 0;
+    font-size: 13px; color: #2C2C2C;
+    font-style: italic;
+}
+.transition b { font-style: normal; color: #3A7D7E; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">METHODS &mdash; INFERENCE BRIDGE</span>
+    <span class="slide-title">Why Naive Bootstrap Under-Covers</span>
+</div>
+<div class="framing">
+    Bootstrap CIs assume i.i.d. resampling units. The previous slide's lag-1 ACF says ours aren't.
+</div>
+<div class="content">
+
+<div class="section problem">
+    <div class="section-label problem">The<br>assumption</div>
+    <div class="section-content">
+        <ul>
+            <li>1,583 scenes drawn with replacement</li>
+            <li>Every scene treated as <span class="key">i.i.d.</span></li>
+        </ul>
+    </div>
+</div>
+
+<div class="section reality">
+    <div class="section-label reality">The<br>reality</div>
+    <div class="section-content">
+        <ul>
+            <li><span class="key">Lag-1 ACF = 0.153</span> (NYC up to 0.18)</li>
+            <li>Same <code>(city, year-month)</code> &rarr; shared synoptic regime + overlapping 7-day rainfall windows</li>
+            <li>i.i.d. fails by <b>construction</b>, not by luck</li>
+        </ul>
+    </div>
+</div>
+
+<div class="section cost">
+    <div class="section-label cost">The<br>cost</div>
+    <div class="section-content">
+        <ul>
+            <li>CIs come out <span class="key">~10 % too narrow</span></li>
+            <li>Precip-day flips: <i>supported</i> &rarr; <i>marginal</i></li>
+        </ul>
+    </div>
+</div>
+
+<div class="transition">
+    <b>Fix:</b> resample at the cluster level &rarr; block bootstrap (next slide).
+</div>
+
+</div>
+</body>
+</html></textarea>
+    <textarea id="s36" style="display:none"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sensitivity — Antecedent Precipitation</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #E8EDF2; color: #2C2C2C;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+}
+.title-bar {
+    padding: 22px 48px 6px 48px;
+    display: flex; align-items: center; gap: 16px; flex-shrink: 0;
+}
+.badge {
+    background: #3A7D7E; color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; padding: 4px 13px;
+    border-radius: 4px; text-transform: uppercase;
+}
+.slide-title { font-size: 26px; font-weight: 700; color: #2C2C2C; }
+.framing {
+    font-size: 16px; color: #555;
+    padding: 0 48px 6px 48px; flex-shrink: 0;
+}
+.framing .em { color: #B35C1E; font-weight: 600; }
+.image-frame {
+    flex: 1; margin: 0 48px 8px 48px;
+    background: #fff; border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(100,110,140,0.12);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; min-height: 0;
+    gap: 6px; padding: 6px;
+}
+.image-frame .panel {
+    flex: 1; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    min-width: 0;
+}
+.image-frame .panel img { width: 100%; height: 100%; object-fit: contain; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+    <span class="badge">RESULTS</span>
+    <span class="slide-title">Sensitivity &mdash; Antecedent Precipitation</span>
+</div>
+<div class="framing">
+    HGAM partial effect of <span class="em">precip<sub>7d</sub></span> on σ<sub>LST</sub> &mdash; separately for daytime and nighttime. Shaded bands are 95 % simultaneous CIs (Marra &amp; Wood 2012; Simpson 2018).
+</div>
+
+<div class="image-frame">
+    <div class="panel">
+        <img src="merged_2.png" alt="Partial Effect of 7-Day Antecedent Precipitation on σ_LST — Day vs Night (merged)">
+    </div>
+</div>
+
+</body>
+</html></textarea>
+    <script>
+        var totalSlides = 37;
+        var container = document.getElementById('frames-container');
+        var iframes = [];
+        var currentSlide = 0;
+        var baseUrl = window.location.href.replace(/[^\/]*$/, '');
+        var broadcasting = false;
+
+        var channel = null;
+        try { channel = new BroadcastChannel('phd-final-panel-sync'); } catch (e) { }
+
+        function broadcastSlide(n) {
+            if (channel && !broadcasting) {
+                channel.postMessage({ type: 'slide-change', slide: n });
+            }
+        }
+
+        if (channel) {
+            channel.onmessage = function (e) {
+                if (e.data && e.data.type === 'slide-change' && typeof e.data.slide === 'number') {
+                    broadcasting = true;
+                    showSlide(e.data.slide);
+                    broadcasting = false;
+                }
+                if (e.data && e.data.type === 'inject-key' && e.data.key) {
+                    try {
+                        var evt = new KeyboardEvent('keydown', {
+                            key: e.data.key, code: e.data.code || '',
+                            bubbles: true, cancelable: true
+                        });
+                        iframes[currentSlide].contentWindow.document.dispatchEvent(evt);
+                    } catch (ex) { }
+                }
+            };
+        }
+
+        function nextSlide() { if (currentSlide < totalSlides - 1) showSlide(currentSlide + 1); }
+        function prevSlide() { if (currentSlide > 0) showSlide(currentSlide - 1); }
+
+        function showSlide(n) {
+            if (n < 0 || n >= totalSlides) return;
+            iframes[currentSlide].classList.remove('active');
+            currentSlide = n;
+            iframes[currentSlide].classList.add('active');
+            document.getElementById('slide-number').textContent = 'Slide ' + (currentSlide + 1);
+            iframes[currentSlide].focus();
+            broadcastSlide(n);
+        }
+
+        function attachMKListener(frame) {
+            try {
+                frame.contentWindow.addEventListener('keydown', function (e) {
+                    if (e.key === 'm' || e.key === 'M') { e.preventDefault(); e.stopPropagation(); nextSlide(); }
+                    else if (e.key === 'k' || e.key === 'K') { e.preventDefault(); e.stopPropagation(); prevSlide(); }
+                }, true);
+            } catch (ex) { console.warn('Could not attach listener:', ex); }
+        }
+
+        // Display-order mapping: each entry is the textarea ID rendered at that
+        // display position. The textareas themselves keep their original IDs
+        // (s0..s35, in the order they were written); SLIDE_ORDER is what the
+        // audience sees. To reorder slides, edit this array — nothing else.
+        // Positions 12-18 are the seven NEW methods-deep-dive slides inserted
+        // between HGAM Part 2 (s11) and the Sensitivity recap (originally s12).
+        var SLIDE_ORDER = [
+            's0', 's1', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9', 's10', 's11',
+            's29',  // Pos 13 — Workflow / 7-Stage Pipeline
+            's32',  // Pos 14 — Model Adequacy
+            's12',  // Pos 15 — Sensitivity (T_air + RH, merged_1.png)
+            's36',  // Pos 16 — Sensitivity (precip_7d, merged_2.png)
+            's13',  // Pos 17 — H1 Results
+            's35',  // Pos 18 — Why Naive Bootstrap Under-Covers
+            's31',  // Pos 19 — Block Bootstrap Architecture
+            's14',  // Pos 20 — H2 Results
+            's30',  // Pos 21 — Cyclic Spline Solution
+            's34',  // Pos 22 — Why One Seasonal Spline (Pooling)
+            's15',  // Pos 23 — H3 Results
+            's16',  // Pos 24 — H4 Tests
+            's17',  // Pos 25 — H4 Robustness
+            's18',  // Pos 26 — Synthesis
+            's33',  // Pos 27 — REML (deep methods)
+            's19',  // Pos 28 — Backup: CIs
+            's20',  // Pos 29 — Backup: 4 Cities + 4 Planned
+            's21', 's22', 's23', 's24', 's25', 's26', 's27', 's28'
+        ];
+
+        // Image-path fix table: each slide ID maps to a list of relative filenames
+        // that must be rewritten to absolute URLs before going into the srcdoc iframe.
+        // (srcdoc iframes do not always resolve relative paths against the parent URL.)
+        // Keyed by textarea ID, NOT by display position — so reordering SLIDE_ORDER
+        // does not require touching this table.
+        var IMG_FIX_SLIDES = {
+            's1':  ['slide2_low_vs_high_variance.png'],
+            's7':  ['study_area_4cities.png'],
+            's8':  [
+                'four_city_lst_maps.png',
+                'four_city_relative_humidity_maps.png',
+                'four_city_wind_speed_maps.png',
+                'four_city_ndvi_maps.png',
+                'four_city_ucp3_maps_umorph.png',
+                'four_city_ucp5_maps_umorph.png'
+            ],
+            's12': ['merged_1.png'],
+            's36': ['merged_2.png'],
+            's30': ['Presentation 3/figures/new_for_phase7/seasonal_component.png'],
+            's32': ['Presentation 3/figures/new_for_phase7/residual_diagnostics.png'],
+            's34': ['Presentation 3/figures/new_for_phase7/seasonal_daynight_sensitivity.png']
+        };
+
+        for (var i = 0; i < totalSlides; i++) {
+            var slideId = SLIDE_ORDER[i];
+            var slideHtml = document.getElementById(slideId).value;
+            if (IMG_FIX_SLIDES[slideId]) {
+                IMG_FIX_SLIDES[slideId].forEach(function (fname) {
+                    // Replace ALL occurrences (some images appear in both <img src> and an <alt>=...)
+                    slideHtml = slideHtml.split('src="' + fname + '"').join('src="' + baseUrl + fname + '"');
+                });
+            }
+            var frame = document.createElement('iframe');
+            frame.className = 'slide-frame' + (i === 0 ? ' active' : '');
+            frame.srcdoc = slideHtml;
+            container.appendChild(frame);
+            iframes.push(frame);
+            (function (f) { f.addEventListener('load', function () { attachMKListener(f); }); })(frame);
+        }
+
+        window.addEventListener('keydown', function (e) {
+            if (e.key === 'm' || e.key === 'M') { e.preventDefault(); nextSlide(); }
+            else if (e.key === 'k' || e.key === 'K') { e.preventDefault(); prevSlide(); }
+        });
+
+        if (iframes[0]) { iframes[0].addEventListener('load', function () { iframes[0].focus(); }); }
+    </script>
+</body>
+
+</html>

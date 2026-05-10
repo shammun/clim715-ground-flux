@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Node (if used for jsdom testing)
+node_modules/
+package-lock.json
+
+# OS noise
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor noise
+.vscode/
+.idea/
+*.swp
+*~
+
+# Generated output
+figs/
+tables/
+*.log
+
+# Claude Code session data — keep shared settings, exclude transient + local state
+.claude/sessions/
+.claude/cache/
+.claude/logs/
+.claude/settings.local.json
+
+# Word lock files
+~$*.docx
+
+# Large or temporary files
+*.tmp
+*.bak

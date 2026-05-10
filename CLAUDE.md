@@ -1,0 +1,78 @@
+# CLIM-715 Numerical Methods Project
+
+## What this project is
+
+A CLIM-715 (Numerical Methods for Climate & Weather Modeling) course project comparing FTCS, BTCS, and Crank–Nicolson schemes for the 1-D heat conduction equation, applied to three urban substrates (asphalt road, concrete roof, bare soil) coupled to a prognostic surface energy balance. The model integrates two days of synthetic diurnal forcing and runs a 27-cell experiment matrix (3 substrates × 3 schemes × 3 Δt values: 15, 60, 600 s).
+
+The deliverables for this course are: a written report (5-page short version + ~12-page long version), an executable Python script that reproduces all results, a Jupyter notebook narrating the analysis, and a presentation that uses interactive HTML visualizations.
+
+## Files in this directory
+
+### Source code and notebooks
+- `run_experiments.py` — the canonical solver. Defines the three substrate compositions (`SUBSTRATES` dict), the diurnal forcing functions `S_down(t)` and `T_air(t)`, and the coupled SEB+column update. Do not modify the substrate definitions or forcing constants without flagging this first; results in the report depend on them.
+- `CLIM715_Project_Notebook_GroundFlux.ipynb` — Jupyter notebook with the analysis narrative, 8 sections including SHAP attribution.
+
+### Written deliverables (Word documents — read with python-docx if needed)
+- `CLIM715_Project_Report_Long.docx` — full ~12-page report with §1 introduction through §6 SHAP attribution.
+- `CLIM715_Project_Report_5pages (1).docx` — condensed 5-page version.
+- `CLIM715_Project_Tutorial.docx` — how-to-reproduce guide.
+
+### Interactive HTML visualizations (presentation pieces)
+- `CLIM715_Substrate_3D_Visualization_clean_ed.html` — Three.js 3D scene of the three substrate columns going below ground level, with diurnal sun cycle and X-ray ground-fade. **The "clean_ed" version is the current canonical one; the "v2" file is older.**
+- `CLIM715_Substrate_3D_Visualization_v2.html` — older version, kept for reference only.
+- `window_von_neuman.html` — interactive ν-slider for von Neumann amplification factors. Three side-by-side panels for FTCS, BTCS, CN with stable/unstable badges.
+- `window_delta_t.html` — interactive Δt-refinement slider. Slider on top, 2×2 grid below: three substrate Ts(t) panels plus an RMSE-vs-Δt log-log plot.
+
+## Hard rules for Claude Code when modifying anything in this folder
+
+1. **No frameworks in the HTML visualizations.** They are vanilla HTML/SVG/JavaScript. No React, Vue, D3, Plotly, jQuery, or any CDN-loaded library other than Three.js (which only the substrate 3D viz uses). The reason: the presentation will run on whatever projector/laptop the panel provides. CDN failures kill demos.
+
+2. **Style: "Clean Educational" palette.** All visualizations use this exact palette:
+   - Background: `#eaf0f8` (blue-tinted soft)
+   - Cards: white `#ffffff` with soft purple shadow `rgba(107, 92, 181, 0.10–0.12)`
+   - Input controls: orange `#ee845b` (slider thumbs, hover states)
+   - Output values: teal `#38b2ac` / `#2c8a83` (live readouts, "STABLE" badges)
+   - Actions / titles: purple `#6b5cb5`
+   - Substrate identity colours (used wherever a substrate appears):
+     - Asphalt road = purple `#6b5cb5`
+     - Concrete roof = warm orange `#d97757`
+     - Bare soil = earth brown `#8b6f3a`
+   - Rounded corners (10–12px), minimalist.
+
+3. **Encoding rule (for any plot showing multiple substrates and schemes):** colour names the substrate, line style names the scheme. BTCS = solid line, CN = dashed line. Never reuse a substrate colour to mean a scheme or vice versa.
+
+4. **All visualizations must fit in 100vh with no scrolling.** The presentation runs full-screen. Use `height: 100vh; overflow: hidden` on `body`, flex column layouts for the container, and `flex: 1` on the SVG/canvas elements. Never use fixed pixel heights for the main plotting area; let it expand to fill the viewport.
+
+5. **Number values must match the report.** When generating data for a viz, use `run_experiments.py` (or its helpers) as the source of truth. Sanity-check key numbers against the report:
+   - Asphalt BTCS Δt=600s RMSE_Ts ≈ 2.10 K; CN ≈ 1.12 K
+   - Δt=600/Δt=60 RMSE ratios all between 8.2 and 10.2 (first-order in Δt)
+   - FTCS at ν=0.5 gives |A|=1 at the 2Δz wave; at ν=5, |A|=19
+   - Storage ratios all within ±5% of unity
+   - SHAP: κ_top has mean |SHAP| ≈ 0.71 K with R²=0.92 alone; residual after κ_top is dominated by μ_eff
+   If a generated number disagrees with the report by more than ~5%, stop and flag it before continuing.
+
+6. **The model has no ground level, no buildings, and no above/below distinction.** It is three identical 1-D columns, each 2 m of layered material with a radiating top surface. Past iterations of the substrate 3D viz tried to add fictional buildings and ground-level distinctions; do not reintroduce those.
+
+7. **No shadows in 3D visualizations.** `renderer.shadowMap.enabled = false`, all `castShadow`/`receiveShadow` flags = false. Past confusion came from shadowed geometry making depth ambiguous.
+
+## Standard workflow for new visualizations
+
+When asked to build a new interactive piece:
+
+1. Read this CLAUDE.md and the relevant report section first to understand what the viz needs to demonstrate.
+2. Create the viz as a standalone HTML file with a descriptive name (`window_<concept>.html` matches the existing convention).
+3. Use the Clean Educational style and substrate-colour/line-style encoding from the rules above.
+4. Verify slider behaviour with a real DOM simulation (jsdom or equivalent) before declaring it done. Do not assume a slider works just because the syntax is correct — past iterations had silent rendering failures.
+5. Check that the viz fits in 100vh by inspecting the layout flex hierarchy.
+
+## Standard workflow for editing the report or notebook
+
+1. Read the current version first; do not re-derive content from memory.
+2. The notebook and the long report are the two sources of truth — keep them consistent. If a number changes in one, change it in the other.
+3. Citations in the report should reference course materials: lecture notes by section ("Lecture 6 Section 6, Slides 15–17"), Misconception list by number, Notes by number. Avoid inventing or paraphrasing citations.
+
+## Hardware and execution
+
+- The `run_experiments.py` solver runs in ~30 seconds for the full 27-cell matrix on a typical laptop. Re-run when you need fresh CSVs or PNGs.
+- The 150-column synthetic ensemble for the SHAP analysis (`shap_attribution.py` in older sessions) takes ~2 minutes.
+- All numerical runs are deterministic given fixed seeds; if results don't reproduce, suspect a code change, not a stochastic effect.
