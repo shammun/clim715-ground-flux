@@ -3043,16 +3043,9 @@ var MOBILE_CSS =
     '@media (max-width: 760px) {' +
     '  html, body {' +
     '    height: auto !important;' +
-    '    min-height: 0 !important;' +
+    '    min-height: 100vh !important;' +
     '    overflow-y: auto !important;' +
     '    overflow-x: hidden;' +
-    '  }' +
-    /* Layout containers must NOT flex-grow on mobile, otherwise they
-       expand to fill the viewport while the (correctly-sized) SVG inside
-       stays short — leaving empty space above and below the chart. */
-    '  .plot-card, .interp-card, .reasoning-card, .findings,' +
-    '  .panels, .panels-2x2, .content {' +
-    '    flex: none !important;' +
     '  }' +
     '  .title-bar {' +
     '    padding: 14px 14px 6px !important;' +
@@ -3088,19 +3081,32 @@ var MOBILE_CSS =
     '  }' +
     /* leave room at bottom for the floating nav arrows */
     '  body { padding-bottom: 80px !important; }' +
-    /* SVG aspect-ratio fixes — each chart SVG gets its viewBox aspect
-       so it renders at the correct size with no letterbox above/below.
-       Cards then size naturally to fit content. flex:none prevents
-       flex containers from forcing the SVG to grow into empty space. */
-    '  svg.barplot, svg.profile, svg.ratios, svg.shap, svg.tsplot,' +
-    '  svg.uhi-plot, svg.err-plot, svg.col-diagram, svg.plot, svg.rmse-plot {' +
+    /* SVG sizing on mobile.
+       Two regimes:
+       (a) Stretch-to-fill: barplot (slide 6) and profile (slide 10).
+           These sit alone inside a flex:1 .plot-card that grows to fill
+           the body's vertical slack. The viewBox is landscape-ish but
+           the slide has plenty of vertical space; we set
+           preserveAspectRatio="none" via JS so bars/profile axes
+           stretch vertically with no letterbox. Distortion is
+           visually fine — bars stay clearly bars; depth stretches
+           but doesn't lie about ordering.
+       (b) Aspect-ratio (letterboxed): all other SVGs. They live in
+           grid items or short cards where the natural geometry is
+           important (log-log slopes, spatial diagrams). */
+    '  svg.barplot, svg.profile {' +
+    '    width: 100% !important;' +
+    '    height: 100% !important;' +
+    '    flex: 1 !important;' +
+    '    min-height: 220px !important;' +
+    '  }' +
+    '  svg.ratios, svg.shap, svg.tsplot, svg.uhi-plot,' +
+    '  svg.err-plot, svg.col-diagram, svg.plot, svg.rmse-plot {' +
     '    width: 100% !important;' +
     '    height: auto !important;' +
     '    flex: none !important;' +
     '    min-height: 0 !important;' +
     '  }' +
-    '  svg.barplot     { aspect-ratio: 1000 / 320; }' +
-    '  svg.profile     { aspect-ratio: 1000 / 420; }' +
     '  svg.ratios      { aspect-ratio: 720 / 380; }' +
     '  svg.shap        { aspect-ratio: 720 / 380; }' +
     '  svg.tsplot      { aspect-ratio: 320 / 220; }' +
@@ -3125,6 +3131,16 @@ function injectMobileCSS(frame) {
         var s = doc.createElement('style');
         s.textContent = MOBILE_CSS;
         doc.head.appendChild(s);
+        // On mobile, set preserveAspectRatio="none" on the stretch-to-fill
+        // SVGs (slides 6 and 10). The CSS rules above set width/height to
+        // 100% on these; this attribute lets the SVG content scale
+        // independently in x and y, eliminating the letterbox.
+        if (window.matchMedia && window.matchMedia('(max-width: 760px)').matches) {
+            var stretchSvgs = doc.querySelectorAll('svg.barplot, svg.profile');
+            for (var i = 0; i < stretchSvgs.length; i++) {
+                stretchSvgs[i].setAttribute('preserveAspectRatio', 'none');
+            }
+        }
     } catch (ex) { /* cross-origin — skip */ }
 }
 

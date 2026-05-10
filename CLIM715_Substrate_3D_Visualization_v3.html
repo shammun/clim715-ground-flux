@@ -287,7 +287,11 @@
       /* keep left:50% + transform:translateX(-50%) from desktop */
     }
     #legend {
-      /* desktop anchor: bottom + right — keep both, just shrink */
+      /* desktop anchor: bottom + right — keep both, just shrink.
+         Explicitly clear top/left so nothing else can pin a fourth edge
+         and stretch the panel floor-to-ceiling. */
+      top: auto !important;
+      left: auto !important;
       bottom: 80px !important;
       right: 8px !important;
       padding: 7px 10px !important;
@@ -303,7 +307,10 @@
     #legend .layer-key { font-size: 9.5px !important; gap: 5px !important; margin-top: 2px !important; }
     #legend .swatch { width: 10px !important; height: 8px !important; }
     #ts-panel {
-      /* desktop anchor: bottom + left — keep both */
+      /* desktop anchor: bottom + left — keep both. Clear top/right
+         so it stays bottom-left anchored. */
+      top: auto !important;
+      right: auto !important;
       bottom: 80px !important;
       left: 8px !important;
       max-width: calc(50vw - 14px) !important;
