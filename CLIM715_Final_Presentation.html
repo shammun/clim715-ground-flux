@@ -1544,12 +1544,12 @@ update();
 <body>
   <div class="title-bar">
     <span class="badge">Mechanism &mdash; live</span>
-    <span class="slide-title">BTCS smears curvature at the &lambda; jump</span>
+    <span class="slide-title">BTCS smears the post-swing gradient at the &lambda; jump</span>
   </div>
   <div class="subtitle">
-    Concrete-roof column at the concrete (&lambda; = 1.50, C = 2.1&times;10<sup>6</sup>) / rigid insulation (&lambda; = 0.04, C = 8&times;10<sup>4</sup>) interface
-    (&times;37 &lambda; ratio). Live BTCS solver, prescribed sinusoidal T<sub>s</sub>(t) at the top &mdash;
-    at coarse &Delta;t the gradient concentrated at the &lambda; jump is visibly distorted.
+    Concrete-roof column &mdash; faithful port of <code style="background:rgba(107,92,181,0.10); padding:1px 5px; border-radius:3px; color:#6b5cb5; font-size:12px;">run_experiments.py</code>:
+    stretched grid, prognostic SEB Newton iteration, column-then-SEB operator splitting per long report &sect;5.2.
+    Concrete (&lambda; = 1.50, C = 2.1&times;10<sup>6</sup>) over rigid insulation (&lambda; = 0.04, C = 8&times;10<sup>4</sup>) &mdash; <b>&times;37 &lambda; ratio</b>.
   </div>
 
   <div class="control-card">
@@ -1586,65 +1586,142 @@ update();
 "use strict";
 
 // =============================================================
-// Concrete-roof column model.
-// 30 cells, Δz = 1 cm uniform, top BC = prescribed sinusoidal T_surf,
-// bottom BC = constant T_inner. Three layers stacked top-to-bottom:
-//   0–10 cm:  concrete (λ=1.50, C=2.0e6 → κ=7.5e-7 m²/s)
-//   10–20 cm: rigid insulation (λ=0.04, C=4.0e4 → κ=1.0e-6 m²/s)
-//   20–30 cm: drywall/wood (λ=0.15, C=1.2e6 → κ=1.25e-7 m²/s)
+// FAITHFUL PORT of run_experiments.py run_column() for the
+// concrete-roof column. BTCS at three Δt values (15, 60, 600 s)
+// with prognostic SEB Newton iteration at the top boundary,
+// stretched grid (n_levels=30, stretch=1.18, dz1=0.005), full
+// 2 m column, Neumann zero-flux at the bottom — operator-split
+// column-then-SEB ordering each step (the splitting analyzed
+// in long report §5.2). Snapshots day-2 profiles every 15 min.
 // =============================================================
-var DZ      = 0.01;
-var N       = 30;
-var Z_MAX   = N * DZ;     // 0.30 m
-var T_MEAN  = 30.0;       // surface mean (°C)
-var T_AMP   = 13.0;       // surface amplitude (°C)
-var T_INNER = 22.0;       // interior structure (°C)
-var OMEGA   = 2 * Math.PI / 86400;
-var PHI     = OMEGA * 14 * 3600;  // peak surface T at 14:00
 
-// (λ, C) values match run_experiments.py SUBSTRATES["concrete_roof"]
-// and long report §3.2 (ii). Top 30 cm of the 2 m column.
+// --- atmospheric-forcing constants (run_experiments.py) ----
+var SIGMA_SB = 5.670374419e-8;
+var ALBEDO   = 0.30;     // concrete_roof
+var EMIS     = 0.92;
+var C_H      = 5.0e-3;
+var RHO_AIR  = 1.2;
+var CP_AIR   = 1005.0;
+var U_WIND   = 3.0;
+var OMEGA    = 2.0 * Math.PI / 86400.0;
+
+// (z_bottom, λ, C) — matches run_experiments.py SUBSTRATES["concrete_roof"]
+var LAYERS_PROJECT = [
+  [0.10, 1.50,  2.1e6 ],
+  [0.20, 0.04,  0.08e6],
+  [2.00, 0.15,  1.5e6 ]
+];
+
+// Visualization layer info (top 30 cm — for shading/labels in the plot)
 var LAYERS = [
   { name: 'concrete',   z0: 0.00, z1: 0.10, lambda: 1.50, C: 2.1e6  },
   { name: 'insulation', z0: 0.10, z1: 0.20, lambda: 0.04, C: 0.08e6 },
   { name: 'drywall',    z0: 0.20, z1: 0.30, lambda: 0.15, C: 1.5e6  }
 ];
 
-// Cell-centre depth for cell j (j = 0 .. N-1).
-function zCell(j) { return (j + 0.5) * DZ; }
+var Z_MAX = 0.30;  // top 30 cm shown; full simulation runs to z = 2 m
 
-// Layer property at a depth.
-function layerAt(z) {
-  for (var i = 0; i < LAYERS.length; i++) {
-    if (z >= LAYERS[i].z0 && z < LAYERS[i].z1) return LAYERS[i];
+// --- forcing functions (run_experiments.py) ---
+function S_down(t) {
+  return Math.max(1000.0 * Math.cos(OMEGA * (t - 12 * 3600.0)), 0.0);
+}
+function L_down(t) {
+  return 350.0 + 20.0 * Math.cos(OMEGA * (t - 14 * 3600.0));
+}
+function T_air(t) {
+  return 292.5 + 7.5 * Math.cos(OMEGA * (t - 14 * 3600.0));
+}
+
+// --- stretched grid (matches make_grid in run_experiments.py) ---
+function makeGrid(zTop, nLevels, stretch, dz1) {
+  var dzs = [];
+  for (var i = 0; i < nLevels; i++) dzs.push(dz1 * Math.pow(stretch, i));
+  var sum = 0;
+  for (var i = 0; i < dzs.length; i++) sum += dzs[i];
+  if (sum > zTop) {
+    var cum = 0;
+    for (var i = 0; i < nLevels; i++) {
+      cum += dzs[i];
+      if (cum > zTop) {
+        nLevels = i + 1;
+        dzs = dzs.slice(0, nLevels);
+        break;
+      }
+    }
   }
-  return LAYERS[LAYERS.length - 1];
+  var sumPrev = 0;
+  for (var i = 0; i < nLevels - 1; i++) sumPrev += dzs[i];
+  dzs[nLevels - 1] = zTop - sumPrev;
+  var z = [dzs[0] / 2.0];
+  for (var j = 1; j < nLevels; j++) {
+    z.push(z[j - 1] + (dzs[j - 1] + dzs[j]) / 2.0);
+  }
+  var dzc = [];
+  for (var j = 1; j < nLevels; j++) dzc.push(z[j] - z[j - 1]);
+  return { z: z, dzs: dzs, dzc: dzc };
 }
 
-// Per-cell λ and C arrays.
-var LAMBDA = new Array(N);
-var CHEAT  = new Array(N);
-for (var j = 0; j < N; j++) {
-  var L = layerAt(zCell(j));
-  LAMBDA[j] = L.lambda;
-  CHEAT[j]  = L.C;
+// --- per-cell λ, C; harmonic-mean λ at half-levels ---
+function assignLayeredProps(z, layers) {
+  var N = z.length;
+  var lam = new Array(N);
+  var C = new Array(N);
+  for (var j = 0; j < N; j++) {
+    lam[j] = layers[layers.length - 1][1];
+    C[j] = layers[layers.length - 1][2];
+    for (var i = 0; i < layers.length; i++) {
+      if (z[j] <= layers[i][0]) {
+        lam[j] = layers[i][1];
+        C[j] = layers[i][2];
+        break;
+      }
+    }
+  }
+  var lamHalf = new Array(N - 1);
+  for (var j = 0; j < N - 1; j++) {
+    lamHalf[j] = 2.0 / (1.0 / lam[j] + 1.0 / lam[j + 1]);
+  }
+  return { lam: lam, C: C, lamHalf: lamHalf };
 }
 
-// Half-level conductivity (harmonic mean).
-function lamHalf(j_below) {
-  // λ at the interface between cell j_below-1 and cell j_below.
-  if (j_below === 0)   return LAMBDA[0];
-  if (j_below === N)   return LAMBDA[N-1];
-  var l1 = LAMBDA[j_below - 1], l2 = LAMBDA[j_below];
-  return 2 * l1 * l2 / (l1 + l2);
+// --- SEB residual (R_n − H − G = 0; LE = 0) and Newton iteration ---
+function sebResidual(Ts0, Tint, dzc0, lamH0, t) {
+  var Sd = S_down(t);
+  var Ld = L_down(t);
+  var Ta = T_air(t);
+  var rA = 1.0 / (C_H * U_WIND);
+  var Rn = (1.0 - ALBEDO) * Sd + EMIS * Ld - EMIS * SIGMA_SB * Math.pow(Ts0, 4);
+  var H = RHO_AIR * CP_AIR * (Ts0 - Ta) / rA;
+  var G = lamH0 * (Ts0 - Tint) / dzc0;
+  return Rn - H - G;
+}
+function sebDerivative(Ts0, dzc0, lamH0) {
+  var rA = 1.0 / (C_H * U_WIND);
+  return -4.0 * EMIS * SIGMA_SB * Math.pow(Ts0, 3) - RHO_AIR * CP_AIR / rA - lamH0 / dzc0;
+}
+function solveSEB(Tint, dzc0, lamH0, t, Ts0Init) {
+  var Ts0 = Ts0Init;
+  for (var iter = 0; iter < 20; iter++) {
+    var f = sebResidual(Ts0, Tint, dzc0, lamH0, t);
+    var df = sebDerivative(Ts0, dzc0, lamH0);
+    var dTs = -f / df;
+    Ts0 += dTs;
+    if (Math.abs(dTs) < 1e-4) return Ts0;
+  }
+  return Ts0;
 }
 
-// Surface temperature at time t (seconds).
-function tSurf(t) { return T_MEAN + T_AMP * Math.cos(OMEGA * t - PHI); }
+// --- initial profile: damping-depth analytic (Option B init in the report) ---
+function initialProfile(z, T0, Aamp, kappaEff) {
+  var d = Math.sqrt(2.0 * kappaEff / OMEGA);
+  var T = new Array(z.length);
+  for (var j = 0; j < z.length; j++) {
+    T[j] = T0 + Aamp * Math.exp(-z[j] / d) * Math.cos(-z[j] / d);
+  }
+  return T;
+}
 
-// Thomas algorithm for tridiagonal solve.
-//   sub:  size N (sub[0] unused), super: size N (sup[N-1] unused).
-//   In-place modification of d permitted; we keep it pure here.
+// --- Thomas tridiagonal solve ---
 function thomas(sub, mid, sup, rhs) {
   var n = rhs.length;
   var c = new Array(n);
@@ -1662,115 +1739,115 @@ function thomas(sub, mid, sup, rhs) {
   return x;
 }
 
-// Run a BTCS integration for total_t seconds at step dt, returning
-// 96 day-2 snapshots (every 15 min from t = 86400 to t = 86400 + 23h45m).
-// Each snapshot = array of (N+2) values: [T_surf, T_0, ..., T_{N-1}, T_inner].
-function runBTCS(dt) {
-  // Initial state: linear profile from T_surf(0) to T_inner.
-  var T = new Array(N);
-  var Ts0 = tSurf(0);
-  for (var j = 0; j < N; j++) {
-    var f = (j + 0.5) / N;
-    T[j] = Ts0 * (1 - f) + T_INNER * f;
+// --- BTCS step. Top: T[0] is Dirichlet (set by SEB outside). Bottom: Neumann zero-flux. ---
+function buildBTCSMatrix(dt, dzs, dzc, lamHalf, C) {
+  var N = dzs.length;
+  var sub = new Array(N).fill(0);
+  var mid = new Array(N).fill(1.0);
+  var sup = new Array(N).fill(0);
+  for (var j = 1; j < N - 1; j++) {
+    var a = dt * lamHalf[j - 1] / (C[j] * dzs[j] * dzc[j - 1]);
+    var b = dt * lamHalf[j]     / (C[j] * dzs[j] * dzc[j]);
+    sub[j] = -a;
+    mid[j] = 1.0 + a + b;
+    sup[j] = -b;
   }
+  // Top row: T[0] = T_top → mid[0]=1, sup[0]=0, sub[0]=0
+  // Bottom row: Neumann (T[N-1] = T[N-2]) → mid[N-1]=1, sub[N-1]=-1
+  sub[N - 1] = -1.0;
+  return { sub: sub, mid: mid, sup: sup };
+}
+function btcsStep(T, mat, Ttop) {
+  var rhs = T.slice();
+  rhs[0] = Ttop;
+  rhs[rhs.length - 1] = 0.0; // Neumann zero-flux RHS
+  return thomas(mat.sub, mat.mid, mat.sup, rhs);
+}
 
-  // Precompute coefficients (time-independent on a uniform grid).
-  // Cell-face distance: 0.5*Δz at the boundaries, Δz interior.
-  // For cell j:
-  //   A_j = λ_above_j * Δt / (C_j * Δz * d_j)   d_j = 0.5*Δz if j=0 else Δz
-  //   B_j = λ_below_j * Δt / (C_j * Δz * e_j)   e_j = 0.5*Δz if j=N-1 else Δz
-  var A = new Array(N), B = new Array(N);
-  for (var j = 0; j < N; j++) {
-    var lAbove = lamHalf(j);
-    var lBelow = lamHalf(j + 1);
-    var dAbove = (j === 0)     ? 0.5 * DZ : DZ;
-    var dBelow = (j === N - 1) ? 0.5 * DZ : DZ;
-    A[j] = lAbove * dt / (CHEAT[j] * DZ * dAbove);
-    B[j] = lBelow * dt / (CHEAT[j] * DZ * dBelow);
-  }
+// --- 2-day BTCS-SEB integration; return 96 day-2 profiles (every 15 min) ---
+function runBTCS_SEB(dt) {
+  var grid = makeGrid(2.0, 30, 1.18, 0.005);
+  var props = assignLayeredProps(grid.z, LAYERS_PROJECT);
+  var lam = props.lam, C = props.C, lamHalf = props.lamHalf;
+  var z = grid.z, dzs = grid.dzs, dzc = grid.dzc;
+  var N = z.length;
 
-  // Build static tri-diagonal entries (RHS rebuilt each step).
-  var sub = new Array(N), mid = new Array(N), sup = new Array(N);
-  for (var j = 0; j < N; j++) {
-    sub[j] = (j > 0)     ? -A[j] : 0;
-    mid[j] = 1 + A[j] + B[j];
-    sup[j] = (j < N - 1) ? -B[j] : 0;
-  }
+  var kappaTop = lam[0] / C[0];
+  var T = initialProfile(z, 292.5, 7.5, kappaTop);
+  T[0] = solveSEB(T[1], dzc[0], lamHalf[0], 0.0, T[0]);
 
   var totalSeconds = 2 * 86400;
   var nSteps = Math.round(totalSeconds / dt);
-  var rhs = new Array(N);
+  var dtUse = totalSeconds / nSteps;
+  var mat = buildBTCSMatrix(dtUse, dzs, dzc, lamHalf, C);
 
-  // 96 snapshots at 15-min intervals over day 2 (24*4 = 96).
-  // snapshot i is taken at t = 86400 + i*900.
   var SNAP_DT_S = 900;
   var snaps = [];
   for (var i = 0; i < 96; i++) snaps.push(null);
-  var nextSnapIdx  = 0;
+  var nextSnapIdx = 0;
   var nextSnapTime = 86400;
 
   var t = 0;
   for (var step = 0; step < nSteps; step++) {
-    var tNew = t + dt;
-    var TsNew = tSurf(tNew);
-
-    // RHS from current state.
-    for (var j = 0; j < N; j++) rhs[j] = T[j];
-    rhs[0]     += A[0]     * TsNew;
-    rhs[N - 1] += B[N - 1] * T_INNER;
-
-    T = thomas(sub, mid, sup, rhs);
+    var tNew = t + dtUse;
+    // Operator-split column-then-SEB (long report §5.2):
+    T = btcsStep(T, mat, T[0]);                                     // Step 1: column
+    T[0] = solveSEB(T[1], dzc[0], lamHalf[0], tNew, T[0]);          // Step 2: SEB Newton
     t = tNew;
 
-    // Take snapshots when we cross the next snapshot time.
     while (nextSnapIdx < 96 && t >= nextSnapTime - 1e-6) {
-      var snap = new Array(N + 2);
-      snap[0]     = tSurf(nextSnapTime);
-      for (var j = 0; j < N; j++) snap[j + 1] = T[j];
-      snap[N + 1] = T_INNER;
-      snaps[nextSnapIdx] = snap;
+      snaps[nextSnapIdx] = T.slice();
       nextSnapIdx++;
       nextSnapTime += SNAP_DT_S;
     }
     if (nextSnapIdx >= 96) break;
   }
-  // Edge case: fill any missing snaps with the last computed profile.
   for (var i = 0; i < 96; i++) {
-    if (snaps[i] === null) {
-      var last = T;
-      var snap = new Array(N + 2);
-      snap[0] = tSurf(86400 + i * 900);
-      for (var j = 0; j < N; j++) snap[j + 1] = last[j];
-      snap[N + 1] = T_INNER;
-      snaps[i] = snap;
-    }
+    if (snaps[i] === null) snaps[i] = T.slice();
   }
-  return snaps;
+  return { z: z, snaps: snaps };
 }
 
-// Precompute three runs.
+// --- precompute three runs ---
 var t0 = performance.now();
-var SNAPS = {
-  ref:    runBTCS(15),
-  dt60:   runBTCS(60),
-  dt600:  runBTCS(600)
-};
+var REF_RUN   = runBTCS_SEB(15);
+var DT60_RUN  = runBTCS_SEB(60);
+var DT600_RUN = runBTCS_SEB(600);
 var elapsed = (performance.now() - t0).toFixed(0);
 
-// Z values for plotting (surface + cell centres + bottom).
-var Z_PLOT = new Array(N + 2);
-Z_PLOT[0]     = 0;
-for (var j = 0; j < N; j++) Z_PLOT[j + 1] = zCell(j);
-Z_PLOT[N + 1] = Z_MAX;
+var Z_FULL = REF_RUN.z;
+var SNAPS = {
+  ref:    REF_RUN.snaps,
+  dt60:   DT60_RUN.snaps,
+  dt600:  DT600_RUN.snaps
+};
 
-// Scan for global T-axis bounds.
+// --- restrict the plot to the top 30 cm ---
+var nPlot = 0;
+for (var j = 0; j < Z_FULL.length; j++) {
+  if (Z_FULL[j] > 0.30) break;
+  nPlot = j + 1;
+}
+// Z_PLOT places T[0] visually at z = 0 (surface convention).
+var Z_PLOT = new Array(nPlot);
+Z_PLOT[0] = 0;
+for (var j = 1; j < nPlot; j++) Z_PLOT[j] = Z_FULL[j];
+
+// First cell below the concrete/insulation interface (z = 0.10 m).
+var IFACE_CELL = nPlot - 1;
+for (var j = 0; j < nPlot; j++) {
+  if (Z_FULL[j] > 0.10) { IFACE_CELL = j; break; }
+}
+
+// --- auto-scale T axis (in °C) ---
 var TMIN = Infinity, TMAX = -Infinity;
 ['ref', 'dt60', 'dt600'].forEach(function(k) {
   for (var i = 0; i < 96; i++) {
     var s = SNAPS[k][i];
-    for (var j = 0; j < s.length; j++) {
-      if (s[j] < TMIN) TMIN = s[j];
-      if (s[j] > TMAX) TMAX = s[j];
+    for (var j = 0; j < nPlot; j++) {
+      var Tc = s[j] - 273.15;
+      if (Tc < TMIN) TMIN = Tc;
+      if (Tc > TMAX) TMAX = Tc;
     }
   }
 });
@@ -1922,9 +1999,11 @@ var path60    = makeCurve('#d97757', null,  '2.0');
 var path600   = makeCurve('#c2492a', '6 4', '2.6');
 
 function profileToPath(snap) {
+  // snap is in Kelvin (full 26-cell column); plot only the top 30 cm in °C.
   var d = '';
-  for (var i = 0; i < snap.length; i++) {
-    d += (i === 0 ? 'M ' : ' L ') + xPx(snap[i]).toFixed(2) + ' ' + yPx(Z_PLOT[i]).toFixed(2);
+  for (var i = 0; i < nPlot; i++) {
+    var Tc = snap[i] - 273.15;
+    d += (i === 0 ? 'M ' : ' L ') + xPx(Tc).toFixed(2) + ' ' + yPx(Z_PLOT[i]).toFixed(2);
   }
   return d;
 }
@@ -1946,9 +2025,9 @@ function update() {
   path60.setAttribute('d',   profileToPath(s60));
   path600.setAttribute('d',  profileToPath(s600));
 
-  // Punchline: surface T error, BTCS-600 vs ref.
+  // Punchline: surface T error, BTCS-600 vs ref. Differences in K (= differences in °C).
   var dTsurf = (s600[0] - ref[0]);
-  var dTinterface = (s600[10] - ref[10]); // cell j=10 is just below the interface (z=10.5cm)
+  var dTinterface = (s600[IFACE_CELL] - ref[IFACE_CELL]);  // first cell below z = 10 cm
   var p = document.getElementById('punch');
   var srf = (Math.abs(dTsurf) < 0.05 ? '~0.0' : (dTsurf > 0 ? '+' : '') + dTsurf.toFixed(1)) + ' K';
   var ifc = (Math.abs(dTinterface) < 0.05 ? '~0.0' : (dTinterface > 0 ? '+' : '') + dTinterface.toFixed(1)) + ' K';
@@ -1956,7 +2035,7 @@ function update() {
     p.innerHTML =
       'At <span class="v">t = ' + fmtTime(idx) + '</span>: BTCS &Delta;t = 600 s biased by ' +
       '<span class="v">' + srf + '</span> at the surface and <span class="v">' + ifc + '</span> just below the &lambda; jump. ' +
-      '<b>Slide 11</b> identifies the same coarse-&Delta;t error as first-order operator splitting in the project\'s full-SEB run; <b>slide 12</b> attributes its prefactor to &kappa;<sub>top</sub>.';
+      'This <b>is</b> the operator-splitting error &mdash; <b>slide 11</b> quantifies it as first-order in &Delta;t; <b>slide 12</b> attributes its prefactor to &kappa;<sub>top</sub>.';
   } else {
     p.innerHTML =
       'At <span class="v">t = ' + fmtTime(idx) + '</span>: surface bias <span class="v">' + srf + '</span>, ' +
@@ -2005,7 +2084,7 @@ window.addEventListener('keydown', function(e) {
 });
 
 update();
-console.info('CLIM-715 curvature widget: 3 BTCS runs precomputed in ' + elapsed + ' ms.');
+console.info('Slide 10 faithful BTCS-SEB: 3 runs precomputed in ' + elapsed + ' ms.');
 </script>
 
 </body>
