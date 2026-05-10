@@ -1177,14 +1177,14 @@ update();
       </div>
       <table class="errors">
         <thead>
-          <tr><th>Scheme</th><th>&Delta;t (s)</th><th>&nu; = &kappa;&Delta;t/&Delta;z&sup2;</th><th>RMSE T<sub>s</sub> (K)</th></tr>
+          <tr><th>Scheme</th><th>&Delta;t (s)</th><th>&nu; = &kappa;&Delta;t/&Delta;z&sup2;</th><th>RMSE T @ z = 10 cm (K)</th></tr>
         </thead>
         <tbody>
-          <tr class="ftcs"><td class="scheme">FTCS</td><td><span class="num">200</span></td><td><span class="num">0.46</span></td><td><span class="num">0.018</span></td></tr>
-          <tr class="ftcs"><td class="scheme">FTCS</td><td><span class="num">260</span></td><td><span class="num">0.60</span></td><td class="unstable">unstable (53 steps)</td></tr>
+          <tr class="ftcs"><td class="scheme">FTCS, &nu; = 0.4</td><td><span class="num">173.4</span></td><td><span class="num">0.40</span></td><td><span class="num">0.007</span></td></tr>
+          <tr class="ftcs"><td class="scheme">FTCS, &nu; = 0.6</td><td><span class="num">259.9</span></td><td><span class="num">0.60</span></td><td class="unstable">BLEW UP at step 53</td></tr>
           <tr class="btcs"><td class="scheme">BTCS</td><td><span class="num">300</span></td><td><span class="num">0.69</span></td><td><span class="num">0.024</span></td></tr>
-          <tr class="btcs"><td class="scheme">BTCS</td><td><span class="num">900</span></td><td><span class="num">2.08</span></td><td><span class="num">0.062</span></td></tr>
           <tr class="cn"><td class="scheme">CN</td><td><span class="num">300</span></td><td><span class="num">0.69</span></td><td><span class="num">0.005</span></td></tr>
+          <tr class="btcs"><td class="scheme">BTCS</td><td><span class="num">900</span></td><td><span class="num">2.08</span></td><td><span class="num">0.062</span></td></tr>
           <tr class="cn"><td class="scheme">CN</td><td><span class="num">900</span></td><td><span class="num">2.08</span></td><td><span class="num">0.006</span></td></tr>
         </tbody>
       </table>
