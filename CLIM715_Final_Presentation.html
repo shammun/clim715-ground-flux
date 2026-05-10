@@ -785,12 +785,13 @@ var IS_MOBILE = (typeof window !== 'undefined' && window.matchMedia &&
 var SVG_W = 1000;
 var SVG_H = IS_MOBILE ? 1000 : 320;
 // PAD.left is bumped on mobile (and modestly on desktop) because the
-// substrate row labels ("Asphalt road" etc.) are now in fs(14) =
-// 42 user units on mobile / 21 on desktop — they need ~250 user units
-// of left margin to fit in full without clipping at the SVG edge.
+// substrate row labels ("Asphalt road" etc.) need room at fs(14) =
+// 42 user units on mobile / 21 on desktop. PAD.top is also bumped so
+// the reference labels (17 s / 60 s / 600 s) above the dashed lines
+// don't get clipped above the SVG top edge after the font scale-up.
 var PAD = IS_MOBILE
-  ? { top: 60, right: 140, bottom: 90, left: 320 }
-  : { top: 36, right: 140, bottom: 50, left: 220 };
+  ? { top: 110, right: 140, bottom: 90, left: 320 }
+  : { top: 64,  right: 140, bottom: 50, left: 220 };
 var PLOT_W = SVG_W - PAD.left - PAD.right;
 var PLOT_H = SVG_H - PAD.top - PAD.bottom;
 // Font-size helper: text in user units scales with the SVG, so to land
@@ -2662,10 +2663,13 @@ ROWS.forEach(function(row, i) {
   });
   lblC.textContent = row.cn.toFixed(1) + '×';
   svg.appendChild(lblC);
-  // Substrate label below the group
+  // Substrate label below the group. fs(11) instead of fs(13) so the
+  // three labels — "Asphalt road" / "Concrete roof" / "Bare soil" —
+  // don't touch their neighbours on desktop where group width is
+  // narrow relative to the bumped font.
   var lbl = svgEl('text', {
     x: PAD.left + i * groupW + groupW / 2, y: PAD.top + PLOT_H + off(22),
-    'text-anchor': 'middle', 'font-size': fs(13), fill: row.color,
+    'text-anchor': 'middle', 'font-size': fs(11), fill: row.color,
     'font-weight': '700'
   });
   lbl.textContent = row.sub;
