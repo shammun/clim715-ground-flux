@@ -50,7 +50,7 @@
     white-space: nowrap;
   }
 
-  /* --- Bottom control card --- */
+  /* --- Bottom control card (draggable) --- */
   #controls {
     position: absolute; bottom: 18px; left: 50%;
     transform: translateX(-50%);
@@ -64,7 +64,10 @@
     flex-wrap: wrap;
     max-width: calc(100vw - 32px);
     justify-content: center;
+    cursor: grab;
+    touch-action: none;
   }
+  #controls:active { cursor: grabbing; }
   #controls.collapsed { padding: 8px 14px; gap: 10px; }
   #controls .ctl-body {
     display: flex;
@@ -191,10 +194,10 @@
     border-radius: 2px;
   }
 
-  /* --- Time-series inset panel (bottom-left) --- */
+  /* --- Time-series inset panel (top-left, draggable) --- */
   #ts-panel {
     position: absolute;
-    bottom: 18px;
+    top: 16px;
     left: 16px;
     background: var(--card-bg);
     padding: 12px 14px 10px 14px;
@@ -204,7 +207,10 @@
     z-index: 10;
     font-size: 11px;
     color: var(--text-secondary);
+    cursor: grab;
+    touch-action: none;        /* allow drag without scroll on touch */
   }
+  #ts-panel:active { cursor: grabbing; }
   #ts-panel .ts-title {
     font-weight: 600;
     color: var(--text-primary);
@@ -307,13 +313,13 @@
     #legend .layer-key { font-size: 9.5px !important; gap: 5px !important; margin-top: 2px !important; }
     #legend .swatch { width: 10px !important; height: 8px !important; }
     #ts-panel {
-      /* desktop anchor: bottom + left — keep both. Clear top/right
-         so it stays bottom-left anchored. */
-      top: auto !important;
-      right: auto !important;
-      bottom: 80px !important;
+      /* user requested: top-left on both desktop and mobile.
+         Clear bottom/right so the panel doesn't get pinned at four edges. */
+      top: 8px !important;
       left: 8px !important;
-      max-width: calc(50vw - 14px) !important;
+      right: auto !important;
+      bottom: auto !important;
+      max-width: calc(100vw - 16px) !important;
     }
     #ts-panel canvas {
       width: 100% !important;
@@ -1257,6 +1263,69 @@ requestAnimationFrame(animate);
 </script>
 
 <script>
+// Make #ts-panel and #controls draggable. Pointer events cover both mouse
+// and touch. Drag starts only on the panel's "chrome" — skips buttons,
+// inputs, selects, the canvas (so seeking by tapping the canvas still
+// works), and the +/− toggle. Movement is constrained to the viewport.
+(function () {
+  function isInteractive(target) {
+    if (!target) return false;
+    var t = target.tagName;
+    if (t === 'BUTTON' || t === 'INPUT' || t === 'SELECT' || t === 'OPTION' ||
+        t === 'CANVAS' || t === 'TEXTAREA' || t === 'A') return true;
+    // Walk up a couple of levels in case the click is on a child of a button.
+    var p = target.parentElement;
+    if (p && (p.tagName === 'BUTTON' || p.classList && p.classList.contains('ts-toggle'))) return true;
+    return false;
+  }
+  function makeDraggable(el) {
+    if (!el) return;
+    var state = { dragging: false, sx: 0, sy: 0, ox: 0, oy: 0 };
+    function onDown(e) {
+      if (isInteractive(e.target)) return;
+      var rect = el.getBoundingClientRect();
+      state.dragging = true;
+      state.sx = e.clientX;
+      state.sy = e.clientY;
+      state.ox = rect.left;
+      state.oy = rect.top;
+      // Switch to top/left positioning, clear any other anchors so we
+      // don't fight the original CSS while dragging.
+      el.style.left = state.ox + 'px';
+      el.style.top  = state.oy + 'px';
+      el.style.right = 'auto';
+      el.style.bottom = 'auto';
+      el.style.transform = 'none';
+      el.style.cursor = 'grabbing';
+      e.preventDefault();
+      try { el.setPointerCapture && el.setPointerCapture(e.pointerId); } catch (_) {}
+    }
+    function onMove(e) {
+      if (!state.dragging) return;
+      var dx = e.clientX - state.sx;
+      var dy = e.clientY - state.sy;
+      var rect = el.getBoundingClientRect();
+      var W = window.innerWidth, H = window.innerHeight;
+      var nx = Math.max(0, Math.min(W - rect.width,  state.ox + dx));
+      var ny = Math.max(0, Math.min(H - rect.height, state.oy + dy));
+      el.style.left = nx + 'px';
+      el.style.top  = ny + 'px';
+      e.preventDefault();
+    }
+    function onUp() {
+      if (!state.dragging) return;
+      state.dragging = false;
+      el.style.cursor = 'grab';
+    }
+    el.addEventListener('pointerdown',   onDown);
+    el.addEventListener('pointermove',   onMove);
+    el.addEventListener('pointerup',     onUp);
+    el.addEventListener('pointercancel', onUp);
+  }
+  makeDraggable(document.getElementById('ts-panel'));
+  makeDraggable(document.getElementById('controls'));
+})();
+
 // Relay M/K to parent deck so navigation works when this file is embedded
 // as an iframe.src (cross-origin under Chrome's file:// SOP). Capture phase
 // so it wins over any inner handler (OrbitControls only listens for arrows
