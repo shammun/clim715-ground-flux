@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #eaf0f8; color: #2c3142;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .title-bar {
+    /* padding-top extra so the title clears the floating slide-number
+       chip in the parent (which lives at top:8 in viewport coords and
+       is ~24 px tall — a flat 22 px padding on the title-bar lets the
+       title's top edge fall behind it). */
+    padding: 40px 52px 6px;
+    display: flex; align-items: center; gap: 14px;
+    flex-shrink: 0;
+  }
+  .badge {
+    background: #ee845b; color: #fff;
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 4px 12px; border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .slide-title { font-size: 24px; font-weight: 700; color: #2c3142; }
+  .formula-bar {
+    text-align: center;
+    margin: 2px 52px 8px;
+    font-size: 14px; color: #4a5066;
+    flex-shrink: 0;
+  }
+  .formula-bar .eq {
+    font-family: 'Cambria Math', Georgia, serif;
+    font-size: 19px; color: #2c8a83; font-weight: 600;
+    background: rgba(56, 178, 172, 0.08);
+    padding: 3px 14px; border-radius: 4px;
+    margin-left: 6px;
+    display: inline-block;
+  }
+
+  /* Caption explaining the three vertical reference lines on the chart */
+  .ref-legend {
+    text-align: center;
+    font-size: 12.5px;
+    color: #4a5066;
+    margin: 0 52px 8px;
+    flex-shrink: 0;
+    line-height: 1.5;
+  }
+  .ref-legend strong {
+    font-weight: 700;
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+  }
+  .ref-legend .sep { color: #b6bdcc; margin: 0 8px; }
+
+  /* Slider control card */
+  .control-card {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 10px 22px 6px;
+    margin: 0 52px 8px;
+    box-shadow: 0 2px 10px rgba(107, 92, 181, 0.10);
+    border: 1px solid rgba(107, 92, 181, 0.06);
+    flex-shrink: 0;
+  }
+  .row1 {
+    display: flex; align-items: center; gap: 14px;
+  }
+  .dz-label { font-size: 12px; color: #6b7186; font-weight: 500; min-width: 36px; }
+  .dz-value {
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    font-size: 20px; color: #2c8a83; font-weight: 600;
+    min-width: 100px; font-variant-numeric: tabular-nums;
+    letter-spacing: 0.3px;
+  }
+  .slider-wrap { flex: 1; position: relative; padding: 6px 0 18px 0; }
+  input[type="range"].dz-slider {
+    width: 100%; height: 16px;
+    -webkit-appearance: none; appearance: none;
+    background: transparent; cursor: pointer;
+    margin: 0; padding: 0; display: block;
+  }
+  input[type="range"].dz-slider:focus { outline: none; }
+  input[type="range"].dz-slider::-webkit-slider-runnable-track {
+    height: 6px; border-radius: 3px;
+    background: linear-gradient(to right, #ee845b 0%, #f0a05a 50%, #38b2ac 100%);
+    border: 1px solid rgba(107, 92, 181, 0.20);
+  }
+  input[type="range"].dz-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    margin-top: -7px;
+    width: 20px; height: 20px;
+    border-radius: 50%; background: #ee845b;
+    border: 3px solid #ffffff; cursor: pointer;
+    box-shadow: 0 2px 6px rgba(238, 132, 91, 0.5),
+                0 0 0 2px rgba(238, 132, 91, 0.25);
+  }
+  input[type="range"].dz-slider::-moz-range-track {
+    height: 6px; border-radius: 3px;
+    background: linear-gradient(to right, #ee845b 0%, #f0a05a 50%, #38b2ac 100%);
+  }
+  input[type="range"].dz-slider::-moz-range-thumb {
+    width: 18px; height: 18px;
+    border-radius: 50%; background: #ee845b;
+    border: 3px solid #ffffff; cursor: pointer;
+  }
+  .ticks {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 16px; pointer-events: none;
+  }
+  .tick {
+    position: absolute; transform: translateX(-50%);
+    font-size: 9.5px; color: #6b7186;
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    pointer-events: auto; cursor: pointer;
+    padding: 1px 4px; border-radius: 3px;
+    user-select: none;
+  }
+  .tick::before {
+    content: ''; display: block;
+    width: 1px; height: 4px;
+    background: rgba(107, 92, 181, 0.45);
+    margin: 0 auto 2px;
+  }
+  .tick:hover { color: #6b5cb5; background: rgba(107, 92, 181, 0.08); }
+
+  /* Plot card */
+  .plot-card {
+    flex: 1;
+    margin: 0 52px 8px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(107, 92, 181, 0.10);
+    border: 1px solid rgba(107, 92, 181, 0.06);
+    padding: 10px 14px 6px;
+    display: flex; flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+  svg.barplot { width: 100%; flex: 1; min-height: 0; }
+
+  /* Punchline */
+  .punch {
+    margin: 0 52px 22px;
+    text-align: center;
+    background: rgba(238, 132, 91, 0.10);
+    border-left: 3px solid #ee845b;
+    padding: 10px 18px; border-radius: 4px;
+    font-size: 14.5px; font-weight: 500;
+    color: #2c3142; line-height: 1.45;
+    flex-shrink: 0;
+  }
+  .punch b { color: #c2492a; font-weight: 700; }
+  .punch .v {
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    color: #6b5cb5; font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+</style>
+</head>
+<body>
+  <div class="title-bar">
+    <span class="badge">Stability bound &mdash; live</span>
+    <span class="slide-title">The 17-second problem</span>
+  </div>
+  <div class="formula-bar">
+    FTCS bound at the most thermally stiff top layer of each substrate:
+    <span class="eq">&Delta;t<sub>max</sub> = &frac12; &Delta;z&sup2; / &kappa;</span>
+  </div>
+  <div class="ref-legend">
+    Vertical reference lines:
+    <strong style="color:#c2492a">17 s</strong> &mdash; FTCS bound at &Delta;z = 5 mm
+    <span class="sep">&middot;</span>
+    <strong style="color:#b89854">60 s</strong> &mdash; typical mesoscale &Delta;t
+    <span class="sep">&middot;</span>
+    <strong style="color:#2c8a83">600 s</strong> &mdash; long climate-model &Delta;t
+  </div>
+
+  <div class="control-card">
+    <div class="row1">
+      <span class="dz-label">&Delta;z =</span>
+      <span class="dz-value" id="dz-value">10.0 mm</span>
+      <div class="slider-wrap">
+        <input type="range" class="dz-slider" id="dz-slider" min="0" max="100" step="0.5" value="50">
+        <div class="ticks" id="ticks"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="plot-card">
+    <svg class="barplot" id="barplot" preserveAspectRatio="xMidYMid meet"></svg>
+  </div>
+
+  <div class="punch" id="punch">
+    Drag the slider to see the bound collapse.
+  </div>
+
+<script>
+"use strict";
+
+// Substrate properties — most thermally stiff TOP layer of each column.
+//   Asphalt road:  top is asphalt itself.   λ = 0.75, C ≈ 2.0e6 → κ = 3.75e-7 m²/s
+//   Concrete roof: top is concrete deck.    λ = 1.50, C ≈ 2.0e6 → κ = 7.50e-7 m²/s
+//   Bare soil:     uniform sandy loam.      κ from report = 2.31e-7 m²/s
+// At Δz = 5 mm in concrete: Δt_max = ½(0.005)²/7.5e-7 ≈ 17 s — matches report.
+var SUBS = [
+  { key: 'asphalt', label: 'Asphalt road',  sub: 'top: asphalt (λ=0.75)',   kappa: 3.75e-7, color: '#6b5cb5' },
+  { key: 'roof',    label: 'Concrete roof', sub: 'top: concrete (λ=1.50)',  kappa: 7.50e-7, color: '#d97757' },
+  { key: 'soil',    label: 'Bare soil',     sub: 'sandy loam (κ=2.3e-7)',   kappa: 2.31e-7, color: '#8b6f3a' }
+];
+
+// Slider 0..100 → Δz in mm (log spaced from 1 mm to 100 mm).
+var DZ_MIN_MM = 1;
+var DZ_MAX_MM = 100;
+function dzFromSlider(v) {
+  var t = v / 100;
+  return Math.pow(10, Math.log10(DZ_MIN_MM) + t * (Math.log10(DZ_MAX_MM) - Math.log10(DZ_MIN_MM)));
+}
+function sliderFromDz(dz_mm) {
+  return 100 * (Math.log10(dz_mm) - Math.log10(DZ_MIN_MM)) / (Math.log10(DZ_MAX_MM) - Math.log10(DZ_MIN_MM));
+}
+
+// Δt log-x bounds (0.1 s to 100 000 s ≈ 28 hours).
+var X_MIN_S = 0.1;
+var X_MAX_S = 1e5;
+var X_RANGE = Math.log10(X_MAX_S) - Math.log10(X_MIN_S);
+
+// SVG layout. On mobile we use a near-square viewBox so the chart
+// fills the phone screen vertically without distorting text via
+// preserveAspectRatio=none. PAD adapts proportionally so the bars
+// still have their existing left/right padding for axis labels.
+var IS_MOBILE = (typeof window !== 'undefined' && window.matchMedia &&
+                 window.matchMedia('(max-width: 760px)').matches);
+var SVG_W = 1000;
+var SVG_H = IS_MOBILE ? 1000 : 320;
+// PAD.left is bumped on mobile (and modestly on desktop) because the
+// substrate row labels ("Asphalt road" etc.) need room at fs(14) =
+// 42 user units on mobile / 21 on desktop. PAD.top is also bumped so
+// the reference labels (17 s / 60 s / 600 s) above the dashed lines
+// don't get clipped above the SVG top edge after the font scale-up.
+var PAD = IS_MOBILE
+  ? { top: 110, right: 140, bottom: 90, left: 320 }
+  : { top: 64,  right: 140, bottom: 50, left: 220 };
+var PLOT_W = SVG_W - PAD.left - PAD.right;
+var PLOT_H = SVG_H - PAD.top - PAD.bottom;
+// Font-size helper: text in user units scales with the SVG, so to land
+// at a readable rendered size we multiply by ~3 on mobile (where the
+// SVG is rendered at scale ~0.34) and ~1.5 on desktop (scale ~0.8).
+var FS_MUL = IS_MOBILE ? 3.0 : 1.5;
+function fs(n)  { return String(Math.round(n * FS_MUL)); }    // returns string for SVG attrs
+function off(n) { return Math.round(n * FS_MUL); }            // returns number for y-offsets
+
+var NS = 'http://www.w3.org/2000/svg';
+function svgEl(tag, attrs) {
+  var el = document.createElementNS(NS, tag);
+  if (attrs) for (var k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+}
+function xPx(s) {
+  var v = Math.log10(Math.max(s, X_MIN_S * 0.5));
+  return PAD.left + ((v - Math.log10(X_MIN_S)) / X_RANGE) * PLOT_W;
+}
+
+var svg = document.getElementById('barplot');
+svg.setAttribute('viewBox', '0 0 ' + SVG_W + ' ' + SVG_H);
+
+// Decade gridlines
+var DECADES = [0.1, 1, 10, 100, 1000, 10000, 100000];
+var DECADE_LABELS = ['0.1', '1', '10', '100', '1k', '10k', '100k'];
+
+// Operational reference lines.
+var REFS = [
+  { s: 17,  label: '17 s', color: '#c2492a' },
+  { s: 60,  label: '60 s', color: '#b89854' },
+  { s: 600, label: '600 s', color: '#2c8a83' }
+];
+
+// Background zones — red < 60 s, amber 60–600 s, green > 600 s.
+function drawAxes() {
+  var redEnd   = xPx(60);
+  var amberEnd = xPx(600);
+  svg.appendChild(svgEl('rect', {
+    x: PAD.left, y: PAD.top,
+    width: redEnd - PAD.left, height: PLOT_H,
+    fill: 'rgba(194, 73, 42, 0.05)'
+  }));
+  svg.appendChild(svgEl('rect', {
+    x: redEnd, y: PAD.top,
+    width: amberEnd - redEnd, height: PLOT_H,
+    fill: 'rgba(184, 152, 84, 0.06)'
+  }));
+  svg.appendChild(svgEl('rect', {
+    x: amberEnd, y: PAD.top,
+    width: PAD.left + PLOT_W - amberEnd, height: PLOT_H,
+    fill: 'rgba(56, 178, 172, 0.05)'
+  }));
+  // Decade gridlines + tick labels
+  for (var i = 0; i < DECADES.length; i++) {
+    svg.appendChild(svgEl('line', {
+      x1: xPx(DECADES[i]), y1: PAD.top,
+      x2: xPx(DECADES[i]), y2: PAD.top + PLOT_H,
+      stroke: 'rgba(107, 92, 181, 0.10)', 'stroke-width': '1'
+    }));
+    var lab = svgEl('text', {
+      x: xPx(DECADES[i]), y: PAD.top + PLOT_H + off(18),
+      'text-anchor': 'middle', 'font-size': fs(12), fill: '#6b7186',
+      'font-family': 'Cascadia Code, Consolas, monospace'
+    });
+    lab.textContent = DECADE_LABELS[i];
+    svg.appendChild(lab);
+  }
+  // X-axis title
+  var xLab = svgEl('text', {
+    x: PAD.left + PLOT_W / 2, y: PAD.top + PLOT_H + off(40),
+    'text-anchor': 'middle', 'font-size': fs(13), fill: '#4a5066',
+    'font-weight': '600'
+  });
+  xLab.textContent = 'FTCS Δt_max (seconds, log scale)';
+  svg.appendChild(xLab);
+  // Reference lines + labels
+  for (var r = 0; r < REFS.length; r++) {
+    var ref = REFS[r];
+    svg.appendChild(svgEl('line', {
+      x1: xPx(ref.s), y1: PAD.top - 12,
+      x2: xPx(ref.s), y2: PAD.top + PLOT_H,
+      stroke: ref.color, 'stroke-width': '1.6',
+      'stroke-dasharray': '5 4', opacity: '0.75'
+    }));
+    var refLab = svgEl('text', {
+      x: xPx(ref.s), y: PAD.top - off(16),
+      'text-anchor': 'middle', 'font-size': fs(11), fill: ref.color,
+      'font-weight': '700', 'font-family': 'Cascadia Code, Consolas, monospace'
+    });
+    refLab.textContent = ref.label;
+    svg.appendChild(refLab);
+  }
+  // Substrate row labels
+  var rowH = PLOT_H / SUBS.length;
+  for (var s = 0; s < SUBS.length; s++) {
+    var sub = SUBS[s];
+    var yC = PAD.top + (s + 0.5) * rowH;
+    var lblName = svgEl('text', {
+      x: PAD.left - off(14), y: yC - off(6),
+      'text-anchor': 'end', 'font-size': fs(14), fill: sub.color,
+      'font-weight': '700'
+    });
+    lblName.textContent = sub.label;
+    svg.appendChild(lblName);
+    var lblSub = svgEl('text', {
+      x: PAD.left - off(14), y: yC + off(18),
+      'text-anchor': 'end', 'font-size': fs(10.5), fill: '#6b7186',
+      'font-style': 'italic'
+    });
+    lblSub.textContent = sub.sub;
+    svg.appendChild(lblSub);
+  }
+}
+drawAxes();
+
+// Bars + value labels.
+var bars = [];
+var barLabels = [];
+var rowH = PLOT_H / SUBS.length;
+var barH = rowH * 0.50;
+for (var s = 0; s < SUBS.length; s++) {
+  var yC = PAD.top + (s + 0.5) * rowH;
+  var bar = svgEl('rect', {
+    x: PAD.left, y: yC - barH/2,
+    width: 0, height: barH,
+    fill: SUBS[s].color, opacity: '0.92', rx: '3'
+  });
+  svg.appendChild(bar);
+  bars.push(bar);
+  var lbl = svgEl('text', {
+    x: PAD.left, y: yC + off(5),
+    'font-size': fs(14), fill: '#ffffff',
+    'font-weight': '700',
+    'font-family': 'Cascadia Code, Consolas, monospace',
+    'text-anchor': 'start'
+  });
+  svg.appendChild(lbl);
+  barLabels.push(lbl);
+}
+
+function fmtSeconds(s) {
+  if (s < 1)    return s.toFixed(2) + ' s';
+  if (s < 60)   return s.toFixed(1) + ' s';
+  if (s < 3600) return (s / 60).toFixed(1) + ' min';
+  return (s / 3600).toFixed(1) + ' hr';
+}
+function fmtDz(dz_mm) {
+  return dz_mm < 10 ? dz_mm.toFixed(2) + ' mm' : dz_mm.toFixed(1) + ' mm';
+}
+
+function update() {
+  var dz_mm = dzFromSlider(parseFloat(slider.value));
+  var dz_m  = dz_mm / 1000;
+  document.getElementById('dz-value').textContent = fmtDz(dz_mm);
+
+  var concreteDt = 0;
+  for (var s = 0; s < SUBS.length; s++) {
+    var dt_max = 0.5 * dz_m * dz_m / SUBS[s].kappa;
+    var x0 = xPx(X_MIN_S);
+    var x1 = xPx(dt_max);
+    var w = Math.max(2, x1 - x0);
+    bars[s].setAttribute('width', w);
+    var labelText = fmtSeconds(dt_max);
+    var lbl = barLabels[s];
+    lbl.textContent = labelText;
+    if (w > off(80)) {
+      lbl.setAttribute('x', x0 + off(8));
+      lbl.setAttribute('fill', '#ffffff');
+    } else {
+      lbl.setAttribute('x', x1 + off(8));
+      lbl.setAttribute('fill', SUBS[s].color);
+    }
+    if (SUBS[s].key === 'roof') concreteDt = dt_max;
+  }
+
+  // Punchline — depends on which zone concrete falls into.
+  var punch = document.getElementById('punch');
+  var dzTxt = 'Δz = ' + fmtDz(dz_mm);
+  var dtTxt = 'Δt &lt; ' + fmtSeconds(concreteDt);
+  if (concreteDt < 60) {
+    punch.innerHTML =
+      'At <span class="v">' + dzTxt + '</span>: FTCS on concrete needs <span class="v">' + dtTxt +
+      '</span> &mdash; <b>below any operational mesoscale step</b>. Implicit treatment is structurally required.';
+  } else if (concreteDt < 600) {
+    punch.innerHTML =
+      'At <span class="v">' + dzTxt + '</span>: FTCS on concrete now allows <span class="v">' + dtTxt +
+      '</span> &mdash; usable for short steps but not for sub-hourly operational configurations.';
+  } else {
+    punch.innerHTML =
+      'At <span class="v">' + dzTxt + '</span>: FTCS allows <span class="v">' + dtTxt +
+      '</span>, but <b>this Δz fails to resolve the diurnal damping depth (~8&ndash;12 cm)</b>.';
+  }
+}
+
+// Slider wiring.
+var slider = document.getElementById('dz-slider');
+slider.addEventListener('input',  update);
+slider.addEventListener('change', update);
+
+// Clickable preset ticks.
+var PRESETS = [
+  { mm: 1,   label: '1' },
+  { mm: 5,   label: '5' },
+  { mm: 10,  label: '10' },
+  { mm: 25,  label: '25' },
+  { mm: 50,  label: '50' },
+  { mm: 100, label: '100' }
+];
+var ticksDiv = document.getElementById('ticks');
+PRESETS.forEach(function(preset) {
+  var tick = document.createElement('div');
+  tick.className = 'tick';
+  tick.style.left = sliderFromDz(preset.mm) + '%';
+  tick.textContent = preset.label;
+  tick.addEventListener('click', function() {
+    slider.value = String(sliderFromDz(preset.mm));
+    update();
+  });
+  ticksDiv.appendChild(tick);
+});
+
+// Arrow-key nudges (Shift = ×5).
+window.addEventListener('keydown', function(e) {
+  if (e.target && e.target.tagName === 'INPUT' && e.target !== slider) return;
+  var step = e.shiftKey ? 5 : 1;
+  if (e.key === 'ArrowLeft') {
+    slider.value = String(Math.max(0, parseFloat(slider.value) - step));
+    update();
+    e.preventDefault();
+  } else if (e.key === 'ArrowRight') {
+    slider.value = String(Math.min(100, parseFloat(slider.value) + step));
+    update();
+    e.preventDefault();
+  }
+});
+
+update();
+</script>
+
+</body>
+</html>

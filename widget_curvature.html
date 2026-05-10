@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #eaf0f8; color: #2c3142;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .title-bar {
+    padding: 22px 52px 4px;
+    display: flex; align-items: center; gap: 14px;
+    flex-shrink: 0;
+  }
+  .badge {
+    background: #6b5cb5; color: #fff;
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 4px 12px; border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .slide-title { font-size: 24px; font-weight: 700; color: #2c3142; }
+  .subtitle {
+    text-align: center;
+    margin: 2px 52px 8px;
+    font-size: 13.5px; color: #4a5066;
+    flex-shrink: 0;
+  }
+  .subtitle b { color: #6b5cb5; font-weight: 700; }
+
+  /* Time slider control */
+  .control-card {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 8px 22px 6px;
+    margin: 0 52px 8px;
+    box-shadow: 0 2px 10px rgba(107, 92, 181, 0.10);
+    border: 1px solid rgba(107, 92, 181, 0.06);
+    flex-shrink: 0;
+  }
+  .row1 {
+    display: flex; align-items: center; gap: 14px;
+  }
+  .t-label { font-size: 12px; color: #6b7186; font-weight: 500; min-width: 30px; }
+  .t-value {
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    font-size: 18px; color: #2c8a83; font-weight: 600;
+    min-width: 86px; font-variant-numeric: tabular-nums;
+  }
+  .slider-wrap { flex: 1; position: relative; padding: 4px 0 16px 0; }
+  input[type="range"].t-slider {
+    width: 100%; height: 16px;
+    -webkit-appearance: none; appearance: none;
+    background: transparent; cursor: pointer;
+    margin: 0; padding: 0; display: block;
+  }
+  input[type="range"].t-slider:focus { outline: none; }
+  input[type="range"].t-slider::-webkit-slider-runnable-track {
+    height: 6px; border-radius: 3px;
+    background: linear-gradient(to right,
+      rgba(107,92,181,0.25) 0%,  rgba(107,92,181,0.25) 25%,
+      #f0a05a 25%, #f0a05a 33.3%,
+      #ee845b 33.3%, #ee845b 75%,
+      rgba(107,92,181,0.25) 75%, rgba(107,92,181,0.25) 100%);
+    border: 1px solid rgba(107, 92, 181, 0.20);
+  }
+  input[type="range"].t-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    margin-top: -7px;
+    width: 20px; height: 20px;
+    border-radius: 50%; background: #ee845b;
+    border: 3px solid #ffffff; cursor: pointer;
+    box-shadow: 0 2px 6px rgba(238, 132, 91, 0.5),
+                0 0 0 2px rgba(238, 132, 91, 0.25);
+  }
+  input[type="range"].t-slider::-moz-range-track {
+    height: 6px; border-radius: 3px;
+    background: linear-gradient(to right,
+      rgba(107,92,181,0.25) 0%,  rgba(107,92,181,0.25) 25%,
+      #f0a05a 25%, #f0a05a 33.3%,
+      #ee845b 33.3%, #ee845b 75%,
+      rgba(107,92,181,0.25) 75%, rgba(107,92,181,0.25) 100%);
+  }
+  input[type="range"].t-slider::-moz-range-thumb {
+    width: 18px; height: 18px;
+    border-radius: 50%; background: #ee845b;
+    border: 3px solid #ffffff; cursor: pointer;
+  }
+  .ticks {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 14px; pointer-events: none;
+  }
+  .tick {
+    position: absolute; transform: translateX(-50%);
+    font-size: 9.5px; color: #6b7186;
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    pointer-events: auto; cursor: pointer;
+    padding: 1px 4px; border-radius: 3px; user-select: none;
+  }
+  .tick::before {
+    content: ''; display: block;
+    width: 1px; height: 4px;
+    background: rgba(107, 92, 181, 0.45);
+    margin: 0 auto 2px;
+  }
+  .tick:hover { color: #6b5cb5; background: rgba(107, 92, 181, 0.08); }
+
+  /* Plot card */
+  .plot-card {
+    flex: 1;
+    margin: 0 52px 8px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(107, 92, 181, 0.10);
+    border: 1px solid rgba(107, 92, 181, 0.06);
+    padding: 8px 12px 4px;
+    display: flex; flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+  svg.profile { width: 100%; flex: 1; min-height: 0; }
+
+  .legend-bar {
+    display: flex; gap: 20px; justify-content: center;
+    font-size: 11.5px; color: #4a5066;
+    padding: 2px 0 4px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+  .legend-bar .item { display: flex; align-items: center; gap: 6px; }
+  .legend-bar .swatch {
+    display: inline-block;
+    width: 22px; height: 0;
+    border-bottom: 2.5px solid currentColor;
+  }
+  .legend-bar .swatch.dashed { border-bottom-style: dashed; }
+  .legend-bar .swatch.thin   { border-bottom-width: 1.6px; }
+
+  /* Punchline */
+  .punch {
+    margin: 0 52px 22px;
+    text-align: center;
+    background: rgba(56, 178, 172, 0.08);
+    border-left: 3px solid #38b2ac;
+    padding: 10px 18px; border-radius: 4px;
+    font-size: 14px; font-weight: 500;
+    color: #2c3142; line-height: 1.45;
+    flex-shrink: 0;
+  }
+  .punch b { color: #c2492a; font-weight: 700; }
+  .punch .v {
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    color: #6b5cb5; font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .punch .ok { color: #2c8a83; font-weight: 700; }
+</style>
+</head>
+<body>
+  <div class="title-bar">
+    <span class="badge">Mechanism &mdash; live</span>
+    <span class="slide-title">BTCS smears the post-swing gradient at the &lambda; jump</span>
+  </div>
+  <div class="subtitle">
+    Vertical temperature profile through the concrete-roof column. A
+    <b>&times;37 thermal-conductivity jump</b> at z = 10 cm &mdash; concrete deck
+    (&lambda; = 1.50 W m<sup>&minus;1</sup> K<sup>&minus;1</sup>) over mineral-wool insulation (&lambda; = 0.04) &mdash;
+    concentrates the temperature gradient at the layer interface. Drag the time slider:
+    at coarse &Delta;t, BTCS visibly distorts the curvature where the conductivity jumps.
+  </div>
+
+  <div class="control-card">
+    <div class="row1">
+      <span class="t-label">t =</span>
+      <span class="t-value" id="t-value">14:00</span>
+      <div class="slider-wrap">
+        <input type="range" class="t-slider" id="t-slider" min="0" max="95" step="1" value="56">
+        <div class="ticks" id="ticks"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="plot-card">
+    <svg class="profile" id="profile" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="legend-bar">
+      <div class="item" style="color:#2c8a83">
+        <span class="swatch"></span><span>fine-grid reference (&Delta;t = 15 s)</span>
+      </div>
+      <div class="item" style="color:#d97757">
+        <span class="swatch"></span><span>BTCS &Delta;t = 60 s</span>
+      </div>
+      <div class="item" style="color:#c2492a">
+        <span class="swatch dashed"></span><span>BTCS &Delta;t = 600 s</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="punch" id="punch">
+    Drag the slider through the diurnal cycle &mdash; watch the kink at z = 10 cm round off as &Delta;t grows.
+  </div>
+
+<script>
+"use strict";
+
+// =============================================================
+// FAITHFUL PORT of run_experiments.py run_column() for the
+// concrete-roof column. BTCS at three Δt values (15, 60, 600 s)
+// with prognostic SEB Newton iteration at the top boundary,
+// stretched grid (n_levels=30, stretch=1.18, dz1=0.005), full
+// 2 m column, Neumann zero-flux at the bottom — operator-split
+// column-then-SEB ordering each step (the splitting analyzed
+// in long report §5.2). Snapshots day-2 profiles every 15 min.
+// =============================================================
+
+// --- atmospheric-forcing constants (run_experiments.py) ----
+var SIGMA_SB = 5.670374419e-8;
+var ALBEDO   = 0.30;     // concrete_roof
+var EMIS     = 0.92;
+var C_H      = 5.0e-3;
+var RHO_AIR  = 1.2;
+var CP_AIR   = 1005.0;
+var U_WIND   = 3.0;
+var OMEGA    = 2.0 * Math.PI / 86400.0;
+
+// (z_bottom, λ, C) — matches run_experiments.py SUBSTRATES["concrete_roof"]
+var LAYERS_PROJECT = [
+  [0.10, 1.50,  2.1e6 ],
+  [0.20, 0.04,  0.08e6],
+  [2.00, 0.15,  1.5e6 ]
+];
+
+// Visualization layer info (top 30 cm — for shading/labels in the plot)
+var LAYERS = [
+  { name: 'concrete',   z0: 0.00, z1: 0.10, lambda: 1.50, C: 2.1e6  },
+  { name: 'insulation', z0: 0.10, z1: 0.20, lambda: 0.04, C: 0.08e6 },
+  { name: 'drywall',    z0: 0.20, z1: 0.30, lambda: 0.15, C: 1.5e6  }
+];
+
+var Z_MAX = 0.30;  // top 30 cm shown; full simulation runs to z = 2 m
+
+// --- forcing functions (run_experiments.py) ---
+function S_down(t) {
+  return Math.max(1000.0 * Math.cos(OMEGA * (t - 12 * 3600.0)), 0.0);
+}
+function L_down(t) {
+  return 350.0 + 20.0 * Math.cos(OMEGA * (t - 14 * 3600.0));
+}
+function T_air(t) {
+  return 292.5 + 7.5 * Math.cos(OMEGA * (t - 14 * 3600.0));
+}
+
+// --- stretched grid (matches make_grid in run_experiments.py) ---
+function makeGrid(zTop, nLevels, stretch, dz1) {
+  var dzs = [];
+  for (var i = 0; i < nLevels; i++) dzs.push(dz1 * Math.pow(stretch, i));
+  var sum = 0;
+  for (var i = 0; i < dzs.length; i++) sum += dzs[i];
+  if (sum > zTop) {
+    var cum = 0;
+    for (var i = 0; i < nLevels; i++) {
+      cum += dzs[i];
+      if (cum > zTop) {
+        nLevels = i + 1;
+        dzs = dzs.slice(0, nLevels);
+        break;
+      }
+    }
+  }
+  var sumPrev = 0;
+  for (var i = 0; i < nLevels - 1; i++) sumPrev += dzs[i];
+  dzs[nLevels - 1] = zTop - sumPrev;
+  var z = [dzs[0] / 2.0];
+  for (var j = 1; j < nLevels; j++) {
+    z.push(z[j - 1] + (dzs[j - 1] + dzs[j]) / 2.0);
+  }
+  var dzc = [];
+  for (var j = 1; j < nLevels; j++) dzc.push(z[j] - z[j - 1]);
+  return { z: z, dzs: dzs, dzc: dzc };
+}
+
+// --- per-cell λ, C; harmonic-mean λ at half-levels ---
+function assignLayeredProps(z, layers) {
+  var N = z.length;
+  var lam = new Array(N);
+  var C = new Array(N);
+  for (var j = 0; j < N; j++) {
+    lam[j] = layers[layers.length - 1][1];
+    C[j] = layers[layers.length - 1][2];
+    for (var i = 0; i < layers.length; i++) {
+      if (z[j] <= layers[i][0]) {
+        lam[j] = layers[i][1];
+        C[j] = layers[i][2];
+        break;
+      }
+    }
+  }
+  var lamHalf = new Array(N - 1);
+  for (var j = 0; j < N - 1; j++) {
+    lamHalf[j] = 2.0 / (1.0 / lam[j] + 1.0 / lam[j + 1]);
+  }
+  return { lam: lam, C: C, lamHalf: lamHalf };
+}
+
+// --- SEB residual (R_n − H − G = 0; LE = 0) and Newton iteration ---
+function sebResidual(Ts0, Tint, dzc0, lamH0, t) {
+  var Sd = S_down(t);
+  var Ld = L_down(t);
+  var Ta = T_air(t);
+  var rA = 1.0 / (C_H * U_WIND);
+  var Rn = (1.0 - ALBEDO) * Sd + EMIS * Ld - EMIS * SIGMA_SB * Math.pow(Ts0, 4);
+  var H = RHO_AIR * CP_AIR * (Ts0 - Ta) / rA;
+  var G = lamH0 * (Ts0 - Tint) / dzc0;
+  return Rn - H - G;
+}
+function sebDerivative(Ts0, dzc0, lamH0) {
+  var rA = 1.0 / (C_H * U_WIND);
+  return -4.0 * EMIS * SIGMA_SB * Math.pow(Ts0, 3) - RHO_AIR * CP_AIR / rA - lamH0 / dzc0;
+}
+function solveSEB(Tint, dzc0, lamH0, t, Ts0Init) {
+  var Ts0 = Ts0Init;
+  for (var iter = 0; iter < 20; iter++) {
+    var f = sebResidual(Ts0, Tint, dzc0, lamH0, t);
+    var df = sebDerivative(Ts0, dzc0, lamH0);
+    var dTs = -f / df;
+    Ts0 += dTs;
+    if (Math.abs(dTs) < 1e-4) return Ts0;
+  }
+  return Ts0;
+}
+
+// --- initial profile: damping-depth analytic (Option B init in the report) ---
+function initialProfile(z, T0, Aamp, kappaEff) {
+  var d = Math.sqrt(2.0 * kappaEff / OMEGA);
+  var T = new Array(z.length);
+  for (var j = 0; j < z.length; j++) {
+    T[j] = T0 + Aamp * Math.exp(-z[j] / d) * Math.cos(-z[j] / d);
+  }
+  return T;
+}
+
+// --- Thomas tridiagonal solve ---
+function thomas(sub, mid, sup, rhs) {
+  var n = rhs.length;
+  var c = new Array(n);
+  var d = new Array(n);
+  c[0] = sup[0] / mid[0];
+  d[0] = rhs[0] / mid[0];
+  for (var i = 1; i < n; i++) {
+    var m = mid[i] - sub[i] * c[i - 1];
+    c[i] = (i < n - 1) ? sup[i] / m : 0;
+    d[i] = (rhs[i] - sub[i] * d[i - 1]) / m;
+  }
+  var x = new Array(n);
+  x[n - 1] = d[n - 1];
+  for (var i = n - 2; i >= 0; i--) x[i] = d[i] - c[i] * x[i + 1];
+  return x;
+}
+
+// --- BTCS step. Top: T[0] is Dirichlet (set by SEB outside). Bottom: Neumann zero-flux. ---
+function buildBTCSMatrix(dt, dzs, dzc, lamHalf, C) {
+  var N = dzs.length;
+  var sub = new Array(N).fill(0);
+  var mid = new Array(N).fill(1.0);
+  var sup = new Array(N).fill(0);
+  for (var j = 1; j < N - 1; j++) {
+    var a = dt * lamHalf[j - 1] / (C[j] * dzs[j] * dzc[j - 1]);
+    var b = dt * lamHalf[j]     / (C[j] * dzs[j] * dzc[j]);
+    sub[j] = -a;
+    mid[j] = 1.0 + a + b;
+    sup[j] = -b;
+  }
+  // Top row: T[0] = T_top → mid[0]=1, sup[0]=0, sub[0]=0
+  // Bottom row: Neumann (T[N-1] = T[N-2]) → mid[N-1]=1, sub[N-1]=-1
+  sub[N - 1] = -1.0;
+  return { sub: sub, mid: mid, sup: sup };
+}
+function btcsStep(T, mat, Ttop) {
+  var rhs = T.slice();
+  rhs[0] = Ttop;
+  rhs[rhs.length - 1] = 0.0; // Neumann zero-flux RHS
+  return thomas(mat.sub, mat.mid, mat.sup, rhs);
+}
+
+// --- 2-day BTCS-SEB integration; return 96 day-2 profiles (every 15 min) ---
+function runBTCS_SEB(dt) {
+  var grid = makeGrid(2.0, 30, 1.18, 0.005);
+  var props = assignLayeredProps(grid.z, LAYERS_PROJECT);
+  var lam = props.lam, C = props.C, lamHalf = props.lamHalf;
+  var z = grid.z, dzs = grid.dzs, dzc = grid.dzc;
+  var N = z.length;
+
+  var kappaTop = lam[0] / C[0];
+  var T = initialProfile(z, 292.5, 7.5, kappaTop);
+  T[0] = solveSEB(T[1], dzc[0], lamHalf[0], 0.0, T[0]);
+
+  var totalSeconds = 2 * 86400;
+  var nSteps = Math.round(totalSeconds / dt);
+  var dtUse = totalSeconds / nSteps;
+  var mat = buildBTCSMatrix(dtUse, dzs, dzc, lamHalf, C);
+
+  var SNAP_DT_S = 900;
+  var snaps = [];
+  for (var i = 0; i < 96; i++) snaps.push(null);
+  var nextSnapIdx = 0;
+  var nextSnapTime = 86400;
+
+  var t = 0;
+  for (var step = 0; step < nSteps; step++) {
+    var tNew = t + dtUse;
+    // Operator-split column-then-SEB (long report §5.2):
+    T = btcsStep(T, mat, T[0]);                                     // Step 1: column
+    T[0] = solveSEB(T[1], dzc[0], lamHalf[0], tNew, T[0]);          // Step 2: SEB Newton
+    t = tNew;
+
+    while (nextSnapIdx < 96 && t >= nextSnapTime - 1e-6) {
+      snaps[nextSnapIdx] = T.slice();
+      nextSnapIdx++;
+      nextSnapTime += SNAP_DT_S;
+    }
+    if (nextSnapIdx >= 96) break;
+  }
+  for (var i = 0; i < 96; i++) {
+    if (snaps[i] === null) snaps[i] = T.slice();
+  }
+  return { z: z, snaps: snaps };
+}
+
+// --- precompute three runs ---
+var t0 = performance.now();
+var REF_RUN   = runBTCS_SEB(15);
+var DT60_RUN  = runBTCS_SEB(60);
+var DT600_RUN = runBTCS_SEB(600);
+var elapsed = (performance.now() - t0).toFixed(0);
+
+var Z_FULL = REF_RUN.z;
+var SNAPS = {
+  ref:    REF_RUN.snaps,
+  dt60:   DT60_RUN.snaps,
+  dt600:  DT600_RUN.snaps
+};
+
+// --- restrict the plot to the top 30 cm ---
+var nPlot = 0;
+for (var j = 0; j < Z_FULL.length; j++) {
+  if (Z_FULL[j] > 0.30) break;
+  nPlot = j + 1;
+}
+// Z_PLOT places T[0] visually at z = 0 (surface convention).
+var Z_PLOT = new Array(nPlot);
+Z_PLOT[0] = 0;
+for (var j = 1; j < nPlot; j++) Z_PLOT[j] = Z_FULL[j];
+
+// First cell below the concrete/insulation interface (z = 0.10 m).
+var IFACE_CELL = nPlot - 1;
+for (var j = 0; j < nPlot; j++) {
+  if (Z_FULL[j] > 0.10) { IFACE_CELL = j; break; }
+}
+
+// --- auto-scale T axis (in °C) ---
+var TMIN = Infinity, TMAX = -Infinity;
+['ref', 'dt60', 'dt600'].forEach(function(k) {
+  for (var i = 0; i < 96; i++) {
+    var s = SNAPS[k][i];
+    for (var j = 0; j < nPlot; j++) {
+      var Tc = s[j] - 273.15;
+      if (Tc < TMIN) TMIN = Tc;
+      if (Tc > TMAX) TMAX = Tc;
+    }
+  }
+});
+TMIN = Math.floor(TMIN - 1);
+TMAX = Math.ceil(TMAX + 1);
+
+// =============================================================
+// Plot. On mobile use a portrait viewBox so the SVG aspect-ratio
+// fills the phone screen vertically without distorting text — the
+// depth profile naturally elongates which actually helps mobile
+// readability of the depth axis.
+// =============================================================
+var IS_MOBILE = (typeof window !== 'undefined' && window.matchMedia &&
+                 window.matchMedia('(max-width: 760px)').matches);
+var SVG_W = 1000;
+var SVG_H = IS_MOBILE ? 1200 : 420;
+var PAD = IS_MOBILE
+  ? { top: 30, right: 130, bottom: 60, left: 60 }
+  : { top: 22, right: 130, bottom: 38, left: 60 };
+// Font/offset scaling — the SVG is rendered at scale ~0.34 on mobile
+// and ~0.8 on desktop; multiply user-unit font sizes by these inverses
+// to land readable rendered pixel sizes.
+var FS_MUL = IS_MOBILE ? 3.0 : 1.5;
+function fs(n)  { return String(Math.round(n * FS_MUL)); }
+function off(n) { return Math.round(n * FS_MUL); }
+var PLOT_W = SVG_W - PAD.left - PAD.right;
+var PLOT_H = SVG_H - PAD.top - PAD.bottom;
+
+var NS = 'http://www.w3.org/2000/svg';
+function svgEl(tag, attrs) {
+  var el = document.createElementNS(NS, tag);
+  if (attrs) for (var k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+}
+
+function xPx(T) { return PAD.left + ((T - TMIN) / (TMAX - TMIN)) * PLOT_W; }
+function yPx(z) { return PAD.top  + (z / Z_MAX) * PLOT_H; }
+
+var svg = document.getElementById('profile');
+svg.setAttribute('viewBox', '0 0 ' + SVG_W + ' ' + SVG_H);
+
+// Layer shading.
+var LAYER_FILLS = {
+  concrete:   'rgba(154, 154, 154, 0.18)',
+  insulation: 'rgba(232, 216, 168, 0.35)',
+  drywall:    'rgba(200, 180, 138, 0.25)'
+};
+LAYERS.forEach(function(L) {
+  svg.appendChild(svgEl('rect', {
+    x: PAD.left, y: yPx(L.z0),
+    width: PLOT_W, height: yPx(L.z1) - yPx(L.z0),
+    fill: LAYER_FILLS[L.name]
+  }));
+  // Layer label on the right.
+  var lab = svgEl('text', {
+    x: PAD.left + PLOT_W + off(8),
+    y: (yPx(L.z0) + yPx(L.z1)) / 2 + off(4),
+    'font-size': fs(11), fill: '#4a5066',
+    'font-style': 'italic'
+  });
+  lab.textContent = L.name + ' λ=' + L.lambda;
+  svg.appendChild(lab);
+});
+
+// Layer interface lines.
+LAYERS.slice(0, -1).forEach(function(L) {
+  svg.appendChild(svgEl('line', {
+    x1: PAD.left, x2: PAD.left + PLOT_W,
+    y1: yPx(L.z1), y2: yPx(L.z1),
+    stroke: '#6b7186', 'stroke-width': '1', 'stroke-dasharray': '3 3'
+  }));
+});
+
+// "λ ratio ×37" call-out at the concrete/insulation interface.
+var iface_y = yPx(0.10);
+var callX = PAD.left + off(8);
+var callW = off(90);
+var callH = off(22);
+svg.appendChild(svgEl('rect', {
+  x: callX, y: iface_y - callH/2, width: callW, height: callH,
+  rx: callH/2,
+  fill: '#c2492a'
+}));
+var callT = svgEl('text', {
+  x: callX + callW/2, y: iface_y + off(3),
+  'text-anchor': 'middle', 'font-size': fs(11), fill: '#fff',
+  'font-weight': '700'
+});
+callT.textContent = 'λ ratio ×37';
+svg.appendChild(callT);
+
+// Axes.
+svg.appendChild(svgEl('line', {
+  x1: PAD.left, x2: PAD.left + PLOT_W,
+  y1: PAD.top + PLOT_H, y2: PAD.top + PLOT_H,
+  stroke: '#9aa3b8'
+}));
+svg.appendChild(svgEl('line', {
+  x1: PAD.left, x2: PAD.left,
+  y1: PAD.top, y2: PAD.top + PLOT_H,
+  stroke: '#9aa3b8'
+}));
+
+// X tick labels (T axis).
+for (var T = Math.ceil(TMIN/5)*5; T <= TMAX; T += 5) {
+  svg.appendChild(svgEl('line', {
+    x1: xPx(T), x2: xPx(T),
+    y1: PAD.top, y2: PAD.top + PLOT_H,
+    stroke: 'rgba(107, 92, 181, 0.08)'
+  }));
+  var tl = svgEl('text', {
+    x: xPx(T), y: PAD.top + PLOT_H + off(16),
+    'text-anchor': 'middle', 'font-size': fs(11), fill: '#6b7186'
+  });
+  tl.textContent = T.toFixed(0);
+  svg.appendChild(tl);
+}
+svg.appendChild((function() {
+  var t = svgEl('text', {
+    x: PAD.left + PLOT_W / 2, y: PAD.top + PLOT_H + off(34),
+    'text-anchor': 'middle', 'font-size': fs(12), fill: '#4a5066', 'font-weight': '600'
+  });
+  t.textContent = 'temperature (°C)';
+  return t;
+})());
+
+// Y tick labels (depth).
+[0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30].forEach(function(z) {
+  svg.appendChild(svgEl('line', {
+    x1: PAD.left - 4, x2: PAD.left,
+    y1: yPx(z), y2: yPx(z),
+    stroke: '#9aa3b8'
+  }));
+  var lt = svgEl('text', {
+    x: PAD.left - off(8), y: yPx(z) + off(4),
+    'text-anchor': 'end', 'font-size': fs(11), fill: '#6b7186'
+  });
+  lt.textContent = (z * 100).toFixed(0);
+  svg.appendChild(lt);
+});
+svg.appendChild((function() {
+  var t = svgEl('text', {
+    x: off(18), y: PAD.top + PLOT_H / 2,
+    'text-anchor': 'middle', 'font-size': fs(12), fill: '#4a5066', 'font-weight': '600',
+    transform: 'rotate(-90 ' + off(18) + ' ' + (PAD.top + PLOT_H / 2) + ')'
+  });
+  t.textContent = 'depth z (cm)';
+  return t;
+})());
+
+// Three curve paths.
+function makeCurve(stroke, dash, width) {
+  var p = svgEl('path', {
+    fill: 'none', stroke: stroke,
+    'stroke-width': width, 'stroke-linejoin': 'round',
+    'stroke-linecap': 'round'
+  });
+  if (dash) p.setAttribute('stroke-dasharray', dash);
+  svg.appendChild(p);
+  return p;
+}
+var pathRef   = makeCurve('#2c8a83', null,  '2.6');
+var path60    = makeCurve('#d97757', null,  '2.0');
+var path600   = makeCurve('#c2492a', '6 4', '2.6');
+
+function profileToPath(snap) {
+  // snap is in Kelvin (full 26-cell column); plot only the top 30 cm in °C.
+  var d = '';
+  for (var i = 0; i < nPlot; i++) {
+    var Tc = snap[i] - 273.15;
+    d += (i === 0 ? 'M ' : ' L ') + xPx(Tc).toFixed(2) + ' ' + yPx(Z_PLOT[i]).toFixed(2);
+  }
+  return d;
+}
+
+function fmtTime(idx) {
+  var totalMin = idx * 15;
+  var h = Math.floor(totalMin / 60);
+  var m = totalMin % 60;
+  return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+}
+
+function update() {
+  var idx = parseInt(slider.value, 10);
+  document.getElementById('t-value').textContent = fmtTime(idx);
+  var ref  = SNAPS.ref[idx];
+  var s60  = SNAPS.dt60[idx];
+  var s600 = SNAPS.dt600[idx];
+  pathRef.setAttribute('d',  profileToPath(ref));
+  path60.setAttribute('d',   profileToPath(s60));
+  path600.setAttribute('d',  profileToPath(s600));
+
+  // Punchline: surface T error, BTCS-600 vs ref. Differences in K (= differences in °C).
+  var dTsurf = (s600[0] - ref[0]);
+  var dTinterface = (s600[IFACE_CELL] - ref[IFACE_CELL]);  // first cell below z = 10 cm
+  var p = document.getElementById('punch');
+  var srf = (Math.abs(dTsurf) < 0.05 ? '~0.0' : (dTsurf > 0 ? '+' : '') + dTsurf.toFixed(1)) + ' K';
+  var ifc = (Math.abs(dTinterface) < 0.05 ? '~0.0' : (dTinterface > 0 ? '+' : '') + dTinterface.toFixed(1)) + ' K';
+  if (Math.abs(dTinterface) > 0.5 || Math.abs(dTsurf) > 0.3) {
+    p.innerHTML =
+      'At <span class="v">t = ' + fmtTime(idx) + '</span>: BTCS &Delta;t = 600 s biased by ' +
+      '<span class="v">' + srf + '</span> at the surface and <span class="v">' + ifc + '</span> just below the &lambda; jump. ' +
+      'This <b>is</b> the operator-splitting error &mdash; <b>slide 11</b> quantifies it as first-order in &Delta;t; <b>slide 12</b> attributes its prefactor to &kappa;<sub>top</sub>.';
+  } else {
+    p.innerHTML =
+      'At <span class="v">t = ' + fmtTime(idx) + '</span>: surface bias <span class="v">' + srf + '</span>, ' +
+      'sub-interface bias <span class="v">' + ifc + '</span> &mdash; <span class="ok">profiles overlay</span> when forcing is mild.';
+  }
+}
+
+// Slider wiring.
+var slider = document.getElementById('t-slider');
+slider.addEventListener('input',  update);
+slider.addEventListener('change', update);
+
+// Tick presets at 0:00, 6:00, 12:00, 18:00, 24:00.
+var ticksDiv = document.getElementById('ticks');
+[
+  { idx: 0,  label: '00:00' },
+  { idx: 24, label: '06:00' },
+  { idx: 48, label: '12:00' },
+  { idx: 72, label: '18:00' },
+  { idx: 95, label: '24:00' }
+].forEach(function(p) {
+  var tick = document.createElement('div');
+  tick.className = 'tick';
+  tick.style.left = (p.idx / 95 * 100) + '%';
+  tick.textContent = p.label;
+  tick.addEventListener('click', function() {
+    slider.value = String(p.idx);
+    update();
+  });
+  ticksDiv.appendChild(tick);
+});
+
+// Arrow keys: ±1 step (15 min); Shift = ±4 (1 hour).
+window.addEventListener('keydown', function(e) {
+  if (e.target && e.target.tagName === 'INPUT' && e.target !== slider) return;
+  var step = e.shiftKey ? 4 : 1;
+  if (e.key === 'ArrowLeft') {
+    slider.value = String(Math.max(0, parseInt(slider.value, 10) - step));
+    update();
+    e.preventDefault();
+  } else if (e.key === 'ArrowRight') {
+    slider.value = String(Math.min(95, parseInt(slider.value, 10) + step));
+    update();
+    e.preventDefault();
+  }
+});
+
+update();
+console.info('Slide 10 faithful BTCS-SEB: 3 runs precomputed in ' + elapsed + ' ms.');
+</script>
+
+</body>
+</html>

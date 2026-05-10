@@ -12,14 +12,13 @@ body, html {
   font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
   background: #eaf0f8;
   color: #2c3142;
-  line-height: 1.6;
+  line-height: 1.65;
 }
 .layout {
   display: grid;
   grid-template-columns: 280px 1fr;
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
-  gap: 0;
 }
 .toc {
   position: sticky;
@@ -58,7 +57,7 @@ body, html {
 }
 main {
   padding: 40px 60px 80px 60px;
-  max-width: 900px;
+  max-width: 1100px;
 }
 h1 {
   color: #2c3142;
@@ -69,16 +68,16 @@ h1 {
 }
 h2 {
   color: #6b5cb5;
-  font-size: 22px;
+  font-size: 24px;
   margin-top: 40px;
-  margin-bottom: 10px;
-  padding-top: 12px;
+  margin-bottom: 12px;
+  padding-top: 14px;
   border-top: 1px solid rgba(107, 92, 181, 0.15);
 }
 h3 {
   color: #4a5066;
-  font-size: 18px;
-  margin-top: 28px;
+  font-size: 19px;
+  margin-top: 30px;
   margin-bottom: 8px;
 }
 h4 {
@@ -90,7 +89,7 @@ h4 {
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-p { margin: 10px 0 14px 0; }
+p { margin: 10px 0 14px 0; font-size: 15px; }
 strong { color: #2c3142; }
 em { color: #4a5066; }
 code {
@@ -128,6 +127,7 @@ table {
   box-shadow: 0 2px 6px rgba(107, 92, 181, 0.08);
   border-radius: 6px;
   overflow: hidden;
+  font-size: 14px;
 }
 th {
   background: #6b5cb5;
@@ -140,14 +140,12 @@ th {
 td {
   padding: 8px 14px;
   border-top: 1px solid rgba(107, 92, 181, 0.1);
-  font-size: 13.5px;
 }
 tr:nth-child(even) td { background: rgba(107, 92, 181, 0.03); }
 hr { border: none; border-top: 1px solid rgba(107, 92, 181, 0.2); margin: 32px 0; }
 ul, ol { margin: 10px 0 14px 24px; padding: 0; }
-li { margin-bottom: 4px; }
+li { margin-bottom: 4px; font-size: 15px; }
 
-/* Math display blocks */
 mjx-container[display="true"] {
   margin: 14px 0 !important;
   overflow-x: auto;
@@ -155,11 +153,11 @@ mjx-container[display="true"] {
 
 /* Figure cards */
 .report-figure {
-  margin: 24px 0;
+  margin: 28px -20px;
   background: #ffffff;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(107, 92, 181, 0.10);
-  padding: 16px 18px;
+  padding: 18px 22px;
   border-left: 4px solid #6b5cb5;
 }
 .report-figure img {
@@ -170,28 +168,28 @@ mjx-container[display="true"] {
   border-radius: 4px;
 }
 .report-figure figcaption {
-  font-size: 13px;
+  font-size: 13.5px;
   color: #4a5066;
-  line-height: 1.55;
+  line-height: 1.6;
   border-top: 1px solid rgba(107, 92, 181, 0.1);
-  padding-top: 10px;
+  padding-top: 12px;
   margin-top: 8px;
 }
 .report-figure figcaption strong { color: #6b5cb5; }
 
-/* Interactive widget cards */
+/* Interactive widget cards — break out of main column for more width */
 .widget-card {
-  margin: 28px 0;
+  margin: 32px -60px;
   background: #ffffff;
   border-radius: 10px;
-  box-shadow: 0 4px 16px rgba(107, 92, 181, 0.12);
-  border: 2px solid rgba(238, 132, 91, 0.25);
+  box-shadow: 0 6px 20px rgba(107, 92, 181, 0.15);
+  border: 2px solid rgba(238, 132, 91, 0.30);
   overflow: hidden;
 }
 .widget-header {
   background: linear-gradient(90deg, #ee845b 0%, #d97757 100%);
   color: #ffffff;
-  padding: 12px 20px;
+  padding: 14px 24px;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -205,15 +203,12 @@ mjx-container[display="true"] {
   letter-spacing: 1.2px;
   padding: 3px 10px;
   border-radius: 3px;
+  white-space: nowrap;
 }
-.widget-title {
-  font-size: 15px;
-  font-weight: 700;
-}
+.widget-title { font-size: 16px; font-weight: 700; }
 .widget-frame-wrap {
   position: relative;
   width: 100%;
-  height: 540px;
   background: #fafafa;
 }
 .widget-frame {
@@ -223,39 +218,25 @@ mjx-container[display="true"] {
   display: block;
 }
 .widget-caption {
-  padding: 12px 20px;
+  padding: 14px 24px;
   background: rgba(238, 132, 91, 0.05);
-  font-size: 13px;
+  font-size: 13.5px;
   color: #4a5066;
-  line-height: 1.55;
+  line-height: 1.6;
   border-top: 1px solid rgba(238, 132, 91, 0.15);
 }
 
-/* Header banner */
 .banner {
   background: linear-gradient(135deg, #6b5cb5 0%, #8b6f3a 100%);
   color: #ffffff;
-  padding: 36px 60px;
-  margin: 0 -60px 24px -60px;
+  padding: 40px 60px;
+  margin: 0 -60px 28px -60px;
 }
-.banner h1 {
-  color: #ffffff;
-  margin: 0;
-  font-size: 30px;
-}
-.banner .subtitle {
-  font-size: 16px;
-  opacity: 0.95;
-  margin-top: 8px;
-}
-.banner .meta {
-  font-size: 13px;
-  opacity: 0.85;
-  margin-top: 16px;
-  font-family: 'Cascadia Code', 'Consolas', monospace;
-}
+.banner h1 { color: #ffffff; margin: 0; font-size: 30px; }
+.banner .subtitle { font-size: 16px; opacity: 0.95; margin-top: 8px; }
+.banner .meta { font-size: 13px; opacity: 0.85; margin-top: 16px; font-family: 'Cascadia Code', 'Consolas', monospace; }
 
-@media (max-width: 900px) {
+@media (max-width: 1000px) {
   .layout { grid-template-columns: 1fr; }
   .toc {
     position: relative;
@@ -265,7 +246,9 @@ mjx-container[display="true"] {
   }
   main { padding: 24px 18px 60px 18px; }
   .banner { padding: 24px 18px; margin: 0 -18px 20px -18px; }
-  .widget-frame-wrap { height: 420px; }
+  .widget-card { margin: 24px -18px; }
+  .widget-frame-wrap { height: 560px !important; }
+  .report-figure { margin: 24px 0; }
 }
 
 </style>
@@ -282,7 +265,6 @@ window.MathJax = {
   }
 };
 </script>
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
@@ -296,13 +278,13 @@ window.MathJax = {
 <li><a href="#part-2">Part 2. Continuous to discrete</a></li>
 <li><a href="#part-3">Part 3. Time-stepping schemes</a></li>
 <li><a href="#part-4">Part 4. The abstract</a></li>
-<li><a href="#part-5">Part 5. §1 Introduction</a></li>
-<li><a href="#part-6">Part 6. §2 Governing equation</a></li>
-<li><a href="#part-7">Part 7. §3 Methods</a></li>
-<li><a href="#part-8">Part 8. §4 Results</a></li>
-<li><a href="#part-9">Part 9. §5 Discussion</a></li>
-<li><a href="#part-10">Part 10. §6 SHAP</a></li>
-<li><a href="#part-11">Part 11. §7 Conclusions</a></li>
+<li><a href="#part-5">Part 5. Introduction</a></li>
+<li><a href="#part-6">Part 6. Governing equation</a></li>
+<li><a href="#part-7">Part 7. Methods</a></li>
+<li><a href="#part-8">Part 8. Results</a></li>
+<li><a href="#part-9">Part 9. Discussion</a></li>
+<li><a href="#part-10">Part 10. SHAP attribution</a></li>
+<li><a href="#part-11">Part 11. Conclusions</a></li>
 <li><a href="#part-12">Part 12. Mastery cheat-sheet</a></li>
 <li><a href="#part-13">Part 13. Glossary</a></li>
 <li><a href="#part-14">Part 14. Common confusions</a></li>
@@ -313,7 +295,7 @@ window.MathJax = {
   <div class="banner">
     <h1>Clarify the CLIM-715 Project</h1>
     <div class="subtitle">A mastery-level walkthrough — every concept, every equation, every notation explained</div>
-    <div class="meta">Companion to <code style="background:rgba(255,255,255,0.15);color:#fff">modified_full_report_1.docx</code> · Includes embedded figures from the report and live interactive widgets from the presentation</div>
+    <div class="meta">Companion to modified_full_report_1.docx · Embedded figures and 5 live interactive widgets from the deck</div>
   </div>
 
 
@@ -335,7 +317,7 @@ window.MathJax = {
 <h2 id="part-1">Part 1. Foundational physics: heat, temperature, and the substrate</h2>
 <h3>1.1 What does it mean for the ground to conduct heat?</h3>
 <p>Imagine a paving stone in the sun. The top is hot — say $50 ^\circ\mathrm{C}$. Five centimetres down, the stone is much cooler — say $30 ^\circ\mathrm{C}$. There is a temperature gradient inside the stone. As long as that gradient exists, heat will flow from the hot top to the cool bottom. This flow is conduction.</p>
-<p>The amount of heat that flows per square metre per second is the <strong>conductive heat flux</strong>, denoted $G$ in this project. The symbol $G$ is just a label — a single letter that stands for "ground heat flux at this location, at this time". Its units are watts per square metre, $\mathrm{W/m^{2}}$. By convention $G &gt; 0$ means flow downward (into the ground).</p>
+<p>The amount of heat that flows per square metre per second is the <strong>conductive heat flux</strong>, denoted $G$ in this project. The symbol $G$ is just a label — a single letter that stands for "ground heat flux at this location, at this time". Its units are watts per square metre, $\mathrm{W/m^{2}}$. By convention $G > 0$ means flow downward (into the ground).</p>
 <p>To make this less abstract: a typical mid-afternoon $G$ on a sun-warmed asphalt road is about $200$ W/m² (positive, into the ground). At night the same surface emits at perhaps $-50$ W/m² (negative, out of the ground).</p>
 <h3>1.2 The four key material properties</h3>
 <p>Every substrate is described by two material numbers, from which a third is derived. The fourth quantity is a length scale.</p>
@@ -351,7 +333,7 @@ window.MathJax = {
 <p><strong>Diurnal damping depth</strong> $d$. The depth at which the daily temperature wave decays to about 37% of its surface amplitude.</p>
 <p>$$d = \sqrt{\frac{2\kappa}{\omega}}, \qquad \omega = \frac{2\pi}{86400\ \text{s}} \approx 7.27 \times 10^{-5}\ \text{rad/s}.$$</p>
 <blockquote>
-<p><strong>Status: [Established theoretical formula]</strong>, derived from solving the heat equation in a semi-infinite medium with sinusoidal Dirichlet forcing (Carslaw &amp; Jaeger 1959 §2.6; Hillel 2003). Re-derived in Part 8.1.</p>
+<p><strong>Status: [Established theoretical formula]</strong>, derived from solving the heat equation in a semi-infinite medium with sinusoidal Dirichlet forcing (Carslaw &amp; Jaeger 1959 Section 2.6; Hillel 2003). Re-derived in Part 8.1.</p>
 </blockquote>
 <p><strong>Reading this equation.</strong> Left side: $d$, a length (metres). Right side: $\sqrt{ }$ is the square-root symbol; $2$ is the constant 2; $\kappa$ is thermal diffusivity; $\omega$ (Greek "omega") is the angular frequency of the daily cycle. Because one full cycle is $2\pi$ radians and one day is $86 400$ seconds, $\omega = 2\pi / 86 400 \approx 7.27 \times 10^{-5}$ radians per second. The square-root structure says: faster-diffusing materials (larger $\kappa$) feel the surface signal deeper; faster cycles (larger $\omega$) decay closer to the surface.</p>
 <blockquote>
@@ -401,10 +383,23 @@ window.MathJax = {
 </table>
 <p>So the daily wave penetrates only the top 8–14 cm. Our topmost grid cells must be much smaller than $d$ — typically half a centimetre to one centimetre.</p>
 <h3>1.4 Why $d$ matters for picking time steps</h3>
+
+<div class="widget-card">
+  <div class="widget-header">
+    <span class="widget-badge">Interactive widget</span>
+    <span class="widget-title">The 17-second problem — FTCS stability bound across substrates</span>
+  </div>
+  <div class="widget-frame-wrap" style="height:720px;">
+    <iframe class="widget-frame" src="widget_17sec.html" loading="lazy"></iframe>
+  </div>
+  <div class="widget-caption">Drag the $\Delta z$ slider to see how the FTCS maximum stable time step $\Delta t_{\max} = \frac{1}{2} \Delta z^2 / \kappa$ collapses as the grid gets finer. At $\Delta z = 5$ mm the concrete-deck bound is about 17 seconds. Vertical reference lines mark $\Delta t = 17$ s, 60 s, and 600 s.</div>
+</div>
+
+
 <p>For the explicit (FTCS) scheme, the maximum stable time step is</p>
 <p>$$\Delta t_{\max} = \frac{1}{2}\frac{\Delta z^2}{\kappa}.$$</p>
 <blockquote>
-<p><strong>Status: [Derived]</strong> from von Neumann stability analysis (Part 6.5). Standard result for parabolic equations [Notes #9 §Pure Diffusion].</p>
+<p><strong>Status: [Derived]</strong> from von Neumann stability analysis (Part 6.5). Standard result for parabolic equations Notes #9 (Pure Diffusion).</p>
 </blockquote>
 <p><strong>Reading this equation.</strong> $\Delta t_{\max}$ (read "delta t max") is the largest stable time step. The Greek $\Delta$ ("capital delta") is conventionally used for "small change in" — so $\Delta t$ is a discrete time step, $\Delta z$ is a grid cell thickness. The equation says: the maximum stable step is $\Delta z$ squared, divided by $\kappa$, times one-half. The "half" comes from the worst-case wavenumber in von Neumann analysis.</p>
 <p><strong>Worked example — the 17-second problem.</strong> For $\Delta z = 5$ mm $= 0.005$ m and the concrete deck's $\kappa = 7.14\times 10^{-7}$ m²/s:</p>
@@ -437,7 +432,7 @@ window.MathJax = {
 <li>$H = \rho c_p (T_s - T_a)/r_a$ has units (kg/m³)(J/kg/K)(K)/(s/m) = W/m². ✓</li>
 </ul>
 <blockquote>
-<p><strong>[Notes #3 §1 Taylor Series]</strong> is the algebraic foundation of the finite differences we use.</p>
+<p><strong>Lecture 3</strong> is the algebraic foundation of the finite differences we use.</p>
 </blockquote>
 <hr />
 <h2 id="part-2">Part 2. From a continuous PDE to a discrete computer program</h2>
@@ -451,15 +446,15 @@ window.MathJax = {
 <p><strong>Reading this equation.</strong> The symbol $\partial$ (a curly d, read "partial") is used instead of regular $d$ when the function depends on multiple variables. So $\partial T/\partial t$ means "rate of change of $T$ with respect to $t$, holding $z$ fixed". $\partial^2 T/\partial z^2$ is the second partial derivative with respect to $z$ — the curvature of $T$ as a function of $z$ at a fixed time.</p>
 <p>In plain words: at every point $(z, t)$, the temperature is rising in time at a rate proportional to how curved it is in space at that moment. If $T$ is concave-up (curving upward like a bowl bottom), the second derivative is positive and $T$ rises with time. If $T$ is concave-down (peak), $T$ falls. So heat diffuses by smoothing out curvature: peaks decay, troughs fill in.</p>
 <h3>2.2 The PDE classification — why heat is parabolic</h3>
-<p>[Notes #2] classifies linear second-order PDEs by the discriminant $B^2 - 4AC$ of the general form</p>
+<p>Notes #2 classifies linear second-order PDEs by the discriminant $B^2 - 4AC$ of the general form</p>
 <p>$$A u_{xx} + B u_{xy} + C u_{yy} + \text{lower-order terms} = 0.$$</p>
 <blockquote>
 <p><strong>Status: [Established]</strong> — standard PDE classification.</p>
 </blockquote>
 <p><strong>Reading this equation.</strong> Shorthand: $u_{xx}$ means $\partial^2 u/\partial x^2$, $u_{xy}$ means $\partial^2 u/\partial x \partial y$, $u_{yy}$ means $\partial^2 u/\partial y^2$. $A$, $B$, $C$ are coefficient functions. The discriminant $B^2 - 4AC$ is the same algebraic combination that classifies conic sections (ellipse, parabola, hyperbola).</p>
 <ul>
-<li><strong>Elliptic</strong> ($B^2 - 4AC &lt; 0$). Steady-state, no time direction.</li>
-<li><strong>Hyperbolic</strong> ($B^2 - 4AC &gt; 0$). Wave-like.</li>
+<li><strong>Elliptic</strong> ($B^2 - 4AC < 0$). Steady-state, no time direction.</li>
+<li><strong>Hyperbolic</strong> ($B^2 - 4AC > 0$). Wave-like.</li>
 <li><strong>Parabolic</strong> ($B^2 - 4AC = 0$). Diffusion-like.</li>
 </ul>
 <p>Our heat conduction equation $u_t - \kappa u_{zz} = 0$ has $A = -\kappa$ for $u_{zz}$, with $B = 0$ and $C = 0$. Discriminant: $0 - 4(-\kappa)(0) = 0$ — parabolic.</p>
@@ -498,18 +493,18 @@ window.MathJax = {
 <p>A finite-difference scheme is <strong>stable</strong> if small numerical errors at one time step do not grow unboundedly over many time steps. If errors grow, the solution "blows up" — temperatures become infinite or NaN. Stability is separate from accuracy.</p>
 <p>Some schemes are <strong>conditionally stable</strong> — $\Delta t$ must be smaller than some bound. Others are <strong>unconditionally stable</strong>.</p>
 <blockquote>
-<p><strong>[Notes #6 §10]</strong> introduces von Neumann analysis. <strong>[HW3]</strong> and <strong>[HW4]</strong> both used it.</p>
+<p><strong>Lecture 6</strong> introduces von Neumann analysis. <strong>[HW3]</strong> and <strong>[HW4]</strong> both used it.</p>
 </blockquote>
 <hr />
 <h2 id="part-3">Part 3. The vocabulary of finite-difference time-stepping schemes</h2>
 <h3>3.1 The general framework</h3>
-<p>[Notes #6 §3] introduces notation: let $\psi$ denote the true solution, $\phi_j^n$ the numerical approximation at $t = n \Delta t$. For the ODE form $d\psi/dt = f(\psi, t)$, the goal is to construct schemes for advancing $\phi^n \to \phi^{n+1}$ that approximate the exact integral</p>
+<p>Lecture 6 introduces notation: let $\psi$ denote the true solution, $\phi_j^n$ the numerical approximation at $t = n \Delta t$. For the ODE form $d\psi/dt = f(\psi, t)$, the goal is to construct schemes for advancing $\phi^n \to \phi^{n+1}$ that approximate the exact integral</p>
 <p>$$\psi^{n+1} = \psi^n + \int_{n\Delta t}^{(n+1)\Delta t} f(\psi, t) dt.$$</p>
 <blockquote>
 <p><strong>Status: [Established]</strong> — fundamental theorem of calculus.</p>
 </blockquote>
 <p><strong>Reading this equation.</strong> Symbols: $\psi$ (Greek "psi") is the true solution; $\phi$ (Greek "phi") is the numerical approximation. Superscripts $n$ and $n+1$ are time-level indices (not exponents): $\phi^n$ means "$\phi$ at time $n\Delta t$". The integral on the right is the area under the rate-function curve $f$ from $t = n\Delta t$ to $t = (n+1)\Delta t$. In plain words: the next value equals the current value plus the accumulated change in between, where the change is the integral of the rate $f$.</p>
-<h3>3.2 Explicit vs implicit (Notes #6 §5)</h3>
+<h3>3.2 Explicit vs implicit (Notes #6 Section 5)</h3>
 <p><strong>Explicit (forward Euler):</strong> $T^{n+1} = T^n + \Delta t f(T^n)$.</p>
 <p><strong>Reading this scheme.</strong> The new value $T^{n+1}$ equals the old value $T^n$ plus $\Delta t$ times the rate $f$ at the old time level. We approximate the integral as "(rate at start of interval) × (interval length)". Cheap per step, conditionally stable.</p>
 <p><strong>Implicit (backward Euler):</strong> $T^{n+1} = T^n + \Delta t f(T^{n+1})$.</p>
@@ -562,16 +557,16 @@ window.MathJax = {
 </tbody>
 </table>
 <blockquote>
-<p><strong>[Notes #6 §6 (Slides 15–17)]</strong> introduces these three schemes by name. The lecture-note formulae are</p>
+<p><strong>Lecture 6</strong> introduces these three schemes by name. The lecture-note formulae are</p>
 <p>$$\phi^{n+1} = \phi^n + \Delta t f^n \quad \text{(Euler/forward)}$$</p>
 <p>$$\phi^{n+1} = \phi^n + \Delta t f^{n+1} \quad \text{(Backward)}$$</p>
 <p>$$\phi^{n+1} = \phi^n + \tfrac{1}{2}\Delta t (f^n + f^{n+1}) \quad \text{(Trapezoidal)}$$</p>
 </blockquote>
 <h3>3.5 Other schemes you have seen</h3>
-<p>[Notes #6] discusses several more schemes.</p>
+<p>Notes #6 discusses several more schemes.</p>
 <p><strong>Matsuno scheme</strong> (predictor-corrector):</p>
-<p>$$\phi^{<em> n+1} = \phi^n + \Delta t f^n, \qquad \phi^{n+1} = \phi^n + \Delta t f(\phi^{</em> n+1}).$$</p>
-<p><strong>Reading this scheme.</strong> Two stages. The asterisk in $\phi^<em>$ flags it as a "guess" or "predictor". First a forward Euler step to get $\phi^</em>$. Then re-evaluate $f$ at the predicted value $\phi^*$, and use that for the actual update. Iterative explicit; approximates Backward Euler.</p>
+<p>$$\phi^{* n+1} = \phi^n + \Delta t f^n, \qquad \phi^{n+1} = \phi^n + \Delta t f(\phi^{* n+1}).$$</p>
+<p><strong>Reading this scheme.</strong> Two stages. The asterisk in $\phi^*$ flags it as a "guess" or "predictor". First a forward Euler step to get $\phi^*$. Then re-evaluate $f$ at the predicted value $\phi^*$, and use that for the actual update. Iterative explicit; approximates Backward Euler.</p>
 <p><strong>Heun scheme</strong> (2nd-order Runge–Kutta): explicit, second-order.</p>
 <p><strong>Leapfrog</strong>: $\phi^{n+1} = \phi^{n-1} + 2\Delta t f^n$. Three-level, explicit, second-order. Unstable for diffusion.</p>
 <blockquote>
@@ -605,7 +600,7 @@ window.MathJax = {
 <p><strong>"$\kappa_{\text{top}}$ is the dominant predictor..."</strong></p>
 <p>Notation: $\kappa_{\text{top}}$ is "$\kappa$ in the top cell". $R^2$ is the coefficient of determination — a number between 0 and 1 measuring how much of the target's variance the predictor explains.</p>
 <hr />
-<h2 id="part-5">Part 5. Walking through §1 Introduction</h2>
+<h2 id="part-5">Part 5. Walking through Section 1 Introduction</h2>
 <h3>5.1 Why the urban heat island depends on $G$ specifically</h3>
 <p>The urban heat island (UHI) is the systematic phenomenon that cities are warmer than rural areas, especially at night. The central mechanism for the night-time component is <strong>heat storage</strong>.</p>
 <p>During the day, urban materials absorb shortwave. After sunset, $R_n$ turns negative and stored heat is released. At night urban surface is still warm; rural one has cooled. The contrast is the nocturnal UHI. $G$ is the very quantity that puts heat into the urban substrate during the day and pulls it back at night.</p>
@@ -620,8 +615,8 @@ window.MathJax = {
 <p><strong>[HW2]</strong> asked you to verify amplitude conservation on a sine-wave initial condition. <strong>[HW4]</strong> plotted $|A_k|$ vs $k\Delta x$.</p>
 </blockquote>
 <hr />
-<h2 id="part-6">Part 6. Walking through §2 — Governing equation and numerical discretization</h2>
-<h3>6.1 §2.1 — Where the heat conduction equation comes from</h3>
+<h2 id="part-6">Part 6. Walking through Section 2 — Governing equation and numerical discretization</h2>
+<h3>6.1 Section 2.1 — Where the heat conduction equation comes from</h3>
 <p>The report writes the heat conduction equation in <strong>conductivity form</strong>:</p>
 <p>$$C_s(z) \frac{\partial T_s}{\partial t} = \frac{\partial}{\partial z}\left[\lambda_s(z) \frac{\partial T_s}{\partial z}\right].$$</p>
 <blockquote>
@@ -651,7 +646,7 @@ window.MathJax = {
 <li>$-\lambda_s$ — minus the thermal conductivity.</li>
 <li>$\partial T_s/\partial z$ — temperature gradient at depth $z$.</li>
 </ul>
-<p>In words: heat flux equals the negative of conductivity times temperature gradient. The minus sign encodes the second law: heat flows from hot to cold. If $T$ decreases with depth ($\partial T/\partial z &lt; 0$), then $q = -\lambda \cdot (\text{negative}) &gt; 0$ — flux is in the $+z$ direction (downward). Matches physical intuition.</p>
+<p>In words: heat flux equals the negative of conductivity times temperature gradient. The minus sign encodes the second law: heat flows from hot to cold. If $T$ decreases with depth ($\partial T/\partial z < 0$), then $q = -\lambda \cdot (\text{negative}) > 0$ — flux is in the $+z$ direction (downward). Matches physical intuition.</p>
 <p><strong>Step 2. Energy conservation in a thin slab.</strong> Pick a thin horizontal slab from depth $z$ to $z + dz$. Energy stored per unit horizontal area in the slab: $C_s T_s dz$. Rate of change of stored energy = net flux into the slab = $q(z) - q(z + dz)$:</p>
 <p>$$\frac{\partial}{\partial t}(C_s T_s dz) = q(z) - q(z + dz).$$</p>
 <blockquote>
@@ -664,7 +659,7 @@ window.MathJax = {
 <p>$$C_s \frac{\partial T_s}{\partial t} = -\frac{\partial}{\partial z}(-\lambda_s \frac{\partial T_s}{\partial z}) = \frac{\partial}{\partial z}(\lambda_s \frac{\partial T_s}{\partial z}).$$</p>
 <p>That is the conductivity-form heat equation. <strong>Status: [Derived]</strong> from two established laws.</p>
 <p><strong>Step 3. Why "conductivity form" instead of "diffusivity form"?</strong> If $\lambda$ and $C$ are constant, we can pull them out: $\partial T/\partial t = \kappa \partial^2 T/\partial z^2$ with $\kappa = \lambda/C$. In our layered substrates, $\lambda$ and $C$ jump across material interfaces, so we keep them inside the derivative to preserve discrete heat conservation.</p>
-<h3>6.2 §2.2 — The grid, the half-levels, the harmonic mean</h3>
+<h3>6.2 Section 2.2 — The grid, the half-levels, the harmonic mean</h3>
 <h4>Cell centres and the staggered grid</h4>
 <p>Replace continuous depth $z$ with <strong>cell centres</strong> $z_0, z_1, \ldots, z_{N-1}$. At each cell store one number: temperature $T_j$ at the centre of cell $j$.</p>
 <p><strong>Reading the notation.</strong> $T_j$ is "the temperature at cell $j$". The subscript $j$ is just a cell index — an integer from 0 up to $N-1$, where $N$ is the total number of cells. Between cells $j$ and $j+1$ lies a face at depth $z_{j+1/2} = (z_j + z_{j+1})/2$. The half-integer subscript $j+1/2$ is read as "between cell $j$ and cell $j+1$" — it is not literally a cell, just a label for the location halfway between two adjacent centres.</p>
@@ -679,12 +674,12 @@ window.MathJax = {
 </blockquote>
 <p><strong>Reading this equation.</strong> Symbols:</p>
 <ul>
-<li>$G_{j+1/2}$ — conductive heat flux through the face between cells $j$ and $j+1$. Sign: $G &gt; 0$ means downward.</li>
+<li>$G_{j+1/2}$ — conductive heat flux through the face between cells $j$ and $j+1$. Sign: $G > 0$ means downward.</li>
 <li>$\lambda_{j+1/2}$ — thermal conductivity at the face. Computed from cell-centre values $\lambda_j$ and $\lambda_{j+1}$ via the harmonic mean (next).</li>
-<li>$T_j - T_{j+1}$ — temperature drop from cell $j$ to cell $j+1$. If $T_j &gt; T_{j+1}$, heat flows downward.</li>
+<li>$T_j - T_{j+1}$ — temperature drop from cell $j$ to cell $j+1$. If $T_j > T_{j+1}$, heat flows downward.</li>
 <li>$z_{j+1} - z_j$ — centre-to-centre distance.</li>
 </ul>
-<p>In plain words: heat flux at this face = (effective conductivity at the face) × (temperature drop) / (distance). Just Fourier's law $q = \lambda \Delta T/\Delta z$ written for two adjacent cells. The minus sign in Fourier's law has been absorbed into writing $T_j - T_{j+1}$ instead of $T_{j+1} - T_j$, so $G &gt; 0$ means downward.</p>
+<p>In plain words: heat flux at this face = (effective conductivity at the face) × (temperature drop) / (distance). Just Fourier's law $q = \lambda \Delta T/\Delta z$ written for two adjacent cells. The minus sign in Fourier's law has been absorbed into writing $T_j - T_{j+1}$ instead of $T_{j+1} - T_j$, so $G > 0$ means downward.</p>
 <h4>Why the harmonic mean for $\lambda$ at faces?</h4>
 <p>Solve the steady-state conduction problem across an interface between two materials in series. Flux must be the same on both sides:</p>
 <p>$$q = \lambda_1 \frac{\Delta T_1}{\Delta z_1} = \lambda_2 \frac{\Delta T_2}{\Delta z_2}.$$</p>
@@ -709,7 +704,7 @@ window.MathJax = {
 </blockquote>
 <p><strong>Reading this equation.</strong> Symbols: $C_j$ is heat capacity in cell $j$; $\Delta z_j$ is cell thickness; $C_j \Delta z_j$ is heat capacity per unit horizontal area; $dT_j/dt$ is rate of change of cell temperature with time (regular $d$, not $\partial$, because once space is discretised, temperature is a function of time only); $G_{j-1/2}$ is flux entering at the top; $G_{j+1/2}$ is flux leaving at the bottom.</p>
 <p>Plain words: rate of energy accumulation in this cell = flux in at top - flux out at bottom. <strong>Semi-discrete</strong>: space discretised, time still continuous.</p>
-<h3>6.3 §2.3 — Building the $\theta$-method update equation</h3>
+<h3>6.3 Section 2.3 — Building the $\theta$-method update equation</h3>
 <p>The semi-discrete equation is $C_j \Delta z_j dT_j/dt = R_j(t)$, where $R_j = G_{j-1/2} - G_{j+1/2}$. Integrate from $t^n$ to $t^{n+1}$:</p>
 <p>$$C_j \Delta z_j (T_j^{n+1} - T_j^n) = \int_{t^n}^{t^{n+1}} R_j(t) dt.$$</p>
 <p><strong>Reading this equation.</strong> Left side: heat capacity times cell thickness times the temperature change over the step — that is the change in stored energy. Right side: integral of the rate $R_j$ over the step.</p>
@@ -734,12 +729,12 @@ window.MathJax = {
 </blockquote>
 <p><strong>Reading this.</strong> $R_m$ is rate at midpoint. $R'_m$ is its time derivative there. The two Taylor expansions look the same except $\Delta t/2 \cdot R'_m$ has opposite signs. Averaging cancels them. Trapezoid is second-order. Single rectangles are first-order.</p>
 <h4>Linear systems and tridiagonal solves</h4>
-<p>When $\alpha &gt; 0$, the RHS involves $T$ at level $n+1$. Each cell $j$ couples only to $j \pm 1$. Matrix is <strong>tridiagonal</strong>.</p>
+<p>When $\alpha > 0$, the RHS involves $T$ at level $n+1$. Each cell $j$ couples only to $j \pm 1$. Matrix is <strong>tridiagonal</strong>.</p>
 <p>Tridiagonal systems solve in $O(N)$ via the <strong>Thomas algorithm</strong> — <code>scipy.linalg.solve_banded((1,1), A, b)</code>.</p>
 <blockquote>
 <p><strong>Status: [Established algorithm]</strong> (Thomas 1949).</p>
 </blockquote>
-<h3>6.4 §2.4 — The boundary conditions</h3>
+<h3>6.4 Section 2.4 — The boundary conditions</h3>
 <p>Two main types:
 - <strong>Dirichlet</strong> — prescribes the value of $T$ at the boundary.
 - <strong>Neumann</strong> — prescribes the value of the gradient $\partial T/\partial z$ at the boundary.</p>
@@ -748,7 +743,7 @@ window.MathJax = {
 </blockquote>
 <p><strong>Lower boundary: zero-flux Neumann.</strong> At $z = z_{\text{top}} = 2$ m we impose $\partial T/\partial z = 0$. Discretely: $T_{N-1} = T_{N-2}$. <strong>Reading this</strong>: deepest cell ($j = N-1$) has the same temperature as the cell above ($j = N-2$), forcing the discrete gradient between them to zero, hence zero flux.</p>
 <p><strong>Upper boundary: Dirichlet on $T_s^0$.</strong> At cell 0 we set $T_0 = T_s^0$. The "0" superscript in $T_s^0$ is a label (depth zero), not an exponent.</p>
-<h3>6.5 §2.5 — Von Neumann stability analysis from scratch</h3>
+<h3>6.5 Section 2.5 — Von Neumann stability analysis from scratch</h3>
 <h4>Setup: linearise, idealise, then test</h4>
 <p>Von Neumann analysis works only for linear schemes on uniform grids with constant coefficients. Idealise: assume $\lambda$ and $C$ are constant, $\Delta z$ uniform, periodic boundaries.</p>
 <h4>Step 1 — Substitute a Fourier mode</h4>
@@ -763,7 +758,7 @@ window.MathJax = {
 <li>$A^n$ — symbol $A$ raised to $n$-th power. $A$ is the <strong>amplification factor</strong> (one complex number per wavenumber); $n$ is the time-level index. Per step, $A^n$ becomes $A^{n+1} = A \cdot A^n$ — so $A$ is the factor by which the mode is multiplied each step.</li>
 <li>$e^{ikj\Delta z}$ — complex exponential. $i$ is the imaginary unit ($i^2 = -1$); $k$ is wavenumber (rad/m); $j$ is cell index; $\Delta z$ is grid spacing. By Euler's identity $e^{ikj\Delta z} = \cos(kj\Delta z) + i\sin(kj\Delta z)$ — sinusoidal pattern in space.</li>
 </ul>
-<p>So $T_j^n = A^n e^{ikj\Delta z}$ is a sinusoid in space whose amplitude evolves multiplicatively in time by $A$ per step. We compute $A$ for each scheme to determine if mode grows ($|A| &gt; 1$) or decays ($|A| &lt; 1$).</p>
+<p>So $T_j^n = A^n e^{ikj\Delta z}$ is a sinusoid in space whose amplitude evolves multiplicatively in time by $A$ per step. We compute $A$ for each scheme to determine if mode grows ($|A| > 1$) or decays ($|A| < 1$).</p>
 <p>The grid resolves $k$ from 0 to $\pi/\Delta z$, so we need $|A(\nu, k\Delta z)| \le 1$ for $k\Delta z \in [0, \pi]$.</p>
 <h4>Step 2 — Plug into FTCS</h4>
 <p>$$T_j^{n+1} = T_j^n + \frac{\kappa \Delta t}{\Delta z^2}[T_{j+1}^n - 2T_j^n + T_{j-1}^n].$$</p>
@@ -776,7 +771,7 @@ window.MathJax = {
 <p>Use $e^{ix} + e^{-ix} = 2\cos x$:</p>
 <p>$$A_{\text{FTCS}}(\nu, k\Delta z) = 1 - 2\nu(1 - \cos k\Delta z).$$</p>
 <blockquote>
-<p><strong>Status: [Derived]</strong> above. <strong>Established result</strong> [Notes #9 §Pure Diffusion].</p>
+<p><strong>Status: [Derived]</strong> above. <strong>Established result</strong> Notes #9 (Pure Diffusion).</p>
 </blockquote>
 <p><strong>Reading this final formula.</strong> $A_{\text{FTCS}}$ depends on $\nu$ and $k\Delta z$. The factor $(1 - \cos k\Delta z)$ ranges from 0 (at $k\Delta z = 0$) to 2 (at $k\Delta z = \pi$). At long wavelengths $A \approx 1$. At the shortest wavelength, $A = 1 - 4\nu$ — negative or large in magnitude depending on $\nu$.</p>
 <h4>Step 3 — Plug into BTCS</h4>
@@ -803,11 +798,11 @@ window.MathJax = {
 <p>$$A(1 + h) = 1 - h.$$</p>
 <p>$$A_{\text{CN}}(\nu, k\Delta z) = \frac{1 - h}{1 + h} = \frac{1 - \nu(1 - \cos k\Delta z)}{1 + \nu(1 - \cos k\Delta z)}.$$</p>
 <blockquote>
-<p><strong>Status: [Derived]</strong> above. <strong>Established result</strong> [Notes #9 §Implicit Diffusion].</p>
+<p><strong>Status: [Derived]</strong> above. <strong>Established result</strong> Notes #9 (Implicit Diffusion).</p>
 </blockquote>
-<p><strong>Reading this final formula.</strong> Form $(1-h)/(1+h)$ where $h \ge 0$. For $h \in [0, 1]$, $A \in [0, 1]$. For $h &gt; 1$, $A &lt; 0$ but $|A| &lt; 1$. As $h \to \infty$, $A \to -1$. So at large $\nu$, the worst wave is preserved in magnitude but flips sign — the <em>over-damping pathology</em>.</p>
+<p><strong>Reading this final formula.</strong> Form $(1-h)/(1+h)$ where $h \ge 0$. For $h \in [0, 1]$, $A \in [0, 1]$. For $h > 1$, $A < 0$ but $|A| < 1$. As $h \to \infty$, $A \to -1$. So at large $\nu$, the worst wave is preserved in magnitude but flips sign — the <em>over-damping pathology</em>.</p>
 <h4>What $|A| \le 1$ means</h4>
-<p>After $n$ steps, amplitude is $A^n$. If $|A| &gt; 1$, the mode grows exponentially. If $|A| \le 1$, the mode holds steady or decays.</p>
+<p>After $n$ steps, amplitude is $A^n$. If $|A| > 1$, the mode grows exponentially. If $|A| \le 1$, the mode holds steady or decays.</p>
 <h4>Why $k\Delta z = \pi$ is the worst case</h4>
 <p>The factor $(1 - \cos k\Delta z)$ ranges from 0 (at $k\Delta z = 0$) to 2 (at $k\Delta z = \pi$). Worst case at $k\Delta z = \pi$, the <strong>2-$\Delta z$ wave</strong>. Substituting:</p>
 <p>$$A_{\text{FTCS}}(\nu, \pi) = 1 - 4\nu, \quad A_{\text{BTCS}}(\nu, \pi) = \frac{1}{1 + 4\nu}, \quad A_{\text{CN}}(\nu, \pi) = \frac{1 - 2\nu}{1 + 2\nu}.$$</p>
@@ -817,7 +812,7 @@ window.MathJax = {
 <h4>Reading the stability conclusions</h4>
 <p><strong>FTCS</strong> at the worst wave: $A = 1 - 4\nu$. For $|A| \le 1$ need $\nu \le 1/2$. <strong>Conditionally stable</strong> with bound</p>
 <p>$$\nu \le \frac{1}{2}, \quad \text{i.e.,} \quad \Delta t \le \frac{1}{2}\frac{\Delta z^2}{\kappa}.$$</p>
-<p><strong>BTCS</strong>: $|A| &lt; 1$ always. <strong>Unconditionally stable</strong>, strictly damping.</p>
+<p><strong>BTCS</strong>: $|A| < 1$ always. <strong>Unconditionally stable</strong>, strictly damping.</p>
 <p><strong>CN</strong>: $|A| \le 1$ always. <strong>Unconditionally stable</strong>. As $\nu \to \infty$, $A \to -1$ — over-damping pathology.</p>
 <blockquote>
 <p><strong>[HW4]</strong> plotted $|A_k|$ against $k\Delta x$ for an advection scheme. Same logical structure here for a parabolic equation, with worst case at $k\Delta z = \pi$.</p>
@@ -834,12 +829,12 @@ window.MathJax = {
 <div class="widget-card">
   <div class="widget-header">
     <span class="widget-badge">Interactive widget</span>
-    <span class="widget-title">Von Neumann amplification factors</span>
+    <span class="widget-title">Von Neumann amplification factors — live</span>
   </div>
-  <div class="widget-frame-wrap">
+  <div class="widget-frame-wrap" style="height:820px;">
     <iframe class="widget-frame" src="window_von_neuman.html" loading="lazy"></iframe>
   </div>
-  <div class="widget-caption">Drag the $\nu$ slider in each panel to see the amplification factor magnitude $|A_k|$ for FTCS, BTCS, and CN respond to the diffusion number. FTCS becomes unstable above $\nu = 1/2$ at the $2\Delta z$ wave; BTCS and CN remain bounded for any $\nu$.</div>
+  <div class="widget-caption">Drag the $\nu$ slider in each panel to see how the amplification factor magnitude $|A_k|$ for FTCS, BTCS, and CN responds to the diffusion number. FTCS becomes unstable above $\nu = 1/2$ at the $2\Delta z$ wave; BTCS and CN remain bounded for any $\nu$.</div>
 </div>
 
 
@@ -871,20 +866,20 @@ window.MathJax = {
 <h4>Why we have CN at all</h4>
 <p>At resolved scales (small $k\Delta z$), CN is much more accurate per step than BTCS — second-order vs first-order.</p>
 <hr />
-<h2 id="part-7">Part 7. Walking through §3 — Methods</h2>
-<h3>7.1 §3.1 — What "parameterised by $\alpha$" means in code</h3>
-<p>One Python function <code>step_alpha(T, dt, ..., alpha, ...)</code>. When $\alpha = 0$: vectorised arithmetic update. When $\alpha &gt; 0$: tridiagonal solve.</p>
-<h3>7.2 §3.2 — Substrate definitions</h3>
+<h2 id="part-7">Part 7. Walking through Section 3 — Methods</h2>
+<h3>7.1 Section 3.1 — What "parameterised by $\alpha$" means in code</h3>
+<p>One Python function <code>step_alpha(T, dt, ..., alpha, ...)</code>. When $\alpha = 0$: vectorised arithmetic update. When $\alpha > 0$: tridiagonal solve.</p>
+<h3>7.2 Section 3.2 — Substrate definitions</h3>
 
 <div class="widget-card">
   <div class="widget-header">
     <span class="widget-badge">Interactive widget</span>
     <span class="widget-title">3D visualisation of the three substrate columns</span>
   </div>
-  <div class="widget-frame-wrap">
+  <div class="widget-frame-wrap" style="height:800px;">
     <iframe class="widget-frame" src="CLIM715_Substrate_3D_Visualization_v3.html" loading="lazy"></iframe>
   </div>
-  <div class="widget-caption">The three substrate columns visualised in 3D — asphalt road (4 layers), concrete roof with mineral-wool insulation (3 layers), bare sandy loam (uniform). Each column is 2 m deep. Drag to rotate; scroll to zoom; the diurnal sun cycle illuminates the surface.</div>
+  <div class="widget-caption">The three substrate columns visualised in 3D — asphalt road (4 layers), concrete roof with mineral-wool insulation (3 layers), bare sandy loam (uniform). Each column is 2 m deep. Drag to rotate, scroll to zoom; the diurnal sun cycle illuminates the surface.</div>
 </div>
 
 
@@ -901,7 +896,7 @@ window.MathJax = {
 <blockquote>
 <p><strong>Status: [Project-specific definitions]</strong>.</p>
 </blockquote>
-<h3>7.3 §3.3 — The surface energy balance and Newton iteration</h3>
+<h3>7.3 Section 3.3 — The surface energy balance and Newton iteration</h3>
 <h4>The SEB</h4>
 <p>$$R_n(T_s^0) - H(T_s^0) - LE(T_s^0) - G(T_s^0) = 0.$$</p>
 <blockquote>
@@ -947,7 +942,7 @@ window.MathJax = {
 <blockquote>
 <p><strong>Status: [Definition]</strong>.</p>
 </blockquote>
-<p><strong>Reading this equation.</strong> Same as discrete-flux formula from §6.2, applied at the top face (between surface at $z_0 = 0$ and first interior cell at $z_1$). $\lambda_{1/2}$ is the harmonic mean conductivity at that face.</p>
+<p><strong>Reading this equation.</strong> Same as discrete-flux formula from Section 6.2, applied at the top face (between surface at $z_0 = 0$ and first interior cell at $z_1$). $\lambda_{1/2}$ is the harmonic mean conductivity at that face.</p>
 <h4>Why the SEB is nonlinear</h4>
 <p>The $(T_s^0)^4$ term makes the SEB nonlinear in $T_s^0$. We must find the root of $F(T_s^0) = R_n - H - LE - G$ by Newton iteration.</p>
 <h4>Newton's method</h4>
@@ -962,7 +957,7 @@ window.MathJax = {
 <blockquote>
 <p><strong>Status: [Established]</strong> — Newton's method (Newton 1669, Raphson 1690).</p>
 </blockquote>
-<p><strong>Reading this equation.</strong> Geometrically: find where the tangent line crosses zero; use that as the new guess. Iterate until $|T_{s,\text{new}}^0 - T_{s,\text{old}}^0| &lt; 10^{-4}$ K. Quadratic convergence.</p>
+<p><strong>Reading this equation.</strong> Geometrically: find where the tangent line crosses zero; use that as the new guess. Iterate until $|T_{s,\text{new}}^0 - T_{s,\text{old}}^0| < 10^{-4}$ K. Quadratic convergence.</p>
 <h4>The full analytical Jacobian</h4>
 <p>$$\frac{dF}{dT_s} = \frac{dR_n}{dT_s} - \frac{dH}{dT_s} - \frac{dG}{dT_s}.$$</p>
 <p>Term by term:</p>
@@ -978,7 +973,7 @@ window.MathJax = {
 <blockquote>
 <p><strong>Status: [Derived]</strong> — $G$ is linear in $T_s$.</p>
 </blockquote>
-<h3>7.4 §3.4 — The synthetic forcing</h3>
+<h3>7.4 Section 3.4 — The synthetic forcing</h3>
 <p>With $\omega = 2\pi/86400$ rad/s:</p>
 <p>$$S_\downarrow(t) = \max[1000 \cos(\omega(t - 12 \mathrm{h})),\ 0]\ \text{W/m}^2.$$</p>
 <p><strong>Reading this equation.</strong> $\max[a, b]$ returns the larger of $a$, $b$. The cosine peaks at $t = 12$ h (noon), so $S_\downarrow$ peaks at noon at 1000 W/m². When the cosine goes negative (sun below horizon), the max with zero clips at zero.</p>
@@ -990,19 +985,19 @@ window.MathJax = {
 <blockquote>
 <p><strong>Status: [Project-specific definitions]</strong>.</p>
 </blockquote>
-<h3>7.5 §3.5 — Initialization</h3>
+<h3>7.5 Section 3.5 — Initialization</h3>
 <p>$$T(z, 0) = T_{\text{mean}} + A_0 e^{-z/d_{\text{top}}} \cos(-z/d_{\text{top}}), \qquad d_{\text{top}} = \sqrt{\frac{2 \kappa_{\text{top}}}{\omega}}.$$</p>
 <blockquote>
 <p><strong>Status: [Established]</strong> — analytical damping-depth solution at $t = 0$. Re-derived in Part 8.1.</p>
 </blockquote>
 <p><strong>Reading this equation.</strong> $T(z, 0)$ is temperature at depth $z$ and time 0. $T_{\text{mean}} = 292.5$ K. $A_0 = 7.5$ K. The exponential $e^{-z/d_{\text{top}}}$ decays with depth. The cosine $\cos(-z/d_{\text{top}})$ oscillates with depth (at $z = 0$ it equals 1).</p>
 <p>There is a 12-hour phase mismatch with the SEB-driven cycle peaking at 14:00 LT.</p>
-<h3>7.6 §3.6 — Test 1 vs Test 2 setups</h3>
+<h3>7.6 Section 3.6 — Test 1 vs Test 2 setups</h3>
 <p><strong>Test 1 (verification):</strong> uniform sandy-loam column, 1 cm grid, $T_s^0(t) = T_{\text{mean}} + A_0\cos(\omega t)$ prescribed.</p>
-<p><strong>Test 2 (prognostic SEB):</strong> three substrates × three schemes × three time steps $\Delta t \in {15, 60, 600}$ s = 27 cells.</p>
+<p><strong>Test 2 (prognostic SEB):</strong> three substrates × three schemes × three time steps $\Delta t \in \{15, 60, 600\}$ s = 27 cells.</p>
 <hr />
-<h2 id="part-8">Part 8. Walking through §4 — Results</h2>
-<h3>8.1 §4.1 — The damping-depth verification</h3>
+<h2 id="part-8">Part 8. Walking through Section 4 — Results</h2>
+<h3>8.1 Section 4.1 — The damping-depth verification</h3>
 <h4>The analytical solution and the $\pi/4$ phase lead — derived</h4>
 <p>For a semi-infinite uniform substrate with sinusoidal Dirichlet forcing $T_s(0, t) = \bar{T} + A\cos\omega t$, we solve</p>
 <p>$$\frac{\partial T}{\partial t} = \kappa \frac{\partial^2 T}{\partial z^2}, \qquad T(0, t) = \bar{T} + A\cos\omega t, \qquad T \to \bar{T} \text{ as } z \to \infty.$$</p>
@@ -1057,7 +1052,7 @@ window.MathJax = {
 
 <figure class="report-figure">
   <img src="report_images/figure_2.png" alt="Damping-depth verification panels" loading="lazy">
-  <figcaption><strong>Figure 2.</strong> Damping-depth verification on a uniform sandy-loam column. (a) Vertical profile of $T_s$ at the time of peak surface forcing on day 5, top 100 cm only. (b) Surface temperature over the 24-hour cycle of day 5. (c) Surface ground heat flux $G(t)$ on day 5. The numerical curves match the analytical $\pi/4$ phase lead and amplitude to within $\sim 3$ W/m² RMS.</figcaption>
+  <figcaption><strong>Figure 2.</strong> Damping-depth verification on a uniform sandy-loam column. (a) Vertical profile of $T_s$ at the time of peak surface forcing on day 5. (b) Surface temperature over the 24-hour cycle of day 5. (c) Surface ground heat flux $G(t)$ on day 5. The numerical curves match the analytical $\pi/4$ phase lead and amplitude to within $\sim 3$ W/m² RMS.</figcaption>
 </figure>
 
 
@@ -1123,7 +1118,7 @@ window.MathJax = {
 <li>CN error stays flat — second-order.</li>
 <li>$G$ RMSE $\approx$ 3 W/m² is a spatial-discretisation residual.</li>
 </ul>
-<h3>8.2 §4.2 — Three-substrate prognostic SEB results</h3>
+<h3>8.2 Section 4.2 — Three-substrate prognostic SEB results</h3>
 <h4>Reading Figure 3 — schemes agree at $\Delta t = 15$ s</h4>
 
 <figure class="report-figure">
@@ -1174,10 +1169,10 @@ window.MathJax = {
     <span class="widget-badge">Interactive widget</span>
     <span class="widget-title">Live $\Delta t$-refinement on three substrates</span>
   </div>
-  <div class="widget-frame-wrap">
+  <div class="widget-frame-wrap" style="height:820px;">
     <iframe class="widget-frame" src="window_delta_t.html" loading="lazy"></iframe>
   </div>
-  <div class="widget-caption">Drag the $\Delta t$ slider through 15, 60, and 600 seconds to watch the simulated diurnal $G$ cycle on each substrate. At small $\Delta t$ the schemes agree; at large $\Delta t$ BTCS over-amplifies, CN halves the error. The bottom-right panel plots the RMSE-vs-$\Delta t$ log-log convergence curves for both BTCS and CN.</div>
+  <div class="widget-caption">Drag the $\Delta t$ slider through 15, 60, and 600 seconds to watch the simulated diurnal $G$ cycle on each substrate. At small $\Delta t$ the schemes agree; at large $\Delta t$ BTCS over-amplifies, CN halves the error. The bottom-right panel plots the RMSE-vs-$\Delta t$ log-log convergence curves.</div>
 </div>
 
 
@@ -1190,8 +1185,21 @@ window.MathJax = {
 
 <figure class="report-figure">
   <img src="report_images/figure_5.png" alt="Vertical profiles in the asphalt column at three local times" loading="lazy">
-  <figcaption><strong>Figure 5.</strong> Vertical temperature profile in the asphalt road column at three local times on day 2 — top 50 cm only. Reference is FTCS at $\Delta t = 15$ s. The schemes agree at 06:00 (steady cooling phase). At 12:00 BTCS and CN are slightly warmer than the reference near the surface. At 18:00, immediately after sunset, the schemes diverge: BTCS at $\Delta t = 600$ s holds the surface $\sim 2$ K above the reference, with the largest deviation concentrated in the top 5 cm — the asphalt layer.</figcaption>
+  <figcaption><strong>Figure 5.</strong> Vertical temperature profile in the asphalt road column at three local times on day 2 — top 50 cm only. Reference is FTCS at $\Delta t = 15$ s. The schemes agree at 06:00. At 12:00 BTCS and CN are slightly warmer than the reference near the surface. At 18:00, immediately after sunset, the schemes diverge: BTCS at $\Delta t = 600$ s holds the surface $\sim 2$ K above the reference.</figcaption>
 </figure>
+
+
+
+<div class="widget-card">
+  <div class="widget-header">
+    <span class="widget-badge">Interactive widget</span>
+    <span class="widget-title">BTCS smears the post-swing gradient at the $\lambda$ jump</span>
+  </div>
+  <div class="widget-frame-wrap" style="height:760px;">
+    <iframe class="widget-frame" src="widget_curvature.html" loading="lazy"></iframe>
+  </div>
+  <div class="widget-caption">Drag the time-of-day slider to watch the vertical temperature profile evolve through the concrete-roof column. The conductivity jump at $z = 10$ cm concentrates the gradient at the insulation interface; at coarse $\Delta t$, BTCS visibly smears the gradient where the conductivity jumps.</div>
+</div>
 
 
 <ul>
@@ -1199,15 +1207,15 @@ window.MathJax = {
 <li>12:00: BTCS and CN slightly warmer near surface.</li>
 <li>18:00: largest divergence. BTCS at 600 s holds surface ~2 K above reference.</li>
 </ul>
-<h3>8.3 §4.3 — Cross-substrate quantitative summary (Table 2)</h3>
+<h3>8.3 Section 4.3 — Cross-substrate quantitative summary (Table 2)</h3>
 <p>Table 2: 9 rows (3 substrates × 3 schemes), each cell triple is $A_G/A_{\text{ref}}$ / RMSE of $T_s$ / $S/S_{\text{ref}}$.</p>
 <p>Three patterns:
 1. RMSE largest for concrete roof, middle for asphalt, smallest for bare soil. Error scales with $\kappa_{\text{top}}$.
 2. CN errors roughly half of BTCS at fixed $\Delta t$.
 3. $S/S_{\text{ref}}$ within 5% of unity.</p>
 <hr />
-<h2 id="part-9">Part 9. Walking through §5 — Discussion</h2>
-<h3>9.1 §5.1 — Why FTCS stability is set by the most thermally stiff layer</h3>
+<h2 id="part-9">Part 9. Walking through Section 5 — Discussion</h2>
+<h3>9.1 Section 5.1 — Why FTCS stability is set by the most thermally stiff layer</h3>
 <table>
 <thead>
 <tr>
@@ -1243,7 +1251,7 @@ window.MathJax = {
 </tbody>
 </table>
 <p>Most diffusive substrate (concrete) is most restrictive. "Stiff" = time-step constraint set by fastest-evolving component.</p>
-<h3>9.2 §5.2 — The operator-splitting error</h3>
+<h3>9.2 Section 5.2 — The operator-splitting error</h3>
 <h4>How the splitting works</h4>
 <p>Each step has two sub-steps:
 - <strong>Sub-step A — column update.</strong> Hold $T_s^0$ fixed. Solve heat conduction equation in column.
@@ -1251,7 +1259,7 @@ window.MathJax = {
 <h4>Why this produces over-amplification</h4>
 <p>At sunset $T_s^0$ drops fast, say from 35 to 25 °C in $\Delta t = 600$ s. Sub-step A holds $T_s^0$ at 35 → column relaxes to that. Sub-step B computes new $T_s^0 = 25$ but column is still at 35. Gradient at top half-level is steeper than truth → $G$ larger.</p>
 <blockquote>
-<p><strong>[Notes #10 §8]</strong>: <em>"Implicit scheme brings the local profiles into equilibrium, but without accounting for the other tendencies it can be the wrong equilibrium."</em> Exactly the project's pathology.</p>
+<p><strong>Lecture 10</strong>: <em>"Implicit scheme brings the local profiles into equilibrium, but without accounting for the other tendencies it can be the wrong equilibrium."</em> Exactly the project's pathology.</p>
 </blockquote>
 <h4>Why both BTCS and CN show first-order scaling</h4>
 <p>Splitting error is first-order in $\Delta t$ regardless of per-substep scheme.</p>
@@ -1312,9 +1320,9 @@ window.MathJax = {
 </tbody>
 </table>
 <p>All ratios in $[8.2, 10.2]$ — first-order. Smoking gun.</p>
-<h3>9.3 §5.3 — Why $\kappa_{\text{top}}$ dominates substrate dependence</h3>
+<h3>9.3 Section 5.3 — Why $\kappa_{\text{top}}$ dominates substrate dependence</h3>
 <p>Admittance $\mu = \sqrt{\lambda C}$ alone doesn't explain ordering. SHAP attribution: $\kappa_{\text{top}}$ dominant predictor, 92% of variance.</p>
-<h3>9.4 §5.4 — Implications, limitations, outlook</h3>
+<h3>9.4 Section 5.4 — Implications, limitations, outlook</h3>
 <h4>UHI implication: diurnal range bias, not mean bias</h4>
 <p>Storage ratios within 5% confirm symmetric over-amplification.</p>
 <h4>The four numbered limitations</h4>
@@ -1341,17 +1349,17 @@ window.MathJax = {
 <p><strong>Status: [Derived]</strong> — Baker–Campbell–Hausdorff formula.</p>
 </blockquote>
 <hr />
-<h2 id="part-10">Part 10. Walking through §6 — Independent SHAP attribution</h2>
-<h3>10.1 What problem §6 is solving</h3>
-<p>Three idealised substrates differ in $\kappa_{\text{top}}$, $\mu$, AND layer structure simultaneously. Cannot disentangle. §6 fixes this by sampling 150 random columns.</p>
-<h3>10.2 §6.1 — The synthetic ensemble</h3>
+<h2 id="part-10">Part 10. Walking through Section 6 — Independent SHAP attribution</h2>
+<h3>10.1 What problem Section 6 is solving</h3>
+<p>Three idealised substrates differ in $\kappa_{\text{top}}$, $\mu$, AND layer structure simultaneously. Cannot disentangle. Section 6 fixes this by sampling 150 random columns.</p>
+<h3>10.2 Section 6.1 — The synthetic ensemble</h3>
 <p>150 three-layer substrate columns, BTCS at $\Delta t = 600$ s and reference at $\Delta t = 15$ s. Day-2 surface-temperature RMSE is the target $y$.</p>
 <p>Six features: $\mu_{\text{eff}}$, $\kappa_{\text{top}}$, max $\lambda$ contrast, # interfaces, first interface depth, $h_{\text{top}}$.</p>
-<h3>10.3 §6.2 — Gradient-boosted regression and SHAP</h3>
+<h3>10.3 Section 6.2 — Gradient-boosted regression and SHAP</h3>
 <h4>Gradient boosting</h4>
-<p>$$\hat{y}<em m-1="m-1">m(x) = \hat{y}</em>(x) + \eta \mathrm{tree}_m(x).$$</p>
+<p>$$\hat{y}_m(x) = \hat{y}_{m-1}(x) + \eta \mathrm{tree}_m(x).$$</p>
 <p>Final:</p>
-<p>$$\hat{y}<em m="1">M(x) = \hat{y}_0 + \sum</em>^{M} \eta \mathrm{tree}_m(x).$$</p>
+<p>$$\hat{y}_M(x) = \hat{y}_0 + \sum_{m=1}^{M} \eta \mathrm{tree}_m(x).$$</p>
 <blockquote>
 <p><strong>Status: [Established algorithm]</strong> — Friedman (2001).</p>
 </blockquote>
@@ -1378,24 +1386,24 @@ window.MathJax = {
 <li>In-sample $R^2 = 0.96$.</li>
 <li>5-fold cross-validated $R^2 = 0.61$.</li>
 </ul>
-<h3>10.4 §6.3 — The findings</h3>
+<h3>10.4 Section 6.3 — The findings</h3>
 
 <figure class="report-figure">
   <img src="report_images/figure_6.png" alt="SHAP attribution four-panel figure" loading="lazy">
-  <figcaption><strong>Figure 6.</strong> Independent attribution analysis of BTCS coarse-$\Delta t$ error. (a) SHAP feature importance for the full feature set; $\kappa_{\rm top}$ dominates. (b) SHAP dependence on $\kappa_{\rm top}$, coloured by $\mu_{\rm eff}$. (c) Residual SHAP importance after $\kappa_{\rm top}$ is partialled out; admittance becomes dominant. (d) Model fit, points coloured by max $\lambda$ contrast (log scale).</figcaption>
+  <figcaption><strong>Figure 6.</strong> Independent attribution analysis of BTCS coarse-$\Delta t$ error. (a) SHAP feature importance; $\kappa_{\rm top}$ dominates. (b) SHAP dependence on $\kappa_{\rm top}$, coloured by $\mu_{\rm eff}$. (c) Residual SHAP importance after $\kappa_{\rm top}$ is partialled out; admittance becomes dominant. (d) Model fit, points coloured by max $\lambda$ contrast.</figcaption>
 </figure>
 
 
 <p>Figure 6 has four panels. (a) $\kappa_{\text{top}}$ tallest at 0.71 K. (b) SHAP dependence on $\kappa_{\text{top}}$ monotone positive. (c) Residual SHAP after $\kappa_{\text{top}}$ partialled out — $\mu_{\text{eff}}$ dominates. (d) Predicted vs observed RMSE 1:1.</p>
 <p>Same $\kappa_{\text{top}}$ that sets FTCS bound also sets prefactor of BTCS coarse-$\Delta t$ splitting error.</p>
-<h3>10.5 §6.4 — Limitations</h3>
+<h3>10.5 Section 6.4 — Limitations</h3>
 <ul>
 <li>Fixed grid.</li>
 <li>Sample size 150.</li>
 <li>Forcing-specific.</li>
 </ul>
 <hr />
-<h2 id="part-11">Part 11. Walking through §7 — Conclusions</h2>
+<h2 id="part-11">Part 11. Walking through Section 7 — Conclusions</h2>
 <p>The conclusions section is a five-bullet recap.</p>
 <p><strong>(i) FTCS conditional stability</strong>, $\nu \le 1/2$.</p>
 <p><strong>(ii) BTCS and CN unconditionally stable.</strong> At $\Delta t = 600$ s, BTCS over-amplifies by 40%/41%/19%; CN halves these.</p>
@@ -1435,39 +1443,39 @@ window.MathJax = {
 </thead>
 <tbody>
 <tr>
-<td>§1 motivation, UHI</td>
+<td>Section 1 motivation, UHI</td>
 <td>[Notes #11 Misconception #3]</td>
 </tr>
 <tr>
-<td>§2.1 conductivity-form heat equation</td>
+<td>Section 2.1 conductivity-form heat equation</td>
 <td>[Notes #2 Parabolic class]</td>
 </tr>
 <tr>
-<td>§2.2 staggered grid</td>
-<td>[Notes #8]</td>
+<td>Section 2.2 staggered grid</td>
+<td>Notes #8</td>
 </tr>
 <tr>
-<td>§2.3 $\theta$-method</td>
-<td>[Notes #6 §6 Slides 15–17]</td>
+<td>Section 2.3 $\theta$-method</td>
+<td>Lecture 6</td>
 </tr>
 <tr>
-<td>§2.5 von Neumann</td>
-<td>[Notes #6 §10] + [Notes #9]</td>
+<td>Section 2.5 von Neumann</td>
+<td>Lecture 6 + Notes #9</td>
 </tr>
 <tr>
-<td>§3.3 tridiagonal solver</td>
+<td>Section 3.3 tridiagonal solver</td>
 <td>[Notes #9 Practical Considerations]</td>
 </tr>
 <tr>
-<td>§5.1 stability vs resolution</td>
+<td>Section 5.1 stability vs resolution</td>
 <td>[Notes #11 Misconception #1]</td>
 </tr>
 <tr>
-<td>§5.2 operator-splitting</td>
-<td>[Notes #10 §8]</td>
+<td>Section 5.2 operator-splitting</td>
+<td>Lecture 10</td>
 </tr>
 <tr>
-<td>§5.4 UHI diagnostic</td>
+<td>Section 5.4 UHI diagnostic</td>
 <td>[Notes #11 Misconception #8]</td>
 </tr>
 </tbody>
@@ -1487,7 +1495,7 @@ window.MathJax = {
 </tr>
 <tr>
 <td>Amplification factors</td>
-<td>HW4: $</td>
+<td>HW4: $|A_k|$ vs $k\Delta x$</td>
 </tr>
 <tr>
 <td>Three-scheme comparison</td>
@@ -1524,7 +1532,7 @@ window.MathJax = {
 <li>$\rho$ — Air density.</li>
 <li>$\sigma$ — Stefan–Boltzmann constant.</li>
 <li>$\phi$ — In SHAP: SHAP value.</li>
-<li>$\psi$ — True solution in [Notes #6] notation.</li>
+<li>$\psi$ — True solution in Notes #6 notation.</li>
 <li>$\omega$ — Diurnal angular frequency, $2\pi/86400$ rad/s.</li>
 </ul>
 <h3>Latin letters</h3>
@@ -1537,7 +1545,7 @@ window.MathJax = {
 <li>$C_H$ — Bulk transfer coefficient.</li>
 <li>$d$ — Diurnal damping depth.</li>
 <li>$F$ — SEB residual.</li>
-<li>$G$ — Conductive heat flux. $G &gt; 0$ downward.</li>
+<li>$G$ — Conductive heat flux. $G > 0$ downward.</li>
 <li>$H$ — Sensible heat flux.</li>
 <li>$h_{\text{top}}$ — Top-layer thickness.</li>
 <li>$i$ — Imaginary unit.</li>
@@ -1598,9 +1606,8 @@ window.MathJax = {
 
   <hr>
   <p style="font-size: 13px; color: #6b7186; text-align: center;">
-    <em>End of document. Companion files: <code>modified_full_report_1.docx</code>,
-    <code>equations.md</code>, <code>CLIM715_Final_Presentation.html</code>,
-    <code>clarify_project.md</code>.</em>
+    <em>End of document. Companion files: modified_full_report_1.docx,
+    equations.md, CLIM715_Final_Presentation.html, clarify_project.md.</em>
   </p>
 </main>
 
