@@ -2898,7 +2898,8 @@ for (var i = 0; i < totalSlides; i++) {
     var frame = document.createElement('iframe');
     frame.className = 'slide-frame' + (i === 0 ? ' active' : '');
     frame.setAttribute('allow', 'fullscreen; autoplay');
-    if (typeof entry === 'string' && /\.html$/i.test(entry)) {
+    var isExternal = (typeof entry === 'string' && /\.html$/i.test(entry));
+    if (isExternal) {
         // External file — relative paths inside the file resolve against the file itself.
         frame.src = entry;
     } else {
@@ -2908,7 +2909,15 @@ for (var i = 0; i < totalSlides; i++) {
     }
     container.appendChild(frame);
     iframes.push(frame);
-    (function (f) { f.addEventListener('load', function () { attachMKListener(f); }); })(frame);
+    // For srcdoc iframes (always same-origin) attach a contentWindow keydown
+    // listener. For external-file iframes, do NOT — the postMessage relays
+    // baked into those files are the sole nav path. Otherwise both fire and
+    // each M-press skips a slide. This matters on GitHub Pages where external
+    // iframes are also same-origin (unlike file://, where they were
+    // cross-origin and the contentWindow attach silently failed).
+    if (!isExternal) {
+        (function (f) { f.addEventListener('load', function () { attachMKListener(f); }); })(frame);
+    }
 }
 
 // Top-level M/K listener (caught here whenever the parent has focus).

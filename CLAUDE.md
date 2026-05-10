@@ -76,3 +76,19 @@ When asked to build a new interactive piece:
 - The `run_experiments.py` solver runs in ~30 seconds for the full 27-cell matrix on a typical laptop. Re-run when you need fresh CSVs or PNGs.
 - The 150-column synthetic ensemble for the SHAP analysis (`shap_attribution.py` in older sessions) takes ~2 minutes.
 - All numerical runs are deterministic given fixed seeds; if results don't reproduce, suspect a code change, not a stochastic effect.
+
+## GitHub-hosted live preview (set up 2026-05-09)
+
+The full project lives at https://github.com/shammun/clim715-ground-flux (public, free-tier Pages). Every HTML file in this directory is served live at:
+
+- Final presentation deck: https://shammun.github.io/clim715-ground-flux/CLIM715_Final_Presentation.html
+- Qualifier reference deck: https://shammun.github.io/clim715-ground-flux/qualifier_final_presentation_3.html
+- Any standalone viz: https://shammun.github.io/clim715-ground-flux/window_<name>.html
+
+The user views these from mobile while changes are made on the desktop. Workflow on every change:
+
+1. Make the change.
+2. `git add` the touched files, `git commit` with a clear message, `git push`. Use the gh CLI binary at `C:\Users\sislam27\AppData\Local\Microsoft\WinGet\Packages\GitHub.cli_Microsoft.Winget.Source_8wekyb3d8bbwe\bin\gh.exe` if you need to run anything via gh; the user is already authenticated as `shammun`.
+3. Pages redeploys in ~30–60 s. Tell the user the change is live and quote the relevant deck URL so they can refresh on mobile.
+
+Don't push speculative WIP — push after each user-requested change has landed and is internally consistent (i.e., what would be a clean commit). Don't commit `.claude/settings.local.json`; it's already in `.gitignore`.
