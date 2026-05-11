@@ -7,27 +7,13 @@
 <style>
 
 * { box-sizing: border-box; }
-body, html {
-  margin: 0; padding: 0;
-  font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
-  background: #eaf0f8;
-  color: #2c3142;
-  line-height: 1.65;
-}
+body, html { margin: 0; padding: 0; font-family: 'Segoe UI', Calibri, Geneva, sans-serif; background: #eaf0f8; color: #2c3142; line-height: 1.65; }
 .layout { display: grid; grid-template-columns: 300px 1fr; max-width: 1600px; margin: 0 auto; }
-.toc {
-  position: sticky; top: 0; height: 100vh; overflow-y: auto;
-  background: #ffffff; border-right: 1px solid rgba(107, 92, 181, 0.15);
-  padding: 28px 16px 28px 24px; box-shadow: 2px 0 8px rgba(107, 92, 181, 0.05);
-}
+.toc { position: sticky; top: 0; height: 100vh; overflow-y: auto; background: #ffffff; border-right: 1px solid rgba(107, 92, 181, 0.15); padding: 28px 16px 28px 24px; box-shadow: 2px 0 8px rgba(107, 92, 181, 0.05); }
 .toc h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: #6b5cb5; margin: 0 0 14px 0; font-weight: 700; }
 .toc ul { list-style: none; padding: 0; margin: 0; }
 .toc li { margin-bottom: 3px; }
-.toc a {
-  color: #4a5066; text-decoration: none; font-size: 12.5px;
-  display: block; padding: 4px 8px; border-radius: 4px;
-  border-left: 2px solid transparent; transition: all 0.15s; line-height: 1.4;
-}
+.toc a { color: #4a5066; text-decoration: none; font-size: 12.5px; display: block; padding: 4px 8px; border-radius: 4px; border-left: 2px solid transparent; transition: all 0.15s; line-height: 1.4; }
 .toc a:hover { background: rgba(107, 92, 181, 0.06); color: #6b5cb5; border-left-color: #6b5cb5; }
 .toc a.level-3 { padding-left: 22px; font-size: 11.5px; color: #6b7186; }
 main { padding: 40px 60px 80px 60px; max-width: 1100px; }
@@ -55,6 +41,16 @@ mjx-container[display="true"] { margin: 14px 0 !important; overflow-x: auto; }
 .banner h1 { color: #ffffff; margin: 0; font-size: 30px; }
 .banner .subtitle { font-size: 16px; opacity: 0.95; margin-top: 8px; font-style: italic; }
 .banner .meta { font-size: 13px; opacity: 0.85; margin-top: 16px; font-family: 'Cascadia Code', 'Consolas', monospace; }
+iframe { width: 100%; }
+
+.cw-card { margin: 22px -10px; background: #ffffff; border-radius: 8px; box-shadow: 0 4px 14px rgba(107,92,181,.10); border: 1px solid rgba(107,92,181,.18); overflow: hidden; }
+.cw-head { background: linear-gradient(90deg, #ee845b, #d97757); color: #fff; padding: 10px 18px; font-size: 13.5px; font-weight: 700; letter-spacing: 0.3px; }
+.cw-body { padding: 16px 18px; }
+.cw-ctrl { display: flex; align-items: center; gap: 10px; margin: 8px 0; font-size: 13px; color: #475569; flex-wrap: wrap; }
+.cw-ctrl label { font-weight: 700; color: #6b5cb5; min-width: 36px; }
+.cw-ctrl input[type="range"] { flex: 1 1 220px; max-width: 320px; accent-color: #ee845b; }
+.cw-note { margin-top: 10px; padding: 10px 14px; background: rgba(56,178,172,.06); border-left: 3px solid #38b2ac; border-radius: 0 4px 4px 0; font-size: 13px; color: #2c8a83; line-height: 1.55; }
+
 @media (max-width: 1000px) {
   .layout { grid-template-columns: 1fr; }
   .toc { position: relative; height: auto; border-right: none; border-bottom: 1px solid rgba(107, 92, 181, 0.15); }
@@ -80,6 +76,41 @@ window.MathJax = {
 <aside class="toc">
   <h2>Contents</h2>
   <ul>
+<li><a href="#01-how-to-read-mathematical-notation" class="level-2">0.1 How to read mathematical notation</a></li>
+<li><a href="#02-functions-of-one-variable" class="level-2">0.2 Functions of one variable</a></li>
+<li><a href="#03-derivatives-rate-of-change" class="level-2">0.3 Derivatives — rate of change</a></li>
+<li><a href="#04-partial-derivatives-when-there-is-more-than-one-variable" class="level-2">0.4 Partial derivatives — when there is more than one variable</a></li>
+<li><a href="#05-integrals-accumulation" class="level-2">0.5 Integrals — accumulation</a></li>
+<li><a href="#06-complex-numbers-and-eulers-formula" class="level-2">0.6 Complex numbers and Euler's formula</a></li>
+<li><a href="#07-sine-waves-amplitude-wavenumber-frequency" class="level-2">0.7 Sine waves — amplitude, wavenumber, frequency</a></li>
+<li><a href="#08-what-math273-means-the-dimensionless-wavenumber-on-a-grid" class="level-2">0.8 What $k\Delta z$ means — the dimensionless wavenumber on a grid</a></li>
+<li><a href="#09-time-steps-and-discretisation" class="level-2">0.9 Time steps and discretisation</a></li>
+<li><a href="#010-fourier-basics-every-function-as-a-sum-of-sines" class="level-2">0.10 Fourier basics — every function as a sum of sines</a></li>
+<li><a href="#011-vector-calculus-gradient-divergence-curl-laplacian" class="level-2">0.11 Vector calculus — gradient, divergence, curl, Laplacian</a></li>
+<li><a href="#gradient-math324-operator-acting-on-a-scalar" class="level-3">Gradient: $\nabla f$ (operator acting on a scalar)</a></li>
+<li><a href="#divergence-math334-operator-acting-on-a-vector-dot-product" class="level-3">Divergence: $\nabla \cdot \vec{V}$ (operator acting on a vector, dot product)</a></li>
+<li><a href="#curl-math339-operator-acting-on-a-vector-cross-product" class="level-3">Curl: $\nabla \times \vec{V}$ (operator acting on a vector, cross product)</a></li>
+<li><a href="#laplacian-math344-second-order-operator-on-a-scalar" class="level-3">Laplacian: $\nabla^{2} f = \nabla \cdot (\nabla f)$ (second-order operator on a scalar)</a></li>
+<li><a href="#the-dot-product-and-cross-product-as-standalone-operations" class="level-3">The dot product and cross product as standalone operations</a></li>
+<li><a href="#composite-operators-the-laplacian-inside-a-flux-divergence" class="level-3">Composite operators — the Laplacian inside a flux divergence</a></li>
+<li><a href="#material-derivative-math375-as-gradient-time" class="level-3">Material derivative — $D/Dt$ as gradient + time</a></li>
+<li><a href="#012-ordinary-and-partial-differential-equations" class="level-2">0.12 Ordinary and partial differential equations</a></li>
+<li><a href="#013-the-cfl-condition-intuition" class="level-2">0.13 The CFL condition — intuition</a></li>
+<li><a href="#014-diffusion-vs-wave-propagation-two-different-physics" class="level-2">0.14 Diffusion vs wave propagation — two different physics</a></li>
+<li><a href="#a-live-amplification-factor-for-the-three-classic-diffusion-schemes" class="level-3">A live amplification factor for the three classic diffusion schemes</a></li>
+<li><a href="#015-basic-atmospheric-thermodynamics" class="level-2">0.15 Basic atmospheric thermodynamics</a></li>
+<li><a href="#ideal-gas-law" class="level-3">Ideal gas law</a></li>
+<li><a href="#hydrostatic-balance" class="level-3">Hydrostatic balance</a></li>
+<li><a href="#potential-temperature" class="level-3">Potential temperature</a></li>
+<li><a href="#adiabatic-process" class="level-3">Adiabatic process</a></li>
+<li><a href="#latent-heat" class="level-3">Latent heat</a></li>
+<li><a href="#coriolis-effect" class="level-3">Coriolis effect</a></li>
+<li><a href="#geostrophic-balance" class="level-3">Geostrophic balance</a></li>
+<li><a href="#016-three-families-of-atmospheric-waves" class="level-2">0.16 Three families of atmospheric waves</a></li>
+<li><a href="#017-stability-vs-accuracy-vs-consistency-three-different-properties-of-a-numerical-scheme" class="level-2">0.17 Stability vs accuracy vs consistency — three different properties of a numerical scheme</a></li>
+<li><a href="#018-notation-summary-you-will-see-throughout-the-rest-of-the-guide" class="level-2">0.18 Notation summary you will see throughout the rest of the guide</a></li>
+<li><a href="#019-the-damping-depth-solution-tying-the-prerequisites-together" class="level-2">0.19 The damping-depth solution — tying the prerequisites together</a></li>
+<li><a href="#one-last-reading-tip" class="level-3">One last reading-tip</a></li>
 <li><a href="#table-of-contents" class="level-2">Table of Contents</a></li>
 <li><a href="#11-weather-vs-climate-what-we-are-trying-to-predict" class="level-2">1.1 Weather vs. climate — what we are trying to predict</a></li>
 <li><a href="#12-what-goes-into-a-model" class="level-2">1.2 What goes into a model?</a></li>
@@ -108,7 +139,7 @@ window.MathJax = {
 <li><a href="#61-the-primitive-equations-seven-equations-seven-unknowns" class="level-2">6.1 The "primitive equations" — seven equations, seven unknowns</a></li>
 <li><a href="#62-hydrostatic-balance" class="level-2">6.2 Hydrostatic balance</a></li>
 <li><a href="#63-the-boussinesq-approximation" class="level-2">6.3 The Boussinesq approximation</a></li>
-<li><a href="#64-potential-temperature-math232" class="level-2">6.4 Potential temperature $\theta$</a></li>
+<li><a href="#64-potential-temperature-math668" class="level-2">6.4 Potential temperature $\theta$</a></li>
 <li><a href="#65-the-exner-function-non-dimensional-pressure" class="level-2">6.5 The Exner function (non-dimensional pressure)</a></li>
 <li><a href="#66-continuity-equation-mass-conservation" class="level-2">6.6 Continuity equation (mass conservation)</a></li>
 <li><a href="#67-anelastic-approximation" class="level-2">6.7 Anelastic approximation</a></li>
@@ -185,7 +216,7 @@ window.MathJax = {
 <li><a href="#228-free-vs-forced-convection-scaling" class="level-2">22.8 Free vs. forced convection scaling</a></li>
 <li><a href="#230-what-sourcesink-term-actually-means" class="level-2">23.0 What "source/sink term" actually means</a></li>
 <li><a href="#231-the-split-of-the-prognostic-equation" class="level-2">23.1 The split of the prognostic equation</a></li>
-<li><a href="#232-why-leapfrog-doesnt-work-for-math867" class="level-2">23.2 Why leapfrog doesn't work for $P\psi$</a></li>
+<li><a href="#232-why-leapfrog-doesnt-work-for-math1382" class="level-2">23.2 Why leapfrog doesn't work for $P\psi$</a></li>
 <li><a href="#233-radiation" class="level-2">23.3 Radiation</a></li>
 <li><a href="#234-microphysics-vs-cumulus-parameterization" class="level-2">23.4 Microphysics vs. cumulus parameterization</a></li>
 <li><a href="#235-large-scale-precipitation-saturation-adjustment" class="level-2">23.5 Large-scale precipitation — saturation adjustment</a></li>
@@ -202,10 +233,10 @@ window.MathJax = {
 <li><a href="#2410-misconception-10-full-resolution-model-output-is-always-required" class="level-2">24.10 Misconception #10 — "Full-resolution model output is always required"</a></li>
 <li><a href="#2411-the-unifying-lesson" class="level-2">24.11 The unifying lesson</a></li>
 <li><a href="#a1-hw1-rotating-cone-ftcs-vs-ctcs" class="level-2">A.1 HW1 — Rotating Cone (FTCS vs. CTCS)</a></li>
-<li><a href="#a2-hw2-1d-linear-advection-math984-with-leapfrog" class="level-2">A.2 HW2 — 1D Linear Advection $u_t + cu_x = 0$ with leapfrog</a></li>
-<li><a href="#case-1-baseline-math989-math990-math991" class="level-3">Case 1 — Baseline ($\mu = 0.25$, $N = 16$, $\Delta t = 1/64$)</a></li>
-<li><a href="#case-2-vary-math993-at-fixed-math994" class="level-3">Case 2 — Vary $\mu$ at fixed $\Delta x = 1/16$</a></li>
-<li><a href="#case-3-vary-resolution-at-fixed-math1006" class="level-3">Case 3 — Vary resolution at fixed $\mu = 0.8$</a></li>
+<li><a href="#a2-hw2-1d-linear-advection-math1499-with-leapfrog" class="level-2">A.2 HW2 — 1D Linear Advection $u_t + cu_x = 0$ with leapfrog</a></li>
+<li><a href="#case-1-baseline-math1504-math1505-math1506" class="level-3">Case 1 — Baseline ($\mu = 0.25$, $N = 16$, $\Delta t = 1/64$)</a></li>
+<li><a href="#case-2-vary-math1508-at-fixed-math1509" class="level-3">Case 2 — Vary $\mu$ at fixed $\Delta x = 1/16$</a></li>
+<li><a href="#case-3-vary-resolution-at-fixed-math1521" class="level-3">Case 3 — Vary resolution at fixed $\mu = 0.8$</a></li>
 <li><a href="#case-4-computational-dispersion-sum-of-two-waves" class="level-3">Case 4 — Computational dispersion (sum of two waves)</a></li>
 <li><a href="#a3-hw3-time-differencing-on-the-oscillation-equation" class="level-2">A.3 HW3 — Time differencing on the oscillation equation</a></li>
 <li><a href="#a4-hw4-von-neumann-analysis-of-ftcs" class="level-2">A.4 HW4 — von Neumann analysis of FTCS</a></li>
@@ -234,10 +265,1404 @@ window.MathJax = {
     <div class="meta">A beginner-friendly help guide for anyone learning numerical modeling of weather and climate</div>
   </div>
 
+<h1 id="clim-715-master-study-guide">CLIM-715 — Master Study Guide</h1>
+<h2 id="numerical-methods-for-weather-climate-modeling-plain-english-mastery-level-walkthrough"><em>Numerical Methods for Weather &amp; Climate Modeling — Plain-English, Mastery-Level Walkthrough</em></h2>
 <blockquote>
 <p><strong>Who this guide is for.</strong> If you know a little calculus (you can take a derivative, you have heard of partial derivatives, you remember what $e^{ix}$ means) and you know nothing else about numerical modeling, this guide is for you. Every symbol is defined the first time it appears. Every equation is unpacked in plain English. Every abstract idea is paired with a concrete weather/climate example. Wherever a homework numerically demonstrates a concept, the result is folded in.</p>
 <p><strong>How to read.</strong> Read top to bottom on a first pass. The chapters build on each other. On a second pass you can jump to any chapter; each one is self-contained and re-defines key symbols.</p>
 </blockquote>
+<hr />
+<h1 id="0-mathematical-and-physical-prerequisites">0. Mathematical and Physical Prerequisites</h1>
+<blockquote>
+<p>This chapter is for the reader who has heard of calculus but is not fluent in it, and who knows almost nothing about atmospheric physics. Every notation that appears later in the guide is defined here. Every equation comes with a "what this is saying" paragraph. Several interactive widgets let you change values and see the math respond in real time. If you already know this material, skim and move on; if not, read this chapter slowly and come back to it whenever a symbol later in the guide is unfamiliar.</p>
+<p><strong>Companion resource — the lecture dashboards.</strong> Alongside this chapter, the course has a set of per-lecture interactive dashboards. The most useful one for the prerequisite material here is the <strong>Lecture 3</strong> dashboard (basic math toolkit — Taylor series, mean-value theorem, derivative, Eulerian vs Lagrangian, hydrostatic balance, potential temperature, Exner function, continuity equation, advection–diffusion). The <strong>Lecture 4</strong> dashboard covers wave families. The <strong>Lecture 5</strong> dashboard has the rigorous CFL and von-Neumann walkthroughs. They are embedded below at the relevant sections so you can keep one tab open and tab between widget and dashboard as you read.</p>
+</blockquote>
+<h2 id="01-how-to-read-mathematical-notation">0.1 How to read mathematical notation</h2>
+<p>A <strong>variable</strong> is just a letter that stands for a number — a placeholder. When we write $x = 5$ we are saying "the letter $x$ represents the number five". The whole point of using letters is so that we can write rules that are true for any number, not just five.</p>
+<p><strong>Subscripts and superscripts.</strong> When a letter has a small number written below it (a subscript) or above it (a superscript), the small number is almost always a <em>label</em>, not an exponent. Examples:</p>
+<ul>
+<li>$T_j$ — temperature in cell $j$. The $j$ is an index that tells you which cell.</li>
+<li>$T_j^n$ — temperature in cell $j$ at time level $n$. Two labels: a space label and a time label. The $n$ is NOT an exponent — $T_j^n$ is not $T_j$ raised to the power $n$.</li>
+<li>$T_s^0$ — surface temperature at depth zero. The "0" labels the depth, not a power.</li>
+<li>$(T_s^0)^4$ — the surface temperature <em>raised to the fourth power</em>. When the exponent really is an exponent, it comes outside parentheses to remove the ambiguity.</li>
+</ul>
+<p><strong>Greek letters</strong> appear everywhere in atmospheric science. Whenever you see one, treat it as just another variable name. A reference table:</p>
+<table>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>Name (pronunciation)</th>
+<th>Typical use in this guide</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>$\alpha$</td>
+<td>alpha</td>
+<td>Implicitness weight in θ-method; albedo (with subscript)</td>
+</tr>
+<tr>
+<td>$\beta$</td>
+<td>beta</td>
+<td>Bowen ratio; coefficient in stability analysis</td>
+</tr>
+<tr>
+<td>$\gamma$</td>
+<td>gamma</td>
+<td>Lapse rate; specific-heat ratio $c_p/c_v$</td>
+</tr>
+<tr>
+<td>$\Gamma$</td>
+<td>capital gamma</td>
+<td>Dry adiabatic lapse rate</td>
+</tr>
+<tr>
+<td>$\delta$</td>
+<td>delta (small)</td>
+<td>Small change, error term</td>
+</tr>
+<tr>
+<td>$\Delta$</td>
+<td>capital delta</td>
+<td>A finite (not infinitesimal) change. $\Delta t$ = time step, $\Delta x$ = grid spacing</td>
+</tr>
+<tr>
+<td>$\varepsilon$</td>
+<td>epsilon</td>
+<td>Emissivity; small positive parameter</td>
+</tr>
+<tr>
+<td>$\zeta$</td>
+<td>zeta</td>
+<td>Monin–Obukhov dimensionless height $z/L$</td>
+</tr>
+<tr>
+<td>$\eta$</td>
+<td>eta</td>
+<td>Learning rate; coordinate transform variable</td>
+</tr>
+<tr>
+<td>$\theta$</td>
+<td>theta</td>
+<td>Potential temperature; phase angle; implicitness weight</td>
+</tr>
+<tr>
+<td>$\kappa$</td>
+<td>kappa</td>
+<td>Thermal diffusivity $\lambda/C$</td>
+</tr>
+<tr>
+<td>$\lambda$</td>
+<td>lambda</td>
+<td>Thermal conductivity; wavelength</td>
+</tr>
+<tr>
+<td>$\mu$</td>
+<td>mu</td>
+<td>Substrate admittance $\sqrt{\lambda C}$; viscosity</td>
+</tr>
+<tr>
+<td>$\nu$</td>
+<td>nu</td>
+<td>Diffusion number $\kappa\Delta t/\Delta z^{2}$; kinematic viscosity</td>
+</tr>
+<tr>
+<td>$\pi$</td>
+<td>pi</td>
+<td>The constant 3.14159…; Exner function</td>
+</tr>
+<tr>
+<td>$\rho$</td>
+<td>rho</td>
+<td>Density</td>
+</tr>
+<tr>
+<td>$\sigma$</td>
+<td>sigma</td>
+<td>Stefan–Boltzmann constant</td>
+</tr>
+<tr>
+<td>$\tau$</td>
+<td>tau</td>
+<td>Time scale; stress</td>
+</tr>
+<tr>
+<td>$\phi$</td>
+<td>phi (Greek "ph")</td>
+<td>Generic scalar field; numerical approximation</td>
+</tr>
+<tr>
+<td>$\Phi$</td>
+<td>capital phi</td>
+<td>Universal stability functions in M-O theory</td>
+</tr>
+<tr>
+<td>$\psi$</td>
+<td>psi</td>
+<td>True solution of a PDE</td>
+</tr>
+<tr>
+<td>$\omega$</td>
+<td>omega</td>
+<td>Angular frequency $2\pi/T$; vertical velocity in pressure coordinates</td>
+</tr>
+<tr>
+<td>$\Omega$</td>
+<td>capital omega</td>
+<td>Earth's rotation rate; vorticity</td>
+</tr>
+</tbody>
+</table>
+<p>Function notation $f(x)$ means "the function $f$ evaluated at the input $x$". So $\sin(2\pi)$ means "evaluate the sine function at $2\pi$", which is $0$. The parentheses around the argument do not mean multiplication.</p>
+<h2 id="02-functions-of-one-variable">0.2 Functions of one variable</h2>
+<p>A function is a rule that takes an input and gives back an output. We write it $y = f(x)$ and read it "y equals f of x". The four functions that appear most often in this guide:</p>
+<p><strong>Sine and cosine.</strong> $\sin(x)$ and $\cos(x)$ both produce numbers between $-1$ and $+1$ that oscillate as $x$ increases. Both repeat every $2\pi \approx 6.28$ units. Cosine starts at $1$ when $x = 0$; sine starts at $0$. Their derivatives are tied to each other: $\frac{d}{dx}\sin x = \cos x$ and $\frac{d}{dx}\cos x = -\sin x$. Whenever we write something like "$T(t) = \cos(\omega t)$", we mean "a quantity $T$ that oscillates in time with angular frequency $\omega$".</p>
+<p><strong>The exponential function</strong> $e^x$. $e \approx 2.71828$ is a fixed number — like $\pi$ — that shows up everywhere in nature. Its defining property: the slope of $e^x$ at any point equals the value of $e^x$ at that point. Whenever a process grows or decays at a rate proportional to its current size, $e^x$ shows up. Radioactive decay, compound interest, the damping of a thermal wave with depth — all use $e^{-z/d}$ form.</p>
+<p><strong>The logarithm</strong> $\ln(x)$. Inverse of $e^x$. If $e^a = b$, then $\ln(b) = a$. We use it when we want to convert exponential growth or decay into a straight line.</p>
+<p><strong>Power laws</strong> $x^n$. $x^2$ is "x squared", $x^3$ is "x cubed", etc. In numerical analysis we talk about "first-order error" ($\propto \Delta t^1$), "second-order error" ($\propto \Delta t^2$), and so on. A second-order method's error shrinks four times faster than a first-order method's when $\Delta t$ halves.</p>
+<h2 id="03-derivatives-rate-of-change">0.3 Derivatives — rate of change</h2>
+<p>If $y = f(x)$, the <strong>derivative</strong> $\frac{df}{dx}$ (read "d-f-d-x") is the rate at which $y$ changes when $x$ changes — the slope of the curve. Equivalent notations: $f'(x)$, $\dot{f}$ (when $x$ is time), $\frac{dy}{dx}$.</p>
+<p>Plain-English reading: "if I bump $x$ up by a small amount, how much does $y$ go up by?" Slope, in other words.</p>
+<p><strong>Why we care.</strong> All physics equations are statements about rates. Newton's $F = ma$ says the rate of change of velocity is proportional to force. Heat conduction says the rate of change of temperature is proportional to the curvature of temperature in space. To write any rate-of-change law down, we need derivatives.</p>
+<div class="cw-card">
+  <div class="cw-head">Widget · Derivative as the slope of a tangent line</div>
+  <div class="cw-body">
+    <svg id="cw_deriv_svg" viewBox="0 0 540 320" style="width:100%;height:auto;max-width:560px;display:block;margin:0 auto"></svg>
+    <div class="cw-ctrl">
+      <label>x₀</label>
+      <input type="range" id="cw_deriv_x" min="-200" max="200" value="50" oninput="cwDerivDraw()">
+      <span id="cw_deriv_val" style="min-width:140px;display:inline-block">x₀ = 0.5, slope = 1.000</span>
+    </div>
+    <div class="cw-note">The blue curve is f(x) = sin(x) + 0.4·x. The orange tangent line touches it at x₀; its slope IS the derivative f'(x₀) at that point. Slide x₀ along the curve and watch the tangent rotate.</div>
+  </div>
+</div>
+<script>
+function cwDerivDraw(){
+  var svg = document.getElementById("cw_deriv_svg");
+  if(!svg) return;
+  var x0 = document.getElementById("cw_deriv_x").value/100;
+  var w = 540, h = 320, mx = 30;
+  // map x in [-2, 2] -> [mx, w-mx]
+  function X(x){ return mx + (x+2)/4 * (w-2*mx); }
+  function Y(y){ return h/2 - y*60; }
+  var f = function(x){ return Math.sin(x) + 0.4*x; };
+  var fp = function(x){ return Math.cos(x) + 0.4; };
+  var pts = "";
+  for(var i=0;i<=200;i++){
+    var x = -2 + i*4/200;
+    pts += (i===0?"M":"L") + X(x) + "," + Y(f(x)) + " ";
+  }
+  var s = fp(x0);
+  var tx1 = x0 - 1.3, tx2 = x0 + 1.3;
+  var ty1 = f(x0) + s*(tx1-x0), ty2 = f(x0) + s*(tx2-x0);
+  svg.innerHTML =
+    '<rect width="540" height="320" fill="#fafbff" rx="6"/>' +
+    '<line x1="'+mx+'" y1="'+(h/2)+'" x2="'+(w-mx)+'" y2="'+(h/2)+'" stroke="#94a3b8" stroke-width="1"/>' +
+    '<line x1="'+(w/2)+'" y1="20" x2="'+(w/2)+'" y2="'+(h-20)+'" stroke="#94a3b8" stroke-width="1"/>' +
+    '<path d="'+pts+'" stroke="#6b5cb5" stroke-width="2.4" fill="none"/>' +
+    '<line x1="'+X(tx1)+'" y1="'+Y(ty1)+'" x2="'+X(tx2)+'" y2="'+Y(ty2)+'" stroke="#ee845b" stroke-width="2.4"/>' +
+    '<circle cx="'+X(x0)+'" cy="'+Y(f(x0))+'" r="6" fill="#ee845b" stroke="#fff" stroke-width="2"/>' +
+    '<text x="20" y="20" font-size="11" fill="#475569">y = sin(x) + 0.4x</text>';
+  document.getElementById("cw_deriv_val").textContent = "x₀ = " + x0.toFixed(2) + ", slope f'(x₀) = " + s.toFixed(3);
+}
+window.addEventListener("DOMContentLoaded", cwDerivDraw);
+</script>
+
+<p>The interactive widget above lets you slide a point along a curve and watch the tangent-line slope change. The slope of the tangent IS the derivative at that point.</p>
+<h2 id="04-partial-derivatives-when-there-is-more-than-one-variable">0.4 Partial derivatives — when there is more than one variable</h2>
+<p>If a quantity depends on two variables — say temperature depends on both depth $z$ and time $t$ — we need to say <em>which</em> variable we are taking the derivative with respect to. We write $\frac{\partial T}{\partial t}$ (read "partial T over partial t") to mean "the rate of change of $T$ with respect to $t$, holding $z$ fixed". The curly $\partial$ symbol is just a way to remind ourselves that $T$ depends on something else too.</p>
+<p><strong>Reading the heat equation $\frac{\partial T}{\partial t} = \kappa \frac{\partial^{2} T}{\partial z^{2}}$.</strong> Plain English: "at every point in space and at every moment in time, the rate at which the temperature is changing in time equals $\kappa$ times the spatial curvature of $T$." The factor $\kappa$ controls how fast temperature responds; the spatial curvature $\partial^{2} T/\partial z^{2}$ is what drives the change. If $T$ is concave up in $z$ (a valley), it rises in time; if concave down (a hill), it falls.</p>
+<div class="cw-card">
+  <div class="cw-head">Widget · Partial derivatives ∂T/∂t vs ∂T/∂x on a 2-D temperature field T(x, t)</div>
+  <div class="cw-body">
+    <svg id="cw_pd_svg" viewBox="0 0 540 320" style="width:100%;height:auto;max-width:560px;display:block;margin:0 auto"></svg>
+    <div class="cw-ctrl">
+      <label>x cursor</label>
+      <input type="range" id="cw_pd_x" min="0" max="100" value="50" oninput="cwPdDraw()">
+      <span id="cw_pd_xval" style="min-width:200px;display:inline-block"></span>
+    </div>
+    <div class="cw-ctrl">
+      <label>t cursor</label>
+      <input type="range" id="cw_pd_t" min="0" max="100" value="50" oninput="cwPdDraw()">
+      <span id="cw_pd_tval" style="min-width:200px;display:inline-block"></span>
+    </div>
+    <div class="cw-note">A coloured map shows a 2-D field T(x, t). Drag the cursors to take slices. The horizontal slice (orange line) at fixed t shows how T varies with x — its slope at the cursor is ∂T/∂x. The vertical slice (purple line) at fixed x shows how T varies with t — its slope is ∂T/∂t. The two slopes are completely different quantities at the same (x, t) point; this is the whole point of partial derivatives.</div>
+  </div>
+</div>
+<script>
+function cwPdDraw(){
+  var svg = document.getElementById("cw_pd_svg"); if(!svg) return;
+  var xi = parseInt(document.getElementById("cw_pd_x").value);
+  var ti = parseInt(document.getElementById("cw_pd_t").value);
+  var W = 540, H = 320, mx = 50, my = 40, fw = 320, fh = 200;
+  // T(x,t) = sin(2*pi*x/100) * exp(-t/120) + 0.4*sin(2*pi*x/40)*cos(2*pi*t/80)
+  function T(x, t){
+    return Math.sin(2*Math.PI*x/100)*Math.exp(-t/120) + 0.4*Math.sin(2*Math.PI*x/40)*Math.cos(2*Math.PI*t/80);
+  }
+  // colour map
+  var cells = "";
+  var step = 8;
+  for(var i=0;i<fw;i+=step){
+    for(var j=0;j<fh;j+=step){
+      var x = i/fw*100, t = j/fh*100;
+      var v = T(x, t);
+      var r, g, b;
+      if(v >= 0){ r = 238; g = 132 - Math.min(v,1)*60; b = 91 - Math.min(v,1)*40; }
+      else { r = 107 + Math.min(-v,1)*30; g = 92 + Math.min(-v,1)*60; b = 181; }
+      cells += '<rect x="'+(mx+i)+'" y="'+(my+j)+'" width="'+step+'" height="'+step+'" fill="rgb('+Math.round(r)+','+Math.round(g)+','+Math.round(b)+')"/>';
+    }
+  }
+  // x-slice plot at right
+  var sx1 = mx+fw+20, sw = 110;
+  var slicePts = "";
+  for(var i=0;i<=100;i+=2){
+    var v = T(i, ti);
+    var px = sx1 + (v+1)/2 * sw;
+    var py = my + i/100 * fh;
+    slicePts += (i===0?"M":"L") + px + "," + py + " ";
+  }
+  // t-slice plot at bottom
+  var sy1 = my+fh+18, sh = 50;
+  var tslicePts = "";
+  for(var j=0;j<=100;j+=2){
+    var v = T(xi, j);
+    var px = mx + j/100 * fw;
+    var py = sy1 + (1-(v+1)/2) * sh;
+    tslicePts += (j===0?"M":"L") + px + "," + py + " ";
+  }
+  var cursorX = mx + xi/100 * fw;
+  var cursorY = my + ti/100 * fh;
+  svg.innerHTML =
+    '<rect width="540" height="320" fill="#fafbff" rx="6"/>' +
+    cells +
+    '<rect x="'+mx+'" y="'+my+'" width="'+fw+'" height="'+fh+'" fill="none" stroke="#94a3b8"/>' +
+    '<line x1="'+mx+'" y1="'+cursorY+'" x2="'+(mx+fw)+'" y2="'+cursorY+'" stroke="#ee845b" stroke-width="2" stroke-dasharray="4 3"/>' +
+    '<line x1="'+cursorX+'" y1="'+my+'" x2="'+cursorX+'" y2="'+(my+fh)+'" stroke="#6b5cb5" stroke-width="2" stroke-dasharray="4 3"/>' +
+    '<circle cx="'+cursorX+'" cy="'+cursorY+'" r="5" fill="#fff" stroke="#2c3142" stroke-width="2"/>' +
+    '<line x1="'+sx1+'" y1="'+my+'" x2="'+sx1+'" y2="'+(my+fh)+'" stroke="#94a3b8"/>' +
+    '<text x="'+sx1+'" y="'+(my-6)+'" font-size="10" fill="#6b5cb5">slice at fixed x</text>' +
+    '<path d="'+slicePts+'" stroke="#6b5cb5" stroke-width="2" fill="none"/>' +
+    '<line x1="'+mx+'" y1="'+(sy1+sh)+'" x2="'+(mx+fw)+'" y2="'+(sy1+sh)+'" stroke="#94a3b8"/>' +
+    '<text x="'+mx+'" y="'+(sy1-4)+'" font-size="10" fill="#ee845b">slice at fixed t</text>' +
+    '<path d="'+tslicePts+'" stroke="#ee845b" stroke-width="2" fill="none"/>' +
+    '<text x="'+mx+'" y="20" font-size="11" fill="#475569">T(x, t) heat-map (orange = hot, purple = cold)</text>' +
+    '<text x="'+(mx-30)+'" y="'+(my+fh/2)+'" font-size="10" fill="#94a3b8" transform="rotate(-90 '+(mx-30)+','+(my+fh/2)+')">t →</text>' +
+    '<text x="'+(mx+fw/2)+'" y="'+(my+fh+12)+'" font-size="10" fill="#94a3b8">x →</text>';
+  // slope estimates
+  var dTdt = (T(xi, Math.min(ti+1,100)) - T(xi, Math.max(ti-1,0))) / 2;
+  var dTdx = (T(Math.min(xi+1,100), ti) - T(Math.max(xi-1,0), ti)) / 2;
+  document.getElementById("cw_pd_xval").textContent = "x = " + xi + ",  ∂T/∂x ≈ " + dTdx.toFixed(3);
+  document.getElementById("cw_pd_tval").textContent = "t = " + ti + ",  ∂T/∂t ≈ " + dTdt.toFixed(3);
+}
+window.addEventListener("DOMContentLoaded", cwPdDraw);
+</script>
+
+<p>The widget above lets you take horizontal and vertical slices through a 2-D temperature field $T(x, t)$. The orange slice (fixed $t$) shows $T$ as a function of $x$; its slope at the cursor is $\partial T/\partial x$. The purple slice (fixed $x$) shows $T$ as a function of $t$; its slope is $\partial T/\partial t$. Both slopes are evaluated <em>at the same physical point</em> — they are different numbers because they measure change along different axes.</p>
+<h2 id="05-integrals-accumulation">0.5 Integrals — accumulation</h2>
+<p>If a derivative is a rate, an <strong>integral</strong> is a total accumulation. We write $\int_a^b f(x)\,dx$ and read it "the integral of f of x from a to b". Geometrically, it is the area under the curve $y = f(x)$ between $x = a$ and $x = b$.</p>
+<p><strong>Why we care.</strong> If $G(t)$ is the rate at which heat is flowing into the ground at time $t$, then the <strong>total</strong> heat that has flowed in between time $a$ and time $b$ is $\int_a^b G(t)\,dt$. That is the daily storage integral $S = \int G\,dt$ over 24 hours that appears in the project report.</p>
+<p><strong>The fundamental theorem of calculus</strong> says derivatives and integrals are inverses of each other. If you differentiate $\int_a^x f(s)\,ds$ with respect to $x$, you get back $f(x)$. So the integral is just "anti-derivative".</p>
+<h2 id="06-complex-numbers-and-eulers-formula">0.6 Complex numbers and Euler's formula</h2>
+<p>The <strong>imaginary unit</strong> $i$ is defined by $i^2 = -1$. It is not a "real" number — no real number's square is negative — but it turns out to be enormously useful as a bookkeeping device for waves.</p>
+<p>A <strong>complex number</strong> is a sum of a real and imaginary part: $z = a + bi$. We can plot it as a point in the plane with $a$ on the horizontal axis (real part) and $b$ on the vertical (imaginary part). Every complex number can also be written in polar form: $z = r\,e^{i\theta}$ where $r$ is the distance from the origin and $\theta$ is the angle from the positive real axis.</p>
+<p><strong>Euler's formula</strong> ties everything together:</p>
+<p>$$e^{i\theta} = \cos\theta + i\sin\theta.$$</p>
+<p><strong>Reading this equation.</strong> The left side is a complex exponential — an abstract symbol. The right side is a concrete pair: cosine in the real part, sine in the imaginary part. Together they say: as $\theta$ increases, $e^{i\theta}$ traces a unit circle in the complex plane, with horizontal coordinate $\cos\theta$ and vertical coordinate $\sin\theta$. Why does this matter? Because waves are sums of sines and cosines, and a complex exponential carries both at once — clean and compact.</p>
+<div class="cw-card">
+  <div class="cw-head">Widget · Euler's formula e^(iθ) = cos θ + i sin θ on the unit circle</div>
+  <div class="cw-body">
+    <svg id="cw_euler_svg" viewBox="0 0 540 320" style="width:100%;height:auto;max-width:560px;display:block;margin:0 auto"></svg>
+    <div class="cw-ctrl">
+      <label>θ (radians)</label>
+      <input type="range" id="cw_euler_th" min="0" max="628" value="120" oninput="cwEulerDraw()">
+      <span id="cw_euler_val" style="min-width:240px;display:inline-block"></span>
+    </div>
+    <div class="cw-note">The point traces the unit circle at angle θ. Its horizontal coordinate is cos θ (orange, plotted below right); its vertical coordinate is sin θ (purple, plotted on the right axis). Together they ARE the real and imaginary parts of e^(iθ).</div>
+  </div>
+</div>
+<script>
+function cwEulerDraw(){
+  var svg = document.getElementById("cw_euler_svg");
+  if(!svg) return;
+  var th = document.getElementById("cw_euler_th").value/100;
+  var cx = 110, cy = 160, r = 90;
+  var px = cx + r*Math.cos(th), py = cy - r*Math.sin(th);
+  // sin trace on right side
+  var sinPath = "";
+  for(var i=0;i<=Math.floor(th*40);i++){
+    var t = i/40;
+    var xx = 240 + t*30;
+    var yy = cy - r*Math.sin(t);
+    sinPath += (i===0?"M":"L") + xx + "," + yy + " ";
+  }
+  var cosPath = "";
+  for(var i=0;i<=Math.floor(th*40);i++){
+    var t = i/40;
+    var xx = 240 + t*30;
+    var yy = 290 - r*Math.cos(t)*0.5;
+    cosPath += (i===0?"M":"L") + xx + "," + yy + " ";
+  }
+  svg.innerHTML =
+    '<rect width="540" height="320" fill="#fafbff" rx="6"/>' +
+    '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="#cbd5e1" stroke-width="1.5"/>' +
+    '<line x1="'+(cx-r-10)+'" y1="'+cy+'" x2="'+(cx+r+10)+'" y2="'+cy+'" stroke="#94a3b8"/>' +
+    '<line x1="'+cx+'" y1="'+(cy-r-10)+'" x2="'+cx+'" y2="'+(cy+r+10)+'" stroke="#94a3b8"/>' +
+    '<line x1="'+cx+'" y1="'+cy+'" x2="'+px+'" y2="'+py+'" stroke="#2c3142" stroke-width="2"/>' +
+    '<line x1="'+px+'" y1="'+py+'" x2="'+px+'" y2="'+cy+'" stroke="#ee845b" stroke-width="2" stroke-dasharray="4 3"/>' +
+    '<line x1="'+px+'" y1="'+py+'" x2="'+cx+'" y2="'+py+'" stroke="#6b5cb5" stroke-width="2" stroke-dasharray="4 3"/>' +
+    '<circle cx="'+px+'" cy="'+py+'" r="6" fill="#2c8a83" stroke="#fff" stroke-width="2"/>' +
+    '<text x="'+(cx-110)+'" y="20" font-size="11" fill="#475569">complex plane (unit circle)</text>' +
+    '<text x="240" y="20" font-size="11" fill="#6b5cb5">sin θ as θ increases →</text>' +
+    '<text x="240" y="200" font-size="11" fill="#ee845b">cos θ as θ increases →</text>' +
+    '<line x1="240" y1="50" x2="540" y2="50" stroke="#cbd5e1" stroke-dasharray="2 2"/>' +
+    '<line x1="240" y1="160" x2="540" y2="160" stroke="#94a3b8"/>' +
+    '<path d="'+sinPath+'" stroke="#6b5cb5" stroke-width="2.5" fill="none"/>' +
+    '<line x1="240" y1="245" x2="540" y2="245" stroke="#94a3b8"/>' +
+    '<path d="'+cosPath+'" stroke="#ee845b" stroke-width="2.5" fill="none"/>';
+  document.getElementById("cw_euler_val").textContent =
+    "θ = " + th.toFixed(2) + " rad,  cos θ = " + Math.cos(th).toFixed(3) + ",  sin θ = " + Math.sin(th).toFixed(3);
+}
+window.addEventListener("DOMContentLoaded", cwEulerDraw);
+</script>
+
+<p>The interactive widget shows a point moving around the unit circle. The horizontal projection (real part) traces $\cos\theta$; the vertical projection (imaginary part) traces $\sin\theta$. As $\theta$ runs from $0$ to $2\pi$, both side panels plot full sinusoids.</p>
+<h2 id="07-sine-waves-amplitude-wavenumber-frequency">0.7 Sine waves — amplitude, wavenumber, frequency</h2>
+<p>A sine wave that depends on both space and time can be written</p>
+<p>$$\phi(x, t) = A\,\sin(kx - \omega t).$$</p>
+<p><strong>Reading this equation.</strong></p>
+<ul>
+<li>$\phi(x, t)$ — some quantity (could be air pressure, surface elevation, temperature anomaly) at position $x$ and time $t$.</li>
+<li>$A$ — the <strong>amplitude</strong>, the peak height of the wave.</li>
+<li>$k$ — the <strong>wavenumber</strong> (rad/m). It controls how tightly packed the wave is in space.</li>
+<li>$\omega$ — the <strong>angular frequency</strong> (rad/s). It controls how fast the wave oscillates in time.</li>
+<li>The combination $(kx - \omega t)$ is the <strong>phase</strong>. As $t$ increases, points of constant phase satisfy $x = (\omega/k)\,t$, so the wave moves to the right at speed $c = \omega/k$.</li>
+</ul>
+<p>The <strong>wavelength</strong> is $\lambda = 2\pi/k$ — the distance over which the wave completes one full cycle. The <strong>period</strong> is $T = 2\pi/\omega$ — the time for one full cycle at a fixed point.</p>
+<div class="cw-card">
+  <div class="cw-head">Widget · Sine wave explorer: A sin(k x − ω t)</div>
+  <div class="cw-body">
+    <svg id="cw_sine_svg" viewBox="0 0 540 240" style="width:100%;height:auto;max-width:560px;display:block;margin:0 auto"></svg>
+    <div class="cw-ctrl">
+      <label>A</label><input type="range" id="cw_sine_A" min="20" max="100" value="60" oninput="cwSineDraw()"><span id="cw_sine_Av">0.6</span>
+    </div>
+    <div class="cw-ctrl">
+      <label>k</label><input type="range" id="cw_sine_k" min="100" max="2000" value="500" oninput="cwSineDraw()"><span id="cw_sine_kv">5.0 rad/m</span>
+    </div>
+    <div class="cw-ctrl">
+      <label>ω</label><input type="range" id="cw_sine_w" min="50" max="500" value="150" oninput="cwSineDraw()"><span id="cw_sine_wv">1.5 rad/s</span>
+    </div>
+    <div class="cw-ctrl">
+      <label>t</label><input type="range" id="cw_sine_t" min="0" max="600" value="0" oninput="cwSineDraw()"><span id="cw_sine_tv">0.0 s</span>
+      <button onclick="cwSineAnim()" id="cw_sine_btn" style="margin-left:10px;padding:4px 12px;background:#ee845b;color:#fff;border:none;border-radius:4px;cursor:pointer">Play</button>
+    </div>
+    <div class="cw-note">A is amplitude. k is wavenumber (radians per metre). ω is angular frequency (radians per second). Slide t to move the wave; click Play to animate. Notice wavelength λ = 2π/k and period T = 2π/ω; the wave moves at speed c = ω/k.</div>
+  </div>
+</div>
+<script>
+var cwSineTimer = null;
+function cwSineDraw(){
+  var svg = document.getElementById("cw_sine_svg"); if(!svg) return;
+  var A = document.getElementById("cw_sine_A").value/100;
+  var k = document.getElementById("cw_sine_k").value/100;
+  var w = document.getElementById("cw_sine_w").value/100;
+  var t = document.getElementById("cw_sine_t").value/100;
+  document.getElementById("cw_sine_Av").textContent = A.toFixed(2);
+  document.getElementById("cw_sine_kv").textContent = k.toFixed(1) + " rad/m (λ=" + (2*Math.PI/k).toFixed(2) + " m)";
+  document.getElementById("cw_sine_wv").textContent = w.toFixed(1) + " rad/s (T=" + (2*Math.PI/w).toFixed(2) + " s)";
+  document.getElementById("cw_sine_tv").textContent = t.toFixed(2) + " s";
+  var W = 540, H = 240, mx = 30;
+  var pts = "";
+  for(var i=0;i<=540;i++){
+    var x = i*4/540;
+    var y = A*Math.sin(k*x - w*t);
+    pts += (i===0?"M":"L") + (mx + i*(W-2*mx)/540) + "," + (H/2 - y*80) + " ";
+  }
+  svg.innerHTML =
+    '<rect width="540" height="240" fill="#fafbff" rx="6"/>' +
+    '<line x1="'+mx+'" y1="'+(H/2)+'" x2="'+(W-mx)+'" y2="'+(H/2)+'" stroke="#94a3b8"/>' +
+    '<path d="'+pts+'" stroke="#6b5cb5" stroke-width="2.5" fill="none"/>' +
+    '<text x="20" y="20" font-size="11" fill="#475569">x (metres) →</text>' +
+    '<text x="450" y="20" font-size="11" fill="#475569">wave speed c = ω/k = ' + (w/k).toFixed(2) + ' m/s</text>';
+}
+function cwSineAnim(){
+  var btn = document.getElementById("cw_sine_btn");
+  if(cwSineTimer){ clearInterval(cwSineTimer); cwSineTimer = null; btn.textContent="Play"; return; }
+  btn.textContent="Pause";
+  cwSineTimer = setInterval(function(){
+    var sl = document.getElementById("cw_sine_t");
+    var v = (parseInt(sl.value) + 8) % 601;
+    sl.value = v; cwSineDraw();
+  }, 50);
+}
+window.addEventListener("DOMContentLoaded", cwSineDraw);
+</script>
+
+<p>Drag the amplitude, wavenumber, and angular frequency sliders and watch the wave respond. Notice that increasing $k$ packs more cycles into the same space (shorter wavelength), and increasing $\omega$ runs the wave faster.</p>
+<h2 id="08-what-math273-means-the-dimensionless-wavenumber-on-a-grid">0.8 What $k\Delta z$ means — the dimensionless wavenumber on a grid</h2>
+<p>When we discretise space into cells of size $\Delta z$, only some wavelengths "fit" on the grid. A wavelength $\lambda = 2\pi/k$ takes about $\lambda/\Delta z = 2\pi/(k\Delta z)$ grid cells to complete one cycle. The dimensionless number $k\Delta z$ tells us <em>how many radians of the wave fall in one grid cell</em>.</p>
+<ul>
+<li>$k\Delta z = 0$ means $\lambda \to \infty$ — a constant in space (no variation).</li>
+<li>$k\Delta z = \pi/2$ means $\lambda = 4\Delta z$ — four cells per cycle.</li>
+<li>$k\Delta z = \pi$ means $\lambda = 2\Delta z$ — the shortest pattern the grid can hold: temperature flips sign at every cell. This is called the "$2\Delta z$ wave" and it is the worst case for stability analysis.</li>
+</ul>
+<p>Wavenumbers above $k\Delta z = \pi$ cannot be represented on the grid — they get <strong>aliased</strong> into longer-wavelength patterns (Lecture 8 explains this in detail). So all of stability analysis happens in the range $k\Delta z \in [0, \pi]$.</p>
+<div class="cw-card">
+  <div class="cw-head">Widget · k Δz on a uniform grid — wavelengths the grid can hold</div>
+  <div class="cw-body">
+    <svg id="cw_kdz_svg" viewBox="0 0 540 260" style="width:100%;height:auto;max-width:560px;display:block;margin:0 auto"></svg>
+    <div class="cw-ctrl">
+      <label>k Δz</label>
+      <input type="range" id="cw_kdz_v" min="0" max="314" value="100" oninput="cwKdzDraw()">
+      <span id="cw_kdz_val" style="min-width:240px;display:inline-block"></span>
+    </div>
+    <div class="cw-note">The grid has 20 cells of size Δz; cell centres are the purple dots. The blue curve is sin(k z); coloured dots mark the value the grid samples at each cell centre. At k Δz = π (the rightmost slider position) the wave alternates sign at every grid point — the worst-case "2 Δz wave" that drives von-Neumann stability analysis.</div>
+  </div>
+</div>
+<script>
+function cwKdzDraw(){
+  var svg = document.getElementById("cw_kdz_svg"); if(!svg) return;
+  var kdz = document.getElementById("cw_kdz_v").value/100;
+  var W = 540, H = 260, mx = 30, my = 40;
+  var N = 20, dz = (W - 2*mx) / N;
+  var pts = "";
+  for(var i=0;i<=540;i++){
+    var z = i;
+    var y = Math.sin(kdz * z / dz);
+    pts += (i===0?"M":"L") + (mx + i*(W-2*mx)/540) + "," + (H/2 - y*70) + " ";
+  }
+  var dots = "";
+  for(var j=0;j<=N;j++){
+    var cx = mx + j*dz;
+    var v = Math.sin(kdz * j);
+    var col = v >= 0 ? "#ee845b" : "#6b5cb5";
+    dots += '<circle cx="'+cx+'" cy="'+(H/2 - v*70)+'" r="5" fill="'+col+'" stroke="#fff" stroke-width="1.5"/>';
+    dots += '<line x1="'+cx+'" y1="'+(H-20)+'" x2="'+cx+'" y2="'+(H-30)+'" stroke="#94a3b8"/>';
+  }
+  svg.innerHTML =
+    '<rect width="540" height="260" fill="#fafbff" rx="6"/>' +
+    '<line x1="'+mx+'" y1="'+(H/2)+'" x2="'+(W-mx)+'" y2="'+(H/2)+'" stroke="#94a3b8"/>' +
+    '<line x1="'+mx+'" y1="'+(H-25)+'" x2="'+(W-mx)+'" y2="'+(H-25)+'" stroke="#94a3b8"/>' +
+    '<path d="'+pts+'" stroke="#cbd5e1" stroke-width="2" fill="none"/>' +
+    dots +
+    '<text x="20" y="20" font-size="11" fill="#475569">sin(k z) sampled at 20 grid cells (Δz spacing)</text>';
+  var lam = 2*Math.PI / Math.max(kdz, 1e-4);
+  var label;
+  if(kdz < 0.05) label = "k Δz ≈ 0 — wavelength much longer than the grid";
+  else if(Math.abs(kdz - Math.PI/2) < 0.1) label = "k Δz = π/2 — four cells per wavelength";
+  else if(Math.abs(kdz - Math.PI) < 0.1) label = "k Δz ≈ π — the 2Δz wave (worst case)";
+  else label = "λ/Δz = " + lam.toFixed(2) + " (cells per wavelength)";
+  document.getElementById("cw_kdz_val").textContent = "k Δz = " + kdz.toFixed(2) + " — " + label;
+}
+window.addEventListener("DOMContentLoaded", cwKdzDraw);
+</script>
+
+<p>Drag the $k\Delta z$ slider to see how the wave looks on a grid of fixed $\Delta z$. At $k\Delta z = \pi$, adjacent cells take opposite signs — the worst-case pattern that von Neumann analysis tests.</p>
+<h2 id="09-time-steps-and-discretisation">0.9 Time steps and discretisation</h2>
+<p>In a continuous mathematical model, time $t$ varies smoothly. In a computer model, we cannot store infinitely many time levels, so we sample time at discrete points $t_0 = 0$, $t_1 = \Delta t$, $t_2 = 2\Delta t$, …, $t_n = n\Delta t$. The integer $n$ is the <strong>time-level index</strong>; $\Delta t$ is the <strong>time step</strong>.</p>
+<p>We write $\phi^n$ to mean "the numerical approximation to $\phi$ at time $t_n = n\Delta t$". The superscript is a label (not an exponent). Whenever you see $\phi^{n+1}$, read it as "$\phi$ one time step later".</p>
+<p><strong>Discrete derivatives.</strong> With this notation, the continuous time derivative $\frac{d\phi}{dt}$ becomes the <strong>forward difference</strong></p>
+<p>$$\frac{d\phi}{dt} \approx \frac{\phi^{n+1} - \phi^{n}}{\Delta t}.$$</p>
+<p>This is the simplest finite-difference approximation. It introduces an error of order $\Delta t$ (first-order accuracy), which we call <strong>truncation error</strong>.</p>
+<div class="cw-card">
+  <div class="cw-head">Widget · Time discretisation: continuous time vs. discrete time steps</div>
+  <div class="cw-body">
+    <svg id="cw_ts_svg" viewBox="0 0 540 220" style="width:100%;height:auto;max-width:560px;display:block;margin:0 auto"></svg>
+    <div class="cw-ctrl">
+      <label>Δt</label>
+      <input type="range" id="cw_ts_dt" min="20" max="200" value="50" oninput="cwTsDraw()">
+      <span id="cw_ts_val" style="min-width:240px;display:inline-block"></span>
+    </div>
+    <div class="cw-note">A smooth signal (blue) is sampled at discrete times t_n = n Δt (orange dots). As Δt grows, the discrete samples capture less and less of the smooth signal. The discrete time-derivative (φⁿ⁺¹ − φⁿ)/Δt approximates the true continuous derivative, with truncation error of order Δt.</div>
+  </div>
+</div>
+<script>
+function cwTsDraw(){
+  var svg = document.getElementById("cw_ts_svg"); if(!svg) return;
+  var dt = document.getElementById("cw_ts_dt").value/100;
+  var W = 540, H = 220, mx = 30;
+  var T = 4;
+  var pts = "";
+  for(var i=0;i<=540;i++){
+    var t = i*T/540;
+    var y = Math.sin(2*t) + 0.5*Math.sin(5*t);
+    pts += (i===0?"M":"L") + (mx + i*(W-2*mx)/540) + "," + (H/2 - y*50) + " ";
+  }
+  var dots = "";
+  var n = 0;
+  for(var tt = 0; tt <= T; tt += dt){
+    var cx = mx + tt/T * (W-2*mx);
+    var y = Math.sin(2*tt) + 0.5*Math.sin(5*tt);
+    dots += '<line x1="'+cx+'" y1="'+(H-25)+'" x2="'+cx+'" y2="'+(H/2 - y*50)+'" stroke="#cbd5e1" stroke-dasharray="2 2"/>';
+    dots += '<circle cx="'+cx+'" cy="'+(H/2 - y*50)+'" r="5" fill="#ee845b" stroke="#fff" stroke-width="1.5"/>';
+    dots += '<text x="'+cx+'" y="'+(H-8)+'" text-anchor="middle" font-size="10" fill="#475569">n='+n+'</text>';
+    n++;
+  }
+  svg.innerHTML =
+    '<rect width="540" height="220" fill="#fafbff" rx="6"/>' +
+    '<line x1="'+mx+'" y1="'+(H/2)+'" x2="'+(W-mx)+'" y2="'+(H/2)+'" stroke="#94a3b8"/>' +
+    '<line x1="'+mx+'" y1="'+(H-25)+'" x2="'+(W-mx)+'" y2="'+(H-25)+'" stroke="#94a3b8"/>' +
+    '<path d="'+pts+'" stroke="#6b5cb5" stroke-width="2" fill="none"/>' +
+    dots +
+    '<text x="20" y="20" font-size="11" fill="#475569">smooth signal φ(t)</text>' +
+    '<text x="380" y="20" font-size="11" fill="#ee845b">discrete samples φⁿ at t = n Δt</text>';
+  document.getElementById("cw_ts_val").textContent =
+    "Δt = " + dt.toFixed(2) + " s,  number of samples = " + (Math.floor(T/dt)+1);
+}
+window.addEventListener("DOMContentLoaded", cwTsDraw);
+</script>
+
+<p>The widget shows a continuous time axis sampled at $n = 0, 1, 2, \ldots$, with $\Delta t$ as the spacing. Drag $\Delta t$ to see how the discrete samples spread out or compress.</p>
+<p><strong>Forward, backward, centred differences.</strong> Three different ways to approximate the <em>same</em> derivative from grid values:</p>
+<ul>
+<li><strong>Forward</strong>: $(\phi^{n+1}-\phi^{n})/\Delta t$ — uses information from the future. First-order accurate ($O(\Delta t)$).</li>
+<li><strong>Backward</strong>: $(\phi^{n}-\phi^{n-1})/\Delta t$ — uses past information. Also $O(\Delta t)$.</li>
+<li><strong>Centred</strong>: $(\phi^{n+1}-\phi^{n-1})/(2\Delta t)$ — symmetric, much more accurate: $O(\Delta t^{2})$.</li>
+</ul>
+<p>Centred differences are nominally "better" but introduce a famous problem — the leapfrog <strong>computational mode</strong> — which Chapter 15 of this guide explains in detail. For now, the takeaway: how you discretise time matters as much as the time-step size itself.</p>
+<p>For an interactive walkthrough of finite differences and their order-of-accuracy properties, the Lecture 6 dashboard has tabs for forward/backward/centred difference operators, their truncation errors, and a side-by-side comparison:</p>
+<iframe src="lecture6_dashboard_Claude_Code.html" style="width:100%;height:820px;border:1px solid #cbd5e1;border-radius:8px;background:#fff" loading="lazy" title="Lecture 6 dashboard — finite differences"></iframe>
+
+<h2 id="010-fourier-basics-every-function-as-a-sum-of-sines">0.10 Fourier basics — every function as a sum of sines</h2>
+<p>A remarkable mathematical fact: any reasonable function defined on an interval can be written as an infinite sum of sines and cosines:</p>
+<p>$$f(x) = \sum_{k} \bigl[a_k\,\cos(kx) + b_k\,\sin(kx)\bigr].$$</p>
+<p>The coefficients $a_k$ and $b_k$ are the <strong>Fourier coefficients</strong> — they tell us how much of each wavelength is in $f$. The full set $\{a_k, b_k\}$ as a function of $k$ is the <strong>Fourier spectrum</strong> of $f$.</p>
+<p><strong>Why we care.</strong> Numerical schemes are linear, so they act on each Fourier component independently. To check whether a scheme is stable, we only have to check whether any <em>single</em> Fourier component grows — this is what von Neumann analysis does (Section 0.13 and Lecture 5).</p>
+<div class="cw-card">
+  <div class="cw-head">Widget · Fourier series: a square wave as a sum of sines</div>
+  <div class="cw-body">
+    <svg id="cw_four_svg" viewBox="0 0 540 240" style="width:100%;height:auto;max-width:560px;display:block;margin:0 auto"></svg>
+    <div class="cw-ctrl">
+      <label>Number of harmonics</label>
+      <input type="range" id="cw_four_n" min="1" max="30" value="1" oninput="cwFourDraw()">
+      <span id="cw_four_val" style="min-width:120px;display:inline-block">N = 1</span>
+    </div>
+    <div class="cw-note">The Fourier series for a square wave is (4/π) [sin(x) + (1/3) sin(3x) + (1/5) sin(5x) + …]. Slide the number of harmonics up to see the approximation sharpen. The little overshoot that never goes away near the jumps is the Gibbs phenomenon — a famous quirk of Fourier series at discontinuities.</div>
+  </div>
+</div>
+<script>
+function cwFourDraw(){
+  var svg = document.getElementById("cw_four_svg"); if(!svg) return;
+  var N = parseInt(document.getElementById("cw_four_n").value);
+  document.getElementById("cw_four_val").textContent = "N = " + N;
+  var W = 540, H = 240, mx = 30;
+  // ideal square wave
+  var sq = "";
+  for(var i=0;i<=540;i++){
+    var x = i*Math.PI*2/540;
+    var y = (x < Math.PI) ? 1 : -1;
+    sq += (i===0?"M":"L") + (mx + i*(W-2*mx)/540) + "," + (H/2 - y*70) + " ";
+  }
+  // partial sum
+  var ps = "";
+  for(var i=0;i<=540;i++){
+    var x = i*Math.PI*2/540;
+    var s = 0;
+    for(var k=1;k<=2*N-1;k+=2){ s += Math.sin(k*x)/k; }
+    s *= 4/Math.PI;
+    ps += (i===0?"M":"L") + (mx + i*(W-2*mx)/540) + "," + (H/2 - s*70) + " ";
+  }
+  svg.innerHTML =
+    '<rect width="540" height="240" fill="#fafbff" rx="6"/>' +
+    '<line x1="'+mx+'" y1="'+(H/2)+'" x2="'+(W-mx)+'" y2="'+(H/2)+'" stroke="#94a3b8"/>' +
+    '<path d="'+sq+'" stroke="#cbd5e1" stroke-width="2" fill="none"/>' +
+    '<path d="'+ps+'" stroke="#6b5cb5" stroke-width="2.5" fill="none"/>' +
+    '<text x="20" y="20" font-size="11" fill="#94a3b8">ideal square wave</text>' +
+    '<text x="430" y="20" font-size="11" fill="#6b5cb5">Fourier partial sum</text>';
+}
+window.addEventListener("DOMContentLoaded", cwFourDraw);
+</script>
+
+<p>The widget builds up a square wave from its Fourier components. Slide the "number of harmonics" to add more terms. With just a few terms you get a wavy approximation; with many terms it converges to a sharp square. (The little overshoots that never go away are called the Gibbs phenomenon.)</p>
+<h2 id="011-vector-calculus-gradient-divergence-curl-laplacian">0.11 Vector calculus — gradient, divergence, curl, Laplacian</h2>
+<p>So far we have talked about scalar fields (single number at every point, like temperature). Many quantities in fluid mechanics are <strong>vector fields</strong> — three numbers at every point. The wind vector $\vec{V} = (u, v, w)$ has horizontal components $u, v$ and vertical component $w$.</p>
+<p>The <strong>del operator</strong> $\nabla$ (read "del" or "nabla") is a shorthand for "take partial derivatives in all three spatial directions and assemble them as a vector":</p>
+<p>$$\nabla \;=\; \biggl(\frac{\partial}{\partial x},\, \frac{\partial}{\partial y},\, \frac{\partial}{\partial z}\biggr).$$</p>
+<p>By itself $\nabla$ is not a number — it is an operator waiting for something to act on. Four common uses:</p>
+<h3 id="gradient-math324-operator-acting-on-a-scalar">Gradient: $\nabla f$ (operator acting on a scalar)</h3>
+<p>If $f(x, y, z)$ is a scalar field (one number at every point), then</p>
+<p>$$\nabla f \;=\; \biggl(\frac{\partial f}{\partial x},\, \frac{\partial f}{\partial y},\, \frac{\partial f}{\partial z}\biggr).$$</p>
+<p><strong>Reading this.</strong> $\nabla f$ is a vector at every point that points in the direction of steepest increase of $f$. Its magnitude $|\nabla f|$ is the steepness — how fast $f$ rises in that direction. On a topographic map, the gradient of altitude points uphill, and its size measures the slope.</p>
+<p><strong>In atmospheric physics</strong>, the pressure-gradient force is $-\frac{1}{\rho}\nabla p$ — air accelerates from high pressure toward low pressure, with force proportional to how steeply pressure drops.</p>
+<div class="cw-card">
+  <div class="cw-head">Widget · Gradient ∇f — arrows pointing uphill on a scalar field</div>
+  <div class="cw-body">
+    <svg id="cw_grad_svg" viewBox="0 0 540 300" style="width:100%;height:auto;max-width:560px;display:block;margin:0 auto"></svg>
+    <div class="cw-ctrl">
+      <label>peak x</label><input type="range" id="cw_grad_px" min="20" max="80" value="50" oninput="cwGradDraw()"><span id="cw_grad_pxv">50</span>
+    </div>
+    <div class="cw-ctrl">
+      <label>peak y</label><input type="range" id="cw_grad_py" min="20" max="80" value="50" oninput="cwGradDraw()"><span id="cw_grad_pyv">50</span>
+    </div>
+    <div class="cw-note">A scalar field f(x, y) — think pressure, terrain height, or temperature — is shown as a heat-map. Orange arrows are the gradient ∇f at each grid point. Every arrow points <em>uphill</em> (toward higher values); arrow length is the steepness. Drag the peak. The gradient field always points away from low values and into high values.</div>
+  </div>
+</div>
+<script>
+function cwGradDraw(){
+  var svg = document.getElementById("cw_grad_svg"); if(!svg) return;
+  var px = parseInt(document.getElementById("cw_grad_px").value);
+  var py = parseInt(document.getElementById("cw_grad_py").value);
+  document.getElementById("cw_grad_pxv").textContent = px;
+  document.getElementById("cw_grad_pyv").textContent = py;
+  var W = 540, H = 300, mx = 40, my = 30, fw = 460, fh = 220;
+  function f(x, y){
+    var dx = x - px, dy = y - py;
+    return Math.exp(-(dx*dx+dy*dy)/600);
+  }
+  // colour map
+  var cells = "";
+  var step = 10;
+  for(var i=0;i<fw;i+=step){
+    for(var j=0;j<fh;j+=step){
+      var x = i/fw*100, y = j/fh*100;
+      var v = f(x, y);
+      var r = 234 - v*180, g = 240 - v*150, b = 248 - v*30;
+      cells += '<rect x="'+(mx+i)+'" y="'+(my+j)+'" width="'+step+'" height="'+step+'" fill="rgb('+Math.round(r)+','+Math.round(g)+','+Math.round(b)+')"/>';
+    }
+  }
+  // gradient arrows on coarser grid
+  var arrows = "";
+  var ax = 9, ay = 5;
+  var dx0 = fw/(ax-1), dy0 = fh/(ay-1);
+  for(var i=0;i<ax;i++){
+    for(var j=0;j<ay;j++){
+      var xx = mx + i*dx0, yy = my + j*dy0;
+      var xv = i*100/(ax-1), yv = j*100/(ay-1);
+      var h = 1.5;
+      var gx = (f(xv+h, yv) - f(xv-h, yv)) / (2*h);
+      var gy = (f(xv, yv+h) - f(xv, yv-h)) / (2*h);
+      var mag = Math.sqrt(gx*gx + gy*gy);
+      if(mag < 1e-4) continue;
+      var sc = 600;
+      var ex = xx + gx*sc, ey = yy + gy*sc;
+      arrows += '<line x1="'+xx+'" y1="'+yy+'" x2="'+ex+'" y2="'+ey+'" stroke="#ee845b" stroke-width="2"/>';
+      var ang = Math.atan2(ey-yy, ex-xx);
+      var ah = 5;
+      arrows += '<polygon points="'+ex+','+ey+' '+(ex-ah*Math.cos(ang-0.3))+','+(ey-ah*Math.sin(ang-0.3))+' '+(ex-ah*Math.cos(ang+0.3))+','+(ey-ah*Math.sin(ang+0.3))+'" fill="#ee845b"/>';
+    }
+  }
+  svg.innerHTML =
+    '<rect width="540" height="300" fill="#fafbff" rx="6"/>' +
+    cells +
+    arrows +
+    '<rect x="'+mx+'" y="'+my+'" width="'+fw+'" height="'+fh+'" fill="none" stroke="#94a3b8"/>' +
+    '<text x="'+mx+'" y="20" font-size="11" fill="#475569">scalar field f(x,y) (white=low, blue=high)  ·  orange arrows = ∇f (uphill)</text>';
+}
+window.addEventListener("DOMContentLoaded", cwGradDraw);
+</script>
+
+<p>The widget above shows a Gaussian "hill" $f(x, y)$ (light = low, blue = high). At each grid node an orange arrow points in the direction of $\nabla f$ — uphill — and its length shows the steepness $|\nabla f|$. Notice that near the peak the arrows are short (locally flat); on the slopes they are long. The arrows always point <em>away from</em> low values and <em>into</em> high values. Drag the peak position and watch the whole gradient field reorganise.</p>
+<h3 id="divergence-math334-operator-acting-on-a-vector-dot-product">Divergence: $\nabla \cdot \vec{V}$ (operator acting on a vector, dot product)</h3>
+<p>If $\vec{V} = (u, v, w)$ is a vector field,</p>
+<p>$$\nabla \cdot \vec{V} \;=\; \frac{\partial u}{\partial x} + \frac{\partial v}{\partial y} + \frac{\partial w}{\partial z}.$$</p>
+<p><strong>Reading this.</strong> $\nabla \cdot \vec{V}$ is a scalar at every point. Where it is <strong>positive</strong>, the vector field is <em>expanding</em> outward — think a "source" or air flowing away from a high-pressure point. Where it is <strong>negative</strong>, the field is <em>converging</em> inward — think a "sink" or air flowing toward low pressure. Where it is <strong>zero</strong>, mass is conserved at that point.</p>
+<p><strong>In atmospheric physics</strong>, the continuity equation $\frac{\partial \rho}{\partial t} + \nabla\cdot(\rho \vec{V}) = 0$ says density changes at a point only if more mass flows in than out. For the (approximately) incompressible atmosphere, $\nabla \cdot \vec{V} \approx 0$ — the wind field has no net divergence.</p>
+<div class="cw-card">
+  <div class="cw-head">Widget · Divergence ∇·V — sources and sinks</div>
+  <div class="cw-body">
+    <svg id="cw_div_svg" viewBox="0 0 540 280" style="width:100%;height:auto;max-width:560px;display:block;margin:0 auto"></svg>
+    <div class="cw-ctrl">
+      <label>∇·V</label>
+      <input type="range" id="cw_div_v" min="-100" max="100" value="0" oninput="cwDivDraw()">
+      <span id="cw_div_val" style="min-width:180px;display:inline-block">∇·V = 0 (no divergence)</span>
+    </div>
+    <div class="cw-note">Arrows show a vector field on a 9 × 5 grid. Negative ∇·V (slider left) means flow is converging into the centre (a "sink"). Positive ∇·V (right) means flow is diverging outward from the centre (a "source"). Zero means each cell has equal in and out — the field is non-divergent.</div>
+  </div>
+</div>
+<script>
+function cwDivDraw(){
+  var svg = document.getElementById("cw_div_svg"); if(!svg) return;
+  var d = document.getElementById("cw_div_v").value/100;
+  var W = 540, H = 280, mx = 40, my = 20;
+  var nx = 9, ny = 5;
+  var dx = (W-2*mx)/(nx-1), dy = (H-2*my-30)/(ny-1);
+  var cx = W/2, cy = (H-30)/2;
+  var arrows = "";
+  for(var i=0;i<nx;i++){
+    for(var j=0;j<ny;j++){
+      var x = mx + i*dx, y = my + j*dy;
+      var rx = x - cx, ry = y - cy;
+      var rr = Math.sqrt(rx*rx + ry*ry) + 1e-3;
+      var ux = d * rx/rr * 18;
+      var uy = d * ry/rr * 18;
+      var x2 = x + ux, y2 = y + uy;
+      var col = d >= 0 ? "#ee845b" : "#2c8a83";
+      arrows += '<line x1="'+x+'" y1="'+y+'" x2="'+x2+'" y2="'+y2+'" stroke="'+col+'" stroke-width="2"/>';
+      // arrowhead
+      var ang = Math.atan2(uy, ux);
+      var ah = 6;
+      arrows += '<polygon points="'+x2+','+y2+' '+(x2-ah*Math.cos(ang-0.3))+','+(y2-ah*Math.sin(ang-0.3))+' '+(x2-ah*Math.cos(ang+0.3))+','+(y2-ah*Math.sin(ang+0.3))+'" fill="'+col+'"/>';
+    }
+  }
+  svg.innerHTML =
+    '<rect width="540" height="280" fill="#fafbff" rx="6"/>' +
+    arrows +
+    '<circle cx="'+cx+'" cy="'+cy+'" r="6" fill="#6b5cb5" stroke="#fff" stroke-width="2"/>';
+  var label;
+  if(d < -0.05) label = "∇·V < 0 — convergence (sink)";
+  else if(d > 0.05) label = "∇·V > 0 — divergence (source)";
+  else label = "∇·V ≈ 0 — non-divergent";
+  document.getElementById("cw_div_val").textContent = "∇·V = " + d.toFixed(2) + " — " + label;
+}
+window.addEventListener("DOMContentLoaded", cwDivDraw);
+</script>
+
+<h3 id="curl-math339-operator-acting-on-a-vector-cross-product">Curl: $\nabla \times \vec{V}$ (operator acting on a vector, cross product)</h3>
+<p>If $\vec{V} = (u, v, w)$,</p>
+<p>$$\nabla \times \vec{V} \;=\; \biggl(\frac{\partial w}{\partial y} - \frac{\partial v}{\partial z},\; \frac{\partial u}{\partial z} - \frac{\partial w}{\partial x},\; \frac{\partial v}{\partial x} - \frac{\partial u}{\partial y}\biggr).$$</p>
+<p><strong>Reading this.</strong> $\nabla \times \vec{V}$ is a vector at every point that measures the <em>rotation</em> of the field. A small paddle wheel placed in the flow would spin around the axis of the curl, at a rate proportional to the curl's magnitude. If $\nabla \times \vec{V} = 0$ everywhere, the field is "irrotational" — no swirling.</p>
+<p><strong>In atmospheric physics</strong>, the vertical component $\zeta = \partial v/\partial x - \partial u/\partial y$ of the curl is called <strong>vorticity</strong>. Cyclones have positive vorticity in the Northern Hemisphere (counter-clockwise rotation), anticyclones have negative.</p>
+<div class="cw-card">
+  <div class="cw-head">Widget · Curl ∇×V — rotation in a vector field</div>
+  <div class="cw-body">
+    <svg id="cw_curl_svg" viewBox="0 0 540 280" style="width:100%;height:auto;max-width:560px;display:block;margin:0 auto"></svg>
+    <div class="cw-ctrl">
+      <label>curl</label>
+      <input type="range" id="cw_curl_v" min="-100" max="100" value="60" oninput="cwCurlDraw()">
+      <span id="cw_curl_val" style="min-width:180px;display:inline-block"></span>
+    </div>
+    <div class="cw-note">The vector field arrows form a rotational pattern. Positive curl is counter-clockwise (cyclonic in the Northern Hemisphere); negative curl is clockwise (anticyclonic). The little paddle-wheel in the centre rotates at a speed proportional to the curl magnitude — that is the physical meaning of curl.</div>
+  </div>
+</div>
+<script>
+function cwCurlDraw(){
+  var svg = document.getElementById("cw_curl_svg"); if(!svg) return;
+  var c = document.getElementById("cw_curl_v").value/100;
+  var W = 540, H = 280, mx = 40, my = 20;
+  var nx = 9, ny = 5;
+  var dx = (W-2*mx)/(nx-1), dy = (H-2*my-30)/(ny-1);
+  var cx = W/2, cy = (H-30)/2;
+  var arrows = "";
+  for(var i=0;i<nx;i++){
+    for(var j=0;j<ny;j++){
+      var x = mx + i*dx, y = my + j*dy;
+      var rx = x - cx, ry = y - cy;
+      var ux = -c * ry / 6;
+      var uy = c * rx / 6;
+      var x2 = x + ux, y2 = y + uy;
+      var col = c >= 0 ? "#ee845b" : "#2c8a83";
+      arrows += '<line x1="'+x+'" y1="'+y+'" x2="'+x2+'" y2="'+y2+'" stroke="'+col+'" stroke-width="2"/>';
+      var ang = Math.atan2(uy, ux);
+      var ah = 6;
+      arrows += '<polygon points="'+x2+','+y2+' '+(x2-ah*Math.cos(ang-0.3))+','+(y2-ah*Math.sin(ang-0.3))+' '+(x2-ah*Math.cos(ang+0.3))+','+(y2-ah*Math.sin(ang+0.3))+'" fill="'+col+'"/>';
+    }
+  }
+  // paddle wheel
+  var pw = "";
+  for(var k=0;k<4;k++){
+    var a = k*Math.PI/2;
+    pw += '<line x1="'+(cx-22*Math.cos(a))+'" y1="'+(cy-22*Math.sin(a))+'" x2="'+(cx+22*Math.cos(a))+'" y2="'+(cy+22*Math.sin(a))+'" stroke="#6b5cb5" stroke-width="2.5"/>';
+  }
+  svg.innerHTML =
+    '<rect width="540" height="280" fill="#fafbff" rx="6"/>' +
+    arrows +
+    pw +
+    '<circle cx="'+cx+'" cy="'+cy+'" r="6" fill="#6b5cb5" stroke="#fff" stroke-width="2"/>';
+  var label;
+  if(c < -0.05) label = "negative curl — clockwise (anticyclonic)";
+  else if(c > 0.05) label = "positive curl — counter-clockwise (cyclonic)";
+  else label = "curl ≈ 0 — irrotational";
+  document.getElementById("cw_curl_val").textContent = "curl = " + c.toFixed(2) + " — " + label;
+}
+window.addEventListener("DOMContentLoaded", cwCurlDraw);
+</script>
+
+<h3 id="laplacian-math344-second-order-operator-on-a-scalar">Laplacian: $\nabla^{2} f = \nabla \cdot (\nabla f)$ (second-order operator on a scalar)</h3>
+<p>$$\nabla^{2} f \;=\; \frac{\partial^{2} f}{\partial x^{2}} + \frac{\partial^{2} f}{\partial y^{2}} + \frac{\partial^{2} f}{\partial z^{2}}.$$</p>
+<p><strong>Reading this.</strong> $\nabla^{2} f$ measures how much $f$ at a point differs from the average of its neighbours. Positive Laplacian means the point is a local minimum (a valley); negative Laplacian means a local maximum (a hill); zero means it equals the neighbourhood average.</p>
+<p><strong>In atmospheric physics</strong>, the diffusion term in the heat equation is $\kappa \nabla^{2} T$ — heat flows from hot peaks to cold valleys at a rate proportional to the curvature. The Laplacian is the multi-dimensional version of the second derivative $\partial^{2}/\partial z^{2}$ we already met in Section 0.4.</p>
+<h3 id="the-dot-product-and-cross-product-as-standalone-operations">The dot product and cross product as standalone operations</h3>
+<p>Beyond their use with $\nabla$, the dot product $\vec{A} \cdot \vec{B} = A_x B_x + A_y B_y + A_z B_z$ produces a scalar; geometrically it is $|\vec{A}||\vec{B}|\cos\theta$ where $\theta$ is the angle between the vectors. So a dot product of two perpendicular vectors is zero. The cross product $\vec{A} \times \vec{B}$ produces a vector perpendicular to both inputs, with magnitude $|\vec{A}||\vec{B}|\sin\theta$. In atmospheric dynamics, the Coriolis force is written $-2\vec{\Omega} \times \vec{V}$, where $\vec{\Omega}$ is the Earth's rotation vector and $\vec{V}$ is the wind. The cross product is what makes the Coriolis force always perpendicular to the wind.</p>
+<div class="cw-card">
+  <div class="cw-head">Widget · The cross product A × B and the right-hand rule</div>
+  <div class="cw-body">
+    <svg id="cw_cp_svg" viewBox="0 0 540 280" style="width:100%;height:auto;max-width:560px;display:block;margin:0 auto"></svg>
+    <div class="cw-ctrl">
+      <label>angle θ</label>
+      <input type="range" id="cw_cp_th" min="0" max="180" value="60" oninput="cwCpDraw()">
+      <span id="cw_cp_thv" style="min-width:300px;display:inline-block"></span>
+    </div>
+    <div class="cw-note">Two vectors A (orange) and B (purple) lie in the page. Their cross product A×B is a third vector perpendicular to both — its magnitude is |A||B| sin θ (= area of the parallelogram they span). At θ = 0 (parallel) the cross product is zero. At θ = 90° it is largest. In atmospheric physics the Coriolis force is −2Ω×V — perpendicular to the wind, which is what makes wind curve into cyclones and anticyclones.</div>
+  </div>
+</div>
+<script>
+function cwCpDraw(){
+  var svg = document.getElementById("cw_cp_svg"); if(!svg) return;
+  var th = document.getElementById("cw_cp_th").value*Math.PI/180;
+  var W = 540, H = 280, cx = 200, cy = 150;
+  var aLen = 100, bLen = 85;
+  var ax = cx + aLen, ay = cy;
+  var bx = cx + bLen*Math.cos(-th), by = cy + bLen*Math.sin(-th);
+  // parallelogram
+  var pgon = cx+","+cy + " " + ax+","+ay + " " + (ax+bx-cx)+","+(ay+by-cy) + " " + bx+","+by;
+  // out-of-page indicator (circle with dot = out toward viewer if A×B points out)
+  // sign of A×B z-component: A_x*B_y - A_y*B_x with A = (aLen, 0), B = (bLen cos(-th), bLen sin(-th))
+  // = aLen * bLen * sin(-th) - 0 = -aLen*bLen*sin(th)
+  // Negative z-component → into page (cross). Positive z → out of page (dot).
+  var zComp = aLen * bLen * Math.sin(-th);
+  // For pedagogy: convention is that with right-hand rule from A to B (going counter-clockwise from A to B), result is out of page.
+  // Here B is drawn at angle -th below A — so swept clockwise — result is into page when th > 0.
+  var outIndicator;
+  if(th < 0.05){ outIndicator = '<text x="380" y="150" font-size="14" fill="#475569">A × B = 0 (parallel)</text>'; }
+  else {
+    var indX = 400, indY = 150;
+    outIndicator = '<circle cx="'+indX+'" cy="'+indY+'" r="22" fill="none" stroke="#2c8a83" stroke-width="2"/>' +
+      '<line x1="'+(indX-14)+'" y1="'+(indY-14)+'" x2="'+(indX+14)+'" y2="'+(indY+14)+'" stroke="#2c8a83" stroke-width="2"/>' +
+      '<line x1="'+(indX+14)+'" y1="'+(indY-14)+'" x2="'+(indX-14)+'" y2="'+(indY+14)+'" stroke="#2c8a83" stroke-width="2"/>' +
+      '<text x="'+indX+'" y="'+(indY+45)+'" text-anchor="middle" font-size="11" fill="#2c8a83">A × B into page</text>';
+  }
+  var magAB = aLen * bLen * Math.sin(th) / 100;
+  svg.innerHTML =
+    '<rect width="540" height="280" fill="#fafbff" rx="6"/>' +
+    '<polygon points="'+pgon+'" fill="rgba(56,178,172,0.12)" stroke="none"/>' +
+    '<line x1="'+cx+'" y1="'+cy+'" x2="'+ax+'" y2="'+ay+'" stroke="#ee845b" stroke-width="3"/>' +
+    '<polygon points="'+ax+','+ay+' '+(ax-8)+','+(ay-4)+' '+(ax-8)+','+(ay+4)+'" fill="#ee845b"/>' +
+    '<text x="'+(ax+8)+'" y="'+(ay+4)+'" font-size="13" fill="#ee845b" font-weight="bold">A</text>' +
+    '<line x1="'+cx+'" y1="'+cy+'" x2="'+bx+'" y2="'+by+'" stroke="#6b5cb5" stroke-width="3"/>' +
+    '<polygon points="'+bx+','+by+' '+(bx-8*Math.cos(-th)+4*Math.sin(-th))+','+(by-8*Math.sin(-th)-4*Math.cos(-th))+' '+(bx-8*Math.cos(-th)-4*Math.sin(-th))+','+(by-8*Math.sin(-th)+4*Math.cos(-th))+'" fill="#6b5cb5"/>' +
+    '<text x="'+(bx+6)+'" y="'+(by+4)+'" font-size="13" fill="#6b5cb5" font-weight="bold">B</text>' +
+    '<path d="M '+(cx+30)+' '+cy+' A 30 30 0 0 1 '+(cx+30*Math.cos(-th))+' '+(cy+30*Math.sin(-th))+'" fill="none" stroke="#94a3b8" stroke-width="1.5"/>' +
+    '<text x="'+(cx+38)+'" y="'+(cy-6)+'" font-size="11" fill="#94a3b8">θ</text>' +
+    outIndicator +
+    '<text x="20" y="20" font-size="11" fill="#475569">A and B in the page</text>';
+  document.getElementById("cw_cp_thv").textContent =
+    "θ = " + (th*180/Math.PI).toFixed(0) + "°,  |A × B| = |A||B| sin θ = " + magAB.toFixed(2);
+}
+window.addEventListener("DOMContentLoaded", cwCpDraw);
+</script>
+
+<p>The widget above shows two vectors $\vec{A}$ (orange) and $\vec{B}$ (purple) in the page, separated by angle $\theta$. The shaded parallelogram is the geometric object whose area equals $|\vec{A}\times\vec{B}|$. The result vector itself is perpendicular to the page — drawn with a cross symbol because it points into the screen for $\theta > 0$ in this configuration. Drag $\theta$ to $0$ (parallel vectors) and the cross product vanishes; drag to $90°$ and the magnitude is maximum at $|\vec{A}||\vec{B}|$. This is exactly what produces the Coriolis turning of the wind: $-2\vec{\Omega}\times\vec{V}$ is largest when wind and rotation axis are perpendicular (mid-latitudes) and vanishes at the poles where they are parallel.</p>
+<h3 id="composite-operators-the-laplacian-inside-a-flux-divergence">Composite operators — the Laplacian inside a flux divergence</h3>
+<p>The diffusion term you will see repeatedly in this guide is sometimes written as $\nabla\cdot(\kappa\nabla T)$ instead of $\kappa\nabla^{2}T$. When $\kappa$ is constant the two are identical: $\nabla\cdot(\kappa\nabla T) = \kappa\nabla\cdot\nabla T = \kappa\nabla^{2}T$. When $\kappa$ varies in space (different materials in stacked layers, for example), the flux-divergence form $\nabla\cdot(\kappa\nabla T)$ is correct and the simpler $\kappa\nabla^{2}T$ is not — that distinction matters for the layered-substrate version of the project's heat equation.</p>
+<h3 id="material-derivative-math375-as-gradient-time">Material derivative — $D/Dt$ as gradient + time</h3>
+<p>The <strong>material derivative</strong> combines the time derivative and the gradient into one operator that "rides along with the flow":</p>
+<p>$$\frac{D}{Dt} \;=\; \frac{\partial}{\partial t} + \vec{V}\cdot\nabla.$$</p>
+<p><strong>Reading this.</strong> $\partial/\partial t$ measures change at a fixed point. $\vec{V}\cdot\nabla$ measures change due to the flow carrying the parcel through a spatially varying field. Adding them gives the total rate of change experienced by an air parcel as it moves. Chapter 5 of this guide uses this constantly to switch between Eulerian and Lagrangian views.</p>
+<h2 id="012-ordinary-and-partial-differential-equations">0.12 Ordinary and partial differential equations</h2>
+<p>A <strong>differential equation</strong> is an equation that contains derivatives. We classify them by which derivatives appear:</p>
+<ul>
+<li>
+<p><strong>Ordinary differential equation (ODE)</strong>: only one independent variable, usually $t$. Example: Newton's law of cooling $\frac{dT}{dt} = -k(T - T_\infty)$. The unknown $T$ is a function of $t$ alone. Given an <strong>initial condition</strong> $T(0) = T_0$, the future $T(t)$ is determined.</p>
+</li>
+<li>
+<p><strong>Partial differential equation (PDE)</strong>: more than one independent variable. Example: the heat equation $\frac{\partial T}{\partial t} = \kappa \frac{\partial^{2} T}{\partial z^{2}}$. The unknown $T$ is a function of both $z$ and $t$. We need both an <strong>initial condition</strong> $T(z, 0)$ for every $z$ AND <strong>boundary conditions</strong> at the ends of the $z$ domain to pin down the solution.</p>
+</li>
+</ul>
+<p>PDEs split into three families by the shape of their characteristics — <strong>elliptic</strong> (steady-state, no time), <strong>parabolic</strong> (diffusion-like, smooths features), <strong>hyperbolic</strong> (wave-like, propagates features at finite speed). The heat equation is parabolic; the wave equation $\partial^{2} u/\partial t^{2} = c^{2} \partial^{2} u/\partial x^{2}$ is hyperbolic. Most atmospheric equations are a mix.</p>
+<h2 id="013-the-cfl-condition-intuition">0.13 The CFL condition — intuition</h2>
+<p>The <strong>Courant–Friedrichs–Lewy (CFL) condition</strong> is the most important stability bound in numerical PDE theory. It says: information cannot propagate further in one numerical time step than it would in the real physical system in the same time.</p>
+<p>For a wave equation with wave speed $c$, on a grid with spacing $\Delta x$ and time step $\Delta t$, the CFL number is</p>
+<p>$$\mu \;=\; \frac{c\,\Delta t}{\Delta x}.$$</p>
+<p>The most basic schemes (forward Euler for the advection equation) require $\mu \le 1$ for stability. If $\mu > 1$, the physical wave moves more than one grid cell per time step, but the discrete scheme only "knows about" neighbouring cells — so it cannot keep up, and errors grow geometrically.</p>
+<p><strong>For the diffusion equation</strong>, the analogous bound is on $\nu = \kappa\Delta t/\Delta z^{2}$. The diffusion of temperature with diffusivity $\kappa$ has no fixed wave speed (heat spreads at all speeds simultaneously), so the bound takes the form $\nu \le 1/2$ rather than $\mu \le 1$.</p>
+<div class="cw-card">
+  <div class="cw-head">Widget · The CFL number μ = c Δt / Δx — stable vs. exploding advection</div>
+  <div class="cw-body">
+    <svg id="cw_cfl_svg" viewBox="0 0 540 280" style="width:100%;height:auto;max-width:560px;display:block;margin:0 auto"></svg>
+    <div class="cw-ctrl">
+      <label>μ</label>
+      <input type="range" id="cw_cfl_mu" min="20" max="200" value="80" oninput="cwCflReset(); cwCflDraw()">
+      <span id="cw_cfl_muv" style="min-width:280px;display:inline-block"></span>
+    </div>
+    <div class="cw-ctrl">
+      <button onclick="cwCflStep()" style="padding:4px 12px;background:#6b5cb5;color:#fff;border:none;border-radius:4px;cursor:pointer">Step +1 Δt</button>
+      <button onclick="cwCflReset(); cwCflDraw()" style="padding:4px 12px;background:#94a3b8;color:#fff;border:none;border-radius:4px;cursor:pointer">Reset</button>
+      <button onclick="cwCflAnim()" id="cw_cfl_btn" style="padding:4px 12px;background:#ee845b;color:#fff;border:none;border-radius:4px;cursor:pointer">Play</button>
+    </div>
+    <div class="cw-note">A Gaussian pulse is advected by the simple upstream scheme uⱼⁿ⁺¹ = uⱼⁿ − μ(uⱼⁿ − uⱼ₋₁ⁿ) with μ = c Δt/Δx. At μ ≤ 1 the pulse moves and slowly diffuses (stable). At μ > 1 the discrete scheme cannot keep up with the physical wave — errors amplify geometrically and the solution explodes. This is the CFL stability bound for upstream advection.</div>
+  </div>
+</div>
+<script>
+var cwCflU = null, cwCflN = 0, cwCflTimer = null;
+function cwCflReset(){
+  cwCflU = []; cwCflN = 0;
+  for(var i=0;i<60;i++){
+    var x = i - 15;
+    cwCflU.push(Math.exp(-x*x/16));
+  }
+}
+function cwCflStep(){
+  if(!cwCflU) cwCflReset();
+  var mu = document.getElementById("cw_cfl_mu").value/100;
+  var u2 = cwCflU.slice();
+  for(var i=1;i<u2.length;i++){
+    u2[i] = cwCflU[i] - mu*(cwCflU[i] - cwCflU[i-1]);
+  }
+  cwCflU = u2; cwCflN++;
+  cwCflDraw();
+}
+function cwCflDraw(){
+  var svg = document.getElementById("cw_cfl_svg"); if(!svg) return;
+  if(!cwCflU) cwCflReset();
+  var mu = document.getElementById("cw_cfl_mu").value/100;
+  var W = 540, H = 280, mx = 30;
+  var pts = "";
+  var maxV = 0;
+  for(var i=0;i<cwCflU.length;i++){ if(Math.abs(cwCflU[i]) > maxV) maxV = Math.abs(cwCflU[i]); }
+  for(var i=0;i<cwCflU.length;i++){
+    var xv = mx + i*(W-2*mx)/(cwCflU.length-1);
+    var yv = H/2 - cwCflU[i]*90;
+    pts += (i===0?"M":"L") + xv + "," + yv + " ";
+  }
+  var stable = mu <= 1;
+  var col = stable ? "#2c8a83" : "#d97757";
+  var msg;
+  if(mu < 0.95) msg = "μ = " + mu.toFixed(2) + " — stable (pulse advects)";
+  else if(mu <= 1.05) msg = "μ ≈ 1 — perfect (no diffusion in upstream when μ=1)";
+  else msg = "μ = " + mu.toFixed(2) + " — UNSTABLE — solution blows up";
+  svg.innerHTML =
+    '<rect width="540" height="280" fill="#fafbff" rx="6"/>' +
+    '<line x1="'+mx+'" y1="'+(H/2)+'" x2="'+(W-mx)+'" y2="'+(H/2)+'" stroke="#94a3b8"/>' +
+    '<path d="'+pts+'" stroke="'+col+'" stroke-width="2.5" fill="none"/>' +
+    '<text x="20" y="20" font-size="11" fill="#475569">step n = ' + cwCflN + '  |  max |u| = ' + maxV.toFixed(2) + '</text>';
+  document.getElementById("cw_cfl_muv").textContent = msg;
+}
+function cwCflAnim(){
+  var btn = document.getElementById("cw_cfl_btn");
+  if(cwCflTimer){ clearInterval(cwCflTimer); cwCflTimer = null; btn.textContent="Play"; return; }
+  btn.textContent="Pause";
+  cwCflTimer = setInterval(cwCflStep, 60);
+}
+window.addEventListener("DOMContentLoaded", function(){ cwCflReset(); cwCflDraw(); });
+</script>
+
+<p>The widget above is the simplest live demonstration of CFL stability. A Gaussian pulse is advected by the upstream finite-difference scheme</p>
+<p>$$u_j^{n+1} \;=\; u_j^{n} - \mu\bigl(u_j^{n} - u_{j-1}^{n}\bigr), \qquad \mu = \frac{c\,\Delta t}{\Delta x}.$$</p>
+<p><strong>Reading this update.</strong> At each grid cell, the new value $u_j^{n+1}$ equals the old value $u_j^n$ minus $\mu$ times the difference between cell $j$ and its upwind neighbour $j-1$. So information flows from left to right (upstream). If $\mu = 1$, the new value at $j$ is exactly the old value at $j-1$ — the pulse moves one cell per step <em>with no distortion</em>. If $\mu < 1$, the pulse moves slower than one cell per step (some artificial diffusion appears). If $\mu > 1$, the scheme tries to extrapolate beyond the upstream neighbour — and any wiggle in the initial data is amplified by a factor greater than 1 every step, so the solution explodes within tens of steps. Try it: set $\mu$ to 1.5 and click Play; the pulse becomes a numerical avalanche.</p>
+<p>Lecture 5 derives both bounds rigorously and Section 1.4 of this guide shows how they collapse to the "17-second problem" in the project. The lecture-5 dashboard, embedded below, has a live CFL widget.</p>
+<iframe src="lecture5_dashboard_Claude_Code.html" style="width:100%;height:760px;border:1px solid #cbd5e1;border-radius:8px;background:#fff" loading="lazy" title="Lecture 5 dashboard — finite differences, stability, CFL"></iframe>
+
+<p>Click the "CFL Condition" tab in the dashboard to access the live CFL animation; the "Von Neumann" and "Stability &amp; Energy Method" tabs walk you through the two main stability-analysis techniques in detail.</p>
+<h2 id="014-diffusion-vs-wave-propagation-two-different-physics">0.14 Diffusion vs wave propagation — two different physics</h2>
+<p>The PDE classification matters because <strong>diffusion and wave propagation look completely different</strong>:</p>
+<ul>
+<li>
+<p><strong>Diffusion (parabolic)</strong>: a hot spike spreads outward smoothly, getting wider and lower over time. The total area under the curve is preserved (energy conservation), but the peak shrinks. Information is <em>lost</em> — you cannot recover the initial spike from the smeared-out final state.</p>
+</li>
+<li>
+<p><strong>Wave propagation (hyperbolic)</strong>: a hot spike (or any disturbance) keeps its shape and moves at a fixed speed $c$. The peak stays the same height; only its location changes. Information is <em>preserved</em> — running the equation backward gives back the initial spike.</p>
+</li>
+</ul>
+<p>The atmosphere has <em>both</em> kinds of physics happening simultaneously: turbulent eddies diffuse pollutants horizontally (parabolic), and gravity waves propagate from a storm to a hundred kilometres away (hyperbolic). A good model has to handle both well.</p>
+<div class="cw-card">
+  <div class="cw-head">Widget · Diffusion vs. wave propagation — two different physics on the same initial pulse</div>
+  <div class="cw-body">
+    <svg id="cw_dvw_svg" viewBox="0 0 540 280" style="width:100%;height:auto;max-width:560px;display:block;margin:0 auto"></svg>
+    <div class="cw-ctrl">
+      <label>time t</label>
+      <input type="range" id="cw_dvw_t" min="0" max="200" value="0" oninput="cwDvwDraw()">
+      <span id="cw_dvw_tv" style="min-width:80px;display:inline-block">t = 0.0</span>
+      <button onclick="cwDvwAnim()" id="cw_dvw_btn" style="padding:4px 12px;background:#ee845b;color:#fff;border:none;border-radius:4px;cursor:pointer">Play</button>
+    </div>
+    <div class="cw-note">Start with a Gaussian pulse at the centre. The purple curve is the <strong>heat (diffusion) equation</strong> solution — the pulse spreads outward, gets shorter and wider, energy area is conserved but information is lost. The orange curve is the <strong>wave equation</strong> solution — the pulse splits into two copies that translate left and right at the wave speed without changing shape. Two completely different physics from the same PDE family.</div>
+  </div>
+</div>
+<script>
+var cwDvwTimer = null;
+function cwDvwDraw(){
+  var svg = document.getElementById("cw_dvw_svg"); if(!svg) return;
+  var t = document.getElementById("cw_dvw_t").value/100;
+  document.getElementById("cw_dvw_tv").textContent = "t = " + t.toFixed(2);
+  var W = 540, H = 280, mx = 30;
+  // diffusion: G(x,t) = 1/sqrt(1 + 4*kappa*t) * exp(-x^2/(sigma0^2 + 4*kappa*t)) with sigma0^2=0.25
+  var kappa = 0.3;
+  var s2 = 0.25 + 4*kappa*t;
+  var ampD = Math.sqrt(0.25/s2);
+  var diffPath = "", wavePath = "";
+  for(var i=0;i<=540;i++){
+    var x = i*4/540 - 2;
+    var yD = ampD * Math.exp(-x*x/s2);
+    var c = 0.8;
+    var xL = x + c*t, xR = x - c*t;
+    var yW = 0.5*Math.exp(-xL*xL/0.25) + 0.5*Math.exp(-xR*xR/0.25);
+    var px = mx + i*(W-2*mx)/540;
+    diffPath += (i===0?"M":"L") + px + "," + (H/2 - yD*120) + " ";
+    wavePath += (i===0?"M":"L") + px + "," + (H/2 - yW*120) + " ";
+  }
+  svg.innerHTML =
+    '<rect width="540" height="280" fill="#fafbff" rx="6"/>' +
+    '<line x1="'+mx+'" y1="'+(H/2)+'" x2="'+(W-mx)+'" y2="'+(H/2)+'" stroke="#94a3b8"/>' +
+    '<path d="'+diffPath+'" stroke="#6b5cb5" stroke-width="2.5" fill="none"/>' +
+    '<path d="'+wavePath+'" stroke="#ee845b" stroke-width="2.5" fill="none" stroke-dasharray="6 4"/>' +
+    '<text x="20" y="20" font-size="11" fill="#6b5cb5">diffusion ∂T/∂t = κ ∂²T/∂x²</text>' +
+    '<text x="350" y="20" font-size="11" fill="#ee845b">wave ∂²u/∂t² = c² ∂²u/∂x²</text>';
+}
+function cwDvwAnim(){
+  var btn = document.getElementById("cw_dvw_btn");
+  if(cwDvwTimer){ clearInterval(cwDvwTimer); cwDvwTimer = null; btn.textContent="Play"; return; }
+  btn.textContent="Pause";
+  cwDvwTimer = setInterval(function(){
+    var sl = document.getElementById("cw_dvw_t");
+    var v = (parseInt(sl.value) + 3) % 201;
+    sl.value = v; cwDvwDraw();
+  }, 50);
+}
+window.addEventListener("DOMContentLoaded", cwDvwDraw);
+</script>
+
+<p>The widget above starts both equations from the same initial Gaussian bump. Press Play. The purple curve is the diffusion equation's solution — it spreads out and flattens; the integral under it is conserved (energy preserved) but the peak shrinks. The orange dashed curve is the wave equation's solution — it splits into a left-moving copy and a right-moving copy of the original bump, each preserving its shape. This visual difference is <em>the</em> difference between parabolic and hyperbolic PDEs.</p>
+<h3 id="a-live-amplification-factor-for-the-three-classic-diffusion-schemes">A live amplification factor for the three classic diffusion schemes</h3>
+<p>The whole point of stability analysis is to compute, for each Fourier mode, a <em>per-step growth factor</em> $|A|$ that tells you how fast that mode amplifies in one time step. For the diffusion equation $\partial T/\partial t = \kappa\partial^{2}T/\partial z^{2}$ the three classic schemes give the following formulas (derived in detail in Chapter 12 of this guide and Chapter 21):</p>
+<ul>
+<li><strong>FTCS</strong> (forward time, centred space): $A = 1 - 4\nu\sin^{2}\!\bigl(\tfrac{k\Delta z}{2}\bigr)$</li>
+<li><strong>BTCS</strong> (backward time): $A = 1/\bigl[1 + 4\nu\sin^{2}\!\bigl(\tfrac{k\Delta z}{2}\bigr)\bigr]$</li>
+<li><strong>Crank–Nicolson</strong>: $A = \bigl[1 - 2\nu\sin^{2}\!\bigl(\tfrac{k\Delta z}{2}\bigr)\bigr] \,/\, \bigl[1 + 2\nu\sin^{2}\!\bigl(\tfrac{k\Delta z}{2}\bigr)\bigr]$</li>
+</ul>
+<p><strong>Reading these formulas.</strong> All three have the same building block $\sin^{2}(k\Delta z/2)$ — this is the Fourier representation of "$1$ minus average of two neighbours", i.e. the discrete Laplacian's eigenvalue for a Fourier mode. The number $\nu = \kappa\Delta t/\Delta z^{2}$ is the dimensionless diffusion number: how many grid cells the heat would diffuse in one time step. The worst wavelength is always the $2\Delta z$ wave ($k\Delta z = \pi$), where $\sin^{2}(\pi/2) = 1$.</p>
+<ul>
+<li><strong>FTCS at $k\Delta z = \pi$</strong>: $A = 1 - 4\nu$. So $|A| \le 1$ requires $\nu \le 1/2$.</li>
+<li><strong>BTCS at $k\Delta z = \pi$</strong>: $A = 1/(1 + 4\nu)$, always positive and $\le 1$. <em>Unconditionally stable.</em></li>
+<li><strong>CN at $k\Delta z = \pi$</strong>: $A = (1 - 2\nu)/(1 + 2\nu)$, always between $-1$ and $1$. <em>Unconditionally stable.</em></li>
+</ul>
+<div class="cw-card">
+  <div class="cw-head">Widget · Amplification factor |A| for the diffusion equation: FTCS vs BTCS vs Crank–Nicolson</div>
+  <div class="cw-body">
+    <svg id="cw_amp_svg" viewBox="0 0 540 280" style="width:100%;height:auto;max-width:560px;display:block;margin:0 auto"></svg>
+    <div class="cw-ctrl">
+      <label>ν = κΔt/Δz²</label>
+      <input type="range" id="cw_amp_nu" min="1" max="500" value="100" oninput="cwAmpDraw()">
+      <span id="cw_amp_nuv" style="min-width:300px;display:inline-block"></span>
+    </div>
+    <div class="cw-note">For a Fourier mode of wavenumber k on a grid Δz, |A| is the per-step growth factor. <strong>FTCS</strong> (forward time, centred space): A = 1 − 4ν sin²(kΔz/2). Stable only when ν ≤ 1/2. <strong>BTCS</strong> (backward time): A = 1/(1 + 4ν sin²(kΔz/2)). Always |A| ≤ 1. <strong>Crank–Nicolson</strong>: A = (1 − 2ν sin²(kΔz/2))/(1 + 2ν sin²(kΔz/2)). Always |A| ≤ 1. The horizontal axis is the dimensionless wavenumber kΔz from 0 to π. The dashed line at |A| = 1 is the stability boundary — anything above is unstable.</div>
+  </div>
+</div>
+<script>
+function cwAmpDraw(){
+  var svg = document.getElementById("cw_amp_svg"); if(!svg) return;
+  var nu = document.getElementById("cw_amp_nu").value/100;
+  var W = 540, H = 280, mx = 40, my = 30, fw = W-2*mx, fh = H-2*my-20;
+  function s2(kdz){ var s = Math.sin(kdz/2); return s*s; }
+  function ftcs(kdz){ return 1 - 4*nu*s2(kdz); }
+  function btcs(kdz){ return 1/(1 + 4*nu*s2(kdz)); }
+  function cn(kdz){ return (1 - 2*nu*s2(kdz))/(1 + 2*nu*s2(kdz)); }
+  // Plot |A| vs kΔz in [0, π]; vertical from -3 to 3 then clip
+  function Y(v){ return my + fh - (v + 3)/6 * fh; }
+  function X(kdz){ return mx + kdz/Math.PI * fw; }
+  var pathF = "", pathB = "", pathC = "";
+  for(var i=0;i<=200;i++){
+    var kdz = i/200 * Math.PI;
+    pathF += (i===0?"M":"L") + X(kdz) + "," + Y(Math.max(-3, Math.min(3, ftcs(kdz)))) + " ";
+    pathB += (i===0?"M":"L") + X(kdz) + "," + Y(btcs(kdz)) + " ";
+    pathC += (i===0?"M":"L") + X(kdz) + "," + Y(cn(kdz)) + " ";
+  }
+  svg.innerHTML =
+    '<rect width="540" height="280" fill="#fafbff" rx="6"/>' +
+    '<line x1="'+mx+'" y1="'+Y(0)+'" x2="'+(mx+fw)+'" y2="'+Y(0)+'" stroke="#94a3b8"/>' +
+    '<line x1="'+mx+'" y1="'+Y(1)+'" x2="'+(mx+fw)+'" y2="'+Y(1)+'" stroke="#cbd5e1" stroke-dasharray="3 3"/>' +
+    '<line x1="'+mx+'" y1="'+Y(-1)+'" x2="'+(mx+fw)+'" y2="'+Y(-1)+'" stroke="#cbd5e1" stroke-dasharray="3 3"/>' +
+    '<text x="'+(mx+fw+4)+'" y="'+(Y(1)+3)+'" font-size="10" fill="#94a3b8">+1</text>' +
+    '<text x="'+(mx+fw+4)+'" y="'+(Y(-1)+3)+'" font-size="10" fill="#94a3b8">-1</text>' +
+    '<text x="'+(mx+fw+4)+'" y="'+(Y(0)+3)+'" font-size="10" fill="#94a3b8">0</text>' +
+    '<line x1="'+mx+'" y1="'+my+'" x2="'+mx+'" y2="'+(my+fh)+'" stroke="#94a3b8"/>' +
+    '<path d="'+pathF+'" stroke="#d97757" stroke-width="2.5" fill="none"/>' +
+    '<path d="'+pathB+'" stroke="#6b5cb5" stroke-width="2.5" fill="none"/>' +
+    '<path d="'+pathC+'" stroke="#2c8a83" stroke-width="2.5" fill="none" stroke-dasharray="4 3"/>' +
+    '<text x="'+(mx+fw-90)+'" y="'+(my+fh+16)+'" font-size="11" fill="#94a3b8">k Δz = π (2Δz wave)</text>' +
+    '<text x="'+mx+'" y="'+(my+fh+16)+'" font-size="11" fill="#94a3b8">k Δz = 0</text>' +
+    '<text x="20" y="20" font-size="11" fill="#d97757">FTCS</text>' +
+    '<text x="100" y="20" font-size="11" fill="#6b5cb5">BTCS</text>' +
+    '<text x="180" y="20" font-size="11" fill="#2c8a83">Crank–Nicolson</text>';
+  // Worst-case |A| reported
+  var aF = Math.abs(ftcs(Math.PI));
+  var aB = Math.abs(btcs(Math.PI));
+  var aC = Math.abs(cn(Math.PI));
+  document.getElementById("cw_amp_nuv").textContent =
+    "ν = " + nu.toFixed(2) + "  |  |A| at 2Δz wave:  FTCS=" + aF.toFixed(2) + ",  BTCS=" + aB.toFixed(2) + ",  CN=" + aC.toFixed(2);
+}
+window.addEventListener("DOMContentLoaded", cwAmpDraw);
+</script>
+
+<p>In the widget, the dashed lines at $|A| = \pm 1$ are the stability boundary. As $\nu$ grows, the FTCS curve (orange) dives below $-1$ — that is the unstable regime. The BTCS and CN curves stay safely within $[-1, 1]$ for any $\nu$. Slide $\nu$ up and watch FTCS lose stability.</p>
+<h2 id="015-basic-atmospheric-thermodynamics">0.15 Basic atmospheric thermodynamics</h2>
+<p>A few key concepts that the lecture material assumes you know:</p>
+<h3 id="ideal-gas-law">Ideal gas law</h3>
+<p>$$p = \rho R T,$$</p>
+<p>where $p$ is pressure (Pa), $\rho$ is density (kg/m³), $R$ is the gas constant for dry air ($\approx 287$ J/kg/K), and $T$ is temperature (K). This is the equation of state for the atmosphere. If you know any two of $p, \rho, T$ you can find the third.</p>
+<h3 id="hydrostatic-balance">Hydrostatic balance</h3>
+<p>For a fluid in static equilibrium, pressure increases with depth at a rate equal to weight per unit volume:</p>
+<p>$$\frac{\partial p}{\partial z} = -\rho g.$$</p>
+<p><strong>Reading this equation.</strong> The minus sign says pressure <em>decreases</em> as $z$ increases (because $z$ points up and pressure is higher below). $g \approx 9.81$ m/s² is gravity. Combined with the ideal gas law, this gives the exponential decrease of pressure with altitude — at 5.5 km, atmospheric pressure is half its sea-level value. Hydrostatic balance is the reason planes pressurise their cabins.</p>
+<h3 id="potential-temperature">Potential temperature</h3>
+<p>The temperature an air parcel <em>would have</em> if compressed adiabatically to a reference pressure $p_0 = 1000$ hPa:</p>
+<p>$$\theta = T\biggl(\frac{p_0}{p}\biggr)^{R/c_p}.$$</p>
+<p><strong>Why care.</strong> As air rises, its temperature drops (because pressure drops). Two parcels at different altitudes might have very different $T$ but identical $\theta$ — they are the "same air" thermodynamically. Potential temperature is conserved for adiabatic motion, so it is much more useful than $T$ as a tracer of air masses.</p>
+<h3 id="adiabatic-process">Adiabatic process</h3>
+<p>No heat exchange with surroundings. For an ideal gas, $T\,p^{(1-\gamma)/\gamma} = \mathrm{const}$, where $\gamma = c_p/c_v \approx 1.4$ for air. The defining property: as the parcel changes pressure (going up or down), its temperature changes too — but $\theta$ stays the same. Section 0.15 ↔ Section 0.16 connects this to wave physics.</p>
+<h3 id="latent-heat">Latent heat</h3>
+<p>When water vapour condenses to liquid, it releases $\approx 2.5 \times 10^{6}$ J per kg of water — this is the <strong>latent heat of vaporisation</strong>. This is enormous compared to the specific heat of air ($c_p = 1005$ J/kg/K), so a small amount of phase change releases massive amounts of energy. That is what powers hurricanes, thunderstorms, and the rapid daytime heating over moist surfaces.</p>
+<h3 id="coriolis-effect">Coriolis effect</h3>
+<p>Earth rotates once every $\approx 86164$ s (a sidereal day). On a rotating Earth, freely moving objects appear to curve when viewed from the rotating frame — to the right in the Northern Hemisphere, to the left in the Southern. The fictitious force responsible is the <strong>Coriolis force</strong> $-2\vec{\Omega} \times \vec{V}$, where $\vec{\Omega}$ is the rotation vector and $\vec{V}$ is the velocity. Its magnitude is $f|\vec{V}|$ where $f = 2|\vec{\Omega}|\sin(\text{latitude})$. The Coriolis effect is what makes large-scale atmospheric flow curve into the familiar cyclone/anticyclone patterns on weather maps.</p>
+<div class="cw-card">
+  <div class="cw-head">Widget · Coriolis deflection — a "straight" path on a rotating Earth</div>
+  <div class="cw-body">
+    <svg id="cw_cor_svg" viewBox="0 0 540 280" style="width:100%;height:auto;max-width:560px;display:block;margin:0 auto"></svg>
+    <div class="cw-ctrl">
+      <label>latitude (°N)</label>
+      <input type="range" id="cw_cor_lat" min="-90" max="90" value="45" oninput="cwCorReset(); cwCorDraw()">
+      <span id="cw_cor_latv" style="min-width:280px;display:inline-block"></span>
+    </div>
+    <div class="cw-ctrl">
+      <button onclick="cwCorStep()" style="padding:4px 12px;background:#6b5cb5;color:#fff;border:none;border-radius:4px;cursor:pointer">Step forward</button>
+      <button onclick="cwCorReset(); cwCorDraw()" style="padding:4px 12px;background:#94a3b8;color:#fff;border:none;border-radius:4px;cursor:pointer">Reset</button>
+      <button onclick="cwCorAnim()" id="cw_cor_btn" style="padding:4px 12px;background:#ee845b;color:#fff;border:none;border-radius:4px;cursor:pointer">Play</button>
+    </div>
+    <div class="cw-note">A puck is launched eastward from the centre of the panel. In a non-rotating frame it would travel in a straight line (dashed). On a rotating Earth, the Coriolis acceleration f V (perpendicular to motion) curves the trajectory — to the right in the Northern Hemisphere (positive latitude), to the left in the Southern. Set latitude near zero and the deflection vanishes (Coriolis parameter f = 2Ω sin φ → 0 at the equator).</div>
+  </div>
+</div>
+<script>
+var cwCorTraj = null, cwCorTimer = null;
+function cwCorReset(){
+  cwCorTraj = [{x: 270, y: 140, vx: 1.6, vy: 0}];
+}
+function cwCorStep(){
+  if(!cwCorTraj) cwCorReset();
+  var lat = parseInt(document.getElementById("cw_cor_lat").value) * Math.PI/180;
+  var f = 0.012 * Math.sin(lat);
+  var p = cwCorTraj[cwCorTraj.length-1];
+  var ax = f * p.vy, ay = -f * p.vx;
+  var dt = 1.0;
+  var np = {x: p.x + p.vx*dt, y: p.y + p.vy*dt, vx: p.vx + ax*dt, vy: p.vy + ay*dt};
+  // bound
+  if(np.x < 20 || np.x > 520 || np.y < 20 || np.y > 250){ return; }
+  cwCorTraj.push(np);
+  cwCorDraw();
+}
+function cwCorDraw(){
+  var svg = document.getElementById("cw_cor_svg"); if(!svg) return;
+  if(!cwCorTraj) cwCorReset();
+  var lat = parseInt(document.getElementById("cw_cor_lat").value);
+  var hem = lat > 0 ? "Northern (deflects right)" : (lat < 0 ? "Southern (deflects left)" : "equator (no deflection)");
+  document.getElementById("cw_cor_latv").textContent = "lat = " + lat + "°  |  f = 2Ω sinφ → " + hem;
+  var path = "M " + cwCorTraj[0].x + " " + cwCorTraj[0].y;
+  for(var i=1;i<cwCorTraj.length;i++){ path += " L " + cwCorTraj[i].x + " " + cwCorTraj[i].y; }
+  var straightPath = "M 270 140 L 520 140";
+  var p = cwCorTraj[cwCorTraj.length-1];
+  svg.innerHTML =
+    '<rect width="540" height="280" fill="#fafbff" rx="6"/>' +
+    '<circle cx="270" cy="140" r="6" fill="#94a3b8"/>' +
+    '<text x="240" y="135" font-size="11" fill="#94a3b8">launch</text>' +
+    '<path d="'+straightPath+'" stroke="#cbd5e1" stroke-width="1.5" fill="none" stroke-dasharray="4 3"/>' +
+    '<text x="430" y="135" font-size="10" fill="#94a3b8">non-rotating path</text>' +
+    '<path d="'+path+'" stroke="#6b5cb5" stroke-width="2.5" fill="none"/>' +
+    '<circle cx="'+p.x+'" cy="'+p.y+'" r="6" fill="#ee845b" stroke="#fff" stroke-width="2"/>';
+}
+function cwCorAnim(){
+  var btn = document.getElementById("cw_cor_btn");
+  if(cwCorTimer){ clearInterval(cwCorTimer); cwCorTimer = null; btn.textContent="Play"; return; }
+  btn.textContent="Pause";
+  cwCorTimer = setInterval(cwCorStep, 80);
+}
+window.addEventListener("DOMContentLoaded", function(){ cwCorReset(); cwCorDraw(); });
+</script>
+
+<p>The widget above launches a puck eastward from the centre. Without rotation it would continue in the dashed straight line. With Coriolis turned on (drag the latitude slider away from zero), the puck curves to the right in the Northern Hemisphere and to the left in the Southern. At the equator, Coriolis vanishes because the rotation axis is parallel to the surface — the cross-product $\vec{\Omega}\times\vec{V}$ has no vertical component to deflect horizontal motion.</p>
+<h3 id="geostrophic-balance">Geostrophic balance</h3>
+<p>For large-scale, slowly-varying flow, the pressure-gradient force and the Coriolis force approximately balance:</p>
+<p>$$f\vec{V} \;=\; -\frac{1}{\rho}\hat{k} \times \nabla p,$$</p>
+<p>where $\hat{k}$ is the unit vector pointing up. <strong>Reading this.</strong> Wind flows along (not across) pressure contours, with low pressure on the left in the Northern Hemisphere. This is why high-pressure systems on a weather map have clockwise circulation in the NH — the wind is geostrophic, parallel to the contours.</p>
+<p>The lecture-3 dashboard has working widgets for the ideal gas law, hydrostatic balance, potential temperature, and several others. Embed it here and click through:</p>
+<iframe src="lecture3_dashboard_Claude_Code.html" style="width:100%;height:820px;border:1px solid #cbd5e1;border-radius:8px;background:#fff" loading="lazy" title="Lecture 3 dashboard — basic mathematical and physical tools"></iframe>
+
+<p>The first three tabs (Taylor Series, Mean Value Theorem, Derivative) give you Lecture 3's foundational maths interactively. Later tabs explore Eulerian vs Lagrangian viewpoints, hydrostatic balance, the Boussinesq approximation, potential temperature, the Exner function, the continuity equation (and divergence), the anelastic approximation, and the scalar advection-diffusion equation.</p>
+<h2 id="016-three-families-of-atmospheric-waves">0.16 Three families of atmospheric waves</h2>
+<p>The atmosphere supports many different kinds of wave motion. The three most important:</p>
+<p><strong>Sound waves</strong>. Restoring force: compressibility. Speed: $\approx 340$ m/s in the lower atmosphere. These are the fastest waves and the most numerically annoying — they require time steps much smaller than the meteorologically-interesting motions. Atmospheric models usually "filter" sound waves out by making simplifying approximations (anelastic, Boussinesq) that eliminate them from the equations.</p>
+<p><strong>Internal gravity waves</strong>. Restoring force: buoyancy. Speed: $\approx 10-100$ m/s. These propagate when stably stratified air is displaced vertically — the air oscillates up and down, sending waves outward. They transport energy and momentum from convection or mountain ranges to remote regions.</p>
+<p><strong>Rossby waves</strong>. Restoring force: the latitudinal variation of the Coriolis parameter $f$. Speed: $\approx 1-10$ m/s. These are the slow, large-scale meanders of the jet stream — the eastward-travelling troughs and ridges that make up weather patterns at mid-latitudes.</p>
+<p>A model that wants to resolve weather (Rossby waves) but has to take time steps small enough to keep sound-wave-related numerics stable would be enormously wasteful. That is why filtering matters.</p>
+<p>Lecture 4 walks through how sound waves arise from the basic equations and how they are filtered. The embedded dashboard:</p>
+<iframe src="lecture4_dashboard_Claude_Code.html" style="width:100%;height:820px;border:1px solid #cbd5e1;border-radius:8px;background:#fff" loading="lazy" title="Lecture 4 dashboard — Euler equations and waves"></iframe>
+
+<h2 id="017-stability-vs-accuracy-vs-consistency-three-different-properties-of-a-numerical-scheme">0.17 Stability vs accuracy vs consistency — three different properties of a numerical scheme</h2>
+<p>When we discretise a PDE, we want our scheme to be three things:</p>
+<p><strong>Consistent</strong> — as $\Delta t, \Delta x \to 0$, the truncation error goes to zero. The discrete equation reduces to the continuous one in the limit. Most reasonable schemes are consistent.</p>
+<p><strong>Stable</strong> — small numerical errors do not amplify unboundedly over many time steps. Forward Euler applied to the diffusion equation is stable only if $\nu \le 1/2$; backward Euler is unconditionally stable.</p>
+<p><strong>Accurate</strong> — the order of the truncation error. A first-order method has error $\propto \Delta t$; a second-order method has error $\propto \Delta t^{2}$.</p>
+<p>The <strong>Lax equivalence theorem</strong> says: for a <em>consistent</em> linear scheme applied to a linear PDE, stability is necessary and sufficient for convergence (the numerical solution approaching the true solution as $\Delta t, \Delta x \to 0$). So in practice we usually just ask "is the scheme stable?" — that is the question that decides whether the scheme can be used at all.</p>
+<p>Lecture 5's dashboard (already embedded in Section 0.13) walks through all three properties with worked examples; the "Stability &amp; Energy Method" tab in particular shows you what a stability proof looks like in practice.</p>
+<h2 id="018-notation-summary-you-will-see-throughout-the-rest-of-the-guide">0.18 Notation summary you will see throughout the rest of the guide</h2>
+<p>A quick reference list of the most common notation conventions:</p>
+<table>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>$T_j^n$</td>
+<td>numerical approximation to $T$ in cell $j$ at time level $n$</td>
+</tr>
+<tr>
+<td>$T_{j \pm 1/2}^n$</td>
+<td>quantity evaluated at the half-level (face) between cells</td>
+</tr>
+<tr>
+<td>$\Delta t$, $\Delta x$, $\Delta z$</td>
+<td>discrete time step and grid spacings</td>
+</tr>
+<tr>
+<td>$\partial / \partial t$, $\partial / \partial z$</td>
+<td>partial derivatives</td>
+</tr>
+<tr>
+<td>$\nabla$</td>
+<td>the del operator (gradient, divergence, curl, Laplacian)</td>
+</tr>
+<tr>
+<td>$\bar{T}$</td>
+<td>a mean or background value</td>
+</tr>
+<tr>
+<td>$T'$</td>
+<td>a perturbation away from the mean</td>
+</tr>
+<tr>
+<td>$\hat{T}$</td>
+<td>a Fourier coefficient or a unit vector (context-dependent)</td>
+</tr>
+<tr>
+<td>$|A|$</td>
+<td>absolute value of a real number; magnitude of a complex number</td>
+</tr>
+<tr>
+<td>$\propto$</td>
+<td>"proportional to"</td>
+</tr>
+<tr>
+<td>$\ll$</td>
+<td>"much less than"</td>
+</tr>
+<tr>
+<td>$\sim$</td>
+<td>"of the same order as" or "approximately"</td>
+</tr>
+<tr>
+<td>$\langle \cdot \rangle$</td>
+<td>ensemble or volume average</td>
+</tr>
+</tbody>
+</table>
+<p>With this vocabulary in place, the rest of the guide should read smoothly. If you ever hit a symbol that has not been defined, search this chapter — it is here.</p>
+<h2 id="019-the-damping-depth-solution-tying-the-prerequisites-together">0.19 The damping-depth solution — tying the prerequisites together</h2>
+<p>Everything in this chapter — sinusoidal forcing, complex exponentials, partial derivatives, the heat equation, the dimensionless number $\nu$ — comes together in the most important closed-form solution for this course. Apply a sinusoidal surface temperature $T(0, t) = T_{0} + A\sin(\omega t)$ to a semi-infinite, homogeneous ground with diffusivity $\kappa$. The heat equation $\partial T/\partial t = \kappa\,\partial^{2}T/\partial z^{2}$ has the exact solution</p>
+<p>$$T(z, t) \;=\; T_{0} + A\,e^{-z/d}\,\sin\!\Bigl(\omega t - \tfrac{z}{d}\Bigr),\qquad d \;=\; \sqrt{\tfrac{2\kappa}{\omega}}.$$</p>
+<p><strong>Reading this solution.</strong> Two things happen as you go deeper into the ground:</p>
+<ol>
+<li><strong>Amplitude damping.</strong> The factor $e^{-z/d}$ shrinks the oscillation amplitude exponentially with depth. At $z = d$, the amplitude is $1/e \approx 37\%$ of the surface value; at $z = 3d$ it is below $5\%$ — essentially constant temperature.</li>
+<li><strong>Phase lag.</strong> The argument of the sine is $\omega t - z/d$, so peak temperature at depth $z$ arrives a time $z/(\omega d) = z/\sqrt{2\kappa\omega}$ later than at the surface. For a daily forcing ($\omega = 2\pi/86400\,\mathrm{s}^{-1}$) and a typical soil ($\kappa\sim 10^{-6}\,\mathrm{m^{2}/s}$), $d\sim 0.12\,\mathrm{m}$ and the phase lag at depth $d$ is about 4 hours — that is why the soil at 12 cm is coldest <em>not</em> at sunrise but in the late morning.</li>
+</ol>
+<p>The single parameter $d = \sqrt{2\kappa/\omega}$ is the <strong>damping depth</strong>. Faster forcing (larger $\omega$) means smaller $d$ — the diurnal wave penetrates 10 cm, the annual wave penetrates 1–2 m, geological-time forcing penetrates many metres. Bigger diffusivity $\kappa$ (e.g. wet soil vs. dry) means larger $d$ — wet soil transmits the diurnal wave deeper.</p>
+<div class="cw-card">
+  <div class="cw-head">Widget · Damping depth — diurnal surface wave penetrating into the ground</div>
+  <div class="cw-body">
+    <svg id="cw_dd_svg" viewBox="0 0 540 320" style="width:100%;height:auto;max-width:560px;display:block;margin:0 auto"></svg>
+    <div class="cw-ctrl">
+      <label>κ (m²/s × 1e-7)</label>
+      <input type="range" id="cw_dd_k" min="5" max="100" value="15" oninput="cwDdDraw()">
+      <span id="cw_dd_kv" style="min-width:200px;display:inline-block"></span>
+    </div>
+    <div class="cw-ctrl">
+      <label>hour of day</label>
+      <input type="range" id="cw_dd_h" min="0" max="240" value="120" oninput="cwDdDraw()">
+      <span id="cw_dd_hv" style="min-width:120px;display:inline-block">12.0 h</span>
+      <button onclick="cwDdAnim()" id="cw_dd_btn" style="padding:4px 12px;background:#ee845b;color:#fff;border:none;border-radius:4px;cursor:pointer">Play</button>
+    </div>
+    <div class="cw-note">A diurnal surface forcing T(0,t) = 10 sin(ωt) drives a thermal wave into the ground. The analytical solution is T(z,t) = 10 e^(−z/d) sin(ωt − z/d), where d = √(2κ/ω) is the damping depth. Below depth ≈ d, amplitude has dropped to 1/e ≈ 37% of the surface value; below 3d, the wave is essentially gone. The phase also lags — peak temperature at depth d arrives 1 radian later than at the surface (≈ 4 h for a daily wave).</div>
+  </div>
+</div>
+<script>
+var cwDdTimer = null;
+function cwDdDraw(){
+  var svg = document.getElementById("cw_dd_svg"); if(!svg) return;
+  var kappa = document.getElementById("cw_dd_k").value*1e-7;
+  var hr = document.getElementById("cw_dd_h").value/10;
+  var omega = 2*Math.PI / 86400;
+  var d = Math.sqrt(2*kappa/omega);
+  document.getElementById("cw_dd_kv").textContent = "κ = " + (kappa*1e7).toFixed(0) + "e-7 m²/s,  d = " + (d*100).toFixed(1) + " cm";
+  document.getElementById("cw_dd_hv").textContent = hr.toFixed(1) + " h";
+  var W = 540, H = 320, mx = 60, my = 30, pw = 200, ph = H - 2*my;
+  // Left: amplitude envelope vs depth (in cm)
+  var maxZ = 1.0; // 1 m
+  // envelope
+  var envPath = "M"+mx+","+my;
+  for(var i=0;i<=200;i++){
+    var z = i/200 * maxZ;
+    var amp = 10 * Math.exp(-z/d);
+    var px = mx + amp/12 * pw;
+    var py = my + i/200 * ph;
+    envPath += " L" + px + "," + py;
+  }
+  envPath += " L"+mx+","+(my+ph)+" Z";
+  // mirror envelope
+  var envPath2 = "M"+mx+","+my;
+  for(var i=0;i<=200;i++){
+    var z = i/200 * maxZ;
+    var amp = 10 * Math.exp(-z/d);
+    var px = mx - amp/12 * pw;
+    var py = my + i/200 * ph;
+    envPath2 += " L" + px + "," + py;
+  }
+  // current profile at hour=hr
+  var t = hr*3600;
+  var profilePath = "";
+  for(var i=0;i<=200;i++){
+    var z = i/200 * maxZ;
+    var Tval = 10 * Math.exp(-z/d) * Math.sin(omega*t - z/d);
+    var px = mx + Tval/12 * pw;
+    var py = my + i/200 * ph;
+    profilePath += (i===0?"M":"L") + px + "," + py + " ";
+  }
+  // depth markers
+  var dMarks = "";
+  for(var k=1;k<=3;k++){
+    var z = k*d;
+    if(z > maxZ) break;
+    var py = my + z/maxZ * ph;
+    dMarks += '<line x1="'+(mx-pw)+'" y1="'+py+'" x2="'+(mx+pw)+'" y2="'+py+'" stroke="#cbd5e1" stroke-dasharray="3 3"/>';
+    dMarks += '<text x="'+(mx+pw+6)+'" y="'+(py+4)+'" font-size="10" fill="#94a3b8">'+k+'d</text>';
+  }
+  // Right side: surface T(t) over 24h with current time marker
+  var rx0 = mx + pw + 60, rw = 140, rh = 220, ry0 = 50;
+  var sfPath = "";
+  for(var i=0;i<=240;i++){
+    var hh = i/10;
+    var tt = hh*3600;
+    var Tval = 10 * Math.sin(omega*tt);
+    sfPath += (i===0?"M":"L") + (rx0 + i/240*rw) + "," + (ry0 + rh/2 - Tval*9) + " ";
+  }
+  var curX = rx0 + hr/24*rw;
+  svg.innerHTML =
+    '<rect width="540" height="320" fill="#fafbff" rx="6"/>' +
+    '<path d="'+envPath+'" fill="rgba(238,132,91,0.18)" stroke="none"/>' +
+    '<path d="'+envPath2+'" fill="rgba(238,132,91,0.18)" stroke="none"/>' +
+    dMarks +
+    '<line x1="'+mx+'" y1="'+my+'" x2="'+mx+'" y2="'+(my+ph)+'" stroke="#94a3b8"/>' +
+    '<path d="'+profilePath+'" stroke="#6b5cb5" stroke-width="2.5" fill="none"/>' +
+    '<text x="'+(mx-pw)+'" y="20" font-size="11" fill="#475569">T(z, t) profile and amplitude envelope</text>' +
+    '<text x="'+(mx-pw-30)+'" y="'+(my+ph/2)+'" font-size="10" fill="#94a3b8" transform="rotate(-90 '+(mx-pw-30)+','+(my+ph/2)+')">depth z →</text>' +
+    '<text x="'+rx0+'" y="40" font-size="11" fill="#475569">Surface T(0, t) over 24 h</text>' +
+    '<line x1="'+rx0+'" y1="'+(ry0+rh/2)+'" x2="'+(rx0+rw)+'" y2="'+(ry0+rh/2)+'" stroke="#94a3b8"/>' +
+    '<path d="'+sfPath+'" stroke="#ee845b" stroke-width="2" fill="none"/>' +
+    '<line x1="'+curX+'" y1="'+ry0+'" x2="'+curX+'" y2="'+(ry0+rh)+'" stroke="#2c8a83" stroke-width="2"/>' +
+    '<text x="'+curX+'" y="'+(ry0+rh+12)+'" text-anchor="middle" font-size="10" fill="#2c8a83">now</text>';
+}
+function cwDdAnim(){
+  var btn = document.getElementById("cw_dd_btn");
+  if(cwDdTimer){ clearInterval(cwDdTimer); cwDdTimer = null; btn.textContent="Play"; return; }
+  btn.textContent="Pause";
+  cwDdTimer = setInterval(function(){
+    var sl = document.getElementById("cw_dd_h");
+    var v = (parseInt(sl.value) + 3) % 241;
+    sl.value = v; cwDdDraw();
+  }, 60);
+}
+window.addEventListener("DOMContentLoaded", cwDdDraw);
+</script>
+
+<p>In the widget above, drag $\kappa$ to see $d$ change; drag the hour-of-day cursor (or press Play) to scan a 24-hour cycle. The orange envelope is the exponential decay $\pm A\,e^{-z/d}$; the purple curve is the instantaneous $T(z, t)$ profile. Notice how the purple curve always stays within the envelope and how the peak depth lags behind the surface peak. This single picture is the analytical "answer key" against which all the numerical schemes in Chapters 21 and 22 of this guide are tested.</p>
+<h3 id="one-last-reading-tip">One last reading-tip</h3>
+<p>When a section of this guide writes something like "$T_{j}^{n+1}$", "$\kappa\Delta t/\Delta z^{2}$", "$e^{-z/d}$", or "$\nabla\cdot(\kappa\nabla T)$", recognise that you have already seen every symbol here in Chapter 0. The rest of the guide is just composing these blocks into longer arguments about how to discretise PDEs, how to keep schemes stable, and how to assess accuracy.</p>
 <hr />
 <h2 id="table-of-contents">Table of Contents</h2>
 <ol>
@@ -608,6 +2033,7 @@ The method of characteristics is essentially switching from Way 1 to Way 2. Wher
 <h2 id="53-the-general-prognostic-equation">5.3 The "general prognostic equation"</h2>
 <p>Almost every model variable $\psi$ obeys</p>
 <p>$$\boxed{\frac{\partial \psi}{\partial t} = -\vec V \cdot \nabla \psi + \nabla^2 (K\psi) + S}$$</p>
+<p><strong>Reading this equation.</strong> Left side: the rate at which $\psi$ changes at a fixed point in space. The three right-side terms are the three ways $\psi$ at that point can change: (1) <strong>advection</strong> — the wind blows in fluid from upstream that may have a different value, written $-\vec{V}\cdot\nabla\psi$ (negative because if the wind blows up a gradient, the fixed point sees the value <em>decrease</em>); (2) <strong>diffusion</strong> — turbulence smears gradients out, captured by the Laplacian of $K\psi$ exactly as in Chapter 0's heat-equation discussion; (3) <strong>sources and sinks</strong> $S$ — anything not captured by transport: heating, condensation, chemistry. Every prognostic equation in atmospheric science has these same three pieces. Once you have read this equation, every following chapter of the guide is about discretising one or another of these three terms.</p>
 <p>where</p>
 <table>
 <thead>
@@ -694,6 +2120,7 @@ The method of characteristics is essentially switching from Way 1 to Way 2. Wher
 <h2 id="62-hydrostatic-balance">6.2 Hydrostatic balance</h2>
 <p>The vertical force balance between the <em>upward</em> pressure gradient and <em>downward</em> gravity:</p>
 <p>$$\boxed{\frac{dp}{dz} = -\rho g}$$</p>
+<p><strong>Reading this equation.</strong> The left side is the <em>vertical pressure gradient</em> — how rapidly pressure changes as you move up. The right side is <em>minus density times gravity</em> — the weight of a unit volume of air, with a minus sign because $z$ points up but weight points down. The equation says: at every altitude, the pressure must drop just fast enough so that the upward pressure-gradient force exactly balances the downward pull of gravity on every chunk of air. Whenever this equation is <em>not</em> satisfied — even by a fraction of a percent — the residual force drives a vertical acceleration. <em>That tiny residual is what powers every cumulus cloud you have ever seen.</em></p>
 <p>The minus sign is because pressure <em>decreases</em> with altitude. A scale analysis shows the vertical pressure gradient is <strong>~10,000× larger</strong> than the horizontal one — yet gravity almost exactly cancels it. The tiny residual is what drives most vertical motion.</p>
 <p><strong>Real-life weather example.</strong> The pressure gradient force on a parcel pointed <em>upward</em> is ~976 cm/s² and gravity is ~980 cm/s². <strong>Four decimal places of cancellation.</strong> Even slight changes in air density (a warm bubble of, say, 0.5% lower density) tip the balance, the residual force is upward, and the parcel rises as a thermal. That thermal hits the LCL, condenses water, and a cumulus cloud is born. <em>Every fair-weather cumulus you've ever seen is a tiny imbalance of two huge forces.</em></p>
 <h2 id="63-the-boussinesq-approximation">6.3 The Boussinesq approximation</h2>
@@ -705,7 +2132,7 @@ The method of characteristics is essentially switching from Way 1 to Way 2. Wher
 - <em>Everywhere except the buoyancy term</em> → replace $\rho$ with $\rho_0$ (the constant reference). The error is ~0.5%, negligible.
 - <em>Inside the buoyancy term</em> (the $\rho g$ piece in the vertical momentum equation) → keep $\rho'$ — that tiny perturbation is what <em>drives</em> the vertical motion. Drop it and you've turned off buoyancy entirely.</p>
 <p>The closure relation $\rho'/\rho_0 \approx -\theta'/\theta_0$ tells you that <strong>a parcel warmer than its surroundings is also less dense</strong>, so you can replace density perturbations with temperature perturbations everywhere. That's the computational key.</p>
-<h2 id="64-potential-temperature-math232">6.4 Potential temperature $\theta$</h2>
+<h2 id="64-potential-temperature-math668">6.4 Potential temperature $\theta$</h2>
 <p>A real air parcel's temperature changes when it rises (it expands and cools adiabatically). To make a <em>conserved</em> quantity for adiabatic motion, define <strong>the temperature the parcel would have if you brought it adiabatically to 1000 mb</strong>:</p>
 <p>$$\boxed{\theta = T \left(\frac{p_0}{p}\right)^{R_d/c_{pd}}}$$</p>
 <p>with $p_0 = 1000\text{ mb}$, $R_d$ the gas constant for dry air, $c_{pd}$ specific heat at constant pressure for dry air. It is conserved for dry adiabatic motion.</p>
@@ -728,6 +2155,7 @@ The method of characteristics is essentially switching from Way 1 to Way 2. Wher
 <h2 id="68-scalar-transport-advectiondiffusion">6.8 Scalar transport (advection–diffusion)</h2>
 <p>For any scalar (concentration $c$, temperature, moisture):</p>
 <p>$$\underbrace{\frac{\partial c}{\partial t} + u\frac{\partial c}{\partial x} + v\frac{\partial c}{\partial y} + w\frac{\partial c}{\partial z}}_{\text{advection}} - \underbrace{\frac{\partial}{\partial x_j}\left(\kappa_e\frac{\partial c}{\partial x_j}\right)}_{\text{diffusion}} = S.$$</p>
+<p><strong>Reading this equation.</strong> The underbraced "advection" piece is just the chain-rule expansion of $\vec{V}\cdot\nabla c$ from Chapter 0 — each component of the wind times the gradient of $c$ in that direction. The "diffusion" piece is the flux-divergence form of the Laplacian (also discussed in Chapter 0), using Einstein's summation convention where the repeated subscript $j$ implies a sum over $x, y, z$. So in plain English: a parcel's concentration changes because (1) the wind is bringing in different stuff, (2) turbulence is smoothing gradients, and (3) sources or sinks are creating or destroying material. This is the <em>same</em> three-term structure as the general prognostic equation in Section 5.3 — only the variable name has changed.</p>
 <p>$\kappa_e$ is the <strong>eddy diffusivity</strong> — turbulence is so much faster than molecular diffusion in the atmosphere that we replace molecular $\kappa$ with a much larger eddy $\kappa_e$.</p>
 <hr />
 <p><a id="7"></a></p>
@@ -987,11 +2415,13 @@ The Euler equations support <em>both</em>. The next chapters disentangle the wav
 <p>so</p>
 <p>$$a_k^n = (A_k)^n a_k^0.$$</p>
 <p>$A_k$ is the <strong>amplification factor</strong> for wavenumber $k$. The solution is bounded iff $|A_k| \leq 1$ for <strong>every</strong> $k$. This is the <strong>von Neumann stability condition</strong>.</p>
+<p><strong>Reading these equations.</strong> The first line says any grid-cell value $\phi_j^n$ is built up as a sum of Fourier modes $e^{ikj\Delta x}$, each carrying a coefficient $a_k^n$ that depends on time. The second line says: in a <em>linear</em> scheme, every Fourier mode evolves on its own — multiplied each step by some complex number $A_k$ that depends only on wavenumber. The third line just iterates that fact: after $n$ steps, the coefficient is the initial coefficient times $A_k^n$. So if $|A_k| > 1$ even for one wavenumber $k$, that mode grows exponentially and the whole numerical solution eventually explodes — even if every other mode is well-behaved.</p>
 <h2 id="122-upstream-scheme-by-von-neumann">12.2 Upstream scheme by von Neumann</h2>
 <p>Substitute $\phi_j^n = a_k^n e^{ikj\Delta x}$ into the upstream update:</p>
 <p>$$A_k = 1 - \mu + \mu e^{-ik\Delta x},$$
 $$|A_k|^2 = 1 - 2\mu(1-\mu)(1 - \cos k\Delta x).$$</p>
 <p>This requires $\mu(1-\mu) \geq 0$, i.e., $0 \leq \mu \leq 1$ — same as the energy method.</p>
+<p><strong>Reading these equations.</strong> The first line is the amplification factor itself — a complex number that mixes a real piece $1 - \mu$ with a phase-rotated piece $\mu e^{-ik\Delta x}$. The phase-rotation $e^{-ik\Delta x}$ comes from the upstream stencil (the neighbour at $j-1$ is one grid cell behind, hence the negative phase). The second line is just $A_k$ multiplied by its conjugate — a real, non-negative number that measures <em>per-step amplitude growth</em>. The factor $(1 - \cos k\Delta x)$ vanishes for very long waves ($k\Delta x \to 0$) and is largest at the worst-case $2\Delta x$ wave ($k\Delta x = \pi$). So the equation says: short waves are always handled most aggressively, and the scheme is stable only when $\mu$ stays inside the unit interval $[0, 1]$ — precisely the CFL bound.</p>
 <h2 id="123-what-the-modulus-tells-you">12.3 What the modulus tells you</h2>
 <p>$$|A_k|^2 = 1 - 2\mu(1-\mu)(1 - \cos k\Delta x).$$</p>
 <ul>
@@ -1103,6 +2533,7 @@ $$|A_k|^2 = 1 - 2\mu(1-\mu)(1 - \cos k\Delta x).$$</p>
 <p>$$A = \frac{1 + i\alpha\mu}{1 - i\beta\mu},\qquad \mu = \omega\Delta t.$$</p>
 <p>Multiply by conjugate:</p>
 <p>$$|A|^2 = \frac{1 + \alpha^2\mu^2}{1 + \beta^2\mu^2}.$$</p>
+<p><strong>Reading this formula.</strong> $\mu = \omega\Delta t$ is "how many radians of the true oscillation are squeezed into one numerical step." The numerator $1 + \alpha^2\mu^2$ comes from the <em>explicit</em> part of the scheme — it always <em>grows</em> with $\mu$. The denominator $1 + \beta^2\mu^2$ comes from the <em>implicit</em> part — it always <em>shrinks</em> the result. So if $\alpha > \beta$ (more explicit than implicit, e.g., Euler with $\alpha=1, \beta=0$) we get $|A| > 1$ — explosive. If $\beta > \alpha$ (more implicit, e.g., Backward with $\alpha=0, \beta=1$) we get $|A| < 1$ — damped. If $\alpha = \beta = 1/2$ (Trapezoidal) the two effects exactly cancel and $|A| = 1$ — perfectly neutral. The single formula captures all three classical schemes.</p>
 <table>
 <thead>
 <tr>
@@ -1446,6 +2877,7 @@ $$\omega = \frac{c}{\Delta x}\big[\sin k\Delta x + i(\cos k\Delta x - 1)\big].$$
 <p>$$\frac{d\phi_j}{dt} = \gamma_2(\phi_{j+1} - 2\phi_j + \phi_{j-1}).$$</p>
 <p>Plug in $\phi_j = A(t) e^{ikj\Delta x}$:</p>
 <p>$$\frac{dA}{dt} = -2\gamma_2(1 - \cos k\Delta x)\,A.$$</p>
+<p><strong>Reading these equations.</strong> The first line is just an added diffusion term, applied via the same three-point stencil as the physical diffusion (Section 21.2). The coefficient $\gamma_2$ controls how aggressive the smoothing is. The second line is the Fourier-mode growth rate. The factor $(1 - \cos k\Delta x)$ is zero for long waves ($k\Delta x \to 0$) and largest for the $2\Delta x$ wave ($k\Delta x = \pi$, where $\cos = -1$ and the factor is $2$). So each Fourier mode is damped at a rate that depends entirely on its wavelength: long waves are barely touched, the worst-case grid-scale wave is killed off the fastest. This is what <em>scale-selective</em> means.</p>
 <p>This damps $2\Delta x$ most strongly (where $1 - \cos k\Delta x = 2$) and barely touches long waves. <strong>Scale-selective:</strong> the property we want from a smoother.</p>
 <p>Higher-order smoothers ($\nabla^4$, $\nabla^6$) are even more selective: they leave well-resolved waves nearly untouched while killing grid-scale noise.</p>
 <h2 id="174-when-dissipation-is-necessary">17.4 When dissipation is necessary</h2>
@@ -1501,6 +2933,7 @@ $$\omega = \frac{c}{\Delta x}\big[\sin k\Delta x + i(\cos k\Delta x - 1)\big].$$
 <p>$$A^2 + 2i\mu\sin(k\Delta x)\,A - 1 = 0.$$</p>
 <p>Solve the quadratic:</p>
 <p>$$A = -i\mu\sin(k\Delta x) \pm \sqrt{1 - \mu^2\sin^2(k\Delta x)}.$$</p>
+<p><strong>Reading these equations.</strong> The leapfrog scheme uses <em>two past time levels</em> to compute the next, so the amplification per step appears as a <em>quadratic</em> in $A$ rather than a linear formula. That quadratic has <em>two roots</em> — the $\pm$ in front of the square root — and each root represents a separate "mode" that evolves through the scheme. The $+$ root tracks the true physical wave; the $-$ root is the <strong>computational mode</strong> (a spurious oscillation that flips sign every step). The square root is real when $|\mu\sin(k\Delta x)|\le 1$ — that is the stability range. The discriminant going negative ($\mu\sin(k\Delta x) > 1$) would make $A$ pick up a real exponential growth factor.</p>
 <p>Two roots — <strong>two modes</strong> (physical + computational, as for any 3-level scheme, Section 15). For $|\mu\sin(k\Delta x)| \leq 1$, both roots have $|A|^2 = \mu^2\sin^2 + (1 - \mu^2\sin^2) = 1$. <strong>Both are exactly neutral</strong> — no amplitude error within stability.</p>
 <p>Stability requires $|\mu\sin(k\Delta x)| \leq 1$, and since $|\sin(k\Delta x)| \leq 1$ for all $k$, the strongest constraint is $|\mu| \leq 1$. So CTCS is <strong>conditionally stable</strong> with the standard CFL condition, second-order accurate in space and time, and neutral within stability — <em>the workhorse of atmospheric modeling</em>. <strong>HW1</strong> demonstrates this directly: CTCS runs cleanly on the rotating cone while FTCS blows up under identical conditions.</p>
 <p>The catches you must remember:
@@ -1676,6 +3109,7 @@ $$\omega = \frac{c}{\Delta x}\big[\sin k\Delta x + i(\cos k\Delta x - 1)\big].$$
 <h1 id="21-diffusion-term-implicit-schemes-the-peclet-number">21 Diffusion Term — Implicit Schemes, the Péclet Number</h1>
 <h2 id="211-the-diffusion-equation">21.1 The diffusion equation</h2>
 <p>$$\frac{\partial \psi}{\partial t} = M\frac{\partial^2 \psi}{\partial x^2}.$$</p>
+<p><strong>Reading this equation.</strong> Left side: how fast $\psi$ changes in time at a fixed location. Right side: $M$ (diffusivity, $\mathrm{m^{2}/s}$) times the spatial curvature of $\psi$. So $\psi$ rises wherever it currently sits in a "valley" (curving upward) and falls wherever it sits on a "peak" (curving downward). The diffusivity $M$ sets the <em>speed</em> of this smoothing — large $M$ means rapid spread. Same physics as Section 0.4 of Chapter 0; here we are about to discretise it.</p>
 <p>This is <strong>parabolic</strong>: amplitude decays, no wave-like propagation. The total amount under the curve is conserved while the curve spreads.</p>
 <p><strong>Real-life example.</strong> A puff of pollutant released over a city at noon. The total mass stays fixed; the puff spreads out and the peak concentration drops.</p>
 <p><strong>Advection vs. diffusion — what each does to a shape.</strong>
@@ -1685,6 +3119,7 @@ $$\omega = \frac{c}{\Delta x}\big[\sin k\Delta x + i(\cos k\Delta x - 1)\big].$$
 <p><strong>Why the second derivative?</strong> Imagine three thermometers in a row. If the middle one reads <em>higher</em> than both neighbors, that point has <em>negative curvature</em> (it's a local peak, like a hilltop). Diffusion will <em>cool</em> that point — heat flows away from the hot spot toward the cooler neighbors. Mathematically, $\partial^2 \psi/\partial x^2 < 0$ at a peak, so $\partial \psi/\partial t = M\partial^2\psi/\partial x^2 < 0$ — the peak cools. Conversely, a <em>valley</em> (positive curvature) warms up. <strong>Diffusion erases curvature.</strong> The temperature at a fixed point changes only if more heat flows in than flows out — which is exactly what curvature measures (the imbalance of fluxes into and out of the point).</p>
 <h2 id="212-standard-explicit-ftcs-for-diffusion">21.2 Standard explicit FTCS for diffusion</h2>
 <p>$$\frac{\phi_j^{n+1} - \phi_j^n}{\Delta t} = M\,\frac{\phi_{j+1}^n - 2\phi_j^n + \phi_{j-1}^n}{(\Delta x)^2}.$$</p>
+<p><strong>Reading this update.</strong> The left side is the discrete time derivative — "value next step minus value now, divided by step size." The right side is the discrete second derivative — the famous <strong>three-point stencil</strong> $(\phi_{j+1} - 2\phi_j + \phi_{j-1})/\Delta x^{2}$, which compares cell $j$ to the <em>average</em> of its two neighbours. If $\phi_j$ is below the neighbour average (valley), the stencil is positive and $\phi_j$ rises next step. If above the average (peak), it falls. Solving for $\phi_j^{n+1}$ gives an explicit recipe: each new value is a weighted average of three current values, with weights $\nu$, $1-2\nu$, $\nu$.</p>
 <p>Define $\nu = M\Delta t/(\Delta x)^2$. Von Neumann analysis gives</p>
 <p>$$A_k = 1 - 2\nu(1 - \cos k\Delta x),$$</p>
 <p>which is bounded by 1 in absolute value iff</p>
@@ -1693,6 +3128,7 @@ $$\omega = \frac{c}{\Delta x}\big[\sin k\Delta x + i(\cos k\Delta x - 1)\big].$$
 <h2 id="213-implicit-cranknicolson-diffusion">21.3 Implicit (Crank–Nicolson) diffusion</h2>
 <p>Use trapezoidal time stepping:</p>
 <p>$$\frac{\phi_j^{n+1} - \phi_j^n}{\Delta t} = \frac{M}{2}\big(\delta_x^2 \phi_j^{n+1} + \delta_x^2 \phi_j^n\big).$$</p>
+<p><strong>Reading this update.</strong> Same left side as FTCS — the discrete time derivative. The right side averages the discrete second-derivative stencil <em>between two time levels</em>: half from the current step ($\delta_x^2\phi^n$, known) and half from the future step ($\delta_x^2\phi^{n+1}$, still unknown). Because the unknown appears on both sides of the equation, you cannot just update cell-by-cell — you have to solve a coupled system of equations for all $\phi^{n+1}$ values simultaneously. That is the price of unconditional stability.</p>
 <p>The amplification factor:</p>
 <p>$$A_k = \frac{1 - \nu(1 - \cos k\Delta x)}{1 + \nu(1 - \cos k\Delta x)},$$</p>
 <p>with $|A_k| \leq 1$ for <strong>all</strong> $\nu$. <strong>Unconditionally stable.</strong></p>
@@ -1782,6 +3218,7 @@ $$\overline{a'^2} \neq 0,\qquad \overline{a'b'} \neq 0,\qquad \overline{a'^2 b'}
 <li><strong>First-order (K-theory)</strong>: parameterize 2nd moments via gradients of 1st moments. The famous <em>gradient-transport</em> assumption:</li>
 </ul>
 <p>$$\overline{w'\theta'} = -K_H\frac{\partial \overline\theta}{\partial z},\qquad \overline{u'w'} = -K_M\frac{\partial \overline U}{\partial z}.$$</p>
+<p><strong>Reading these equations.</strong> The bar denotes a time-average; the primes denote turbulent fluctuations around that mean. The left sides are <em>covariances</em> — the average over many seconds of (vertical-velocity fluctuation × temperature fluctuation), and (vertical-velocity fluctuation × horizontal-wind fluctuation). When warm air rises preferentially (positive $\theta'$ paired with positive $w'$) these covariances are positive — heat is being transported upward. The right sides relate these covariances to the <em>mean</em> gradient: K-theory says the eddy flux is proportional to (minus) the mean gradient, with eddy diffusivity $K$ playing the same role that the molecular diffusivity $\kappa$ played in Chapter 0's heat equation. The minus sign means transport is <em>down-gradient</em> — from hot to cold, from fast to slow.</p>
 <p>$K$ has units of m²/s and is called the <strong>eddy diffusivity</strong> / <em>eddy viscosity</em> / <em>turbulent transfer coefficient</em>. Magnitude in the PBL: 1–100 m²/s, vs. molecular $\nu \approx 10^{-5}$ m²/s — so turbulence mixes ~10⁷ times faster than molecules.</p>
 <p><strong>Gradient transport (a.k.a. K-theory)</strong> is a "small-eddy" closure. It works when turbulent eddies are smaller than the gradient scale. It <strong>fails</strong> for large eddies (deep convection) where transport is <em>non-local</em>.</p>
 <p><strong>Why K-theory fails for deep convection.</strong> In a sunny convective PBL, big thermals span the <em>entire</em> layer (1–2 km tall). They pick up warm, moist air at the surface and dump it near the inversion at the top — without ever interacting with the local gradient in between. The transport is <em>non-local</em>: heat is carried from where the gradient is strongly upward (hot ground) directly to where it's nearly zero (top of mixed layer), skipping the middle. K-theory, which assumes flux ∝ local gradient, can't represent this; it gives the wrong sign of heat flux in the middle of the mixed layer (counter-gradient transport). This is why modern PBL schemes (e.g., YSU, EDMF) augment K-theory with a <em>non-local mass-flux</em> term that explicitly accounts for the big thermals.</p>
@@ -1850,6 +3287,7 @@ $$\overline{a'^2} \neq 0,\qquad \overline{a'b'} \neq 0,\qquad \overline{a'^2 b'}
 <h2 id="225-the-log-wind-profile-neutral-pbl">22.5 The log wind profile (neutral PBL)</h2>
 <p>In a neutral surface layer, far from molecular dissipation but in the constant-flux region:</p>
 <p>$$\frac{\partial U}{\partial z} = \frac{u_*}{kz}\quad\Longrightarrow\quad U(z) = \frac{u_*}{k}\ln\frac{z}{z_0}.$$</p>
+<p><strong>Reading this equation.</strong> The shear $\partial U/\partial z$ near the ground is large at small $z$ and decays as $1/z$ — so the wind speeds up <em>fastest</em> very close to the surface and changes more slowly higher up. Integrating from the roughness height $z_0$ (where the wind is essentially zero) gives a <em>logarithmic</em> wind profile. Plug in $z = 10$ m and you get the wind at the standard observing height in terms of just two numbers — the friction velocity $u_*$ (set by surface stress) and the roughness $z_0$ (set by what the surface is made of). This is why every operational weather model carries lookup tables of $z_0$ for grass, forest, city, ocean.</p>
 <table>
 <thead>
 <tr>
@@ -2017,7 +3455,7 @@ Combine these with K-theory ($K_M = u_*\ell$) and you derive a $1/z$ shear → i
 </ul>
 <p><strong>What parameterizations output to the rest of the model:</strong> surface fluxes (sensible, latent, momentum), precipitation (especially convective), cloud cover (fractional cloudiness in each grid box), heating and moistening rates (vertical $T$ and $q$ tendencies), eddy diffusivities for the turbulent mixing scheme.</p>
 <p><strong>Why parameterizations are usually <em>not</em> the most numerically polished part of the code.</strong> Sub-grid-scale parameterizations have been a major research field for decades, but the <em>numerical methods used inside them</em> historically receive less attention than the dynamical core. Why? Because the parameterizations themselves are often considered too <em>physically uncertain</em> to merit highly sophisticated numerics. The dominant concerns are <strong>conservation</strong> (mass, energy must be preserved) and <strong>stability</strong> — not 4th-order accuracy. Pragmatically, <em>the physics is the bottleneck, not the numerics</em>. So we use forward time integration if it works, switch to implicit if it must, and don't fuss with high-order schemes.</p>
-<h2 id="232-why-leapfrog-doesnt-work-for-math867">23.2 Why leapfrog doesn't work for $P\psi$</h2>
+<h2 id="232-why-leapfrog-doesnt-work-for-math1382">23.2 Why leapfrog doesn't work for $P\psi$</h2>
 <p>Most parameterized processes are diffusive (parabolic). Leapfrog is <strong>unconditionally unstable</strong> for parabolic equations. So we use forward (or implicit) schemes for the parameterized tendencies, and leapfrog for the dynamic ones.</p>
 <p><strong>Plain-English summary.</strong> The dynamical core happily uses leapfrog because advection is hyperbolic — leapfrog is great for hyperbolic. But almost <em>every</em> parameterization (radiation relaxes profiles, turbulence smears them, microphysics relaxes RH to 100%) is <em>diffusive</em> in flavor. Apply leapfrog to a diffusive equation and the simulation explodes within a handful of steps. So in practice:
 - <strong>Dynamic tendencies</strong> ($D\psi$): use leapfrog.
@@ -2634,15 +4072,15 @@ Combine these with K-theory ($K_M = u_*\ell$) and you derive a $1/z$ shear → i
 </tr>
 </tbody>
 </table>
-<h2 id="a2-hw2-1d-linear-advection-math984-with-leapfrog">A.2 HW2 — 1D Linear Advection $u_t + cu_x = 0$ with leapfrog</h2>
+<h2 id="a2-hw2-1d-linear-advection-math1499-with-leapfrog">A.2 HW2 — 1D Linear Advection $u_t + cu_x = 0$ with leapfrog</h2>
 <p><strong>Setup.</strong> $u(x,0) = \sin(2\pi x)$ on cyclic $[0,1]$, $c = 1$, $T = 1/c = 1$ for one full period.</p>
-<h3 id="case-1-baseline-math989-math990-math991">Case 1 — Baseline ($\mu = 0.25$, $N = 16$, $\Delta t = 1/64$)</h3>
+<h3 id="case-1-baseline-math1504-math1505-math1506">Case 1 — Baseline ($\mu = 0.25$, $N = 16$, $\Delta t = 1/64$)</h3>
 <ul>
 <li>Period verified at exactly <strong>64 steps</strong> (one full revolution).</li>
 <li>Amplitude tracked: oscillates around 1.0, peak $\approx 1.005$ — the <strong>computational mode</strong> (Section 15) excited by the Euler first step.</li>
 <li>Leapfrog itself is neutral within stability, so the wobble persists at constant tiny amplitude rather than damping.</li>
 </ul>
-<h3 id="case-2-vary-math993-at-fixed-math994">Case 2 — Vary $\mu$ at fixed $\Delta x = 1/16$</h3>
+<h3 id="case-2-vary-math1508-at-fixed-math1509">Case 2 — Vary $\mu$ at fixed $\Delta x = 1/16$</h3>
 <table>
 <thead>
 <tr>
@@ -2669,7 +4107,7 @@ Combine these with K-theory ($K_M = u_*\ell$) and you derive a $1/z$ shear → i
 </tr>
 </tbody>
 </table>
-<h3 id="case-3-vary-resolution-at-fixed-math1006">Case 3 — Vary resolution at fixed $\mu = 0.8$</h3>
+<h3 id="case-3-vary-resolution-at-fixed-math1521">Case 3 — Vary resolution at fixed $\mu = 0.8$</h3>
 <table>
 <thead>
 <tr>
@@ -3108,7 +4546,7 @@ Combine these with K-theory ($K_M = u_*\ell$) and you derive a $1/z$ shear → i
 
   <hr>
   <p style="font-size: 13px; color: #6b7186; text-align: center;">
-    <em>Source: Lecture_Master_Guide.md.</em>
+    <em>Source: Lecture_Master_Guide.md + chapter0_prereqs.md.</em>
   </p>
 </main>
 </div>

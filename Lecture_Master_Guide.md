@@ -382,6 +382,8 @@ Almost every model variable $\psi$ obeys
 
 $$\boxed{\frac{\partial \psi}{\partial t} = -\vec V \cdot \nabla \psi + \nabla^2 (K\psi) + S}$$
 
+**Reading this equation.** Left side: the rate at which $\psi$ changes at a fixed point in space. The three right-side terms are the three ways $\psi$ at that point can change: (1) **advection** — the wind blows in fluid from upstream that may have a different value, written $-\vec{V}\cdot\nabla\psi$ (negative because if the wind blows up a gradient, the fixed point sees the value *decrease*); (2) **diffusion** — turbulence smears gradients out, captured by the Laplacian of $K\psi$ exactly as in Chapter 0's heat-equation discussion; (3) **sources and sinks** $S$ — anything not captured by transport: heating, condensation, chemistry. Every prognostic equation in atmospheric science has these same three pieces. Once you have read this equation, every following chapter of the guide is about discretising one or another of these three terms.
+
 where
 
 | Symbol | Meaning |
@@ -424,6 +426,8 @@ Seven equations in seven unknowns → solvable in principle.
 The vertical force balance between the *upward* pressure gradient and *downward* gravity:
 
 $$\boxed{\frac{dp}{dz} = -\rho g}$$
+
+**Reading this equation.** The left side is the *vertical pressure gradient* — how rapidly pressure changes as you move up. The right side is *minus density times gravity* — the weight of a unit volume of air, with a minus sign because $z$ points up but weight points down. The equation says: at every altitude, the pressure must drop just fast enough so that the upward pressure-gradient force exactly balances the downward pull of gravity on every chunk of air. Whenever this equation is *not* satisfied — even by a fraction of a percent — the residual force drives a vertical acceleration. *That tiny residual is what powers every cumulus cloud you have ever seen.*
 
 The minus sign is because pressure *decreases* with altitude. A scale analysis shows the vertical pressure gradient is **~10,000× larger** than the horizontal one — yet gravity almost exactly cancels it. The tiny residual is what drives most vertical motion.
 
@@ -490,6 +494,8 @@ Crucially, **this filters out acoustic (sound) waves**, which are what tripped u
 For any scalar (concentration $c$, temperature, moisture):
 
 $$\underbrace{\frac{\partial c}{\partial t} + u\frac{\partial c}{\partial x} + v\frac{\partial c}{\partial y} + w\frac{\partial c}{\partial z}}_{\text{advection}} - \underbrace{\frac{\partial}{\partial x_j}\left(\kappa_e\frac{\partial c}{\partial x_j}\right)}_{\text{diffusion}} = S.$$
+
+**Reading this equation.** The underbraced "advection" piece is just the chain-rule expansion of $\vec{V}\cdot\nabla c$ from Chapter 0 — each component of the wind times the gradient of $c$ in that direction. The "diffusion" piece is the flux-divergence form of the Laplacian (also discussed in Chapter 0), using Einstein's summation convention where the repeated subscript $j$ implies a sum over $x, y, z$. So in plain English: a parcel's concentration changes because (1) the wind is bringing in different stuff, (2) turbulence is smoothing gradients, and (3) sources or sinks are creating or destroying material. This is the *same* three-term structure as the general prognostic equation in Section 5.3 — only the variable name has changed.
 
 $\kappa_e$ is the **eddy diffusivity** — turbulence is so much faster than molecular diffusion in the atmosphere that we replace molecular $\kappa$ with a much larger eddy $\kappa_e$.
 
@@ -821,6 +827,8 @@ $$a_k^n = (A_k)^n a_k^0.$$
 
 $A_k$ is the **amplification factor** for wavenumber $k$. The solution is bounded iff $|A_k| \leq 1$ for **every** $k$. This is the **von Neumann stability condition**.
 
+**Reading these equations.** The first line says any grid-cell value $\phi_j^n$ is built up as a sum of Fourier modes $e^{ikj\Delta x}$, each carrying a coefficient $a_k^n$ that depends on time. The second line says: in a *linear* scheme, every Fourier mode evolves on its own — multiplied each step by some complex number $A_k$ that depends only on wavenumber. The third line just iterates that fact: after $n$ steps, the coefficient is the initial coefficient times $A_k^n$. So if $|A_k| > 1$ even for one wavenumber $k$, that mode grows exponentially and the whole numerical solution eventually explodes — even if every other mode is well-behaved.
+
 ## 12.2 Upstream scheme by von Neumann
 
 Substitute $\phi_j^n = a_k^n e^{ikj\Delta x}$ into the upstream update:
@@ -829,6 +837,8 @@ $$A_k = 1 - \mu + \mu e^{-ik\Delta x},$$
 $$|A_k|^2 = 1 - 2\mu(1-\mu)(1 - \cos k\Delta x).$$
 
 This requires $\mu(1-\mu) \geq 0$, i.e., $0 \leq \mu \leq 1$ — same as the energy method.
+
+**Reading these equations.** The first line is the amplification factor itself — a complex number that mixes a real piece $1 - \mu$ with a phase-rotated piece $\mu e^{-ik\Delta x}$. The phase-rotation $e^{-ik\Delta x}$ comes from the upstream stencil (the neighbour at $j-1$ is one grid cell behind, hence the negative phase). The second line is just $A_k$ multiplied by its conjugate — a real, non-negative number that measures *per-step amplitude growth*. The factor $(1 - \cos k\Delta x)$ vanishes for very long waves ($k\Delta x \to 0$) and is largest at the worst-case $2\Delta x$ wave ($k\Delta x = \pi$). So the equation says: short waves are always handled most aggressively, and the scheme is stable only when $\mu$ stays inside the unit interval $[0, 1]$ — precisely the CFL bound.
 
 ## 12.3 What the modulus tells you
 
@@ -967,6 +977,8 @@ $$A = \frac{1 + i\alpha\mu}{1 - i\beta\mu},\qquad \mu = \omega\Delta t.$$
 Multiply by conjugate:
 
 $$|A|^2 = \frac{1 + \alpha^2\mu^2}{1 + \beta^2\mu^2}.$$
+
+**Reading this formula.** $\mu = \omega\Delta t$ is "how many radians of the true oscillation are squeezed into one numerical step." The numerator $1 + \alpha^2\mu^2$ comes from the *explicit* part of the scheme — it always *grows* with $\mu$. The denominator $1 + \beta^2\mu^2$ comes from the *implicit* part — it always *shrinks* the result. So if $\alpha > \beta$ (more explicit than implicit, e.g., Euler with $\alpha=1, \beta=0$) we get $|A| > 1$ — explosive. If $\beta > \alpha$ (more implicit, e.g., Backward with $\alpha=0, \beta=1$) we get $|A| < 1$ — damped. If $\alpha = \beta = 1/2$ (Trapezoidal) the two effects exactly cancel and $|A| = 1$ — perfectly neutral. The single formula captures all three classical schemes.
 
 | Scheme | $|A|$ | Behavior |
 |---|---|---|
@@ -1232,6 +1244,8 @@ Plug in $\phi_j = A(t) e^{ikj\Delta x}$:
 
 $$\frac{dA}{dt} = -2\gamma_2(1 - \cos k\Delta x)\,A.$$
 
+**Reading these equations.** The first line is just an added diffusion term, applied via the same three-point stencil as the physical diffusion (Section 21.2). The coefficient $\gamma_2$ controls how aggressive the smoothing is. The second line is the Fourier-mode growth rate. The factor $(1 - \cos k\Delta x)$ is zero for long waves ($k\Delta x \to 0$) and largest for the $2\Delta x$ wave ($k\Delta x = \pi$, where $\cos = -1$ and the factor is $2$). So each Fourier mode is damped at a rate that depends entirely on its wavelength: long waves are barely touched, the worst-case grid-scale wave is killed off the fastest. This is what *scale-selective* means.
+
 This damps $2\Delta x$ most strongly (where $1 - \cos k\Delta x = 2$) and barely touches long waves. **Scale-selective:** the property we want from a smoother.
 
 Higher-order smoothers ($\nabla^4$, $\nabla^6$) are even more selective: they leave well-resolved waves nearly untouched while killing grid-scale noise.
@@ -1283,6 +1297,8 @@ $$A^2 + 2i\mu\sin(k\Delta x)\,A - 1 = 0.$$
 Solve the quadratic:
 
 $$A = -i\mu\sin(k\Delta x) \pm \sqrt{1 - \mu^2\sin^2(k\Delta x)}.$$
+
+**Reading these equations.** The leapfrog scheme uses *two past time levels* to compute the next, so the amplification per step appears as a *quadratic* in $A$ rather than a linear formula. That quadratic has *two roots* — the $\pm$ in front of the square root — and each root represents a separate "mode" that evolves through the scheme. The $+$ root tracks the true physical wave; the $-$ root is the **computational mode** (a spurious oscillation that flips sign every step). The square root is real when $|\mu\sin(k\Delta x)|\le 1$ — that is the stability range. The discriminant going negative ($\mu\sin(k\Delta x) > 1$) would make $A$ pick up a real exponential growth factor.
 
 Two roots — **two modes** (physical + computational, as for any 3-level scheme, §15). For $|\mu\sin(k\Delta x)| \leq 1$, both roots have $|A|^2 = \mu^2\sin^2 + (1 - \mu^2\sin^2) = 1$. **Both are exactly neutral** — no amplitude error within stability.
 
@@ -1456,6 +1472,8 @@ Without dissipation:
 
 $$\frac{\partial \psi}{\partial t} = M\frac{\partial^2 \psi}{\partial x^2}.$$
 
+**Reading this equation.** Left side: how fast $\psi$ changes in time at a fixed location. Right side: $M$ (diffusivity, $\mathrm{m^{2}/s}$) times the spatial curvature of $\psi$. So $\psi$ rises wherever it currently sits in a "valley" (curving upward) and falls wherever it sits on a "peak" (curving downward). The diffusivity $M$ sets the *speed* of this smoothing — large $M$ means rapid spread. Same physics as Section 0.4 of Chapter 0; here we are about to discretise it.
+
 This is **parabolic**: amplitude decays, no wave-like propagation. The total amount under the curve is conserved while the curve spreads.
 
 **Real-life example.** A puff of pollutant released over a city at noon. The total mass stays fixed; the puff spreads out and the peak concentration drops.
@@ -1470,6 +1488,8 @@ This is **parabolic**: amplitude decays, no wave-like propagation. The total amo
 ## 21.2 Standard explicit FTCS for diffusion
 
 $$\frac{\phi_j^{n+1} - \phi_j^n}{\Delta t} = M\,\frac{\phi_{j+1}^n - 2\phi_j^n + \phi_{j-1}^n}{(\Delta x)^2}.$$
+
+**Reading this update.** The left side is the discrete time derivative — "value next step minus value now, divided by step size." The right side is the discrete second derivative — the famous **three-point stencil** $(\phi_{j+1} - 2\phi_j + \phi_{j-1})/\Delta x^{2}$, which compares cell $j$ to the *average* of its two neighbours. If $\phi_j$ is below the neighbour average (valley), the stencil is positive and $\phi_j$ rises next step. If above the average (peak), it falls. Solving for $\phi_j^{n+1}$ gives an explicit recipe: each new value is a weighted average of three current values, with weights $\nu$, $1-2\nu$, $\nu$.
 
 Define $\nu = M\Delta t/(\Delta x)^2$. Von Neumann analysis gives
 
@@ -1486,6 +1506,8 @@ This means $\Delta t \leq (\Delta x)^2/(2M)$ — **time step must shrink as the 
 Use trapezoidal time stepping:
 
 $$\frac{\phi_j^{n+1} - \phi_j^n}{\Delta t} = \frac{M}{2}\big(\delta_x^2 \phi_j^{n+1} + \delta_x^2 \phi_j^n\big).$$
+
+**Reading this update.** Same left side as FTCS — the discrete time derivative. The right side averages the discrete second-derivative stencil *between two time levels*: half from the current step ($\delta_x^2\phi^n$, known) and half from the future step ($\delta_x^2\phi^{n+1}$, still unknown). Because the unknown appears on both sides of the equation, you cannot just update cell-by-cell — you have to solve a coupled system of equations for all $\phi^{n+1}$ values simultaneously. That is the price of unconditional stability.
 
 The amplification factor:
 
@@ -1592,6 +1614,8 @@ You stop somewhere and *parameterize* the next-order unknown in terms of resolve
 
 $$\overline{w'\theta'} = -K_H\frac{\partial \overline\theta}{\partial z},\qquad \overline{u'w'} = -K_M\frac{\partial \overline U}{\partial z}.$$
 
+**Reading these equations.** The bar denotes a time-average; the primes denote turbulent fluctuations around that mean. The left sides are *covariances* — the average over many seconds of (vertical-velocity fluctuation × temperature fluctuation), and (vertical-velocity fluctuation × horizontal-wind fluctuation). When warm air rises preferentially (positive $\theta'$ paired with positive $w'$) these covariances are positive — heat is being transported upward. The right sides relate these covariances to the *mean* gradient: K-theory says the eddy flux is proportional to (minus) the mean gradient, with eddy diffusivity $K$ playing the same role that the molecular diffusivity $\kappa$ played in Chapter 0's heat equation. The minus sign means transport is *down-gradient* — from hot to cold, from fast to slow.
+
 $K$ has units of m²/s and is called the **eddy diffusivity** / *eddy viscosity* / *turbulent transfer coefficient*. Magnitude in the PBL: 1–100 m²/s, vs. molecular $\nu \approx 10^{-5}$ m²/s — so turbulence mixes ~10⁷ times faster than molecules.
 
 **Gradient transport (a.k.a. K-theory)** is a "small-eddy" closure. It works when turbulent eddies are smaller than the gradient scale. It **fails** for large eddies (deep convection) where transport is *non-local*.
@@ -1641,6 +1665,8 @@ The whole life cycle of the PBL — its growth in the morning, depth at noon, co
 In a neutral surface layer, far from molecular dissipation but in the constant-flux region:
 
 $$\frac{\partial U}{\partial z} = \frac{u_*}{kz}\quad\Longrightarrow\quad U(z) = \frac{u_*}{k}\ln\frac{z}{z_0}.$$
+
+**Reading this equation.** The shear $\partial U/\partial z$ near the ground is large at small $z$ and decays as $1/z$ — so the wind speeds up *fastest* very close to the surface and changes more slowly higher up. Integrating from the roughness height $z_0$ (where the wind is essentially zero) gives a *logarithmic* wind profile. Plug in $z = 10$ m and you get the wind at the standard observing height in terms of just two numbers — the friction velocity $u_*$ (set by surface stress) and the roughness $z_0$ (set by what the surface is made of). This is why every operational weather model carries lookup tables of $z_0$ for grass, forest, city, ocean.
 
 | Symbol | Meaning |
 |---|---|

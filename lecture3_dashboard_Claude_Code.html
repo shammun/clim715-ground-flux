@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLIM-715 · Lecture 3 — Basic Mathematical Tools</title>
+<style>
+:root{
+  --bg:#fafbff;--bg2:#f5f7ff;--bg3:#eef1fa;
+  --card:#ffffff;--card-hover:#ffffff;
+  --border:#e2e8f0;--border-light:#cbd5e1;
+  --text:#1e293b;--text-muted:#64748b;--text-dim:#94a3b8;
+  --accent:#7c3aed;--accent2:#8b5cf6;
+  --warm:#f97316;--warm2:#ea580c;--warm-bg:#fff7ed;--warm-border:#fdba74;
+  --cool:#14b8a6;--cool2:#0891b2;--cool-bg:#ecfdf5;--cool-border:#6ee7b7;
+  --purple:#a78bfa;--purple-dark:#7c3aed;--purple-bg:rgba(139,92,246,.06);
+  --red:#dc2626;--red-bg:#fef2f2;
+  --fd:Georgia,serif;
+  --fb:system-ui,-apple-system,sans-serif;
+  --r:12px;--rl:16px;
+  --shadow:0 4px 16px rgba(99,102,241,.12);
+  --shadow-sm:0 2px 8px rgba(0,0,0,.08);
+  --pad:clamp(.8rem,3vw,1.5rem)
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:clamp(13px,1.4vw,16px)}
+body{background:linear-gradient(135deg,var(--bg),var(--bg2));color:var(--text);font-family:var(--fb);line-height:1.7;min-height:100vh}
+
+.hdr{background:#fff;border-bottom:1px solid var(--border);padding:clamp(1rem,3vw,2rem) var(--pad) clamp(.5rem,1.5vw,.8rem);text-align:center;box-shadow:var(--shadow-sm)}
+.hdr-tag{font-size:clamp(8px,1.2vw,11px);letter-spacing:clamp(1.5px,.4vw,3px);text-transform:uppercase;color:var(--accent);margin-bottom:.4rem;font-weight:600}
+.hdr h1{font-family:var(--fd);font-size:clamp(1.1rem,3.5vw,2.2rem);font-weight:700;line-height:1.2;margin-bottom:.3rem;color:var(--text)}
+.hdr p{font-size:clamp(.75rem,1.8vw,.95rem);color:var(--text-muted);margin-bottom:.5rem;padding:0 clamp(0px,2vw,2rem)}
+
+.tabs{display:flex;flex-wrap:wrap;gap:0;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;background:#fff;box-shadow:0 1px 4px rgba(99,102,241,.06)}
+.tab{font-size:clamp(9px,1.3vw,11px);font-weight:500;padding:clamp(6px,1vw,10px) clamp(6px,1.2vw,13px);color:var(--text-dim);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none}
+.tab:hover{color:var(--text-muted)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(124,58,237,.03)}
+
+.panel{display:none;padding:clamp(1rem,3vw,2.5rem) var(--pad) clamp(2rem,4vw,4rem);max-width:1100px;margin:0 auto;animation:fadeIn .35s ease}
+.panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.sh{margin-bottom:clamp(1rem,2.5vw,2rem)}
+.sh-num{font-size:clamp(10px,1.3vw,13px);letter-spacing:0.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:.4rem;font-weight:600}
+.sh h2{font-family:var(--fd);font-size:clamp(1.15rem,3vw,2rem);font-weight:700;line-height:1.2;margin-bottom:.4rem;color:var(--text)}
+.sh .lead{color:var(--text-muted);font-size:clamp(.8rem,1.8vw,.95rem);max-width:100%}
+
+.card{background:var(--card);border:none;border-radius:var(--rl);padding:clamp(1rem,2.5vw,1.6rem);transition:all .3s;margin-bottom:1rem;box-shadow:var(--shadow)}
+.card:hover{box-shadow:0 6px 24px rgba(99,102,241,.16);transform:translateY(-1px)}
+.cg{display:grid;gap:clamp(.6rem,1.5vw,1rem)}
+.cg2{grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr))}
+.cg3{grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr))}
+.card h3{font-family:var(--fd);font-size:clamp(.9rem,2vw,1.05rem);font-weight:600;margin-bottom:.4rem;color:var(--text)}
+.card p,.card li{color:var(--text-muted);font-size:clamp(.8rem,1.6vw,.88rem);line-height:1.65}
+.card ul{list-style:none;padding:0;margin-top:.4rem}
+.card ul li{position:relative;padding-left:1.2rem;margin-bottom:.25rem}
+.card ul li::before{content:'→';position:absolute;left:0;color:var(--accent);font-weight:600}
+.ci{width:clamp(28px,4vw,36px);height:clamp(28px,4vw,36px);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:clamp(12px,1.8vw,16px);margin-bottom:.6rem}
+
+.ct{width:100%;border-collapse:separate;border-spacing:0;border-radius:var(--rl);overflow:hidden;font-size:clamp(.7rem,1.4vw,.83rem);margin-top:1rem;box-shadow:var(--shadow)}
+.ct th,.ct td{padding:clamp(5px,1.2vw,10px) clamp(6px,1.5vw,14px);text-align:left;word-break:break-word}
+.ct thead th{background:var(--bg3);color:var(--text-muted);font-size:clamp(8px,1.1vw,11px);letter-spacing:0.5px;text-transform:uppercase;font-weight:600;border-bottom:1px solid var(--border)}
+.ct tbody td{color:var(--text-muted);border-bottom:1px solid var(--border);background:#fff}
+.ct tbody td:first-child{color:var(--text);font-weight:500}
+
+.vp{background:#fff;border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin:clamp(.8rem,2vw,1.2rem) 0;box-shadow:var(--shadow)}
+.vh{padding:clamp(.5rem,1.2vw,.8rem) clamp(.8rem,2vw,1.2rem);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;background:var(--bg3)}
+.vh h4{font-size:clamp(9px,1.2vw,11px);letter-spacing:0.5px;text-transform:uppercase;color:var(--text-muted);font-weight:600}
+.vb{padding:clamp(.6rem,2vw,1.2rem);position:relative}
+.vw{position:relative;width:100%}
+.vw canvas{display:block;width:100%;border-radius:8px}
+.vn{font-size:clamp(10px,1.3vw,12px);color:var(--text-dim);margin-top:8px;line-height:1.6}
+.vl{display:flex;gap:clamp(6px,1.5vw,14px);margin-top:6px;font-size:clamp(9px,1.2vw,11px);color:var(--text-dim);flex-wrap:wrap}
+.sw{display:inline-block;width:10px;height:3px;border-radius:1px;vertical-align:middle;margin-right:3px}
+
+.ctr{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.sg{display:flex;align-items:center;gap:clamp(3px,1vw,6px)}
+.sg label{font-size:clamp(9px,1.2vw,11px);color:var(--text-dim);white-space:nowrap;font-weight:500}
+.sg input[type=range]{-webkit-appearance:none;appearance:none;width:clamp(70px,15vw,120px);height:4px;background:var(--border);border-radius:2px;outline:none;touch-action:manipulation}
+.sg input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:clamp(12px,1.6vw,14px);height:clamp(12px,1.6vw,14px);border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 1px 4px rgba(99,102,241,.3)}
+.sg span{font-size:clamp(9px,1.2vw,11px);color:var(--text-muted);min-width:clamp(28px,5vw,40px);font-weight:500}
+
+.eb{background:#fff;border:1px solid var(--border);border-radius:var(--rl);padding:clamp(.6rem,1.5vw,1rem) clamp(.8rem,2vw,1.2rem);margin:.6rem 0;font-family:var(--fd);font-size:clamp(.8rem,1.7vw,.95rem);color:var(--warm2);overflow-x:auto;box-shadow:var(--shadow-sm);font-style:italic;word-break:break-word}
+.el{font-size:clamp(9px,1.1vw,11px);color:var(--text-dim);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:.3rem;font-family:var(--fb);font-style:normal;font-weight:600}
+
+.ss{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(110px,45%),1fr));gap:clamp(.4rem,1.2vw,.8rem);margin-top:1rem}
+.si{background:#fff;border-radius:var(--rl);padding:clamp(.6rem,1.5vw,1rem);text-align:center;box-shadow:var(--shadow)}
+.sv{font-family:var(--fd);font-size:clamp(1.1rem,3vw,1.6rem);font-weight:700;color:var(--accent)}
+.sl{font-size:clamp(8px,1.1vw,10px);color:var(--text-dim);margin-top:2px;letter-spacing:.5px;text-transform:uppercase;font-weight:600}
+
+.tkg{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:.8rem;margin-top:1rem}
+.tk{background:#fff;border:1px solid var(--border);border-radius:var(--rl);padding:clamp(.8rem,2vw,1.2rem);box-shadow:var(--shadow-sm);border-left:3px solid var(--accent)}
+.tk .n{font-size:clamp(9px,1.1vw,11px);color:var(--accent);margin-bottom:4px;font-weight:600}
+.tk h4{font-size:clamp(.8rem,1.6vw,.9rem);margin-bottom:4px;color:var(--text)}
+.tk p{font-size:clamp(.75rem,1.4vw,.82rem);color:var(--text-muted)}
+
+.prose{max-width:100%;margin-bottom:clamp(1rem,2.5vw,1.5rem)}
+.prose h3{font-family:var(--fd);font-size:clamp(.95rem,2.2vw,1.1rem);margin:clamp(1rem,3vw,1.8rem) 0 clamp(.3rem,1vw,.6rem);color:var(--text);font-weight:600}
+.prose p{color:var(--text-muted);font-size:clamp(.8rem,1.6vw,.88rem);margin-bottom:.7rem;line-height:1.75}
+.prose strong{color:var(--text);font-weight:600}
+.prose .eq{font-family:var(--fd);font-style:italic;color:var(--warm2);display:block;margin:.5rem 0;padding:clamp(.4rem,1vw,.6rem) clamp(.6rem,1.5vw,1rem);background:#fff;border:1px solid var(--border);border-radius:var(--r);font-size:clamp(.78rem,1.7vw,.95rem);box-shadow:var(--shadow-sm);overflow-x:auto;word-break:break-word}
+.prose .analogy{background:var(--purple-bg);border:1px solid rgba(139,92,246,.15);border-radius:var(--rl);padding:clamp(.6rem,2vw,1rem) clamp(.8rem,2vw,1.2rem);margin:.8rem 0}
+.prose .analogy p{color:var(--text-muted);font-size:clamp(.78rem,1.5vw,.85rem);margin-bottom:.3rem}
+.prose .analogy strong{color:var(--accent)}
+.prose .keyfact{background:var(--cool-bg);border-left:3px solid var(--cool);padding:clamp(.5rem,1.5vw,.8rem) clamp(.6rem,2vw,1rem);border-radius:0 var(--r) var(--r) 0;margin:.8rem 0}
+.prose .keyfact p{color:var(--text-muted);font-size:clamp(.78rem,1.5vw,.85rem);margin:0;line-height:1.7}
+.prose .warn{background:var(--warm-bg);border-left:3px solid var(--warm);padding:clamp(.5rem,1.5vw,.8rem) clamp(.6rem,2vw,1rem);border-radius:0 var(--r) var(--r) 0;margin:.8rem 0}
+.prose .warn p{color:var(--text-muted);font-size:clamp(.78rem,1.5vw,.85rem);margin:0;line-height:1.7}
+
+footer{text-align:center;padding:clamp(1rem,3vw,2rem) var(--pad);color:var(--text-dim);font-size:clamp(9px,1.2vw,11px);border-top:1px solid var(--border);margin-top:2rem;background:#fff}
+
+/* Table responsive wrapper on small screens */
+@media(max-width:700px){
+  .ct{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .vh{flex-direction:column;align-items:stretch;gap:8px}
+  .ctr{width:100%}
+  .sg{width:100%;justify-content:space-between}
+  .sg input[type=range]{flex:1;width:auto;min-width:50px}
+}
+.ibtn{font-size:clamp(9px,1.2vw,11px);font-weight:500;padding:clamp(3px,.8vw,5px) clamp(8px,1.5vw,12px);border:1px solid var(--border);border-radius:13px;background:#fff;color:var(--text-muted);cursor:pointer;touch-action:manipulation;transition:all .2s}
+.ibtn:hover{color:var(--accent);border-color:var(--accent)}
+.eq-label{font-style:normal;font-size:clamp(9px,1.1vw,11px);color:var(--text-dim);display:block;margin-bottom:4px;font-family:system-ui,-apple-system,sans-serif;letter-spacing:.5px;text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-tag">CLIM-715 · George Mason University</div>
+  <h1>Basic Mathematical Tools</h1>
+  <p>Lecture 3 — Taylor series, derivatives, Eulerian/Lagrangian viewpoints, and the physical approximations that make atmospheric modeling possible</p>
+</div>
+
+<div class="tabs" id="tabbar">
+  <button class="tab active" onclick="showTab(0,this)">01 Taylor Series</button>
+  <button class="tab" onclick="showTab(1,this)">02 Mean Value Theorem</button>
+  <button class="tab" onclick="showTab(2,this)">03 Definition of Derivative</button>
+  <button class="tab" onclick="showTab(3,this)">04 Basis of Modeling</button>
+  <button class="tab" onclick="showTab(4,this)">05 Eulerian & Lagrangian</button>
+  <button class="tab" onclick="showTab(5,this)">06 Hydrostatic Approx.</button>
+  <button class="tab" onclick="showTab(6,this)">07 Boussinesq Approx.</button>
+  <button class="tab" onclick="showTab(7,this)">08 Potential Temperature</button>
+  <button class="tab" onclick="showTab(8,this)">09 Exner Function</button>
+  <button class="tab" onclick="showTab(9,this)">10 Continuity Equation</button>
+  <button class="tab" onclick="showTab(10,this)">11 Anelastic Approx.</button>
+  <button class="tab" onclick="showTab(11,this)">12 Scalar Equation</button>
+</div>
+
+<!-- ==================== PANEL 0: TAYLOR SERIES ==================== -->
+<div class="panel active" id="p0">
+  <div class="sh"><div class="sh-num">Concept 01</div><h2>Taylor Series — The Foundation of Everything</h2><p class="lead">The mathematical bridge that converts calculus into arithmetic — the single most important tool in numerical modeling.</p></div>
+
+  <div class="prose">
+    <h3>Why do we need Taylor series?</h3>
+    <p>In weather and climate modeling, we need to predict the future. The laws of physics give us equations with <strong>derivatives</strong> (rates of change), but computers <strong>cannot do calculus</strong>. They can only add, subtract, multiply, and divide. The Taylor series converts derivatives into arithmetic — it lets us approximate any smooth function using only basic operations.</p>
+
+    <div class="analogy">
+      <p><strong>Road analogy:</strong></p>
+      <p>You're standing at a point on a curvy road. You know your position (the function value) and which direction the road goes (the derivative). You can guess where the road will be a short distance ahead by extrapolating along the slope. Add curvature information, and the guess improves. That's the Taylor series — reconstructing a function from local information.</p>
+    </div>
+
+    <h3>The formula</h3>
+    <div class="eq">f(x) = f(x₀) + f'(x₀)(x − x₀) + f''(x₀)(x − x₀)² / 2! + f'''(x₀)(x − x₀)³ / 3! + ⋯</div>
+    <p>In compact notation:</p>
+    <div class="eq">f(x) = Σ<sub>k=0</sub><sup>∞</sup> f<sup>(k)</sup>(x₀) · (x − x₀)<sup>k</sup> / k!</div>
+  </div>
+
+  <div class="vp">
+    <div class="vh"><h4>Taylor Approximation of sin(x) — Interactive</h4>
+    <div class="ctr">
+      <div class="sg"><label>Terms</label><input type="range" id="ts-n" min="1" max="8" value="1" oninput="tsDraw()"><span id="ts-nv">1</span></div>
+      <div class="sg"><label>x₀</label><input type="range" id="ts-x0" min="-30" max="30" value="0" oninput="tsDraw()"><span id="ts-x0v">0.0</span></div>
+    </div></div>
+    <div class="vb"><div class="vw"><canvas id="cv-ts" height="320"></canvas></div>
+    <div class="vl"><span><span class="sw" style="background:var(--cool)"></span>True function sin(x)</span><span><span class="sw" style="background:var(--warm);border-top:2px dashed var(--warm);height:0"></span>Taylor approximation</span><span style="display:inline-flex;align-items:center"><span style="width:8px;height:8px;border-radius:50%;background:var(--text-dim);display:inline-block;margin-right:3px"></span>Expansion point</span></div>
+    <p class="vn" id="ts-formula">f(x) ≈ 0</p>
+    <p class="vn">Drag "Terms" from 1→8 and watch the orange curve match the blue curve more closely. More terms = better approximation near x₀.</p>
+    </div>
+  </div>
+
+  <div class="prose">
+    <h3>Building it up term by term</h3>
+    <p><strong>0th order (just the value):</strong> f(x) ≈ f(x₀). A flat horizontal line — terrible everywhere except exactly at x₀.</p>
+    <p><strong>1st order (add slope):</strong> f(x) ≈ f(x₀) + f'(x₀)·(x − x₀). The tangent line — good very close to x₀.</p>
+    <p><strong>2nd order (add curvature):</strong> Adds a parabolic bend. For sin(x) at x₀ = 0, the second derivative is zero, so this doesn't help.</p>
+    <p><strong>3rd order:</strong> f(x) ≈ x − x³/6. Now the approximation curves and follows sin(x) much further.</p>
+
+    <h3>Each term has three pieces</h3>
+  </div>
+
+  <div class="cg cg3">
+    <div class="card" style="border-top:3px solid var(--cool)"><h3 style="color:var(--cool2)">f<sup>(k)</sup>(x₀)</h3><p>The k-th derivative evaluated at x₀ — captures the <strong>shape</strong> of the function at your known point.</p></div>
+    <div class="card" style="border-top:3px solid var(--accent)"><h3 style="color:var(--accent)">(x − x₀)<sup>k</sup></h3><p>Distance raised to the k-th power — grows fast as you move away from x₀.</p></div>
+    <div class="card" style="border-top:3px solid var(--warm)"><h3 style="color:var(--warm2)">1 / k!</h3><p>The factorial shrinks rapidly: 1, 1, ½, ⅙, 1/24, 1/120… This is why the series <strong>converges</strong>.</p></div>
+  </div>
+
+  <div class="prose">
+    <h3>Convergence: why truncation works</h3>
+    <p>With infinite terms, the Taylor series is <strong>exact</strong>. But computers can't sum infinitely many terms. We <strong>truncate</strong>. The factorial in the denominator makes each term contribute less: the 10th term is 3,628,800× smaller than the first. This rapid shrinkage — <strong>convergence</strong> — justifies stopping after a few terms.</p>
+
+    <div class="keyfact">
+      <p><strong style="color:var(--cool2)">The punchline for modeling:</strong> Future temperature ≈ current temperature + (rate of change) × (time step). That's the truncated Taylor series: <em>T(t + Δt) ≈ T(t) + (dT/dt)·Δt</em>. Every time-stepping scheme in this course is built from this idea.</p>
+    </div>
+
+    <h3>Worked example: polynomial</h3>
+    <p>f(x) = 4x³ + 2x² − 5x + 1, expanded about x₀ = 2:</p>
+    <p>f(2) = <strong>31</strong>, f'(2) = <strong>51</strong>, f''(2) = <strong>52</strong>, f'''(2) = <strong>24</strong>, f''''(2) = 0.</p>
+    <div class="eq">f(x) = 31 + 51(x−2) + 26(x−2)² + 4(x−2)³</div>
+    <p>Since f is a cubic, all derivatives of order 4+ are zero — the Taylor series <strong>terminates exactly</strong>. No truncation error. This is a special case; for sin, exp, etc., the series is infinite.</p>
+  </div>
+</div>
+
+<!-- ==================== PANEL 1: MVT ==================== -->
+<div class="panel" id="p1">
+  <div class="sh"><div class="sh-num">Concept 02</div><h2>The Mean Value Theorem</h2><p class="lead">Even a crude one-term truncation gives an exact derivative — if you evaluate it at exactly the right (unknown) point.</p></div>
+
+  <div class="prose">
+    <h3>From Taylor series to MVT</h3>
+    <p>Truncate to first order: <em>f(x) ≈ f(x₀) + f'(x₀)(x − x₀)</em>. This is approximate. But MVT says: <strong>there exists a special point x* between x₀ and x</strong> where:</p>
+    <div class="eq">f(x) = f(x₀) + f'(x*)(x − x₀) &nbsp;&nbsp;&nbsp; ← exact!</div>
+    <p>No truncation error. The catch: we don't know where x* is — just that it exists.</p>
+
+    <div class="analogy">
+      <p><strong>Driving analogy:</strong></p>
+      <p>Drive 25 miles in 30 minutes → average speed = 50 mph. MVT guarantees that at <strong>some moment</strong> during the drive, your speedometer read exactly 50 mph.</p>
+    </div>
+  </div>
+
+  <div class="vp">
+    <div class="vh"><h4>MVT — Secant vs. Tangent at x*</h4>
+    <div class="ctr">
+      <div class="sg"><label>Point a</label><input type="range" id="mv-a" min="-50" max="20" value="-10" oninput="mvDraw()"><span id="mv-av">-1.0</span></div>
+      <div class="sg"><label>Point b</label><input type="range" id="mv-b" min="-20" max="60" value="30" oninput="mvDraw()"><span id="mv-bv">3.0</span></div>
+    </div></div>
+    <div class="vb"><div class="vw"><canvas id="cv-mv" height="320"></canvas></div>
+    <div class="vl"><span><span class="sw" style="background:var(--cool)"></span>f(x) = sin(x)+0.3x</span><span><span class="sw" style="background:var(--warm);border-top:2px dashed var(--warm);height:0"></span>Secant line</span><span><span class="sw" style="background:#0d9488;border-top:2px dashed #0d9488;height:0"></span>Tangent at x*</span></div>
+    <p class="vn" id="mv-info">The green tangent at x* is always parallel to the orange secant — MVT guarantees this.</p>
+    </div>
+  </div>
+
+  <div class="prose">
+    <h3>Rearranging gives the derivative</h3>
+    <div class="eq">f'(x*) = [f(x) − f(x₀)] / (x − x₀)</div>
+    <p>This is the <strong>finite difference formula</strong> — the ratio of function-value difference to position difference. MVT tells us it equals the exact derivative at some intermediate point x*. This is the theoretical backbone of finite differencing.</p>
+
+    <h3>The generalized MVT</h3>
+    <p>Keep any number of terms; if the last derivative is evaluated at the right intermediate point, the formula becomes exact. This reveals the <strong>form</strong> of the truncation error.</p>
+
+    <h3>Self-check</h3>
+    <p>f(x) = x² on [1, 3]. Secant slope = (9−1)/2 = 4. f'(x) = 2x → need 2x* = 4 → x* = 2. Indeed, x* = 2 is between 1 and 3.</p>
+  </div>
+</div>
+
+<!-- ==================== PANEL 2: DERIVATIVE ==================== -->
+<div class="panel" id="p2">
+  <div class="sh"><div class="sh-num">Concept 03</div><h2>Definition of the Derivative</h2><p class="lead">The derivative IS a finite difference — MVT makes this rigorous. But computers can never take Δx → 0.</p></div>
+
+  <div class="prose">
+    <p>From MVT: f'(x*) = [f(x₀+Δx) − f(x₀)] / Δx is <strong>exact</strong> at the unknown x*. As an approximation at x₀:</p>
+    <div class="eq">f'(x₀) ≈ [f(x₀+Δx) − f(x₀)] / Δx</div>
+    <p>In the limit: f'(x₀) = lim<sub>Δx→0</sub> [f(x₀+Δx) − f(x₀)] / Δx. But <strong>computers cannot take limits</strong> — we're always stuck with finite Δx and therefore always working with an approximation.</p>
+  </div>
+
+  <div class="vp">
+    <div class="vh"><h4>Finite Difference Accuracy — Interactive</h4>
+    <div class="ctr">
+      <div class="sg"><label>Δx</label><input type="range" id="fd-dx" min="1" max="40" value="25" oninput="fdDraw()"><span id="fd-dxv">2.50</span></div>
+      <div class="sg"><label>x₀</label><input type="range" id="fd-x0" min="-30" max="30" value="8" oninput="fdDraw()"><span id="fd-x0v">0.8</span></div>
+    </div></div>
+    <div class="vb"><div class="vw"><canvas id="cv-fd" height="300"></canvas></div>
+    <div class="vl"><span><span class="sw" style="background:var(--cool)"></span>f(x) = sin(x)</span><span><span class="sw" style="background:#0d9488"></span>True tangent</span><span><span class="sw" style="background:var(--warm);border-top:2px dashed var(--warm);height:0"></span>Finite difference</span></div>
+    </div>
+  </div>
+
+  <div class="ss">
+    <div class="si"><div class="sv" id="fd-true">—</div><div class="sl">True f'(x₀)</div></div>
+    <div class="si"><div class="sv" id="fd-approx" style="color:var(--warm)">—</div><div class="sl">FD Approximation</div></div>
+    <div class="si"><div class="sv" id="fd-err" style="color:var(--red)">—</div><div class="sl">Error</div></div>
+  </div>
+
+  <div class="prose" style="margin-top:1.5rem">
+    <div class="keyfact"><p><strong style="color:var(--cool2)">Key insight:</strong> Smaller Δx → better accuracy, but more grid points needed → more computation. This is the fundamental tradeoff of numerical modeling. Sharp features (fronts, coastlines) need finer grids precisely where the finite difference approximation is poorest.</p></div>
+  </div>
+</div>
+
+<!-- ==================== PANEL 3: BASIS OF MODELING ==================== -->
+<div class="panel" id="p3">
+  <div class="sh"><div class="sh-num">Concept 04</div><h2>The Basis of Modeling</h2><p class="lead">Switch from space to time: the Taylor series becomes the time-stepping engine of every weather model ever built.</p></div>
+
+  <div class="prose">
+    <h3>The fundamental formula</h3>
+    <p>Replace x with t in the truncated Taylor series:</p>
+    <div class="eq" style="font-size:1.1rem;text-align:center;color:var(--accent)">Future ≈ Present + Rate of Change × Time Step</div>
+    <div class="eq">f(t₂) ≈ f(t₁) + f'(t₁) · Δt</div>
+  </div>
+
+  <div class="vp">
+    <div class="vh"><h4>Euler Forward Time-Stepping</h4>
+    <div class="ctr">
+      <div class="sg"><label>Δt</label><input type="range" id="bm-dt" min="1" max="25" value="15" oninput="bmDraw()"><span id="bm-dtv">1.50</span></div>
+      <div class="sg"><label>Steps</label><input type="range" id="bm-n" min="1" max="12" value="1" oninput="bmDraw()"><span id="bm-nv">1</span></div>
+    </div></div>
+    <div class="vb"><div class="vw"><canvas id="cv-bm" height="320"></canvas></div>
+    <div class="vl"><span><span class="sw" style="background:var(--cool)"></span>True temperature</span><span><span class="sw" style="background:var(--warm)"></span>Numerical prediction</span><span><span class="sw" style="background:#0d9488;border-top:2px dashed #0d9488;height:0"></span>Tangent (current rate)</span></div>
+    <p class="vn">Try: 1 step with small Δt (accurate) vs large Δt (overshoot). Then increase steps — errors accumulate over time.</p>
+    </div>
+  </div>
+
+  <div class="cg cg3" style="margin-top:1.5rem">
+    <div class="card"><h3 style="color:var(--cool2)">Step 1: Know the present</h3><p>At t₁ = 0, measure T = 20°C. This is your <strong>initial condition</strong>.</p></div>
+    <div class="card"><h3 style="color:var(--accent)">Step 2: Physics gives tendency</h3><p>Governing equations yield dT/dt = +3.5 °C/hr. This is the <strong>rate of change</strong>.</p></div>
+    <div class="card"><h3 style="color:var(--warm2)">Step 3: Extrapolate</h3><p>T(t₂) ≈ 20 + 3.5 × 1 = 23.5°C. This is <strong>prediction via Taylor series</strong>.</p></div>
+  </div>
+
+  <div class="prose">
+    <h3>Three critical points</h3>
+    <p><strong>1. Derivative at present time:</strong> f'(t₁) is used, not f'(t₂). This makes the scheme <strong>explicit</strong> — meaning the future value is computed directly from known present values, with no need to solve equations. The alternative, an <strong>implicit</strong> scheme, would use f'(t₂) — but we don't know the future yet, so that requires solving a system of equations (more expensive, but often more stable).</p>
+    <p><strong>2. Extrapolation involves error:</strong> <strong>Extrapolation</strong> means projecting <em>beyond</em> your known data — guessing about a region where you have no measurements. This is riskier than <strong>interpolation</strong> (estimating <em>between</em> known points). The error from extrapolation is proportional to (Δt)². Halving the time step reduces per-step error by ~4×.</p>
+    <p><strong>3. You need governing equations:</strong> Taylor series tells you <em>how</em> to step; physics tells you <em>what</em> f'(t&#8321;) is: &part;T/&part;t = &minus;<b>V</b>&middot;&nabla;T + &nabla;&sup2;KT + S.</p>
+
+    <div class="warn"><p><strong style="color:var(--warm2)">The modeling recipe:</strong> (1) Start with ICs → (2) Compute tendencies from governing equations → (3) Step forward: future = present + tendency × Δt → (4) Repeat. Every scheme in this course is a more clever version of step 3.</p></div>
+  </div>
+</div>
+
+<!-- ==================== PANEL 4: EULERIAN & LAGRANGIAN ==================== -->
+<div class="panel" id="p4">
+  <div class="sh"><div class="sh-num">Concept 05</div><h2>Eulerian &amp; Lagrangian Viewpoints</h2><p class="lead">Two ways to watch a moving fluid — their difference produces the advection term, the most important term in atmospheric equations.</p></div>
+
+  <div class="cg cg2">
+    <div class="card" style="border-top:3px solid var(--warm)"><div class="ci" style="background:var(--warm-bg);color:var(--warm)">E</div><h3>Eulerian (Stand on bridge)</h3><p>Fixed thermometer in the river. Different water flows past your sensor. Temperature changes because (a) different-temperature water arrives, and (b) the water itself may be heating/cooling.</p><div class="eb"><div class="el">Notation</div>&part;T/&part;t &mdash; partial derivative, fixed location</div></div>
+    <div class="card" style="border-top:3px solid var(--cool)"><div class="ci" style="background:var(--cool-bg);color:var(--cool)">L</div><h3>Lagrangian (Float in kayak)</h3><p>Thermometer drifts with the current, always measuring the <strong>same parcel</strong>. Temperature changes only from physical heating/cooling &mdash; not from different water arriving.</p><div class="eb"><div class="el">Notation</div>dT/dt &mdash; total derivative, following parcel</div></div>
+  </div>
+
+  <div class="prose">
+    <h3>The chain rule connects them</h3>
+    <p>Since T depends on x, y, z, and t, and the parcel moves (dx/dt = u, dy/dt = v, dz/dt = w):</p>
+    <div class="eq">dT/dt = &part;T/&part;t + u&middot;&part;T/&part;x + v&middot;&part;T/&part;y + w&middot;&part;T/&part;z</div>
+    <div class="eq" style="color:var(--accent);font-size:1.05rem;text-align:center">dT/dt = &part;T/&part;t + <b style="color:var(--text)">V</b> &middot; &nabla;T</div>
+    <p>The term <strong>V&middot;&nabla;T</strong> is <strong>advection</strong> &mdash; how much temperature at a fixed point changes because wind blows different-temperature air in.</p>
+  </div>
+
+  <div class="vp">
+    <div class="vh"><h4>Eulerian vs. Lagrangian Observer — Animated</h4>
+    <div class="ctr">
+      <div class="sg"><label>Time</label><input type="range" id="el-t" min="0" max="100" value="0" oninput="elDraw()"><span id="el-tv">0.0</span></div>
+      <button onclick="elToggle()" id="el-btn" class="ibtn">Play</button>
+    </div></div>
+    <div class="vb"><div class="vw"><canvas id="cv-el" height="360"></canvas></div>
+    <div class="vl"><span style="display:inline-flex;align-items:center"><span style="width:8px;height:8px;border-radius:50%;background:var(--warm);display:inline-block;margin-right:3px"></span>Eulerian (fixed)</span><span style="display:inline-flex;align-items:center"><span style="width:8px;height:8px;border-radius:50%;background:var(--cool);display:inline-block;margin-right:3px"></span>Lagrangian (moving)</span></div>
+    </div>
+  </div>
+
+  <div class="prose">
+    <h3>Concrete example: cold front</h3>
+    <p>Winter day. Northerly wind at 10 m/s. Air to the north is 5°C colder per 100 km.</p>
+    <p><strong>Advection:</strong> v&middot;&part;T/&part;y = (&minus;10)(+5&times;10<sup>&minus;5</sup>) &asymp; &minus;1.8 &deg;C/hour (cold advection)</p>
+    <p><strong>Lagrangian:</strong> Radiative cooling at &minus;0.5&deg;C/hour</p>
+    <p><strong>Eulerian total:</strong> &part;T/&part;t = &minus;0.5 &minus; 1.8 = <strong>&minus;2.3 &deg;C/hour</strong></p>
+
+    <div class="keyfact"><p><strong style="color:var(--cool2)">Key operator identity:</strong> d/dt = &part;/&part;t + <b>V</b>&middot;&nabla;. This appears in every governing equation. The general prognostic equation &part;&psi;/&part;t = &minus;<b>V</b>&middot;&nabla;&psi; + &nabla;&sup2;K&psi; + S has advection as the conversion factor between viewpoints.</p></div>
+  </div>
+</div>
+
+<!-- ==================== PANEL 5: HYDROSTATIC ==================== -->
+<div class="panel" id="p5">
+  <div class="sh"><div class="sh-num">Concept 06</div><h2>The Hydrostatic Approximation</h2><p class="lead">The vertical pressure gradient (~976 cm/s²) and gravity (~980 cm/s²) nearly perfectly cancel. This simplifies the vertical momentum equation dramatically.</p></div>
+
+  <div class="prose">
+    <h3>The hydrostatic equation</h3>
+    <div class="eq" style="font-size:1.1rem;text-align:center;color:var(--accent)">dp/dz = −ρg</div>
+    <p>Pressure decreases with height at a rate equal to density times gravity. This represents the balance between the upward pressure gradient force and the downward pull of gravity.</p>
+  </div>
+
+  <div class="vp">
+    <div class="vh"><h4>Hydrostatic Balance — Force Comparison</h4>
+    <div class="ctr"><div class="sg"><label>Altitude</label><input type="range" id="hy-z" min="0" max="90" value="10" oninput="hyDraw()"><span id="hy-zv">1.0 km</span></div></div></div>
+    <div class="vb"><div class="vw"><canvas id="cv-hy" height="360"></canvas></div>
+    <div class="vl"><span><span class="sw" style="background:var(--cool)"></span>PGF (upward)</span><span><span class="sw" style="background:var(--warm)"></span>Gravity (downward)</span></div>
+    <p class="vn">Drag altitude from 0→9 km. At every level, the two arrows are nearly identical in length — hydrostatic balance.</p>
+    </div>
+  </div>
+
+  <div class="ss">
+    <div class="si"><div class="sv">976</div><div class="sl">PGF (cm/s²) at MSL</div></div>
+    <div class="si"><div class="sv">980</div><div class="sl">Gravity (cm/s²)</div></div>
+    <div class="si"><div class="sv">10⁴×</div><div class="sl">Vert / Horiz PG ratio</div></div>
+    <div class="si"><div class="sv">&lt;0.5%</div><div class="sl">Net imbalance</div></div>
+  </div>
+
+  <div class="prose" style="margin-top:1.5rem">
+    <h3>What does the approximation do?</h3>
+    <p><strong>Without:</strong> Solve dw/dt = −(1/ρ)∂p/∂z − g. This is a <strong>prognostic</strong> equation — it predicts how vertical velocity <em>evolves over time</em>, requiring computation at every time step. Expensive, and supports fast acoustic waves that force tiny time steps.</p>
+    <p><strong>With:</strong> Replace with (1/ρ)∂p/∂z = −g. This is a <strong>diagnostic</strong> equation — it tells you the relationship between pressure and height at any <em>instant</em>, with no time derivative. No time stepping needed, no acoustic waves. Much cheaper.</p>
+    <div class="analogy">
+      <p><strong>Prognostic vs. diagnostic:</strong></p>
+      <p>A <strong>prognostic</strong> equation is like a recipe: "Start with X, do this each minute, and you'll get Y after an hour." It marches forward in time step by step.</p>
+      <p>A <strong>diagnostic</strong> equation is like a formula: "Given X, Y must be this." It's a snapshot — no history, no time stepping. Just an instant relationship.</p>
+    </div>
+
+    <h3>When does it break down?</h3>
+    <p>Valid when L<sub>x</sub> ≫ L<sub>z</sub> (synoptic-scale, global models). Fails for: thunderstorm updrafts (~30 m/s), sea-breeze fronts, turbulent eddies → need <strong>non-hydrostatic models</strong> (WRF).</p>
+  </div>
+</div>
+
+<!-- ==================== PANEL 6: BOUSSINESQ ==================== -->
+<div class="panel" id="p6">
+  <div class="sh"><div class="sh-num">Concept 07</div><h2>The Boussinesq Approximation</h2><p class="lead">Density perturbations are tiny (&lt;1-2%) — ignore them everywhere except in the buoyancy term, where gravity amplifies them into convection.</p></div>
+
+  <div class="prose">
+    <h3>Split variables into reference + perturbation</h3>
+    <div class="eq">ρ(x,y,z,t) = ρ₀(z) + ρ'(x,y,z,t) &nbsp;&nbsp;&nbsp; where ρ' ≪ ρ₀</div>
+    <div class="analogy">
+      <p><strong>What is a "perturbation"?</strong></p>
+      <p>Think of the average ocean depth (the reference state ρ₀) versus the waves on top (the perturbation ρ'). The waves are tiny compared to the total depth, but they're the interesting part — they carry energy and do things. Similarly, density <strong>perturbations</strong> are small departures from the average, but they drive weather.</p>
+    </div>
+  </div>
+
+  <div class="cg cg2">
+    <div class="card" style="border-left:3px solid var(--cool)"><h3>Rule 1: Replace ρ with ρ₀ everywhere</h3><p>In the pressure gradient terms (1/ρ factor), using ρ₀ instead of ρ introduces &lt;1% error — negligible.</p></div>
+    <div class="card" style="border-left:3px solid var(--warm)"><h3>Rule 2: KEEP ρ' in buoyancy</h3><p>The <strong>buoyancy</strong> term is the force that makes warm air rise and cold air sink. It's the term where density difference is multiplied by gravity: −(ρ'/ρ₀)g. Even a 0.5% density difference, amplified by g = 9.8 m/s², produces enough acceleration to build thermals and thunderstorms.</p></div>
+  </div>
+
+  <div class="prose">
+    <h3>The temperature-density connection</h3>
+    <div class="eq" style="text-align:center;color:var(--accent)">ρ'/ρ ≈ −θ'/θ</div>
+    <p>Warm parcel (θ' &gt; 0) → less dense (ρ' &lt; 0) → <strong>rises</strong>. Cold parcel → denser → <strong>sinks</strong>. Density differences can be computed from temperature alone!</p>
+
+    <p><strong>Valid for:</strong> Shallow layers (PBL), ocean modeling, lab convection.</p>
+    <p><strong>Fails for:</strong> Deep convection spanning the troposphere. Use <strong>anelastic</strong> instead.</p>
+  </div>
+</div>
+
+<!-- ==================== PANEL 7: POTENTIAL TEMPERATURE ==================== -->
+<div class="panel" id="p7">
+  <div class="sh"><div class="sh-num">Concept 08</div><h2>Potential Temperature (θ)</h2><p class="lead">A temperature-like variable that only changes when heat is physically added or removed — immune to "trivial" pressure changes.</p></div>
+
+  <div class="prose">
+    <h3>The problem with regular temperature</h3>
+    <p>Lift a parcel 3 km → T drops ~30°C. No heat was exchanged — it cooled simply by expanding at lower pressure. This "trivial" cooling makes T a poor tracer of actual heating/cooling.</p>
+
+    <h3>Definition</h3>
+    <div class="eq" style="text-align:center;font-size:1.1rem;color:var(--accent)">θ = T · (p₀/p)<sup>R<sub>d</sub>/c<sub>pd</sub></sup> &nbsp;&nbsp;&nbsp; where p₀ = 1000 mb, R<sub>d</sub>/c<sub>pd</sub> ≈ 0.286</div>
+    <p>θ is the temperature a parcel <em>would have</em> if brought adiabatically to 1000 mb.</p>
+  </div>
+
+  <div class="vp">
+    <div class="vh"><h4>T vs. θ Vertical Profiles</h4>
+    <div class="ctr">
+      <div class="sg"><label>Parcel altitude</label><input type="range" id="pt-z" min="0" max="90" value="30" oninput="ptDraw()"><span id="pt-zv">3.0 km</span></div>
+      <div class="sg"><label>Lapse rate</label><input type="range" id="pt-lr" min="30" max="100" value="65" oninput="ptDraw()"><span id="pt-lrv">6.5 °C/km</span></div>
+    </div></div>
+    <div class="vb"><div class="vw"><canvas id="cv-pt" height="380"></canvas></div>
+    <div class="vl"><span><span class="sw" style="background:var(--warm)"></span>Actual temperature T</span><span><span class="sw" style="background:var(--cool)"></span>Potential temperature θ</span><span><span class="sw" style="background:var(--accent);border-top:2px dashed var(--accent);height:0"></span>Dry adiabat</span></div>
+    <p class="vn">Left: T changes along adiabat (−9.8°C/km). Right: θ is CONSTANT along adiabat — a vertical line! θ is conserved in adiabatic processes.</p>
+    <p class="vn"><strong>Lapse rate</strong> = how fast temperature drops with altitude in the environment. The standard atmosphere is ~6.5°C/km. The <strong>dry adiabatic lapse rate</strong> (DALR) is always 9.8°C/km — this is the rate at which a rising parcel cools due to expansion alone.</p>
+    </div>
+  </div>
+
+  <div class="prose">
+    <h3>Why θ is conserved</h3>
+    <p>When a parcel rises: T decreases (expansion), (p₀/p)<sup>κ</sup> increases (lower p). These <strong>exactly cancel</strong> — by design.</p>
+
+    <h3>Adiabatic vs. diabatic: the two types of processes</h3>
+    <div class="analogy">
+      <p><strong>Adiabatic process</strong> ("no heat crossing the boundary")</p>
+      <p>The parcel changes temperature purely from being compressed or expanded by surrounding pressure — like a bicycle pump getting warm when you squeeze it, or a spray can getting cold when gas escapes. <strong>No heat enters or leaves</strong> the parcel from the outside. θ is <strong>conserved</strong> (unchanged) during adiabatic processes.</p>
+    </div>
+    <div class="warn">
+      <p><strong>Diabatic process</strong> ("heat crosses the boundary")</p>
+      <p>The parcel actually <strong>gains or loses heat</strong> from an external source. These are the processes that <strong>do change θ</strong>:</p>
+      <p>→ <strong>Radiation:</strong> The parcel absorbs sunlight or emits infrared heat to space</p>
+      <p>→ <strong>Latent heating:</strong> Water vapor condenses inside the parcel, releasing stored heat (this is why thunderstorms are so energetic)</p>
+      <p>→ <strong>Turbulent mixing:</strong> The parcel mixes with neighboring air at a different temperature</p>
+      <p>→ <strong>Surface contact:</strong> Air touching warm ground heats up; air touching cold snow cools down</p>
+    </div>
+    <p>In summary: θ changes <strong>only</strong> during diabatic processes. If none of these are happening (purely adiabatic motion), dθ/dt = 0 — θ is perfectly conserved, no matter how far the parcel travels vertically.</p>
+
+    <h3>Why models use θ instead of T</h3>
+  </div>
+
+  <div class="cg cg3">
+    <div class="card"><h3 style="color:var(--cool2)">Simpler equations</h3><p>dθ/dt = diabatic terms only. If no heating: dθ/dt = 0. The big "trivial" adiabatic terms vanish completely.</p></div>
+    <div class="card"><h3 style="color:var(--accent)">Direct stability</h3><p>dθ/dz &gt; 0: <strong>stable</strong> (displaced parcel returns — like a ball in a bowl). dθ/dz = 0: <strong>neutral</strong> (parcel stays wherever moved). dθ/dz &lt; 0: <strong>unstable</strong> (displaced parcel accelerates away — triggers convection).</p></div>
+    <div class="card"><h3 style="color:var(--warm2)">Conservation</h3><p>θ is conserved in adiabatic flow — if a model produces spurious θ changes, you know there's a numerical error.</p></div>
+  </div>
+</div>
+
+<!-- ==================== PANEL 8: EXNER ==================== -->
+<div class="panel" id="p8">
+  <div class="sh"><div class="sh-num">Concept 09</div><h2>The Exner Function (π)</h2><p class="lead">A non-dimensional pressure that pairs with θ to eliminate density from the hydrostatic equation.</p></div>
+
+  <div class="prose">
+    <h3>Definition</h3>
+    <div class="eq" style="text-align:center;color:var(--accent)">π = (p / p₀)<sup>R<sub>d</sub>/c<sub>pd</sub></sup></div>
+    <p><strong>Non-dimensional</strong> means π has no units — it's just a pure number between 0 and 1. This is because we divided pressure by the reference pressure (mb ÷ mb = unitless), then raised it to a power. Working with unitless numbers simplifies the math and improves numerical stability.</p>
+    <h3>The beautiful relationship</h3>
+    <div class="eq" style="font-size:1.1rem;text-align:center;color:var(--accent)">T = θ · π</div>
+    <p>Temperature = potential temperature × Exner function. π encodes all pressure information needed to convert between T and θ.</p>
+  </div>
+
+  <div class="ss">
+    <div class="si"><div class="sv">1.000</div><div class="sl">π at surface</div></div>
+    <div class="si"><div class="sv">0.954</div><div class="sl">π at 850 mb</div></div>
+    <div class="si"><div class="sv">0.819</div><div class="sl">π at 500 mb</div></div>
+    <div class="si"><div class="sv">0.699</div><div class="sl">π at 300 mb</div></div>
+  </div>
+
+  <div class="prose" style="margin-top:1.5rem">
+    <h3>The payoff: simplified hydrostatic equation</h3>
+    <p>Original: dp/dz = −ρg (three variables: p, ρ, z, needs equation of state).</p>
+    <p>After substituting π and T = θ·π, density cancels:</p>
+    <div class="eq" style="font-size:1.1rem;text-align:center;color:var(--accent)">dπ/dz = −g / (c<sub>pd</sub> · θ<sub>v</sub>)</div>
+    <p>Only <strong>two variables</strong> (π, θ<sub>v</sub>) plus constants. Density eliminated! Numerically cleaner because π varies gently (0→1) compared to p's exponential decay.</p>
+
+    <h3>Virtual potential temperature</h3>
+    <div class="eq">θ<sub>v</sub> = θ(1 + 0.61·q<sub>v</sub>)</div>
+    <p>The <strong>virtual</strong> temperature is a trick to account for moisture without rewriting the ideal gas law. Moist air is actually <em>lighter</em> than dry air at the same temperature — because water vapor molecules (H₂O, molecular weight 18) are lighter than nitrogen (N₂ = 28) and oxygen (O₂ = 32). The 0.61·q<sub>v</sub> correction bumps up θ slightly in moist air to reflect this lower density. In dry air (q<sub>v</sub> = 0), θ<sub>v</sub> = θ exactly.</p>
+  </div>
+</div>
+
+<!-- ==================== PANEL 9: CONTINUITY ==================== -->
+<div class="panel" id="p9">
+  <div class="sh"><div class="sh-num">Concept 10</div><h2>The Continuity Equation</h2><p class="lead">Conservation of mass — air cannot be created or destroyed. Connects winds to density changes.</p></div>
+
+  <div class="prose">
+    <h3>Lagrangian form</h3>
+    <div class="eq">d&rho;/dt + &rho; &middot; &nabla;&middot;<b>V</b> = 0</div>
+    <p>The symbol <strong>&nabla;&middot;V</strong> is called <strong>divergence</strong> — it measures whether the flow is spreading out (positive, like air blowing away from a point) or converging (negative, like air flowing toward a low-pressure center). If flow <strong>diverges</strong> (&nabla;&middot;V &gt; 0): parcel expands, density decreases. If flow <strong>converges</strong>: parcel is compressed, density increases.</p>
+
+    <h3>Eulerian (flux) form</h3>
+    <div class="eq">&part;&rho;/&part;t + &nabla;&middot;(&rho;<b>V</b>) = 0</div>
+    <p>Density at a fixed point changes when mass flux in ≠ mass flux out.</p>
+  </div>
+
+  <div class="vp">
+    <div class="vh"><h4>Divergence &amp; Continuity — Interactive</h4>
+    <div class="ctr"><div class="sg"><label>∇·V</label><input type="range" id="co-div" min="-10" max="10" value="5" oninput="coStart()"><span id="co-divv">Divergent</span></div></div></div>
+    <div class="vb"><div class="vw"><canvas id="cv-co" height="300"></canvas></div>
+    <div class="vl"><span>Dots = air molecules (fixed count = mass conserved)</span></div>
+    </div>
+  </div>
+
+  <div class="ss">
+    <div class="si"><div class="sv" id="co-vol">—</div><div class="sl">Parcel volume</div></div>
+    <div class="si"><div class="sv" id="co-rho">—</div><div class="sl">Relative density</div></div>
+  </div>
+
+  <div class="prose" style="margin-top:1.5rem">
+    <h3>The incompressible limit</h3>
+    <p>If d&rho;/dt = 0: <strong>&nabla;&middot;<b>V</b> = 0</strong>. Whatever flows in must flow out. Valid when u&sup2; &Lt; c<sub>s</sub>&sup2;, and L<sub>z</sub> &Lt; scale height (~8.5 km). The <strong>scale height</strong> is the altitude over which atmospheric pressure drops by a factor of <em>e</em> (≈2.718) — roughly 8.5 km. If your circulation is much shallower than this (e.g., a boundary layer process at 1 km), the incompressible assumption works. But many weather systems span 10+ km, violating this condition.</p>
+  </div>
+</div>
+
+<!-- ==================== PANEL 10: ANELASTIC ==================== -->
+<div class="panel" id="p10">
+  <div class="sh"><div class="sh-num">Concept 11</div><h2>The Anelastic Approximation</h2><p class="lead">The sweet spot — density varies with height but not in time. Filters sound waves, allows deep circulations, enables large time steps.</p></div>
+
+  <div class="prose">
+    <div class="eq" style="font-size:1.1rem;text-align:center;color:var(--accent)">&nabla; &middot; (&rho;&#8320; <b>V</b>) = 0</div>
+    <p>Density varies with height through &rho;&#8320;(z) but &part;&rho;/&part;t = 0. Sound waves (which need density oscillations) are eliminated.</p>
+  </div>
+
+  <table class="ct"><thead><tr><th>Property</th><th style="color:var(--cool)">Full Compressible</th><th>Incompressible</th><th style="color:var(--accent)">Anelastic</th></tr></thead><tbody>
+    <tr><td>Equation</td><td>dρ/dt + ρ∇·V = 0</td><td>∇·V = 0</td><td>∇·(ρ₀V) = 0</td></tr>
+    <tr><td>Density</td><td>Varies in space & time</td><td>Constant everywhere</td><td>Varies with height only</td></tr>
+    <tr><td>Sound waves</td><td>Yes (~350 m/s)</td><td>Filtered</td><td>Filtered</td></tr>
+    <tr><td>Max Δt (1 km grid)</td><td>~3 seconds</td><td>~20 seconds</td><td>~20 seconds</td></tr>
+    <tr><td>Deep circulations</td><td>Yes</td><td>No (shallow only)</td><td>Yes</td></tr>
+    <tr><td>Used in</td><td>WRF (with time-splitting)</td><td>Ocean, shallow PBL</td><td>Many atm. models</td></tr>
+  </tbody></table>
+
+  <div class="prose" style="margin-top:1.5rem">
+    <h3>Why it filters sound waves</h3>
+    <p><strong>What does "filter" mean here?</strong> It means the equation is mathematically <em>incapable</em> of producing sound waves — like removing a piano key so that note can never be played. Sound waves are <strong>compression waves</strong> — they work by alternately squeezing and stretching air at a fixed location, which requires density to oscillate in time (∂ρ/∂t ≠ 0). By setting ∂ρ/∂t = 0, we've removed the restoring mechanism that sound needs. Gravity waves and Rossby waves survive because they work through buoyancy and vorticity, not local density oscillations.</p>
+
+    <div class="keyfact"><p><strong style="color:var(--cool2)">7× speedup:</strong> Without sound waves, the CFL limit is set by wind/gravity wave speed (~50 m/s) instead of sound speed (~350 m/s). This allows ~7× larger time steps — the difference between a 1-day and a 1-week computation.</p></div>
+  </div>
+</div>
+
+<!-- ==================== PANEL 11: SCALAR EQUATION ==================== -->
+<div class="panel" id="p11">
+  <div class="sh"><div class="sh-num">Concept 12</div><h2>The Scalar Equation</h2><p class="lead">The universal template — every prognostic variable in every atmospheric model obeys this equation. Only the source term changes.</p></div>
+
+  <div class="prose">
+    <div class="eq" style="font-size:1.05rem;text-align:center;color:var(--accent)">
+      <span class="eq-label">The Scalar Transport Equation</span>
+      &part;c/&part;t &nbsp;+&nbsp; <b style="color:var(--text)">V</b>&middot;&nabla;c &nbsp;=&nbsp; &nabla;&middot;(&kappa;&nabla;c) &nbsp;+&nbsp; S
+    </div>
+  </div>
+
+  <div class="cg cg2" style="margin-bottom:1.2rem">
+    <div class="card" style="border-top:3px solid var(--cool)"><h3 style="color:var(--cool2)">&part;c/&part;t &mdash; Eulerian tendency</h3><p>Rate of change at a <strong>fixed grid point</strong>. Everything on the right causes this change.</p></div>
+    <div class="card" style="border-top:3px solid var(--accent)"><h3 style="color:var(--accent)"><b>V</b>&middot;&nabla;c &mdash; Advection</h3><p>Wind <strong>carries</strong> the scalar. Preserves total amount. Hyperbolic. <strong>Hardest term numerically.</strong></p></div>
+    <div class="card" style="border-top:3px solid var(--warm)"><h3 style="color:var(--warm2)">&nabla;&middot;(&kappa;&nabla;c) &mdash; Diffusion</h3><p>Turbulent <strong>mixing</strong>. Smooths gradients, like dropping ink in water — it spreads from concentrated to dilute. Parabolic and irreversible: once mixed, you can't un-mix. The <strong>eddy diffusivity</strong> &kappa;<sub>e</sub> &asymp; 1&ndash;100 m&sup2;/s is about a <em>million times</em> larger than molecular diffusivity, because turbulent eddies mix air far more efficiently than individual molecules bouncing around.</p></div>
+    <div class="card" style="border-top:3px solid var(--red)"><h3 style="color:var(--red)">S &mdash; Sources/sinks</h3><p>Everything that creates or destroys the quantity: radiation heating, condensation releasing latent heat, factory emissions, chemical reactions, rain washing pollutants out. This term is where <strong>parameterizations</strong> live — approximate formulas that represent complex physical processes the model can't resolve directly.</p></div>
+  </div>
+
+  <div class="vp">
+    <div class="vh"><h4>1D Advection–Diffusion–Source Simulation</h4>
+    <div class="ctr">
+      <div class="sg"><label>Wind u</label><input type="range" id="sc-u" min="-8" max="8" value="3" oninput="scReset()"><span id="sc-uv">3</span></div>
+      <div class="sg"><label>κ</label><input type="range" id="sc-k" min="0" max="50" value="5" oninput="scReset()"><span id="sc-kv">5</span></div>
+      <div class="sg"><label>Source</label><input type="range" id="sc-s" min="0" max="10" value="0" oninput="scReset()"><span id="sc-sv">0</span></div>
+      <button onclick="scToggle()" id="sc-btn" class="ibtn">Play</button>
+      <button onclick="scReset()" class="ibtn">Reset</button>
+      <span id="sc-time" style="font-size:11px;color:var(--text-dim);font-weight:500">t=0.0</span>
+    </div></div>
+    <div class="vb"><div class="vw"><canvas id="cv-sc" height="300"></canvas></div>
+    <div class="vl"><span><span class="sw" style="background:var(--border-light);border-top:1px dashed var(--text-dim)"></span>Initial</span><span><span class="sw" style="background:var(--cool)"></span>Current</span></div>
+    <p class="vn">Try: (1) u=3,κ=0,S=0 → pure advection (blob slides). (2) u=0,κ=20 → pure diffusion (spreads). (3) u=3,κ=5,S=5 → plume develops.</p>
+    </div>
+  </div>
+
+  <div class="prose">
+    <h3>Mathematical nature: mixed hyperbolic-parabolic</h3>
+    <p>Advection (<b>V</b>&middot;&nabla;c) is <strong>hyperbolic</strong> &mdash; information travels along specific paths (wind trajectories) at a definite speed, like a message being carried downstream. Diffusion (&nabla;&middot;(&kappa;&nabla;c)) is <strong>parabolic</strong> &mdash; information spreads in all directions simultaneously, smoothing everything out and gradually "forgetting" what the initial condition looked like (like perfume diffusing in a room &mdash; eventually it's uniform everywhere). In the free atmosphere (small &kappa;), advection dominates and features stay sharp. In the PBL (large &kappa;), diffusion dominates and everything gets smoothed out.</p>
+
+    <div class="keyfact"><p><strong style="color:var(--cool2)">Universal template:</strong> Every prognostic variable &mdash; T, q, u, v, ozone, pollutants &mdash; follows &part;&psi;/&part;t = &minus;<b>V</b>&middot;&nabla;&psi; + &nabla;&sup2;K&psi; + S. The rest of this course is about solving this equation numerically: finite differences (Lectures 5&ndash;7), time stepping (Lecture 6), stability (Lecture 5), and turbulence parameterization (Lecture 9).</p></div>
+  </div>
+</div>
+
+<footer>
+  CLIM-715 · Numerical Methods for Weather/Climate Modeling · Lecture 3 Study Guide · George Mason University
+</footer>
+
+<script>
+var currentTab=0;
+function showTab(i,btn){
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.getElementById('p'+i).classList.add('active');
+  btn.classList.add('active');
+  currentTab=i;
+  initCanvasesForTab(i);
+  btn.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+}
+
+var COL={bg:'#fafbff',card:'#fff',border:'#e2e8f0',grid:'#cbd5e1',gridFaint:'#e2e8f0',
+  txt:'#1e293b',muted:'#64748b',dim:'#94a3b8',
+  cool:'#14b8a6',cool2:'#0891b2',warm:'#f97316',warm2:'#ea580c',
+  accent:'#7c3aed',accent2:'#8b5cf6',red:'#dc2626'};
+
+function setupCanvas(id){
+  var c=document.getElementById(id);if(!c)return null;
+  var dpr=window.devicePixelRatio||1;
+  if(!c.dataset.origH) c.dataset.origH=c.getAttribute('height')||'400';
+  var origH=parseInt(c.dataset.origH);
+  var w=c.parentElement?c.parentElement.offsetWidth:680;
+  if(w<100)w=680;
+  // Scale height down proportionally on small screens
+  var h=origH;
+  if(w<500) h=Math.round(origH*0.75);
+  else if(w<700) h=Math.round(origH*0.85);
+  c.style.width='100%';
+  c.style.height=h+'px';
+  c.width=Math.round(w*dpr);
+  c.height=Math.round(h*dpr);
+  var x=c.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);
+  return{c:c,x:x,w:w,h:h,dpr:dpr};
+}
+
+function initCanvasesForTab(t){
+  if(t===0)tsDraw();
+  if(t===1)mvDraw();
+  if(t===2)fdDraw();
+  if(t===3)bmDraw();
+  if(t===4)elDraw();
+  if(t===5)hyDraw();
+  if(t===7)ptDraw();
+  if(t===9){coTime=0;coDraw();}
+  if(t===11){scDoReset();scDoDraw();}
+}
+
+// ===== TAYLOR SERIES =====
+function factorial(n){var r=1;for(var i=2;i<=n;i++)r*=i;return r;}
+function sinDeriv(n,x0){var m=n%4;if(m===0)return Math.sin(x0);if(m===1)return Math.cos(x0);if(m===2)return-Math.sin(x0);return-Math.cos(x0);}
+function taylorSin(x,x0,N){var s=0;for(var k=0;k<N;k++)s+=sinDeriv(k,x0)*Math.pow(x-x0,k)/factorial(k);return s;}
+
+function tsDraw(){
+  var r=setupCanvas('cv-ts');if(!r)return;var x=r.x,w=r.w,h=r.h;
+  var N=parseInt(document.getElementById('ts-n').value);
+  var x0=parseInt(document.getElementById('ts-x0').value)/10;
+  document.getElementById('ts-nv').textContent=N;
+  document.getElementById('ts-x0v').textContent=x0.toFixed(1);
+  var pad=45,xmin=-8,xmax=8,ymin=-3,ymax=3;
+  function tx(v){return pad+(v-xmin)/(xmax-xmin)*(w-2*pad);}
+  function ty(v){return h-pad-(v-ymin)/(ymax-ymin)*(h-2*pad);}
+  x.clearRect(0,0,w,h);
+  x.fillStyle='#f8f9ff';x.fillRect(0,0,w,h);
+  // Grid
+  x.strokeStyle=COL.gridFaint;x.lineWidth=.5;
+  for(var gx=Math.ceil(xmin);gx<=xmax;gx++){x.beginPath();x.moveTo(tx(gx),pad);x.lineTo(tx(gx),h-pad);x.stroke();}
+  for(var gy=Math.ceil(ymin);gy<=ymax;gy++){x.beginPath();x.moveTo(pad,ty(gy));x.lineTo(w-pad,ty(gy));x.stroke();}
+  x.strokeStyle=COL.grid;x.lineWidth=1;
+  x.beginPath();x.moveTo(pad,ty(0));x.lineTo(w-pad,ty(0));x.stroke();
+  x.beginPath();x.moveTo(tx(0),pad);x.lineTo(tx(0),h-pad);x.stroke();
+  x.fillStyle=COL.dim;x.font='10px system-ui';x.textAlign='center';
+  for(var gx=Math.ceil(xmin);gx<=xmax;gx++){if(gx!==0)x.fillText(gx,tx(gx),ty(0)+13);}
+  // True sin
+  x.strokeStyle=COL.cool;x.lineWidth=2.5;x.beginPath();
+  for(var px=pad;px<=w-pad;px++){var v=xmin+(px-pad)/(w-2*pad)*(xmax-xmin);var y=Math.sin(v);if(px===pad)x.moveTo(px,ty(y));else x.lineTo(px,ty(y));}
+  x.stroke();
+  // Taylor
+  x.strokeStyle=COL.warm;x.lineWidth=2;x.setLineDash([6,3]);x.beginPath();
+  var started=false;
+  for(var px=pad;px<=w-pad;px++){var v=xmin+(px-pad)/(w-2*pad)*(xmax-xmin);var y=taylorSin(v,x0,N);
+    if(y<ymin-2||y>ymax+2){started=false;continue;}
+    if(!started){x.moveTo(px,ty(Math.max(ymin,Math.min(ymax,y))));started=true;}
+    else x.lineTo(px,ty(Math.max(ymin,Math.min(ymax,y))));
+  }
+  x.stroke();x.setLineDash([]);
+  // Point
+  x.fillStyle=COL.dim;x.beginPath();x.arc(tx(x0),ty(Math.sin(x0)),5,0,Math.PI*2);x.fill();
+  // Formula
+  var parts=[];
+  for(var k=0;k<N;k++){var d=sinDeriv(k,x0);var dr=Math.round(d*1000)/1000;if(Math.abs(dr)<.001)continue;
+    var term=dr.toFixed(2);if(k===1)term+='·(x−'+x0.toFixed(1)+')';else if(k>1)term+='·(x−'+x0.toFixed(1)+')^'+k+'/'+factorial(k);parts.push(term);}
+  document.getElementById('ts-formula').textContent='f(x) ≈ '+(parts.length?parts.join(' + '):'0');
+}
+
+// ===== MVT =====
+function mvDraw(){
+  var r=setupCanvas('cv-mv');if(!r)return;var x=r.x,w=r.w,h=r.h;
+  var a=parseInt(document.getElementById('mv-a').value)/10;
+  var b=parseInt(document.getElementById('mv-b').value)/10;
+  if(a>=b)b=a+0.5;
+  document.getElementById('mv-av').textContent=a.toFixed(1);
+  document.getElementById('mv-bv').textContent=b.toFixed(1);
+  var pad=45,xmin=-6,xmax=7,ymin=-3,ymax=4;
+  function fn(v){return Math.sin(v)+0.3*v;}
+  function dfn(v){return Math.cos(v)+0.3;}
+  function tx(v){return pad+(v-xmin)/(xmax-xmin)*(w-2*pad);}
+  function ty(v){return h-pad-(v-ymin)/(ymax-ymin)*(h-2*pad);}
+  x.clearRect(0,0,w,h);x.fillStyle='#f8f9ff';x.fillRect(0,0,w,h);
+  x.strokeStyle=COL.gridFaint;x.lineWidth=.5;
+  for(var gx=Math.ceil(xmin);gx<=xmax;gx++){x.beginPath();x.moveTo(tx(gx),pad);x.lineTo(tx(gx),h-pad);x.stroke();}
+  x.strokeStyle=COL.grid;x.lineWidth=1;
+  x.beginPath();x.moveTo(pad,ty(0));x.lineTo(w-pad,ty(0));x.stroke();
+  // Curve
+  x.strokeStyle=COL.cool;x.lineWidth=2.5;x.beginPath();
+  for(var px=pad;px<=w-pad;px++){var v=xmin+(px-pad)/(w-2*pad)*(xmax-xmin);if(px===pad)x.moveTo(px,ty(fn(v)));else x.lineTo(px,ty(fn(v)));}
+  x.stroke();
+  var fa=fn(a),fb=fn(b),secSlope=(fb-fa)/(b-a);
+  // Secant
+  x.strokeStyle=COL.warm;x.lineWidth=1.5;x.setLineDash([6,4]);x.beginPath();
+  x.moveTo(tx(xmin),ty(fa+secSlope*(xmin-a)));x.lineTo(tx(xmax),ty(fa+secSlope*(xmax-a)));x.stroke();x.setLineDash([]);
+  // Find x*
+  var xstar=null;
+  for(var t=a+.001;t<b;t+=.001){if(Math.abs(dfn(t)-secSlope)<.005){xstar=t;break;}}
+  if(xstar!==null){
+    var fxs=fn(xstar);
+    x.strokeStyle='#0d9488';x.lineWidth=1.5;x.setLineDash([4,3]);x.beginPath();
+    x.moveTo(tx(xmin),ty(fxs+dfn(xstar)*(xmin-xstar)));x.lineTo(tx(xmax),ty(fxs+dfn(xstar)*(xmax-xstar)));x.stroke();x.setLineDash([]);
+    x.fillStyle='#0d9488';x.beginPath();x.arc(tx(xstar),ty(fxs),5,0,Math.PI*2);x.fill();
+    x.fillStyle='#047857';x.font='11px system-ui';x.textAlign='left';x.fillText('x*='+xstar.toFixed(2),tx(xstar)+8,ty(fxs)-8);
+  }
+  // Points a,b
+  x.fillStyle=COL.warm;x.beginPath();x.arc(tx(a),ty(fa),5,0,Math.PI*2);x.fill();
+  x.beginPath();x.arc(tx(b),ty(fb),5,0,Math.PI*2);x.fill();
+  x.font='11px system-ui';x.fillStyle=COL.warm2;x.textAlign='right';x.fillText('a',tx(a)-8,ty(fa)-8);
+  x.textAlign='left';x.fillText('b',tx(b)+8,ty(fb)-8);
+  document.getElementById('mv-info').textContent='Secant slope = '+secSlope.toFixed(3)+(xstar?', f\'(x*) = '+dfn(xstar).toFixed(3)+' (match!)':'');
+}
+
+// ===== FINITE DIFFERENCE =====
+function fdDraw(){
+  var r=setupCanvas('cv-fd');if(!r)return;var x=r.x,w=r.w,h=r.h;
+  var dx=parseInt(document.getElementById('fd-dx').value)/10;
+  var x0=parseInt(document.getElementById('fd-x0').value)/10;
+  document.getElementById('fd-dxv').textContent=dx.toFixed(2);
+  document.getElementById('fd-x0v').textContent=x0.toFixed(1);
+  var pad=45,xmin=-5,xmax=6,ymin=-2.5,ymax=2.5;
+  function tx(v){return pad+(v-xmin)/(xmax-xmin)*(w-2*pad);}
+  function ty(v){return h-pad-(v-ymin)/(ymax-ymin)*(h-2*pad);}
+  x.clearRect(0,0,w,h);x.fillStyle='#f8f9ff';x.fillRect(0,0,w,h);
+  x.strokeStyle=COL.gridFaint;x.lineWidth=.5;
+  for(var gx=Math.ceil(xmin);gx<=xmax;gx++){x.beginPath();x.moveTo(tx(gx),pad);x.lineTo(tx(gx),h-pad);x.stroke();}
+  x.strokeStyle=COL.grid;x.lineWidth=1;
+  x.beginPath();x.moveTo(pad,ty(0));x.lineTo(w-pad,ty(0));x.stroke();
+  // Sin curve
+  x.strokeStyle=COL.cool;x.lineWidth=2.5;x.beginPath();
+  for(var px=pad;px<=w-pad;px++){var v=xmin+(px-pad)/(w-2*pad)*(xmax-xmin);if(px===pad)x.moveTo(px,ty(Math.sin(v)));else x.lineTo(px,ty(Math.sin(v)));}
+  x.stroke();
+  var f0=Math.sin(x0),trueD=Math.cos(x0),x1=x0+dx,f1=Math.sin(x1),fdA=(f1-f0)/dx;
+  // True tangent
+  x.strokeStyle='#0d9488';x.lineWidth=2;x.beginPath();x.moveTo(tx(x0-3),ty(f0+trueD*(-3)));x.lineTo(tx(x0+3),ty(f0+trueD*3));x.stroke();
+  // FD line
+  x.strokeStyle=COL.warm;x.lineWidth=2;x.setLineDash([6,4]);x.beginPath();x.moveTo(tx(x0-3),ty(f0+fdA*(-3)));x.lineTo(tx(x0+3),ty(f0+fdA*3));x.stroke();x.setLineDash([]);
+  // Points
+  x.fillStyle=COL.dim;x.beginPath();x.arc(tx(x0),ty(f0),5,0,Math.PI*2);x.fill();
+  x.fillStyle=COL.warm;x.beginPath();x.arc(tx(x1),ty(f1),4,0,Math.PI*2);x.fill();
+  // Bracket
+  x.strokeStyle=COL.dim;x.lineWidth=1;var by_=ty(ymin)+6;
+  x.beginPath();x.moveTo(tx(x0),by_);x.lineTo(tx(x1),by_);x.stroke();
+  x.fillStyle=COL.dim;x.font='10px system-ui';x.textAlign='center';x.fillText('Δx='+dx.toFixed(2),(tx(x0)+tx(x1))/2,by_+12);
+  // Stats
+  document.getElementById('fd-true').textContent=trueD.toFixed(4);
+  document.getElementById('fd-approx').textContent=fdA.toFixed(4);
+  var err=Math.abs(fdA-trueD);
+  document.getElementById('fd-err').textContent=err.toFixed(4);
+  document.getElementById('fd-err').style.color=err<.01?COL.cool:err<.1?COL.warm:COL.red;
+}
+
+// ===== BASIS OF MODELING =====
+function bmDraw(){
+  var r=setupCanvas('cv-bm');if(!r)return;var x=r.x,w=r.w,h=r.h;
+  var dt=parseInt(document.getElementById('bm-dt').value)/10;
+  var ns=parseInt(document.getElementById('bm-n').value);
+  document.getElementById('bm-dtv').textContent=dt.toFixed(2);
+  document.getElementById('bm-nv').textContent=ns;
+  function trueF(t){return 20+5*Math.sin(.7*t)+2*Math.cos(1.3*t);}
+  function trueDf(t){return 5*.7*Math.cos(.7*t)-2*1.3*Math.sin(1.3*t);}
+  var pad=50,xmin=-.5,xmax=14,ymin=10,ymax=32;
+  function tx(v){return pad+(v-xmin)/(xmax-xmin)*(w-2*pad);}
+  function ty(v){return h-pad-(v-ymin)/(ymax-ymin)*(h-2*pad);}
+  x.clearRect(0,0,w,h);x.fillStyle='#f8f9ff';x.fillRect(0,0,w,h);
+  x.strokeStyle=COL.gridFaint;x.lineWidth=.5;
+  for(var gx=0;gx<=14;gx+=2){x.beginPath();x.moveTo(tx(gx),pad);x.lineTo(tx(gx),h-pad);x.stroke();}
+  x.strokeStyle=COL.grid;x.lineWidth=1;
+  x.beginPath();x.moveTo(pad,ty(ymin));x.lineTo(w-pad,ty(ymin));x.stroke();
+  x.fillStyle=COL.dim;x.font='10px system-ui';x.textAlign='center';
+  for(var gx=0;gx<=14;gx+=2)x.fillText(gx+'h',tx(gx),ty(ymin)+13);
+  x.textAlign='right';for(var gy=10;gy<=32;gy+=5)x.fillText(gy+'°',tx(xmin)-6,ty(gy)+4);
+  // True
+  x.strokeStyle=COL.cool;x.lineWidth=2.5;x.beginPath();
+  for(var px=pad;px<=w-pad;px++){var v=xmin+(px-pad)/(w-2*pad)*(xmax-xmin);if(px===pad)x.moveTo(px,ty(trueF(v)));else x.lineTo(px,ty(trueF(v)));}
+  x.stroke();
+  // Euler steps
+  var pts=[{t:0,f:trueF(0)}];var ct=0,cf=trueF(0);
+  for(var s=0;s<ns;s++){var sl=trueDf(ct);cf=cf+sl*dt;ct=ct+dt;pts.push({t:ct,f:cf});}
+  // Tangent
+  if(ns>=1){var lp=pts[pts.length-2];var sl2=trueDf(lp.t);x.strokeStyle='#0d9488';x.lineWidth=1.5;x.setLineDash([5,3]);x.beginPath();
+    x.moveTo(tx(lp.t-.3),ty(lp.f+sl2*(-.3)));x.lineTo(tx(lp.t+dt*1.3),ty(lp.f+sl2*dt*1.3));x.stroke();x.setLineDash([]);}
+  // Path
+  x.strokeStyle=COL.warm;x.lineWidth=2;x.beginPath();x.moveTo(tx(pts[0].t),ty(pts[0].f));
+  for(var i=1;i<pts.length;i++)x.lineTo(tx(pts[i].t),ty(pts[i].f));x.stroke();
+  for(var i=0;i<pts.length;i++){x.fillStyle=i===0?COL.dim:COL.warm;x.beginPath();x.arc(tx(pts[i].t),ty(pts[i].f),4,0,Math.PI*2);x.fill();}
+  // True dots & error lines
+  for(var i=1;i<pts.length;i++){
+    x.fillStyle=COL.cool;x.beginPath();x.arc(tx(pts[i].t),ty(trueF(pts[i].t)),3,0,Math.PI*2);x.fill();
+    x.strokeStyle=COL.gridFaint;x.lineWidth=1;x.setLineDash([2,2]);x.beginPath();
+    x.moveTo(tx(pts[i].t),ty(pts[i].f));x.lineTo(tx(pts[i].t),ty(trueF(pts[i].t)));x.stroke();x.setLineDash([]);
+  }
+}
+
+// ===== EULERIAN/LAGRANGIAN =====
+var elAnim=null;
+function elToggle(){if(elAnim){cancelAnimationFrame(elAnim);elAnim=null;document.getElementById('el-btn').textContent='Play';return;}
+  document.getElementById('el-btn').textContent='Pause';
+  function step(){var sl=document.getElementById('el-t');var v=parseInt(sl.value)+1;if(v>100)v=0;sl.value=v;elDraw();elAnim=requestAnimationFrame(step);}
+  elAnim=requestAnimationFrame(step);
+}
+function elDraw(){
+  var r=setupCanvas('cv-el');if(!r)return;var x=r.x,w=r.w,h=r.h;
+  var t=parseInt(document.getElementById('el-t').value)/10;
+  document.getElementById('el-tv').textContent=t.toFixed(1)+'s';
+  function tempF(normX,ti){var cx=normX*700;return 15+8*Math.exp(-Math.pow(cx-200-30*ti,2)/(8000+500*ti))*Math.cos(.015*cx-.3*ti);}
+  // High contrast: cool=bright blue, warm=bright orange/yellow
+  function tempCol(T){var f=Math.max(0,Math.min(1,(T-10)/15));
+    var r_=Math.round(30+225*f),g_=Math.round(100+155*(1-f)*f*4+80*(1-f)),b_=Math.round(220-180*f);
+    return'rgb('+r_+','+g_+','+b_+')';}
+  x.clearRect(0,0,w,h);
+  // Layout
+  var skyH=40,rT=skyH,rB=h-90,rH=rB-rT;
+  // Sky
+  x.fillStyle='#e3ecf8';x.fillRect(0,0,w,skyH);
+  x.fillStyle='#94a3b8';x.font='bold 10px system-ui';x.textAlign='center';
+  x.fillText('SKY',w/2,skyH-6);
+  // River temperature field
+  for(var px=0;px<w;px++){x.fillStyle=tempCol(tempF(px/w,t));x.fillRect(px,rT,1,rH);}
+  // River border lines
+  x.strokeStyle='#475569';x.lineWidth=1.5;
+  x.beginPath();x.moveTo(0,rT);x.lineTo(w,rT);x.stroke();
+  x.beginPath();x.moveTo(0,rB);x.lineTo(w,rB);x.stroke();
+  // Ground
+  x.fillStyle='#d4b896';x.fillRect(0,rB,w,h-rB);
+  // Flow arrows — white with stronger opacity
+  x.strokeStyle='rgba(255,255,255,.6)';x.lineWidth=2;
+  var arrowY=rT+rH*0.82;
+  for(var ai=0;ai<7;ai++){var off=(t*40+ai*100)%(w+80)-40;if(off<-20||off>w+20)continue;
+    x.beginPath();x.moveTo(off,arrowY);x.lineTo(off+30,arrowY);x.stroke();
+    x.beginPath();x.moveTo(off+30,arrowY);x.lineTo(off+22,arrowY-5);x.stroke();
+    x.beginPath();x.moveTo(off+30,arrowY);x.lineTo(off+22,arrowY+5);x.stroke();}
+  // "RIVER" label with background
+  x.fillStyle='rgba(255,255,255,.5)';
+  var rlw=70,rlh=16;x.fillRect(w/2-rlw/2,arrowY+6,rlw,rlh);
+  x.fillStyle='#334155';x.font='bold 9px system-ui';x.textAlign='center';
+  x.fillText('RIVER FLOW \u2192',w/2,arrowY+17);
+
+  // ===== BRIDGE (Eulerian observer) =====
+  var bx=w*0.42;
+  // Bridge structure — darker brown, thicker
+  x.fillStyle='#5c4a32';x.fillRect(bx-5,6,10,rB);x.fillRect(bx-36,2,72,12);
+  // Person on bridge — bright orange circle with white outline
+  x.fillStyle='#ffffff';x.beginPath();x.arc(bx,-2,8,0,Math.PI*2);x.fill();
+  x.fillStyle='#ea580c';x.beginPath();x.arc(bx,-2,6,0,Math.PI*2);x.fill();
+  // Sensor line — bright dashed
+  x.strokeStyle='#ea580c';x.lineWidth=2;x.setLineDash([4,3]);
+  x.beginPath();x.moveTo(bx,14);x.lineTo(bx,rT+rH*0.5);x.stroke();x.setLineDash([]);
+  // Sensor dot — white outline for visibility
+  x.fillStyle='#ffffff';x.beginPath();x.arc(bx,rT+rH*0.5,6,0,Math.PI*2);x.fill();
+  x.fillStyle='#ea580c';x.beginPath();x.arc(bx,rT+rH*0.5,4,0,Math.PI*2);x.fill();
+  // Eulerian label — WHITE BACKGROUND pill for readability
+  var elLabel='Eulerian (fixed)';
+  x.font='bold 11px system-ui';var elLW=x.measureText(elLabel).width+16;
+  x.fillStyle='rgba(255,255,255,.9)';x.beginPath();
+  var elLX=bx-elLW/2,elLY=rB+6;
+  x.rect(elLX,elLY,elLW,20);x.fill();
+  x.strokeStyle='#ea580c';x.lineWidth=1;x.strokeRect(elLX,elLY,elLW,20);
+  x.fillStyle='#c2410c';x.textAlign='center';x.fillText(elLabel,bx,rB+20);
+  // Eulerian temp readout — white pill
+  var Teul=tempF(bx/w,t).toFixed(1);
+  var tLabel='T = '+Teul+'\u00B0C';
+  x.font='bold 10px system-ui';var tLW=x.measureText(tLabel).width+12;
+  x.fillStyle='rgba(255,255,255,.9)';x.fillRect(bx-tLW/2,rB+28,tLW,16);
+  x.fillStyle='#9a3412';x.textAlign='center';x.fillText(tLabel,bx,rB+40);
+
+  // ===== KAYAK (Lagrangian observer) =====
+  var kx=w*0.14+w*0.065*t;if(kx>w*0.88)kx=w*0.88;
+  var ky=rT+rH*0.32;
+  // Kayak hull — bright green with white outline
+  x.fillStyle='#ffffff';x.beginPath();
+  x.moveTo(kx-22,ky-1);x.quadraticCurveTo(kx-24,ky+11,kx,ky+14);x.quadraticCurveTo(kx+24,ky+11,kx+22,ky-1);x.closePath();x.fill();
+  x.fillStyle='#0d9488';x.beginPath();
+  x.moveTo(kx-20,ky);x.quadraticCurveTo(kx-22,ky+10,kx,ky+12);x.quadraticCurveTo(kx+22,ky+10,kx+20,ky);x.closePath();x.fill();
+  x.strokeStyle='#065f46';x.lineWidth=1.5;x.beginPath();
+  x.moveTo(kx-20,ky);x.quadraticCurveTo(kx-22,ky+10,kx,ky+12);x.quadraticCurveTo(kx+22,ky+10,kx+20,ky);x.closePath();x.stroke();
+  // Person on kayak — white outline
+  x.fillStyle='#ffffff';x.beginPath();x.arc(kx,ky-8,7,0,Math.PI*2);x.fill();
+  x.fillStyle='#0d9488';x.beginPath();x.arc(kx,ky-8,5,0,Math.PI*2);x.fill();
+  // Lagrangian label — WHITE BACKGROUND pill
+  var lkx=Math.min(Math.max(kx,70),w-80);
+  var lgLabel='Lagrangian (drifting)';
+  x.font='bold 11px system-ui';var lgLW=x.measureText(lgLabel).width+16;
+  x.fillStyle='rgba(255,255,255,.9)';x.fillRect(lkx-lgLW/2,ky-34,lgLW,20);
+  x.strokeStyle='#0d9488';x.lineWidth=1;x.strokeRect(lkx-lgLW/2,ky-34,lgLW,20);
+  x.fillStyle='#065f46';x.textAlign='center';x.fillText(lgLabel,lkx,ky-20);
+  // Lagrangian temp readout — white pill
+  var Tlag=tempF(kx/w,t).toFixed(1);
+  var tLabel2='T = '+Tlag+'\u00B0C';
+  x.font='bold 10px system-ui';var tLW2=x.measureText(tLabel2).width+12;
+  x.fillStyle='rgba(255,255,255,.9)';x.fillRect(lkx-tLW2/2,ky-50,tLW2,16);
+  x.fillStyle='#065f46';x.textAlign='center';x.fillText(tLabel2,lkx,ky-38);
+
+  // ===== COLORBAR at bottom =====
+  var cbx=w*0.12,cby=rB+56,cbw=w*0.55,cbh=10;
+  for(var ci=0;ci<cbw;ci++){x.fillStyle=tempCol(10+15*ci/cbw);x.fillRect(cbx+ci,cby,1,cbh);}
+  x.strokeStyle='#94a3b8';x.lineWidth=1;x.strokeRect(cbx,cby,cbw,cbh);
+  x.fillStyle='#475569';x.font='bold 9px system-ui';
+  x.textAlign='left';x.fillText('10\u00B0C (cold)',cbx,cby+cbh+12);
+  x.textAlign='right';x.fillText('25\u00B0C (warm)',cbx+cbw,cby+cbh+12);
+  x.textAlign='center';x.fillText('Water Temperature',cbx+cbw/2,cby-4);
+}
+
+// ===== HYDROSTATIC =====
+function hyDraw(){
+  var r=setupCanvas('cv-hy');if(!r)return;var x=r.x,w=r.w,h=r.h;
+  var z_km=parseInt(document.getElementById('hy-z').value)/10;
+  document.getElementById('hy-zv').textContent=z_km.toFixed(1)+' km';
+  var cL=40,cR=Math.min(280,w*.4),aT=40,aB=h-30,aH=aB-aT;
+  function zy(z){return aB-z/10*aH;}
+  function pAt(z){return 1013.25*Math.exp(-z/8.5);}
+  function rhoAt(z){return 1.225*Math.exp(-z/8.5);}
+  x.clearRect(0,0,w,h);x.fillStyle='#f8f9ff';x.fillRect(0,0,w,h);
+  // Column
+  for(var py=aT;py<aB;py++){var zk=(aB-py)/aH*10;var alpha=rhoAt(zk)/1.225*.55;x.fillStyle='rgba(135,180,235,'+alpha+')';x.fillRect(cL,py,cR-cL,1);}
+  x.strokeStyle=COL.grid;x.lineWidth=1;x.strokeRect(cL,aT,cR-cL,aH);
+  x.fillStyle='#8b7355';x.fillRect(cL,aB,cR-cL,8);
+  x.fillStyle=COL.dim;x.font='10px system-ui';x.textAlign='right';
+  for(var z=0;z<=10;z+=2)x.fillText(z+'km',cL-6,zy(z)+4);
+  // Parcel - manual rounded rect (no roundRect API needed)
+  var py_=zy(z_km),pcx=(cL+cR)/2,prw=50,prh=24,prr=6;
+  x.fillStyle='rgba(255,255,180,.3)';x.strokeStyle='rgba(180,150,50,.5)';x.lineWidth=1.5;
+  x.beginPath();x.moveTo(pcx-prw/2+prr,py_-prh/2);x.lineTo(pcx+prw/2-prr,py_-prh/2);x.arcTo(pcx+prw/2,py_-prh/2,pcx+prw/2,py_-prh/2+prr,prr);x.lineTo(pcx+prw/2,py_+prh/2-prr);x.arcTo(pcx+prw/2,py_+prh/2,pcx+prw/2-prr,py_+prh/2,prr);x.lineTo(pcx-prw/2+prr,py_+prh/2);x.arcTo(pcx-prw/2,py_+prh/2,pcx-prw/2,py_+prh/2-prr,prr);x.lineTo(pcx-prw/2,py_-prh/2+prr);x.arcTo(pcx-prw/2,py_-prh/2,pcx-prw/2+prr,py_-prh/2,prr);x.closePath();x.fill();x.stroke();
+  x.fillStyle='rgba(100,80,20,.6)';x.font='10px system-ui';x.textAlign='center';x.fillText('parcel',pcx,py_+4);
+  // Arrows
+  var rho=rhoAt(z_km);var pB=pAt(z_km-.05),pA=pAt(z_km+.05);
+  var pgf=(pB-pA)/100,grav=rho*9.806/1000;var sc=80/1.2;
+  var pgfL=Math.min(pgf*sc,80),gravL=Math.min(grav*sc,80);
+  // PGF up
+  x.strokeStyle=COL.cool;x.lineWidth=3;x.beginPath();x.moveTo(pcx-18,py_-12);x.lineTo(pcx-18,py_-12-pgfL);x.stroke();
+  x.fillStyle=COL.cool;x.beginPath();var ay_=py_-12-pgfL;x.moveTo(pcx-18,ay_-7);x.lineTo(pcx-24,ay_);x.lineTo(pcx-12,ay_);x.closePath();x.fill();
+  // Gravity down
+  x.strokeStyle=COL.warm;x.lineWidth=3;x.beginPath();x.moveTo(pcx+18,py_+12);x.lineTo(pcx+18,py_+12+gravL);x.stroke();
+  x.fillStyle=COL.warm;x.beginPath();var gy_=py_+12+gravL;x.moveTo(pcx+18,gy_+7);x.lineTo(pcx+12,gy_);x.lineTo(pcx+24,gy_);x.closePath();x.fill();
+  // Info
+  var rx_=cR+30;
+  x.fillStyle=COL.txt;x.font='bold 13px system-ui';x.textAlign='left';x.fillText('At z = '+z_km.toFixed(1)+' km',rx_,aT+24);
+  x.font='12px system-ui';x.fillStyle=COL.muted;
+  var lines=['Pressure: '+pAt(z_km).toFixed(0)+' mb','Density: '+rho.toFixed(3)+' kg/m³','','PGF (up): '+pgf.toFixed(3)+' N/kg','Gravity: '+grav.toFixed(3)+' N/kg','','Net force: '+Math.abs(pgf-grav).toFixed(4)+' N/kg','Ratio: '+(grav/pgf*100).toFixed(1)+'%'];
+  for(var i=0;i<lines.length;i++){if(lines[i])x.fillText(lines[i],rx_,aT+48+i*20);}
+}
+
+// ===== POTENTIAL TEMPERATURE =====
+function ptDraw(){
+  var r=setupCanvas('cv-pt');if(!r)return;var x=r.x,w=r.w,h=r.h;
+  var z0=parseInt(document.getElementById('pt-z').value)/10;
+  var lr=parseInt(document.getElementById('pt-lr').value)/10;
+  document.getElementById('pt-zv').textContent=z0.toFixed(1)+' km';
+  document.getElementById('pt-lrv').textContent=lr.toFixed(1)+' °C/km';
+  var kappa=287/1004,Tsfc=288.15;
+  function pAt(z){return 1013.25*Math.exp(-z/8.5);}
+  function Tenv(z){return Tsfc-lr*z;}
+  function thEnv(z){return Tenv(z)*Math.pow(1000/pAt(z),kappa);}
+  var pad=50,plotW=(w-pad*2-60)/2;
+  function zy(z){return h-pad-z/12*(h-2*pad);}
+  x.clearRect(0,0,w,h);x.fillStyle='#f8f9ff';x.fillRect(0,0,w,h);
+  // Two panels
+  var panels=[{ox:pad,label:'Temperature T (°C)',Tmin:-60,Tmax:30,col:COL.warm},{ox:pad+plotW+60,label:'Potential temp θ (K)',Tmin:270,Tmax:400,col:COL.cool}];
+  panels.forEach(function(P,pi){
+    x.fillStyle='#f0f2fa';x.fillRect(P.ox,pad,plotW,h-2*pad);
+    x.strokeStyle=COL.gridFaint;x.lineWidth=.5;
+    for(var z=0;z<=12;z+=3){x.beginPath();x.moveTo(P.ox,zy(z));x.lineTo(P.ox+plotW,zy(z));x.stroke();}
+    if(pi===0){x.fillStyle=COL.dim;x.font='10px system-ui';x.textAlign='right';for(var z=0;z<=12;z+=3)x.fillText(z+'km',P.ox-6,zy(z)+4);}
+    x.fillStyle=COL.muted;x.font='bold 11px system-ui';x.textAlign='center';x.fillText(P.label,P.ox+plotW/2,h-8);
+  });
+  // T curve
+  var P0=panels[0];
+  function txT(T){return P0.ox+(T-P0.Tmin)/(P0.Tmax-P0.Tmin)*plotW;}
+  x.strokeStyle=COL.warm;x.lineWidth=2.5;x.beginPath();
+  for(var z=0;z<=12;z+=.1){var T=Tenv(z)-273.15;if(z===0)x.moveTo(txT(T),zy(z));else x.lineTo(txT(T),zy(z));}
+  x.stroke();
+  // Adiabat on T panel
+  var Tparcel=Tenv(z0);
+  x.strokeStyle=COL.accent;x.lineWidth=1.5;x.setLineDash([5,3]);x.beginPath();
+  for(var z=0;z<=12;z+=.1){var Tad=Tparcel-9.8*(z-z0);var TadC=Tad-273.15;if(TadC<P0.Tmin||TadC>P0.Tmax+10)continue;
+    if(z===0)x.moveTo(txT(TadC),zy(z));else x.lineTo(txT(TadC),zy(z));}
+  x.stroke();x.setLineDash([]);
+  // θ curve
+  var P1=panels[1];
+  function txTh(th){return P1.ox+(th-P1.Tmin)/(P1.Tmax-P1.Tmin)*plotW;}
+  x.strokeStyle=COL.cool;x.lineWidth=2.5;x.beginPath();
+  for(var z=0;z<=12;z+=.1){if(z===0)x.moveTo(txTh(thEnv(z)),zy(z));else x.lineTo(txTh(thEnv(z)),zy(z));}
+  x.stroke();
+  // Adiabat on θ panel (vertical!)
+  var thParcel=Tparcel*Math.pow(1000/pAt(z0),kappa);
+  x.strokeStyle=COL.accent;x.lineWidth=1.5;x.setLineDash([5,3]);x.beginPath();
+  x.moveTo(txTh(thParcel),zy(0));x.lineTo(txTh(thParcel),zy(12));x.stroke();x.setLineDash([]);
+  // Parcel dots
+  x.fillStyle=COL.accent;
+  x.beginPath();x.arc(txT(Tparcel-273.15),zy(z0),5,0,Math.PI*2);x.fill();
+  x.beginPath();x.arc(txTh(thParcel),zy(z0),5,0,Math.PI*2);x.fill();
+  // Labels
+  x.fillStyle=COL.accent2;x.font='11px system-ui';x.textAlign='left';
+  x.fillText('T='+(Tparcel-273.15).toFixed(1)+'°C',txT(Tparcel-273.15)+8,zy(z0)-6);
+  x.fillText('θ='+thParcel.toFixed(1)+'K',txTh(thParcel)+8,zy(z0)-6);
+  // Annotation
+  x.save();x.translate(txTh(thParcel)-12,zy(6));x.rotate(-Math.PI/2);
+  x.fillStyle=COL.accent;x.font='bold 11px system-ui';x.textAlign='center';x.fillText('θ = constant (adiabatic!)',0,0);x.restore();
+}
+
+// ===== CONTINUITY =====
+var coTime=0,coAnim=null;
+function coStart(){if(coAnim){cancelAnimationFrame(coAnim);coAnim=null;}coTime=0;function step(){coTime+=.02;if(coTime>3)coTime=3;coDraw();if(coTime<3)coAnim=requestAnimationFrame(step);else coAnim=null;}coAnim=requestAnimationFrame(step);}
+function coDraw(){
+  var r=setupCanvas('cv-co');if(!r)return;var x=r.x,w=r.w,h=r.h;
+  var dv=parseInt(document.getElementById('co-div').value);
+  document.getElementById('co-divv').textContent=dv>0?'Divergent':dv<0?'Convergent':'Zero';
+  x.clearRect(0,0,w,h);x.fillStyle='#f8f9ff';x.fillRect(0,0,w,h);
+  var cx=w/2,cy=h/2-10,ds=dv/10,t=coTime,baseR=50;
+  var pR=Math.max(15,baseR+ds*t*20),rho=Math.pow(baseR/pR,2),alpha=Math.min(.7,Math.max(.1,rho*.4));
+  // Arrows
+  if(Math.abs(ds)>.05){
+    for(var i=0;i<12;i++){var ang=i/12*Math.PI*2;var r0=30+20*t,r1=r0+35;
+      var ax0,ay0,ax1,ay1;
+      if(ds>0){ax0=cx+Math.cos(ang)*r0;ay0=cy+Math.sin(ang)*r0;ax1=cx+Math.cos(ang)*r1;ay1=cy+Math.sin(ang)*r1;}
+      else{ax1=cx+Math.cos(ang)*r0;ay1=cy+Math.sin(ang)*r0;ax0=cx+Math.cos(ang)*r1;ay0=cy+Math.sin(ang)*r1;}
+      x.strokeStyle='rgba(100,116,139,'+(Math.max(.1,.4-t*.1))+')';x.lineWidth=1.5;x.beginPath();x.moveTo(ax0,ay0);x.lineTo(ax1,ay1);x.stroke();
+      var adx=ax1-ax0,ady=ay1-ay0,al=Math.sqrt(adx*adx+ady*ady),ux=adx/al,uy=ady/al;
+      x.beginPath();x.moveTo(ax1,ay1);x.lineTo(ax1-ux*7+uy*3,ay1-uy*7-ux*3);x.stroke();
+      x.beginPath();x.moveTo(ax1,ay1);x.lineTo(ax1-ux*7-uy*3,ay1-uy*7+ux*3);x.stroke();
+    }
+  }
+  // Parcel - convert hex color to rgba properly
+  function hexToRgba(hex,a){var r_=parseInt(hex.slice(1,3),16),g_=parseInt(hex.slice(3,5),16),b_=parseInt(hex.slice(5,7),16);return'rgba('+r_+','+g_+','+b_+','+a+')';}
+  var pc=dv>0?'#14b8a6':dv<0?'#f97316':'#888888';
+  x.fillStyle=hexToRgba(pc,alpha);
+  x.strokeStyle=pc;x.lineWidth=2;x.beginPath();x.arc(cx,cy,pR,0,Math.PI*2);x.fill();x.stroke();
+  // Molecules
+  x.fillStyle='rgba(30,41,59,.3)';
+  for(var i=0;i<30;i++){var a=((42*i*137+i*i*31)%1000)/1000*Math.PI*2;var rr=((42*i*73+i*17)%1000)/1000*.85;
+    var mx=cx+Math.cos(a)*rr*pR,my=cy+Math.sin(a)*rr*pR;
+    if(Math.sqrt((mx-cx)*(mx-cx)+(my-cy)*(my-cy))<pR-3){x.beginPath();x.arc(mx,my,2,0,Math.PI*2);x.fill();}
+  }
+  // Text
+  x.fillStyle=COL.muted;x.font='12px system-ui';x.textAlign='center';
+  var msg=dv>0?'Divergent → expands → density ↓':dv<0?'Convergent → compressed → density ↑':'No divergence → unchanged';
+  x.fillText(msg,cx,h-30);x.fillStyle=COL.dim;x.font='11px system-ui';x.fillText('Same 30 molecules — mass conserved',cx,h-12);
+  document.getElementById('co-vol').textContent=(pR*pR/(baseR*baseR)).toFixed(2)+'×';
+  document.getElementById('co-rho').textContent=rho.toFixed(2);
+  document.getElementById('co-rho').style.color=rho>1.05?COL.red:rho<.95?COL.cool:COL.accent;
+}
+
+// ===== SCALAR EQUATION =====
+var scN=200,scC,scC0,scAnimId=null,scSimT=0,scDx=1,scDt=.02;
+function scInit(){scC=new Float64Array(scN);scC0=new Float64Array(scN);for(var i=0;i<scN;i++){var v=(i-scN/2)*scDx;scC[i]=Math.exp(-v*v/200);scC0[i]=scC[i];}scSimT=0;}
+scInit();
+function scDoReset(){if(scAnimId){cancelAnimationFrame(scAnimId);scAnimId=null;}document.getElementById('sc-btn').textContent='Play';scInit();scDoDraw();}
+function scReset(){
+  document.getElementById('sc-uv').textContent=document.getElementById('sc-u').value;
+  document.getElementById('sc-kv').textContent=document.getElementById('sc-k').value;
+  document.getElementById('sc-sv').textContent=document.getElementById('sc-s').value;
+  scDoReset();
+}
+function scToggle(){if(scAnimId){cancelAnimationFrame(scAnimId);scAnimId=null;document.getElementById('sc-btn').textContent='Play';return;}
+  document.getElementById('sc-btn').textContent='Pause';function step(){for(var s=0;s<3;s++){
+    var u=parseFloat(document.getElementById('sc-u').value),k=parseFloat(document.getElementById('sc-k').value),ss=parseFloat(document.getElementById('sc-s').value);
+    var cn=new Float64Array(scN);for(var i=1;i<scN-1;i++){var adv=-u*(scC[i+1]-scC[i-1])/(2*scDx);var diff=k*(scC[i+1]-2*scC[i]+scC[i-1])/(scDx*scDx);
+      var src=0;var xv=(i-scN/2)*scDx;if(ss>0&&Math.abs(xv-30)<10)src=ss*.01;cn[i]=scC[i]+scDt*(adv+diff+src);}
+    cn[0]=cn[1];cn[scN-1]=cn[scN-2];scC=cn;scSimT+=scDt;}
+  scDoDraw();scAnimId=requestAnimationFrame(step);}scAnimId=requestAnimationFrame(step);}
+function scDoDraw(){
+  var r=setupCanvas('cv-sc');if(!r)return;var x=r.x,w=r.w,h=r.h;
+  document.getElementById('sc-time').textContent='t='+scSimT.toFixed(1);
+  var pad=45,plotH=h-2*pad;
+  function px_(i){return pad+(i/scN)*(w-2*pad);}
+  function py_(v){return h-pad-v/1.2*plotH;}
+  x.clearRect(0,0,w,h);x.fillStyle='#f8f9ff';x.fillRect(pad,pad,w-2*pad,plotH);
+  x.strokeStyle=COL.gridFaint;x.lineWidth=.5;for(var v=0;v<=1;v+=.25){x.beginPath();x.moveTo(pad,py_(v));x.lineTo(w-pad,py_(v));x.stroke();}
+  x.strokeStyle=COL.grid;x.lineWidth=1;x.beginPath();x.moveTo(pad,py_(0));x.lineTo(w-pad,py_(0));x.stroke();
+  // Source region
+  var ss=parseFloat(document.getElementById('sc-s').value);
+  if(ss>0){var si=Math.floor(scN/2+20),ei=Math.ceil(scN/2+40);x.fillStyle='rgba(20,184,166,.08)';x.fillRect(px_(si),pad,px_(ei)-px_(si),plotH);
+    x.fillStyle='rgba(20,184,166,.4)';x.font='10px system-ui';x.textAlign='center';x.fillText('Source',px_((si+ei)/2),pad+12);}
+  // IC
+  x.strokeStyle=COL.dim;x.lineWidth=1;x.setLineDash([4,3]);x.globalAlpha=.4;x.beginPath();
+  for(var i=0;i<scN;i++){var px__=px_(i),py__=py_(scC0[i]);if(i===0)x.moveTo(px__,py__);else x.lineTo(px__,py__);}x.stroke();x.setLineDash([]);x.globalAlpha=1;
+  // Current
+  x.strokeStyle=COL.cool;x.lineWidth=2.5;x.beginPath();
+  for(var i=0;i<scN;i++){var px__=px_(i),py__=py_(Math.max(0,Math.min(1.2,scC[i])));if(i===0)x.moveTo(px__,py__);else x.lineTo(px__,py__);}x.stroke();
+}
+
+// ===== INIT =====
+window.addEventListener('DOMContentLoaded',function(){initCanvasesForTab(0);});
+var rTimer;window.addEventListener('resize',function(){clearTimeout(rTimer);rTimer=setTimeout(function(){initCanvasesForTab(currentTab);},200);});
+</script>
+</body>
+</html>

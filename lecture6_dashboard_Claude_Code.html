@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLIM-715 · Lecture 6 — Time-Differencing Schemes</title>
+<style>
+:root{
+  --bg:#fafbff;--bg2:#f5f7ff;--bg3:#eef1fa;
+  --card:#ffffff;
+  --border:#e2e8f0;--border-light:#cbd5e1;
+  --text:#1e293b;--text-muted:#64748b;--text-dim:#94a3b8;
+  --accent:#7c3aed;--accent2:#8b5cf6;
+  --warm:#f97316;--warm2:#ea580c;--warm-bg:#fff7ed;--warm-border:#fdba74;
+  --cool:#14b8a6;--cool2:#0891b2;--cool-bg:#ecfdf5;--cool-border:#6ee7b7;
+  --purple:#a78bfa;--purple-dark:#7c3aed;--purple-bg:rgba(139,92,246,.06);
+  --red:#dc2626;--red-bg:#fef2f2;
+  --fd:Georgia,serif;
+  --fb:system-ui,-apple-system,sans-serif;
+  --r:12px;--rl:16px;
+  --shadow:0 4px 16px rgba(99,102,241,.12);
+  --shadow-sm:0 2px 8px rgba(0,0,0,.08);
+  --pad:clamp(.8rem,3vw,1.5rem)
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:clamp(13px,1.4vw,16px)}
+body{background:linear-gradient(135deg,var(--bg),var(--bg2));color:var(--text);font-family:var(--fb);line-height:1.7;min-height:100vh}
+.hdr{background:#fff;border-bottom:1px solid var(--border);padding:clamp(1rem,3vw,2rem) var(--pad) clamp(.5rem,1.5vw,.8rem);text-align:center;box-shadow:var(--shadow-sm)}
+.hdr-tag{font-size:clamp(8px,1.2vw,11px);letter-spacing:clamp(1.5px,.4vw,3px);text-transform:uppercase;color:var(--accent);margin-bottom:.4rem;font-weight:600}
+.hdr h1{font-family:var(--fd);font-size:clamp(1.1rem,3.5vw,2.2rem);font-weight:700;line-height:1.2;margin-bottom:.3rem;color:var(--text)}
+.hdr p{font-size:clamp(.75rem,1.8vw,.95rem);color:var(--text-muted);margin-bottom:.5rem;padding:0 clamp(0px,2vw,2rem)}
+.tabs{display:flex;flex-wrap:wrap;gap:0;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;background:#fff;box-shadow:0 1px 4px rgba(99,102,241,.06);justify-content:center;padding:clamp(2px,.5vw,4px) clamp(4px,1vw,8px)}
+.tab{font-size:clamp(7.5px,1vw,10px);font-weight:500;padding:clamp(3px,.6vw,6px) clamp(4px,.8vw,9px);color:var(--text-dim);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none}
+.tab:hover{color:var(--text-muted);background:rgba(124,58,237,.02)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(124,58,237,.04)}
+.panel{display:none;padding:clamp(1rem,3vw,2.5rem) var(--pad) clamp(2rem,4vw,4rem);max-width:1100px;margin:0 auto;animation:fadeIn .35s ease}
+.panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.sh{margin-bottom:clamp(1rem,2.5vw,2rem)}
+.sh-num{font-size:clamp(10px,1.3vw,13px);letter-spacing:0.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:.4rem;font-weight:600}
+.sh h2{font-family:var(--fd);font-size:clamp(1.15rem,3vw,2rem);font-weight:700;line-height:1.2;margin-bottom:.4rem;color:var(--text)}
+.sh .lead{color:var(--text-muted);font-size:clamp(.8rem,1.8vw,.95rem);max-width:100%}
+.card{background:var(--card);border:none;border-radius:var(--rl);padding:clamp(1rem,2.5vw,1.6rem);transition:all .3s;margin-bottom:1rem;box-shadow:var(--shadow)}
+.card:hover{box-shadow:0 6px 24px rgba(99,102,241,.16);transform:translateY(-1px)}
+.cg{display:grid;gap:clamp(.6rem,1.5vw,1rem)}
+.cg2{grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr))}
+.cg3{grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr))}
+.card h3{font-family:var(--fd);font-size:clamp(.9rem,2vw,1.05rem);font-weight:600;margin-bottom:.4rem;color:var(--text)}
+.card p,.card li{color:var(--text-muted);font-size:clamp(.8rem,1.6vw,.88rem);line-height:1.65}
+.card ul{list-style:none;padding:0;margin-top:.4rem}
+.card ul li{position:relative;padding-left:1.2rem;margin-bottom:.25rem}
+.card ul li::before{content:'\2192';position:absolute;left:0;color:var(--accent);font-weight:600}
+.ct{width:100%;border-collapse:separate;border-spacing:0;border-radius:var(--rl);overflow:hidden;font-size:clamp(.7rem,1.4vw,.83rem);margin-top:1rem;box-shadow:var(--shadow)}
+.ct th,.ct td{padding:clamp(5px,1.2vw,10px) clamp(6px,1.5vw,14px);text-align:left;word-break:break-word}
+.ct thead th{background:var(--bg3);color:var(--text-muted);font-size:clamp(8px,1.1vw,11px);letter-spacing:0.5px;text-transform:uppercase;font-weight:600;border-bottom:1px solid var(--border)}
+.ct tbody td{color:var(--text-muted);border-bottom:1px solid var(--border);background:#fff}
+.ct tbody td:first-child{color:var(--text);font-weight:500}
+.vp{background:#fff;border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin:clamp(.8rem,2vw,1.2rem) 0;box-shadow:var(--shadow)}
+.vh{padding:clamp(.5rem,1.2vw,.8rem) clamp(.8rem,2vw,1.2rem);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;background:var(--bg3)}
+.vh h4{font-size:clamp(9px,1.2vw,11px);letter-spacing:0.5px;text-transform:uppercase;color:var(--text-muted);font-weight:600}
+.vb{padding:clamp(.6rem,2vw,1.2rem);position:relative}
+.vw{position:relative;width:100%;overflow:hidden}
+.vw canvas{display:block;width:100%;border-radius:8px}
+.vw svg{display:block;width:100%;height:auto;border-radius:8px}
+.vn{font-size:clamp(10px,1.3vw,12px);color:var(--text-dim);margin-top:8px;line-height:1.6}
+.vl{display:flex;gap:clamp(6px,1.5vw,14px);margin-top:6px;font-size:clamp(9px,1.2vw,11px);color:var(--text-dim);flex-wrap:wrap}
+.sw{display:inline-block;width:10px;height:3px;border-radius:1px;vertical-align:middle;margin-right:3px}
+.ctr{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.sg{display:flex;align-items:center;gap:clamp(3px,1vw,6px)}
+.sg label{font-size:clamp(9px,1.2vw,11px);color:var(--text-dim);white-space:nowrap;font-weight:500}
+.sg input[type=range]{-webkit-appearance:none;appearance:none;width:clamp(70px,15vw,120px);height:4px;background:var(--border);border-radius:2px;outline:none;touch-action:manipulation}
+.sg input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:clamp(12px,1.6vw,14px);height:clamp(12px,1.6vw,14px);border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 1px 4px rgba(99,102,241,.3)}
+.sg span{font-size:clamp(9px,1.2vw,11px);color:var(--text-muted);min-width:clamp(28px,5vw,40px);font-weight:500}
+.eb{background:#fff;border:1px solid var(--border);border-radius:var(--rl);padding:clamp(.6rem,1.5vw,1rem) clamp(.8rem,2vw,1.2rem);margin:.6rem 0;font-family:var(--fd);font-size:clamp(.8rem,1.7vw,.95rem);color:var(--warm2);overflow-x:auto;box-shadow:var(--shadow-sm);font-style:italic;word-break:break-word}
+.el{font-style:normal;font-size:clamp(9px,1.1vw,11px);color:var(--text-dim);display:block;margin-bottom:4px;font-family:var(--fb);letter-spacing:.5px;text-transform:uppercase;font-weight:600}
+.tkg{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:.8rem;margin-top:1rem}
+.tk{background:#fff;border:1px solid var(--border);border-radius:var(--rl);padding:clamp(.8rem,2vw,1.2rem);box-shadow:var(--shadow-sm);border-left:3px solid var(--accent)}
+.tk .n{font-size:clamp(9px,1.1vw,11px);color:var(--accent);margin-bottom:4px;font-weight:600}
+.tk h4{font-size:clamp(.8rem,1.6vw,.9rem);margin-bottom:4px;color:var(--text)}
+.tk p{font-size:clamp(.75rem,1.4vw,.82rem);color:var(--text-muted)}
+.prose{max-width:100%;margin-bottom:clamp(1rem,2.5vw,1.5rem)}
+.prose h3{font-family:var(--fd);font-size:clamp(.95rem,2.2vw,1.1rem);margin:clamp(1rem,3vw,1.8rem) 0 clamp(.3rem,1vw,.6rem);color:var(--text);font-weight:600}
+.prose p{color:var(--text-muted);font-size:clamp(.8rem,1.6vw,.88rem);margin-bottom:.7rem;line-height:1.75}
+.prose strong{color:var(--text);font-weight:600}
+.prose code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-size:.9em;font-family:Consolas,monospace;color:var(--accent)}
+.prose .eq{font-family:var(--fd);font-style:italic;color:var(--warm2);display:block;margin:.5rem 0;padding:clamp(.4rem,1vw,.6rem) clamp(.6rem,1.5vw,1rem);background:#fff;border:1px solid var(--border);border-radius:var(--r);font-size:clamp(.78rem,1.7vw,.95rem);box-shadow:var(--shadow-sm);overflow-x:auto;word-break:break-word}
+.prose .eq.boxed{border:2px solid var(--accent);background:rgba(124,58,237,.02)}
+.prose .analogy{background:var(--purple-bg);border:1px solid rgba(139,92,246,.15);border-radius:var(--rl);padding:clamp(.6rem,2vw,1rem) clamp(.8rem,2vw,1.2rem);margin:.8rem 0}
+.prose .analogy p{color:var(--text-muted);font-size:clamp(.78rem,1.5vw,.85rem);margin-bottom:.3rem}
+.prose .analogy strong{color:var(--accent)}
+.prose .keyfact{background:var(--cool-bg);border-left:3px solid var(--cool);padding:clamp(.5rem,1.5vw,.8rem) clamp(.6rem,2vw,1rem);border-radius:0 var(--r) var(--r) 0;margin:.8rem 0}
+.prose .keyfact p{color:var(--text-muted);font-size:clamp(.78rem,1.5vw,.85rem);margin:0 0 .3rem;line-height:1.7}
+.prose .warn{background:var(--warm-bg);border-left:3px solid var(--warm);padding:clamp(.5rem,1.5vw,.8rem) clamp(.6rem,2vw,1rem);border-radius:0 var(--r) var(--r) 0;margin:.8rem 0}
+.prose .warn p{color:var(--text-muted);font-size:clamp(.78rem,1.5vw,.85rem);margin:0 0 .3rem;line-height:1.7}
+.prose ul,.prose ol{padding-left:1.5rem;margin:.5rem 0}
+.prose li{color:var(--text-muted);font-size:clamp(.8rem,1.6vw,.88rem);margin-bottom:.3rem;line-height:1.65}
+.deriv-steps{display:flex;flex-direction:column;gap:clamp(.5rem,1.2vw,.8rem);margin:1rem 0}
+.deriv-step{display:flex;gap:clamp(.6rem,1.5vw,1rem);align-items:flex-start;background:#fff;border:1px solid var(--border);border-radius:var(--rl);padding:clamp(.6rem,1.5vw,1rem);box-shadow:var(--shadow-sm)}
+.deriv-step .step-num{width:clamp(28px,4vw,36px);height:clamp(28px,4vw,36px);border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:clamp(11px,1.3vw,14px);font-weight:700;flex-shrink:0}
+.deriv-step .step-content{flex:1;min-width:0}
+.deriv-step .step-content h4{font-size:clamp(.8rem,1.6vw,.9rem);color:var(--text);margin-bottom:.2rem;font-weight:600}
+.deriv-step .step-content p{font-size:clamp(.75rem,1.4vw,.84rem);color:var(--text-muted);margin-bottom:.2rem;line-height:1.6}
+.deriv-step .step-content .eq{margin:.3rem 0;font-size:clamp(.75rem,1.5vw,.88rem)}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(140px,45%),1fr));gap:clamp(.4rem,1vw,.6rem);margin-top:.8rem}
+.metric{background:#fff;border-radius:var(--rl);padding:clamp(.5rem,1.2vw,.8rem);text-align:center;box-shadow:var(--shadow-sm);border:1px solid var(--border)}
+.metric .mv{font-family:var(--fd);font-size:clamp(1rem,2.5vw,1.4rem);font-weight:700;color:var(--accent)}
+.metric .ml{font-size:clamp(8px,1.1vw,10px);color:var(--text-dim);margin-top:2px;letter-spacing:.3px;text-transform:uppercase;font-weight:500}
+.insight{padding:clamp(.5rem,1.2vw,.8rem) clamp(.6rem,1.5vw,1rem);border-radius:var(--r);margin-top:.6rem;font-size:clamp(.75rem,1.4vw,.84rem);line-height:1.6}
+.insight.green{background:var(--cool-bg);border:1px solid var(--cool-border);color:#047857}
+.insight.red{background:var(--red-bg);border:1px solid #fca5a5;color:#dc2626}
+.insight.blue{background:rgba(99,102,241,.06);border:1px solid rgba(99,102,241,.2);color:#4338ca}
+.insight.amber{background:var(--warm-bg);border:1px solid var(--warm-border);color:var(--warm2)}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:clamp(9px,1.1vw,11px);font-weight:600}
+.badge-red{background:#fef2f2;color:#dc2626;border:1px solid #fca5a5}
+.badge-green{background:#ecfdf5;color:#047857;border:1px solid #6ee7b7}
+.badge-amber{background:#fff7ed;color:#ea580c;border:1px solid #fdba74}
+.badge-blue{background:rgba(99,102,241,.06);color:#4338ca;border:1px solid rgba(99,102,241,.2)}
+footer{text-align:center;padding:clamp(1rem,3vw,2rem) var(--pad);color:var(--text-dim);font-size:clamp(9px,1.2vw,11px);border-top:1px solid var(--border);margin-top:2rem;background:#fff}
+@media(max-width:700px){
+  .ct{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .vh{flex-direction:column;align-items:stretch;gap:8px}
+  .ctr{width:100%}
+  .sg{width:100%;justify-content:space-between}
+  .sg input[type=range]{flex:1;width:auto;min-width:50px}
+}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="hdr-tag">CLIM-715 · George Mason University · Lecture 6</div>
+  <h1>Time-Differencing Schemes</h1>
+  <p>Euler, Backward, Trapezoidal, Matsuno, Heun, Leapfrog, Adams-Bashforth — stability, accuracy, and the computational mode</p>
+</div>
+<div class="tabs" id="tabbar">
+  <button class="tab active" onclick="showTab(0,this)">01 Why?</button>
+  <button class="tab" onclick="showTab(1,this)">02 Setup</button>
+  <button class="tab" onclick="showTab(2,this)">03 Classification</button>
+  <button class="tab" onclick="showTab(3,this)">04 Single-Stage</button>
+  <button class="tab" onclick="showTab(4,this)">05 Oscillation Eq.</button>
+  <button class="tab" onclick="showTab(5,this)">06 Amplification</button>
+  <button class="tab" onclick="showTab(6,this)">07 Predictor-Corrector</button>
+  <button class="tab" onclick="showTab(7,this)">08 Why Implicit?</button>
+  <button class="tab" onclick="showTab(8,this)">09 Phase Errors</button>
+  <button class="tab" onclick="showTab(9,this)">10 Three-Level</button>
+  <button class="tab" onclick="showTab(10,this)">11 Leapfrog</button>
+  <button class="tab" onclick="showTab(11,this)">12 Comp. Mode</button>
+  <button class="tab" onclick="showTab(12,this)">13 Mode Origin</button>
+  <button class="tab" onclick="showTab(13,this)">14 Asselin Filter</button>
+  <button class="tab" onclick="showTab(14,this)">15 Adams-Bashforth</button>
+  <button class="tab" onclick="showTab(15,this)">16 Summary</button>
+</div>
+
+<!-- ===== P0: WHY ===== -->
+<div class="panel active" id="p0">
+<div class="sh"><div class="sh-num">Concept 01</div><h2>Why Do We Need Time-Differencing Schemes?</h2><p class="lead">Computers can only do arithmetic — so how do we advance the atmosphere forward in time?</p></div>
+<div class="prose">
+<p>In weather and climate modeling, we have equations that describe how the atmosphere changes over time:</p>
+<div class="eq boxed"><span class="el">General ODE Form</span>d&psi;/dt = f(&psi;, t)</div>
+<p>Here, &psi; (psi) could be wind speed, temperature, pressure — any atmospheric variable. The left side says "how fast is &psi; changing right now?" and the right side says "that depends on the current values of everything."</p>
+<p><strong>The fundamental problem:</strong> Computers cannot do calculus. They cannot compute "instantaneous rates of change." Computers can only do arithmetic — addition, subtraction, multiplication, division. So we need to <em>approximate</em> calculus using arithmetic. That's what "time-differencing schemes" are: recipes for advancing a solution forward in time using only arithmetic operations.</p>
+<div class="analogy">
+<p><strong>Think of it this way:</strong> You know where you are right now (&psi; at time n). You know how fast things are changing right now (f). You want to figure out where you'll be a short time later (&psi; at time n+1). Different schemes give you different recipes for making that prediction, and each recipe has different strengths and weaknesses.</p>
+</div>
+</div>
+</div>
+
+<!-- ===== P1: SETUP ===== -->
+<div class="panel" id="p1">
+<div class="sh"><div class="sh-num">Concept 02</div><h2>The Setup — True Solution vs. Numerical Solution</h2><p class="lead">A critical distinction that underlies everything in this lecture.</p></div>
+<div class="prose">
+<p>We have the continuous PDE (the "true" equation):</p>
+<div class="eq boxed"><span class="el">1D Advection Equation</span>&part;&psi;/&part;t + c &middot; &part;&psi;/&part;x = 0</div>
+<p>This says "a wave moves to the right at speed c without changing shape." It has a <em>true solution</em> &psi;(n&Delta;t, j&Delta;x) that we could compute if we had infinite precision.</p>
+<p>Then we have our <em>numerical solution</em> &phi;<sub>j</sub><sup>n</sup> — what the computer actually calculates. The superscript n means "at time step n" and the subscript j means "at grid point j."</p>
+<div class="keyfact"><p><strong style="color:var(--cool2)">The whole game:</strong> How close can we make &phi;<sub>j</sub><sup>n</sup> to the true &psi;(n&Delta;t, j&Delta;x)? And will our numerical solution behave well (not blow up) over many time steps?</p></div>
+<p>To study time-differencing schemes in isolation (without the complication of spatial derivatives), the lecture simplifies to an ordinary differential equation:</p>
+<div class="eq">d&psi;/dt = f(&psi;, t)</div>
+<p>This lets us focus purely on <em>how we step forward in time</em>.</p>
+</div>
+</div>
+
+<!-- ===== P2: CLASSIFICATION ===== -->
+<div class="panel" id="p2">
+<div class="sh"><div class="sh-num">Concept 03</div><h2>Classification of Time-Differencing Schemes</h2><p class="lead">Schemes organized by two properties: how many time levels, and how many stages per step.</p></div>
+<div class="prose">
+<h3>How many time levels are used?</h3>
+<ul>
+<li><strong>Two-level schemes:</strong> Only need information from time n to compute time n+1. They relate &phi;<sup>n+1</sup> to &phi;<sup>n</sup>.</li>
+<li><strong>Three-level (multi-level) schemes:</strong> Use information from <em>two</em> previous times (n and n&minus;1) to compute n+1.</li>
+</ul>
+<h3>How many stages within a single step?</h3>
+<ul>
+<li><strong>Single-stage:</strong> One calculation per time step. You plug in, compute, done.</li>
+<li><strong>Multi-stage (predictor-corrector):</strong> First make a rough estimate (the "predictor"), then use it to make a better calculation (the "corrector"). Two calculations per time step.</li>
+</ul>
+<div class="warn"><p><strong style="color:var(--warm2)">Important practical note:</strong> At the very first time step, you only have one set of initial conditions (&phi;<sup>0</sup>). So you <em>must</em> start with a two-level scheme. Only after you have computed &phi;<sup>1</sup> do you have two time levels available, allowing you to switch to a three-level scheme like Leapfrog.</p></div>
+</div>
+<!-- Classification Tree SVG -->
+<div class="vp"><div class="vh"><h4>Classification Tree of Time-Differencing Schemes</h4></div>
+<div class="vb"><div class="vw">
+<svg viewBox="0 0 680 520" xmlns="http://www.w3.org/2000/svg">
+<defs><filter id="s1" x="-5%" y="-10%" width="110%" height="130%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#6366f1" flood-opacity=".1"/></filter></defs>
+<rect width="680" height="520" rx="12" fill="#fafbff"/>
+<!-- Root -->
+<rect x="220" y="10" width="240" height="40" rx="12" fill="#8b5cf6" filter="url(#s1)"/><text x="340" y="35" text-anchor="middle" font-family="system-ui" font-size="12" font-weight="700" fill="#fff">Time-Differencing Schemes</text>
+<!-- Level 2 -->
+<line x1="340" y1="50" x2="180" y2="75" stroke="#94a3b8" stroke-width="1.5"/><line x1="340" y1="50" x2="500" y2="75" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="80" y="75" width="200" height="44" rx="10" fill="#14b8a6" filter="url(#s1)"/><text x="180" y="93" text-anchor="middle" font-family="system-ui" font-size="11" font-weight="700" fill="#fff">Two-Level Schemes</text><text x="180" y="109" text-anchor="middle" font-family="system-ui" font-size="9" fill="rgba(255,255,255,.8)">Use times n and n+1</text>
+<rect x="400" y="75" width="200" height="44" rx="10" fill="#ea580c" filter="url(#s1)"/><text x="500" y="93" text-anchor="middle" font-family="system-ui" font-size="11" font-weight="700" fill="#fff">Three-Level Schemes</text><text x="500" y="109" text-anchor="middle" font-family="system-ui" font-size="9" fill="rgba(255,255,255,.8)">Use n&minus;1, n, and n+1</text>
+<!-- Level 3 under Two-Level -->
+<line x1="130" y1="119" x2="110" y2="150" stroke="#94a3b8" stroke-width="1.5"/><line x1="230" y1="119" x2="250" y2="150" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="30" y="150" width="160" height="40" rx="10" fill="#0d9488" filter="url(#s1)"/><text x="110" y="167" text-anchor="middle" font-family="system-ui" font-size="10" font-weight="600" fill="#fff">Single-Stage</text><text x="110" y="181" text-anchor="middle" font-family="system-ui" font-size="8" fill="rgba(255,255,255,.7)">One calculation</text>
+<rect x="210" y="150" width="160" height="40" rx="10" fill="#0d9488" filter="url(#s1)"/><text x="290" y="167" text-anchor="middle" font-family="system-ui" font-size="10" font-weight="600" fill="#fff">Multi-Stage</text><text x="290" y="181" text-anchor="middle" font-family="system-ui" font-size="8" fill="rgba(255,255,255,.7)">Predict then correct</text>
+<!-- Leaves under Single-Stage -->
+<line x1="70" y1="190" x2="50" y2="220" stroke="#94a3b8" stroke-width="1"/><line x1="110" y1="190" x2="110" y2="220" stroke="#94a3b8" stroke-width="1"/><line x1="150" y1="190" x2="170" y2="220" stroke="#94a3b8" stroke-width="1"/>
+<rect x="10" y="220" width="80" height="32" rx="8" fill="#3b82f6" filter="url(#s1)"/><text x="50" y="240" text-anchor="middle" font-family="system-ui" font-size="10" font-weight="600" fill="#fff">Euler</text>
+<rect x="110" y="220" width="80" height="32" rx="8" fill="#3b82f6" filter="url(#s1)"/><text x="150" y="240" text-anchor="middle" font-family="system-ui" font-size="10" font-weight="600" fill="#fff">Backward</text>
+<rect x="210" y="220" width="90" height="32" rx="8" fill="#3b82f6" filter="url(#s1)"/><text x="255" y="240" text-anchor="middle" font-family="system-ui" font-size="10" font-weight="600" fill="#fff">Trapezoidal</text>
+<!-- Annotations -->
+<text x="50" y="268" text-anchor="middle" font-family="system-ui" font-size="8" fill="#dc2626">Unstable, |A|&gt;1</text>
+<text x="150" y="268" text-anchor="middle" font-family="system-ui" font-size="8" fill="#0891b2">Stable, |A|&lt;1</text>
+<text x="255" y="268" text-anchor="middle" font-family="system-ui" font-size="8" fill="#22c55e">Neutral, |A|=1</text>
+<!-- Leaves under Multi-Stage -->
+<line x1="270" y1="190" x2="255" y2="290" stroke="#94a3b8" stroke-width="1"/><line x1="310" y1="190" x2="345" y2="290" stroke="#94a3b8" stroke-width="1"/>
+<rect x="215" y="290" width="80" height="32" rx="8" fill="#3b82f6" filter="url(#s1)"/><text x="255" y="310" text-anchor="middle" font-family="system-ui" font-size="10" font-weight="600" fill="#fff">Matsuno</text>
+<rect x="305" y="290" width="80" height="32" rx="8" fill="#3b82f6" filter="url(#s1)"/><text x="345" y="310" text-anchor="middle" font-family="system-ui" font-size="10" font-weight="600" fill="#fff">Heun</text>
+<text x="255" y="338" text-anchor="middle" font-family="system-ui" font-size="8" fill="#ea580c">Cond. stable</text>
+<text x="345" y="338" text-anchor="middle" font-family="system-ui" font-size="8" fill="#dc2626">Weakly unstable</text>
+<!-- Leaves under Three-Level -->
+<line x1="470" y1="119" x2="455" y2="220" stroke="#94a3b8" stroke-width="1.5"/><line x1="530" y1="119" x2="555" y2="220" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="415" y="220" width="80" height="32" rx="8" fill="#3b82f6" filter="url(#s1)"/><text x="455" y="240" text-anchor="middle" font-family="system-ui" font-size="10" font-weight="600" fill="#fff">Leapfrog</text>
+<rect x="510" y="220" width="110" height="32" rx="8" fill="#3b82f6" filter="url(#s1)"/><text x="565" y="240" text-anchor="middle" font-family="system-ui" font-size="10" font-weight="600" fill="#fff">Adams-Bashforth</text>
+<text x="455" y="268" text-anchor="middle" font-family="system-ui" font-size="8" fill="#22c55e">Neutral + comp. mode</text>
+<text x="565" y="268" text-anchor="middle" font-family="system-ui" font-size="8" fill="#ea580c">2nd order explicit</text>
+<!-- Footer -->
+<rect x="60" y="470" width="560" height="34" rx="13" fill="rgba(124,58,237,.04)" stroke="#c4b5fd" stroke-width="1"/>
+<text x="340" y="492" text-anchor="middle" font-family="system-ui" font-size="10" fill="#64748b">First time step must always use a two-level scheme (only one IC available)</text>
+</svg>
+</div></div></div>
+</div>
+
+<!-- ===== P3: SINGLE-STAGE ===== -->
+<div class="panel" id="p3">
+<div class="sh"><div class="sh-num">Concept 04</div><h2>Two-Level Single-Stage Schemes</h2><p class="lead">Euler, Backward, and Trapezoidal — the three simplest time-stepping methods.</p></div>
+<div class="prose">
+<div class="cg" style="grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));margin:.8rem 0">
+<div class="card" style="border-top:3px solid #dc2626">
+<h3 style="color:#dc2626">Euler (Forward) Scheme</h3>
+<div class="eq boxed"><span class="el">Euler Scheme</span>&phi;<sup>n+1</sup> = &phi;<sup>n</sup> + &Delta;t &middot; f<sup>n</sup></div>
+<ul>
+<li><strong>Explicit</strong> — &phi;<sup>n+1</sup> only on left side, direct computation</li>
+<li><strong>O(&Delta;t)</strong> — first-order accurate</li>
+<li><strong>Always unstable</strong> for oscillatory problems (|A| &gt; 1)</li>
+</ul>
+<p>"Where I'll be &asymp; where I am + (rate of change) &times; (time step)"</p>
+</div>
+<div class="card" style="border-top:3px solid #0891b2">
+<h3 style="color:#0891b2">Backward (Implicit) Scheme</h3>
+<div class="eq boxed"><span class="el">Backward Scheme</span>&phi;<sup>n+1</sup> = &phi;<sup>n</sup> + &Delta;t &middot; f<sup>n+1</sup></div>
+<ul>
+<li><strong>Implicit</strong> — f evaluated at <em>future</em> time (must solve equations)</li>
+<li><strong>O(&Delta;t)</strong> — first-order accurate</li>
+<li><strong>Always stable</strong> (unconditionally), but damps the solution</li>
+</ul>
+<p>Evaluates tendency at the future time — requires equation solving.</p>
+</div>
+<div class="card" style="border-top:3px solid #22c55e">
+<h3 style="color:#22c55e">Trapezoidal Scheme</h3>
+<div class="eq boxed"><span class="el">Trapezoidal Scheme</span>&phi;<sup>n+1</sup> = &phi;<sup>n</sup> + (&Delta;t/2)(f<sup>n</sup> + f<sup>n+1</sup>)</div>
+<ul>
+<li><strong>Implicit</strong> — averages present and future tendencies</li>
+<li><strong>O(&Delta;t&sup2;)</strong> — second-order accurate!</li>
+<li><strong>Always neutral</strong> — neither amplifies nor damps (|A| = 1)</li>
+</ul>
+<p>The "best of both worlds" — centered averaging of slopes at both endpoints.</p>
+</div>
+</div>
+
+<h3>Unified Formula for All Three</h3>
+<div class="eq boxed" style="text-align:center;color:var(--accent)"><span class="el">General Two-Level Single-Stage</span>&phi;<sup>n+1</sup> = &phi;<sup>n</sup> + &Delta;t(&alpha; f<sup>n</sup> + &beta; f<sup>n+1</sup>) with &alpha; + &beta; = 1</div>
+</div>
+<table class="ct">
+<thead><tr><th>Scheme</th><th>&alpha;</th><th>&beta;</th><th>Explicit/Implicit</th><th>Accuracy</th></tr></thead>
+<tbody>
+<tr><td>Euler</td><td>1</td><td>0</td><td>Explicit</td><td>O(&Delta;t)</td></tr>
+<tr><td>Backward</td><td>0</td><td>1</td><td>Implicit</td><td>O(&Delta;t)</td></tr>
+<tr><td>Trapezoidal</td><td>1/2</td><td>1/2</td><td>Implicit</td><td>O(&Delta;t&sup2;)</td></tr>
+</tbody>
+</table>
+<div class="prose" style="margin-top:1rem">
+<p>When &alpha; = 1 and &beta; = 0, f<sup>n+1</sup> disappears &rarr; Euler. When &alpha; = 0 and &beta; = 1, f<sup>n</sup> disappears &rarr; Backward. When both are 1/2, you average &rarr; Trapezoidal.</p>
+</div>
+</div>
+
+<!-- ===== P4: OSCILLATION EQUATION ===== -->
+<div class="panel" id="p4">
+<div class="sh"><div class="sh-num">Concept 05</div><h2>The Oscillation Equation — The Universal Test Problem</h2><p class="lead">Every scheme is tested against this equation because atmospheric dynamics are fundamentally oscillatory.</p></div>
+<div class="prose">
+<h3>Why this specific equation?</h3>
+<p>In the real atmosphere, there are waves everywhere — sound waves, gravity waves, Rossby waves, inertial oscillations. All involve oscillatory behavior. The test problem is:</p>
+<div class="eq boxed"><span class="el">Oscillation Equation</span>d&psi;/dt = i&omega;&psi;</div>
+<p>Where: &psi; is a complex number, i = &radic;&minus;1 (imaginary unit), &omega; is the oscillation frequency.</p>
+
+<h3>Where does this come from physically?</h3>
+<p>Consider horizontal equations of motion with only the Coriolis force:</p>
+<div class="eq">du/dt = fv &nbsp;&nbsp;&nbsp; dv/dt = &minus;fu</div>
+<p>Define a complex variable U = u + iv. Then:</p>
+<div class="eq">dU/dt = fv + i(&minus;fu) = &minus;if(u + iv) = &minus;ifU</div>
+<p>This is exactly the oscillation equation with &omega; = &minus;f. The wind vector rotates in a circle due to the Coriolis effect — an <strong>inertial oscillation</strong>.</p>
+
+<h3>The true (exact) solution</h3>
+<div class="eq boxed"><span class="el">Exact Solution</span>&psi;(t) = &psi;(0) &middot; e<sup>i&omega;t</sup> = &psi;(0) &middot; [cos(&omega;t) + i&middot;sin(&omega;t)]</div>
+<p>The solution traces a <strong>circle</strong> in the complex plane:</p>
+<ul>
+<li>The <strong>amplitude</strong> |&psi;| stays constant (= |&psi;(0)|) — never grows or shrinks</li>
+<li>The <strong>phase</strong> advances by &omega;&Delta;t per time step</li>
+</ul>
+</div>
+
+<!-- Interactive Complex Plane -->
+<div class="vp"><div class="vh"><h4>Oscillation Equation in the Complex Plane — Interactive</h4>
+<div class="ctr">
+<div class="sg"><label>&omega;&Delta;t</label><input type="range" id="osc-mu" min="5" max="80" value="30" oninput="drawOsc()"><span id="osc-muv">0.30</span></div>
+<div class="sg"><label>Steps</label><input type="range" id="osc-n" min="1" max="40" value="12" oninput="drawOsc()"><span id="osc-nv">12</span></div>
+</div>
+</div>
+<div class="vb">
+<div class="vw"><canvas id="cv-osc" height="400"></canvas></div>
+<div class="vl">
+<span><span class="sw" style="background:#94a3b8"></span>True (unit circle)</span>
+<span><span class="sw" style="background:#dc2626"></span>Euler (spirals out)</span>
+<span><span class="sw" style="background:#0891b2"></span>Backward (spirals in)</span>
+<span><span class="sw" style="background:#22c55e"></span>Trapezoidal (on circle)</span>
+</div>
+<p class="vn">Euler (red) spirals outward — unstable. Backward (blue) spirals inward — damping. Trapezoidal (green) stays on the circle — neutral. Increase &omega;&Delta;t to see the effect grow.</p>
+</div></div>
+</div>
+
+<!-- ===== P5: AMPLIFICATION FACTOR ===== -->
+<div class="panel" id="p5">
+<div class="sh"><div class="sh-num">Concept 06</div><h2>Deriving the Amplification Factor — Step by Step</h2><p class="lead">The mathematical heart of stability analysis, derived from first principles.</p></div>
+<div class="prose">
+<h3>The setup</h3>
+<p>Apply the general scheme &phi;<sup>n+1</sup> = &phi;<sup>n</sup> + &Delta;t(&alpha;f<sup>n</sup> + &beta;f<sup>n+1</sup>) to the oscillation equation f(&psi;) = i&omega;&psi;:</p>
+</div>
+<div class="deriv-steps">
+<div class="deriv-step"><div class="step-num">1</div><div class="step-content"><h4>Substitute f = i&omega;&phi;</h4><div class="eq">&phi;<sup>n+1</sup> = &phi;<sup>n</sup> + &Delta;t(&alpha; &middot; i&omega;&phi;<sup>n</sup> + &beta; &middot; i&omega;&phi;<sup>n+1</sup>)</div></div></div>
+<div class="deriv-step"><div class="step-num">2</div><div class="step-content"><h4>Define &mu; = &omega;&Delta;t and substitute</h4><div class="eq">&phi;<sup>n+1</sup> = &phi;<sup>n</sup> + i&mu;(&alpha;&phi;<sup>n</sup> + &beta;&phi;<sup>n+1</sup>)</div></div></div>
+<div class="deriv-step"><div class="step-num">3</div><div class="step-content"><h4>Collect terms — move all &phi;<sup>n+1</sup> to the left</h4><div class="eq">&phi;<sup>n+1</sup>(1 &minus; i&beta;&mu;) = &phi;<sup>n</sup>(1 + i&alpha;&mu;)</div></div></div>
+<div class="deriv-step"><div class="step-num">4</div><div class="step-content"><h4>Solve for the amplification factor A</h4><div class="eq boxed" style="text-align:center;color:var(--accent)">A = &phi;<sup>n+1</sup>/&phi;<sup>n</sup> = (1 + i&alpha;&mu;) / (1 &minus; i&beta;&mu;)</div></div></div>
+<div class="deriv-step"><div class="step-num">5</div><div class="step-content"><h4>Compute |A|&sup2; using conjugate</h4><div class="eq boxed" style="text-align:center;color:var(--accent)">|A|&sup2; = (1 + &alpha;&sup2;&mu;&sup2;) / (1 + &beta;&sup2;&mu;&sup2;)</div><p>Using (a+ib)(a&minus;ib) = a&sup2; + b&sup2;</p></div></div>
+</div>
+<div class="prose">
+<h3>Plug in specific schemes</h3>
+<div class="cg cg3" style="margin:.8rem 0">
+<div class="card" style="border-left:3px solid #dc2626"><h3 style="color:#dc2626">Euler (&alpha;=1, &beta;=0)</h3><div class="eq">|A|&sup2; = 1 + &mu;&sup2; &gt; 1 always</div><p><strong>Always unstable!</strong></p></div>
+<div class="card" style="border-left:3px solid #0891b2"><h3 style="color:#0891b2">Backward (&alpha;=0, &beta;=1)</h3><div class="eq">|A|&sup2; = 1/(1 + &mu;&sup2;) &lt; 1 always</div><p><strong>Always stable (damping)!</strong></p></div>
+<div class="card" style="border-left:3px solid #22c55e"><h3 style="color:#22c55e">Trapezoidal (&alpha;=&beta;=&frac12;)</h3><div class="eq">|A|&sup2; = (1+&mu;&sup2;/4)/(1+&mu;&sup2;/4) = 1</div><p><strong>Always neutral!</strong></p></div>
+</div>
+<div class="keyfact"><p><strong style="color:var(--cool2)">Elegant insight:</strong> When more weight is on the present (&alpha; &gt; &beta;), the scheme amplifies. When more on the future (&beta; &gt; &alpha;), it damps. When equal, perfectly neutral.</p></div>
+</div>
+</div>
+
+<!-- ===== P6: PREDICTOR-CORRECTOR ===== -->
+<div class="panel" id="p6">
+<div class="sh"><div class="sh-num">Concept 07</div><h2>Multi-Stage (Predictor-Corrector) Schemes</h2><p class="lead">Getting the benefits of implicit schemes while keeping the simplicity of explicit ones.</p></div>
+<div class="prose">
+<h3>The motivation</h3>
+<p>Among single-stage schemes: Euler is explicit but unstable, Backward/Trapezoidal are stable but implicit (expensive). Can we get stability while staying explicit?</p>
+<p><strong>Yes — through predictor-corrector methods:</strong></p>
+<ol>
+<li><strong>Predict:</strong> Use a cheap explicit method (Euler) to make a rough guess</li>
+<li><strong>Correct:</strong> Use that guess to evaluate the tendency at the future time, then redo the calculation more carefully</li>
+</ol>
+
+<h3>7a. The Matsuno Scheme (Euler-Backward)</h3>
+<div class="eq"><span class="el">Step 1 — Predict (Euler)</span>&phi;<sup>*</sup> = &phi;<sup>n</sup> + &Delta;t &middot; f<sup>n</sup></div>
+<div class="eq"><span class="el">Step 2 — Correct (using predicted future)</span>&phi;<sup>n+1</sup> = &phi;<sup>n</sup> + &Delta;t &middot; f(&phi;<sup>*</sup>)</div>
+<p><strong>Accuracy:</strong> O(&Delta;t) — first-order only. <strong>Stability:</strong> Much better than Euler!</p>
+
+<h3>Matsuno Amplification Factor</h3>
+<p>Applied to d&psi;/dt = i&omega;&psi; with &mu; = &omega;&Delta;t:</p>
+<div class="eq boxed" style="text-align:center;color:var(--accent)"><span class="el">Matsuno</span>A = 1 &minus; &mu;&sup2; + i&mu; &nbsp;&nbsp;&rarr;&nbsp;&nbsp; |A|&sup2; = 1 &minus; &mu;&sup2; + &mu;&#8308;</div>
+<p>Stable when |A|&sup2; &le; 1, which gives &mu;&sup2;(&mu;&sup2; &minus; 1) &le; 0, so <strong>&mu; &le; 1</strong> (i.e., &omega;&Delta;t &le; 1).</p>
+<p>Maximum damping occurs at <strong>&mu; = 1/&radic;2 &asymp; 0.707</strong> where |A| &asymp; 0.866. This selectively damps high-frequency noise — actually useful for cleaning up initial condition errors.</p>
+
+<h3>7b. The Heun Scheme (2nd-order Runge-Kutta)</h3>
+<div class="eq"><span class="el">Step 1 — Predict (Euler)</span>&phi;<sup>*</sup> = &phi;<sup>n</sup> + &Delta;t &middot; f<sup>n</sup></div>
+<div class="eq"><span class="el">Step 2 — Correct (average tendencies)</span>&phi;<sup>n+1</sup> = &phi;<sup>n</sup> + (&Delta;t/2)(f<sup>n</sup> + f(&phi;<sup>*</sup>))</div>
+<p><strong>Accuracy:</strong> O(&Delta;t&sup2;) — second-order! The averaging mimics Trapezoidal.</p>
+
+<h3>Heun Amplification Factor</h3>
+<div class="eq boxed" style="text-align:center;color:var(--accent)"><span class="el">Heun</span>A = (1 &minus; &mu;&sup2;/2) + i&mu; &nbsp;&nbsp;&rarr;&nbsp;&nbsp; |A|&sup2; = 1 + &mu;&#8308;/4</div>
+<p><strong>Always unstable!</strong> But the growth is proportional to &mu;&#8308; (fourth power) — <em>extremely</em> weak. For &mu; = 0.1: Euler grows by 1% per step, Heun by only 0.0025%.</p>
+</div>
+
+<!-- |A| vs mu chart -->
+<div class="vp"><div class="vh"><h4>Amplification Factor |A| vs. &mu; for All Two-Level Schemes</h4></div>
+<div class="vb">
+<div class="vw"><canvas id="cv-amp" height="360"></canvas></div>
+<div class="vl">
+<span><span class="sw" style="background:#dc2626"></span>Euler (|A|&gt;1)</span>
+<span><span class="sw" style="background:#0891b2"></span>Backward (|A|&lt;1)</span>
+<span><span class="sw" style="background:#22c55e"></span>Trapezoidal (|A|=1)</span>
+<span><span class="sw" style="background:#ea580c"></span>Matsuno (&le;1 if &mu;&le;1)</span>
+<span><span class="sw" style="background:#8b5cf6"></span>Heun (weakly &gt;1)</span>
+</div>
+<p class="vn">The dashed green line at |A|=1 is the perfect neutral reference. Notice Heun (purple) barely deviates from 1, while Euler (red) shoots upward rapidly.</p>
+</div></div>
+</div>
+
+<!-- ===== P7: WHY IMPLICIT ===== -->
+<div class="panel" id="p7">
+<div class="sh"><div class="sh-num">Concept 08</div><h2>Why Implicit Schemes Are Always Stable</h2><p class="lead">The physical intuition behind the mathematical guarantee.</p></div>
+<div class="prose">
+<p>Both the Backward and Trapezoidal schemes (implicit) are stable regardless of &Delta;t. Why?</p>
+<p><strong>Mathematical answer:</strong> In |A|&sup2; = (1 + &alpha;&sup2;&mu;&sup2;)/(1 + &beta;&sup2;&mu;&sup2;), when &beta; &gt; 0 (implicit weight), the denominator grows with &mu;&sup2;, counteracting the numerator's growth.</p>
+<div class="analogy">
+<p><strong>Physical intuition:</strong> Implicit schemes incorporate information about the <em>future</em> state into the computation. By "knowing" something about where the solution is going, they can self-correct. It's like driving while looking ahead through the windshield (implicit) versus driving only looking in the rearview mirror (explicit). Looking ahead gives you time to course-correct before problems develop.</p>
+</div>
+<p><strong>The price:</strong> At every time step, you must solve a system of equations (because &phi;<sup>n+1</sup> appears on both sides). For 3D atmospheric models, this becomes very expensive.</p>
+<div class="keyfact"><p><strong style="color:var(--cool2)">Central trade-off:</strong> Stability versus computational cost — one of the central themes of the entire course.</p></div>
+</div>
+</div>
+
+<!-- ===== P8: PHASE ERRORS ===== -->
+<div class="panel" id="p8">
+<div class="sh"><div class="sh-num">Concept 09</div><h2>Phase Error Analysis</h2><p class="lead">Does the scheme propagate waves at the correct speed?</p></div>
+<div class="prose">
+<h3>The setup</h3>
+<p>The amplification factor A = |A| &middot; e<sup>i&theta;</sup> where &theta; is the <strong>phase change</strong> per step. The true solution changes phase by &mu; = &omega;&Delta;t per step. The ratio &theta;/&mu; tells us:</p>
+<table class="ct" style="margin:.6rem 0">
+<thead><tr><th>Condition</th><th>Behavior</th></tr></thead>
+<tbody>
+<tr><td>&theta;/&mu; &gt; 1</td><td>Numerical wave moves <strong>faster</strong> — accelerating</td></tr>
+<tr><td>&theta;/&mu; = 1</td><td>Correct speed — perfect</td></tr>
+<tr><td>&theta;/&mu; &lt; 1</td><td>Numerical wave moves <strong>slower</strong> — decelerating</td></tr>
+</tbody>
+</table>
+<h3>Computing &theta;</h3>
+<div class="eq">&theta; = arctan(A<sub>im</sub> / A<sub>re</sub>) &nbsp;&nbsp;&rarr;&nbsp;&nbsp; &theta;/&mu; = arctan(A<sub>im</sub>/A<sub>re</sub>) / &mu;</div>
+
+<h3>Phase errors for each scheme</h3>
+<ul>
+<li><strong>Euler:</strong> &theta;/&mu; = arctan(&mu;)/&mu; &lt; 1 always. <strong>Decelerating.</strong></li>
+<li><strong>Backward:</strong> Same magnitude: arctan(&mu;)/&mu;. <strong>Also decelerating.</strong></li>
+<li><strong>Matsuno:</strong> &theta;/&mu; = atan2(&mu;, 1&minus;&mu;&sup2;)/&mu;. <strong>Accelerating</strong> for small &mu; — the only scheme that speeds up waves.</li>
+</ul>
+<div class="keyfact"><p><strong style="color:var(--cool2)">Practical message:</strong> Phase errors from time differencing are usually not the biggest concern. Spatial differencing typically introduces <em>much larger</em> phase errors. What really matters most is <strong>stability</strong> — that determines whether your simulation survives.</p></div>
+</div>
+
+<!-- Phase chart -->
+<div class="vp"><div class="vh"><h4>Relative Phase Change &theta;/(&omega;&Delta;t) vs. &mu;</h4></div>
+<div class="vb">
+<div class="vw"><canvas id="cv-phase" height="320"></canvas></div>
+<div class="vl">
+<span><span class="sw" style="background:#dc2626"></span>Euler</span>
+<span><span class="sw" style="background:#0891b2"></span>Backward</span>
+<span><span class="sw" style="background:#22c55e"></span>Trapezoidal</span>
+<span><span class="sw" style="background:#ea580c"></span>Matsuno</span>
+<span><span class="sw" style="background:#8b5cf6"></span>Heun</span>
+</div>
+<p class="vn">Values below 1 mean the numerical wave is too slow (decelerating). Matsuno (orange) is the only scheme that accelerates waves at small &mu;.</p>
+</div></div>
+</div>
+
+<!-- ===== P9: THREE-LEVEL ===== -->
+<div class="panel" id="p9">
+<div class="sh"><div class="sh-num">Concept 10</div><h2>Three-Level Schemes — Why Use More Than Two Time Levels?</h2><p class="lead">Using two previous time levels to achieve centered differencing — second-order accuracy, explicitly.</p></div>
+<div class="prose">
+<p>With two-level schemes, we face a dilemma: explicit schemes that are both stable <em>and</em> second-order accurate don't really exist for oscillatory problems. The good second-order scheme (Trapezoidal) is implicit — computationally expensive.</p>
+<p><strong>Clever idea:</strong> What if we use information from TWO previous time levels? After computing the first step, we have values at both time n and time n&minus;1 in memory. Why not use both?</p>
+<div class="eq">&phi;<sup>n+1</sup> = f(&phi;<sup>n</sup>, &phi;<sup>n&minus;1</sup>)</div>
+<p><strong>The benefit:</strong> By spanning from n&minus;1 to n+1 (total 2&Delta;t), we achieve centered differencing in time &rarr; second-order accuracy, and we can do this <em>explicitly</em>.</p>
+<div class="warn"><p><strong style="color:var(--warm2)">The cost:</strong> Using three time levels introduces a fundamentally new problem — <strong>computational modes</strong> — that doesn't exist in two-level schemes.</p></div>
+</div>
+</div>
+
+<!-- ===== P10: LEAPFROG ===== -->
+<div class="panel" id="p10">
+<div class="sh"><div class="sh-num">Concept 11</div><h2>The Leapfrog Scheme</h2><p class="lead">The workhorse of atmospheric modeling — explicit, second-order, and neutral.</p></div>
+<div class="prose">
+<div class="eq boxed" style="text-align:center;font-size:clamp(.9rem,2vw,1.1rem);color:var(--accent)"><span class="el">Leapfrog Scheme</span>&phi;<sup>n+1</sup> = &phi;<sup>n&minus;1</sup> + 2&Delta;t &middot; f<sup>n</sup></div>
+<p>"The value at the <em>future</em> time equals the value at the time <em>before</em> the present, plus twice the time step times the tendency at the <em>present</em> time."</p>
+<p>The scheme "leaps" from n&minus;1 <em>over</em> the present time n to land at n+1. The tendency f<sup>n</sup> is evaluated right at the center — this centering gives accuracy.</p>
+<ul>
+<li><strong>Second-order accurate:</strong> O(&Delta;t&sup2;)</li>
+<li><strong>Explicit:</strong> no equations to solve</li>
+<li><strong>Probably the most widely used scheme in atmospheric models</strong></li>
+</ul>
+<div class="warn"><p><strong style="color:var(--warm2)">But there's a catch</strong> — the computational mode (next section).</p></div>
+</div>
+
+<!-- Leapfrog stencil SVG -->
+<div class="vp"><div class="vh"><h4>Leapfrog Time Stencil</h4></div>
+<div class="vb"><div class="vw">
+<svg viewBox="0 0 680 220" xmlns="http://www.w3.org/2000/svg">
+<rect width="680" height="220" rx="12" fill="#fafbff"/>
+<!-- Time axis -->
+<line x1="60" y1="100" x2="620" y2="100" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="630" y="104" font-family="system-ui" font-size="10" fill="#94a3b8">time</text>
+<!-- Tick marks -->
+<line x1="140" y1="95" x2="140" y2="105" stroke="#94a3b8" stroke-width="1.5"/>
+<line x1="340" y1="95" x2="340" y2="105" stroke="#94a3b8" stroke-width="1.5"/>
+<line x1="540" y1="95" x2="540" y2="105" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="140" y="125" text-anchor="middle" font-family="system-ui" font-size="11" fill="#64748b">n &minus; 1</text>
+<text x="340" y="125" text-anchor="middle" font-family="system-ui" font-size="11" fill="#64748b">n</text>
+<text x="540" y="125" text-anchor="middle" font-family="system-ui" font-size="11" fill="#64748b">n + 1</text>
+<!-- Boxes -->
+<rect x="100" y="48" width="80" height="40" rx="8" fill="#0891b2" opacity=".9"/><text x="140" y="73" text-anchor="middle" font-family="Georgia" font-size="13" fill="#fff" font-style="italic">&phi;<tspan font-size="9" baseline-shift="super">n&minus;1</tspan></text>
+<rect x="300" y="48" width="80" height="40" rx="8" fill="#8b5cf6" opacity=".9"/><text x="340" y="73" text-anchor="middle" font-family="Georgia" font-size="13" fill="#fff" font-style="italic">f<tspan font-size="9" baseline-shift="super">n</tspan></text>
+<rect x="500" y="48" width="80" height="40" rx="8" fill="#ea580c" opacity=".9"/><text x="540" y="73" text-anchor="middle" font-family="Georgia" font-size="13" fill="#fff" font-style="italic">&phi;<tspan font-size="9" baseline-shift="super">n+1</tspan></text>
+<!-- Leap arrow -->
+<path d="M180,55 Q340,0 500,55" fill="none" stroke="#ea580c" stroke-width="2" marker-end="url(#arL)"/>
+<defs><marker id="arL" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="#ea580c"/></marker></defs>
+<text x="340" y="18" text-anchor="middle" font-family="system-ui" font-size="10" font-weight="600" fill="#ea580c">Leaps over present</text>
+<!-- Dashed line from f^n down -->
+<line x1="340" y1="88" x2="340" y2="100" stroke="#8b5cf6" stroke-width="1" stroke-dasharray="3,2"/>
+<text x="340" y="145" text-anchor="middle" font-family="system-ui" font-size="9" fill="#8b5cf6">Tendency evaluated here</text>
+<!-- Spacing -->
+<text x="240" y="165" text-anchor="middle" font-family="Georgia" font-size="10" fill="#94a3b8" font-style="italic">&Delta;t</text>
+<text x="440" y="165" text-anchor="middle" font-family="Georgia" font-size="10" fill="#94a3b8" font-style="italic">&Delta;t</text>
+<!-- Formula -->
+<rect x="160" y="180" width="360" height="28" rx="10" fill="rgba(124,58,237,.05)" stroke="#c4b5fd" stroke-width="1"/>
+<text x="340" y="199" text-anchor="middle" font-family="Georgia" font-size="12" fill="#7c3aed" font-style="italic">&phi;<tspan font-size="8" baseline-shift="super">n+1</tspan> = &phi;<tspan font-size="8" baseline-shift="super">n&minus;1</tspan> + 2&Delta;t &middot; f<tspan font-size="8" baseline-shift="super">n</tspan></text>
+</svg>
+</div></div></div>
+</div>
+
+<!-- ===== P11: COMPUTATIONAL MODE ===== -->
+<div class="panel" id="p11">
+<div class="sh"><div class="sh-num">Concept 12</div><h2>The Computational Mode — The Hidden Danger</h2><p class="lead">Three-level schemes always produce two solution modes — one physical, one parasitic.</p></div>
+<div class="prose">
+<h3>Why does a computational mode exist?</h3>
+<p>Leapfrog applied to d&psi;/dt = i&omega;&psi; gives: &phi;<sup>n+1</sup> = &phi;<sup>n&minus;1</sup> + 2i&mu;&phi;<sup>n</sup></p>
+<p>Writing &phi;<sup>n+1</sup> = A&phi;<sup>n</sup> and &phi;<sup>n&minus;1</sup> = &phi;<sup>n</sup>/A, we get:</p>
+<div class="eq boxed" style="text-align:center;color:var(--accent)"><span class="el">Quadratic in A</span>A&sup2; &minus; 2i&mu;A &minus; 1 = 0</div>
+<p>A <strong>quadratic</strong> has <strong>two roots</strong>. This is fundamental: a three-level scheme produces two amplification factors, not one.</p>
+
+<h3>Solving the quadratic</h3>
+<p>Using A = [2i&mu; &plusmn; 2&radic;(1&minus;&mu;&sup2;)] / 2:</p>
+<div class="cg cg2" style="margin:.8rem 0">
+<div class="card" style="border-left:3px solid #22c55e"><h3 style="color:#22c55e">A<sub>1</sub> = i&mu; + &radic;(1&minus;&mu;&sup2;) &nbsp;&mdash; Physical mode</h3><p>As &mu;&rarr;0: A<sub>1</sub> &rarr; 1 + i&mu; &minus; &mu;&sup2;/2 + &hellip; &asymp; e<sup>i&mu;</sup> &checkmark;</p><p>|A<sub>1</sub>|&sup2; = &mu;&sup2; + (1&minus;&mu;&sup2;) = <strong>1</strong></p></div>
+<div class="card" style="border-left:3px solid #dc2626"><h3 style="color:#dc2626">A<sub>2</sub> = i&mu; &minus; &radic;(1&minus;&mu;&sup2;) &nbsp;&mdash; Computational mode</h3><p>As &mu;&rarr;0: A<sub>2</sub> &rarr; <strong>&minus;1</strong> (no physical counterpart!)</p><p>|A<sub>2</sub>|&sup2; = &mu;&sup2; + (1&minus;&mu;&sup2;) = <strong>1</strong> (persists forever!)</p></div>
+</div>
+
+<h3>What does the computational mode do?</h3>
+<p>Since A<sub>2</sub> &asymp; &minus;1, the computational mode <strong>alternates sign every step</strong>:</p>
+<div class="eq">&phi;<sub>comp</sub><sup>n</sup> &prop; (&minus;1)<sup>n</sup> &times; (something)</div>
+<p>This creates a <strong>zigzag pattern</strong> — completely unphysical. And since |A<sub>2</sub>| = 1, it <strong>never decays</strong>.</p>
+<p>Stability requires &mu; &le; 1. When &mu; &gt; 1, &radic;(1&minus;&mu;&sup2;) becomes imaginary &rarr; |A| &gt; 1 &rarr; blow-up.</p>
+</div>
+
+<!-- Interactive physical vs computational mode -->
+<div class="vp"><div class="vh"><h4>Physical Mode vs. Computational Mode — Interactive</h4>
+<div class="ctr">
+<div class="sg"><label>&mu;</label><input type="range" id="cm-mu" min="5" max="95" value="40" oninput="drawCM()"><span id="cm-muv">0.40</span></div>
+<div class="sg"><label>Comp. mode %</label><input type="range" id="cm-amp" min="0" max="40" value="15" oninput="drawCM()"><span id="cm-ampv">15%</span></div>
+</div>
+</div>
+<div class="vb">
+<div class="vw"><canvas id="cv-cm" height="320"></canvas></div>
+<div class="vl">
+<span><span class="sw" style="background:#94a3b8"></span>True solution</span>
+<span><span class="sw" style="background:#22c55e"></span>Physical mode (A<sub>1</sub>)</span>
+<span><span class="sw" style="background:#dc2626"></span>Comp. mode (A<sub>2</sub>)</span>
+<span><span class="sw" style="background:#8b5cf6"></span>Combined (model sees)</span>
+</div>
+<div class="insight green" id="cm-insight">Increase the "Comp. mode %" slider to see how the zigzag contaminates the smooth physical solution.</div>
+</div></div>
+</div>
+
+<!-- ===== P12: MODE ORIGIN ===== -->
+<div class="panel" id="p12">
+<div class="sh"><div class="sh-num">Concept 13</div><h2>Where Do Computational Modes Come From?</h2><p class="lead">The mathematical root cause — and a guitar string analogy.</p></div>
+<div class="prose">
+<h3>The mathematical root cause</h3>
+<p>For a <strong>two-level</strong> scheme: &phi;<sup>n+1</sup> = A &middot; &phi;<sup>n</sup> — a <strong>first-order</strong> recurrence with exactly <strong>one</strong> solution mode.</p>
+<p>For a <strong>three-level</strong> scheme like Leapfrog: &phi;<sup>n+1</sup> = 2i&mu;&phi;<sup>n</sup> + &phi;<sup>n&minus;1</sup> — a <strong>second-order</strong> recurrence with <strong>two</strong> independent solution modes.</p>
+<div class="keyfact"><p><strong style="color:var(--cool2)">General rule:</strong> An N-level scheme produces an (N&minus;1)-degree polynomial in A, which has (N&minus;1) roots. Only one root corresponds to the true physical solution. The remaining N&minus;2 roots are all computational modes.</p></div>
+<div class="analogy">
+<p><strong>Guitar string analogy:</strong> If you pluck a string (the physical initial condition), it vibrates at the natural frequency (the physical mode). But the string also supports higher harmonics — overtones that ring simultaneously. In a two-level scheme, there's only room for one "harmonic." In a three-level scheme, there's room for two, and the second one (the computational mode) is like a parasitic overtone with no physical basis.</p>
+</div>
+</div>
+</div>
+
+<!-- ===== P13: ASSELIN FILTER ===== -->
+<div class="panel" id="p13">
+<div class="sh"><div class="sh-num">Concept 14</div><h2>The Asselin-Robert Time Filter</h2><p class="lead">Taming the computational mode — the standard tool used in atmospheric models.</p></div>
+<div class="prose">
+<p>Since the computational mode doesn't decay on its own (|A<sub>2</sub>| = 1), we need to actively suppress it. The filter replaces &phi;<sup>n</sup> with a smoothed value:</p>
+<div class="eq boxed" style="text-align:center;color:var(--accent)"><span class="el">Asselin-Robert Filter</span>&phi;&#771;<sup>n</sup> = &phi;<sup>n</sup> + (&nu;/2)(&phi;<sup>n&minus;1</sup> &minus; 2&phi;<sup>n</sup> + &phi;<sup>n+1</sup>)</div>
+<p>where &nu; is a small filter coefficient, typically 0.01 to 0.1.</p>
+<h3>Why does this work?</h3>
+<p>The expression (&phi;<sup>n&minus;1</sup> &minus; 2&phi;<sup>n</sup> + &phi;<sup>n+1</sup>) is a <strong>second-order centered difference</strong> in time. For a smooth physical solution, this quantity is small (proportional to &part;&sup2;&phi;/&part;t&sup2;).</p>
+<p>But for the computational mode zigzag (+1, &minus;1, +1, &minus;1...), consecutive values differ dramatically:</p>
+<div class="eq">&phi;<sup>n&minus;1</sup> &minus; 2&phi;<sup>n</sup> + &phi;<sup>n+1</sup> = +1 &minus; 2(&minus;1) + 1 = +4</div>
+<p>This large correction nudges &phi;<sup>n</sup> toward the average of its neighbors, smoothing the zigzag. For the physical mode, the correction is tiny.</p>
+<div class="warn"><p><strong style="color:var(--warm2)">The cost:</strong> The filter reduces Leapfrog from second-order to effectively first-order accuracy. But with &nu; = 0.05, the degradation is small — an acceptable price for removing the computational mode.</p></div>
+</div>
+</div>
+
+<!-- ===== P14: ADAMS-BASHFORTH ===== -->
+<div class="panel" id="p14">
+<div class="sh"><div class="sh-num">Concept 15</div><h2>The Adams-Bashforth Scheme</h2><p class="lead">Another three-level scheme — extrapolation forward using two previous tendencies.</p></div>
+<div class="prose">
+<div class="eq boxed" style="text-align:center;color:var(--accent)"><span class="el">Adams-Bashforth Scheme</span>&phi;<sup>n+1</sup> = &phi;<sup>n</sup> + &Delta;t(<sup>3</sup>&frasl;<sub>2</sub> &middot; f<sup>n</sup> &minus; <sup>1</sup>&frasl;<sub>2</sub> &middot; f<sup>n&minus;1</sup>)</div>
+<p>Notice the difference from Leapfrog:</p>
+<ul>
+<li><strong>Leapfrog</strong> steps from &phi;<sup>n&minus;1</sup> to &phi;<sup>n+1</sup> using f<sup>n</sup></li>
+<li><strong>Adams-Bashforth</strong> steps from &phi;<sup>n</sup> to &phi;<sup>n+1</sup> using a <em>weighted combination</em> of f<sup>n</sup> and f<sup>n&minus;1</sup></li>
+</ul>
+<p>The weighting (3/2 and &minus;1/2) achieves second-order accuracy through extrapolation: more weight on the most recent tendency, minus a correction from the older one.</p>
+<h3>Properties</h3>
+<ul>
+<li><strong>Second-order accurate:</strong> O(&Delta;t&sup2;)</li>
+<li><strong>Explicit:</strong> only &phi;<sup>n+1</sup> is unknown</li>
+<li>Also has a computational mode (three-level scheme)</li>
+<li>Steps from &phi;<sup>n</sup> (not &phi;<sup>n&minus;1</sup>) — more of an extrapolation than a "leap"</li>
+</ul>
+</div>
+</div>
+
+<!-- ===== P15: SUMMARY ===== -->
+<div class="panel" id="p15">
+<div class="sh"><div class="sh-num">Summary</div><h2>Choosing a Scheme for Atmospheric Models</h2><p class="lead">No perfect scheme exists — the art is choosing the right combination for your problem.</p></div>
+
+<!-- Master comparison table -->
+<div style="overflow-x:auto">
+<table class="ct">
+<thead><tr><th>Scheme</th><th>Levels</th><th>Type</th><th>Order</th><th>|A|</th><th>Stability</th><th>Comp. mode?</th><th>Best used for</th></tr></thead>
+<tbody>
+<tr><td>Euler</td><td>2</td><td>Explicit</td><td>1st</td><td style="color:#dc2626;font-weight:600">&gt; 1</td><td><span class="badge badge-red">Always unstable</span></td><td>No</td><td style="color:var(--text-dim)">Teaching only</td></tr>
+<tr><td>Backward</td><td>2</td><td>Implicit</td><td>1st</td><td style="color:#0891b2;font-weight:600">&lt; 1</td><td><span class="badge badge-green">Unconditionally stable</span></td><td>No</td><td style="color:var(--text-dim)">Damping noise; diffusion</td></tr>
+<tr><td>Trapezoidal</td><td>2</td><td>Implicit</td><td>2nd</td><td style="color:#22c55e;font-weight:600">= 1</td><td><span class="badge badge-green">Unconditionally stable</span></td><td>No</td><td style="color:var(--text-dim)">Semi-implicit; gravity waves</td></tr>
+<tr><td>Matsuno</td><td>2</td><td>Explicit</td><td>1st</td><td style="color:#ea580c;font-weight:600">&le; 1</td><td><span class="badge badge-amber">Stable if &mu; &le; 1</span></td><td>No</td><td style="color:var(--text-dim)">First few steps; IC noise</td></tr>
+<tr><td>Heun</td><td>2</td><td>Explicit</td><td>2nd</td><td style="color:#dc2626;font-weight:600">&gt; 1</td><td><span class="badge badge-amber">Weakly unstable</span></td><td>No</td><td style="color:var(--text-dim)">Short integrations; RK start</td></tr>
+<tr><td>Leapfrog</td><td>3</td><td>Explicit</td><td>2nd</td><td style="color:#22c55e;font-weight:600">= 1</td><td><span class="badge badge-amber">Stable if &mu; &le; 1</span></td><td style="color:#dc2626;font-weight:600">Yes (|A<sub>2</sub>|=1)</td><td style="color:var(--text-dim)">Main workhorse + filter</td></tr>
+<tr><td>Adams-Bashforth</td><td>3</td><td>Explicit</td><td>2nd</td><td>—</td><td><span class="badge badge-amber">Conditionally stable</span></td><td style="color:#dc2626;font-weight:600">Yes</td><td style="color:var(--text-dim)">Alternative to Leapfrog</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="prose" style="margin-top:1.5rem">
+<h3>How atmospheric models actually use these in practice</h3>
+<p><strong>Step 1 (Startup):</strong> The first time step uses a two-level scheme like Matsuno or Runge-Kutta. You <em>must</em> start with a two-level scheme because you only have &phi;<sup>0</sup>. Matsuno is preferred because its damping cleans up IC noise.</p>
+<p><strong>Steps 2 onward (Main integration):</strong> Switch to <strong>Leapfrog</strong> — explicit (fast), second-order, neutral. Apply the Asselin-Robert filter to control the computational mode.</p>
+<p><strong>Special treatment for diffusion:</strong> Physical diffusion terms use the implicit Backward or Trapezoidal scheme, because the diffusion stability constraint (&Delta;t &prop; &Delta;x&sup2;) would force impractically small time steps explicitly.</p>
+<p><strong>Semi-implicit methods:</strong> Fast waves (sound, gravity) treated implicitly with Trapezoidal; slow terms (advection) treated explicitly with Leapfrog. This allows much larger time steps.</p>
+</div>
+
+<h3 style="font-family:var(--fd);font-size:clamp(.95rem,2.2vw,1.1rem);margin:clamp(1rem,3vw,1.8rem) 0 clamp(.3rem,1vw,.6rem);color:var(--text);font-weight:600">Deep Takeaways</h3>
+<div class="tkg">
+<div class="tk"><div class="n">Takeaway 1</div><h4>Stability &gt; Accuracy</h4><p>An unstable scheme, no matter how accurate, will produce garbage. You cannot out-refine instability.</p></div>
+<div class="tk"><div class="n">Takeaway 2</div><h4>No Perfect Scheme</h4><p>Every scheme involves trade-offs: explicit vs. implicit, stable vs. accurate, simple vs. mode-free.</p></div>
+<div class="tk"><div class="n">Takeaway 3</div><h4>Oscillation Eq. Is Universal</h4><p>d&psi;/dt = i&omega;&psi; reveals the essential character of any time-stepping method.</p></div>
+<div class="tk"><div class="n">Takeaway 4</div><h4>Three-Level = Comp. Modes</h4><p>Leapfrog is the workhorse, but requires the Asselin filter to stay clean.</p></div>
+<div class="tk"><div class="n">Takeaway 5</div><h4>Phase Errors Are Secondary</h4><p>Spatial differencing errors are typically larger than time-differencing phase errors.</p></div>
+</div>
+
+<h3 style="font-family:var(--fd);font-size:clamp(.95rem,2.2vw,1.1rem);margin:clamp(1rem,3vw,1.8rem) 0 clamp(.3rem,1vw,.6rem);color:var(--text);font-weight:600">Quick Reference: Key Formulas</h3>
+<table class="ct">
+<thead><tr><th>Formula</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td style="font-family:var(--fd);font-style:italic;color:var(--warm2)">&phi;<sup>n+1</sup> = &phi;<sup>n</sup> + &Delta;t f<sup>n</sup></td><td>Euler (Forward)</td></tr>
+<tr><td style="font-family:var(--fd);font-style:italic;color:var(--warm2)">&phi;<sup>n+1</sup> = &phi;<sup>n</sup> + &Delta;t f<sup>n+1</sup></td><td>Backward (Implicit)</td></tr>
+<tr><td style="font-family:var(--fd);font-style:italic;color:var(--warm2)">&phi;<sup>n+1</sup> = &phi;<sup>n</sup> + &Delta;t/2 (f<sup>n</sup> + f<sup>n+1</sup>)</td><td>Trapezoidal</td></tr>
+<tr><td style="font-family:var(--fd);font-style:italic;color:var(--warm2)">&phi;<sup>n+1</sup> = &phi;<sup>n&minus;1</sup> + 2&Delta;t f<sup>n</sup></td><td>Leapfrog</td></tr>
+<tr><td style="font-family:var(--fd);font-style:italic;color:var(--warm2)">&phi;<sup>n+1</sup> = &phi;<sup>n</sup> + &Delta;t(3/2 f<sup>n</sup> &minus; 1/2 f<sup>n&minus;1</sup>)</td><td>Adams-Bashforth</td></tr>
+<tr><td style="font-family:var(--fd);font-style:italic;color:var(--warm2)">A = (1+i&alpha;&mu;)/(1&minus;i&beta;&mu;)</td><td>General amplification factor</td></tr>
+<tr><td style="font-family:var(--fd);font-style:italic;color:var(--warm2)">|A|&sup2; = (1+&alpha;&sup2;&mu;&sup2;)/(1+&beta;&sup2;&mu;&sup2;)</td><td>Squared magnitude</td></tr>
+<tr><td style="font-family:var(--fd);font-style:italic;color:var(--warm2)">&phi;&#771;<sup>n</sup> = &phi;<sup>n</sup> + &nu;/2 (&phi;<sup>n&minus;1</sup>&minus;2&phi;<sup>n</sup>+&phi;<sup>n+1</sup>)</td><td>Asselin-Robert filter</td></tr>
+</tbody>
+</table>
+</div>
+
+<footer>CLIM-715 &middot; Numerical Modeling of the Atmosphere &amp; Oceans &middot; George Mason University &middot; Lecture 6 Mastery Guide</footer>
+
+<script>
+/* ===== TAB SWITCHING ===== */
+function showTab(i,btn){
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.getElementById('p'+i).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  requestAnimationFrame(function(){redrawAll();});
+}
+function redrawAll(){
+  var ids=[['cv-osc',drawOsc],['cv-amp',drawAmp],['cv-phase',drawPhase],['cv-cm',drawCM]];
+  ids.forEach(function(pair){var el=document.getElementById(pair[0]);if(el&&el.parentElement.offsetWidth>0)pair[1]();});
+}
+
+/* ===== CANVAS HELPER ===== */
+function rc(cv){
+  if(!cv.dataset.origH)cv.dataset.origH=cv.getAttribute('height');
+  var cssH=parseInt(cv.dataset.origH);
+  var r=cv.parentElement.getBoundingClientRect();
+  var dpr=window.devicePixelRatio||1;
+  cv.width=r.width*dpr;cv.height=cssH*dpr;
+  cv.style.width=r.width+'px';cv.style.height=cssH+'px';
+  var ctx=cv.getContext('2d');ctx.scale(dpr,dpr);
+  return{ctx:ctx,w:r.width,h:cssH};
+}
+
+/* ===== VIS 2: OSCILLATION COMPLEX PLANE ===== */
+function drawOsc(){
+  var cv=document.getElementById('cv-osc');var o=rc(cv);var ctx=o.ctx,W=o.w,H=o.h;
+  var mu=parseInt(document.getElementById('osc-mu').value)/100;
+  var N=parseInt(document.getElementById('osc-n').value);
+  document.getElementById('osc-muv').textContent=mu.toFixed(2);
+  document.getElementById('osc-nv').textContent=N;
+  ctx.clearRect(0,0,W,H);
+  var cx=W/2,cy=H/2,R=Math.min(W,H)*0.36;
+  // Axes
+  ctx.strokeStyle='#e2e8f0';ctx.lineWidth=0.5;
+  ctx.beginPath();ctx.moveTo(cx-R-30,cy);ctx.lineTo(cx+R+30,cy);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx,cy-R-30);ctx.lineTo(cx,cy+R+30);ctx.stroke();
+  ctx.fillStyle='#94a3b8';ctx.font='10px system-ui';
+  ctx.fillText('Real',cx+R+10,cy-5);ctx.fillText('Imag',cx+5,cy-R-15);
+  // Unit circle
+  ctx.strokeStyle='#94a3b8';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+  // Schemes
+  var schemes=[
+    {name:'True',color:'#94a3b8',amp:function(n){return 1;},phase:function(n){return n*mu;}},
+    {name:'Euler',color:'#dc2626',amp:function(n){return Math.pow(Math.sqrt(1+mu*mu),n);},phase:function(n){return n*Math.atan(mu);}},
+    {name:'Backward',color:'#0891b2',amp:function(n){return Math.pow(1/Math.sqrt(1+mu*mu),n);},phase:function(n){return n*Math.atan(mu);}},
+    {name:'Trap',color:'#22c55e',amp:function(n){return 1;},phase:function(n){return n*2*Math.atan(mu/2);}}
+  ];
+  // Starting point
+  ctx.fillStyle='#1e293b';ctx.beginPath();ctx.arc(cx+R,cy,5,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#1e293b';ctx.font='10px system-ui';ctx.textAlign='left';
+  ctx.fillText('\u03c8(0)=1',cx+R+8,cy+4);ctx.textAlign='start';
+  // Draw each scheme
+  schemes.forEach(function(s){
+    ctx.strokeStyle=s.color;ctx.lineWidth=s.name==='True'?1:2;
+    if(s.name==='True')ctx.setLineDash([3,3]);
+    ctx.beginPath();
+    for(var n=0;n<=N;n++){
+      var a=s.amp(n)*R,th=s.phase(n);
+      var x=cx+a*Math.cos(th),y=cy-a*Math.sin(th);
+      if(n===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+    }ctx.stroke();ctx.setLineDash([]);
+    // Dots
+    ctx.fillStyle=s.color;
+    for(var n=0;n<=N;n++){
+      var a=s.amp(n)*R,th=s.phase(n);
+      var x=cx+a*Math.cos(th),y=cy-a*Math.sin(th);
+      ctx.beginPath();ctx.arc(x,y,s.name==='True'?2:3,0,Math.PI*2);ctx.fill();
+    }
+  });
+}
+
+/* ===== VIS 3: |A| vs mu ===== */
+function drawAmp(){
+  var cv=document.getElementById('cv-amp');var o=rc(cv);var ctx=o.ctx,W=o.w,H=o.h;
+  ctx.clearRect(0,0,W,H);
+  var pad={l:50,r:20,t:20,b:40};
+  var gw=W-pad.l-pad.r,gh=H-pad.t-pad.b;
+  var xmax=1.8,ymin=0.4,ymax=2.2;
+  function toX(v){return pad.l+(v/xmax)*gw;}
+  function toY(v){return pad.t+((ymax-v)/(ymax-ymin))*gh;}
+  // Grid
+  ctx.strokeStyle='#e2e8f0';ctx.lineWidth=0.5;
+  for(var v=0.5;v<=2;v+=0.5){ctx.beginPath();ctx.moveTo(pad.l,toY(v));ctx.lineTo(pad.l+gw,toY(v));ctx.stroke();}
+  // Axes
+  ctx.strokeStyle='#94a3b8';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(pad.l,toY(ymin));ctx.lineTo(pad.l+gw,toY(ymin));ctx.stroke();
+  ctx.beginPath();ctx.moveTo(pad.l,pad.t);ctx.lineTo(pad.l,toY(ymin));ctx.stroke();
+  ctx.fillStyle='#94a3b8';ctx.font='10px system-ui';ctx.textAlign='center';
+  ctx.fillText('\u03bc = \u03c9\u0394t',W/2,H-5);
+  ctx.save();ctx.translate(14,H/2-10);ctx.rotate(-Math.PI/2);ctx.fillText('|A|',0,0);ctx.restore();
+  // |A|=1 reference
+  ctx.strokeStyle='#22c55e';ctx.lineWidth=1.5;ctx.setLineDash([6,4]);
+  ctx.beginPath();ctx.moveTo(pad.l,toY(1));ctx.lineTo(pad.l+gw,toY(1));ctx.stroke();ctx.setLineDash([]);
+  // Schemes
+  var schemes=[
+    {name:'Euler',color:'#dc2626',fn:function(m){return Math.sqrt(1+m*m);}},
+    {name:'Backward',color:'#0891b2',fn:function(m){return 1/Math.sqrt(1+m*m);}},
+    {name:'Trapezoidal',color:'#22c55e',fn:function(m){return 1;},dash:[6,3]},
+    {name:'Matsuno',color:'#ea580c',fn:function(m){var v=1-m*m+m*m*m*m;return v>=0?Math.sqrt(v):0;}},
+    {name:'Heun',color:'#8b5cf6',fn:function(m){return Math.sqrt(1+0.25*m*m*m*m);}}
+  ];
+  schemes.forEach(function(s){
+    ctx.strokeStyle=s.color;ctx.lineWidth=2;
+    if(s.dash)ctx.setLineDash(s.dash);
+    ctx.beginPath();
+    for(var i=0;i<=200;i++){
+      var m=i/200*xmax,a=s.fn(m);
+      var y=Math.max(ymin,Math.min(ymax,a));
+      if(i===0)ctx.moveTo(toX(m),toY(y));else ctx.lineTo(toX(m),toY(y));
+    }ctx.stroke();ctx.setLineDash([]);
+  });
+  // X ticks
+  ctx.fillStyle='#94a3b8';ctx.font='9px system-ui';ctx.textAlign='center';
+  for(var v=0;v<=xmax;v+=0.5)ctx.fillText(v.toFixed(1),toX(v),toY(ymin)+14);
+  // Y ticks
+  ctx.textAlign='right';
+  for(var v=0.5;v<=2;v+=0.5)ctx.fillText(v.toFixed(1),pad.l-5,toY(v)+3);
+}
+
+/* ===== VIS 4: PHASE ERRORS ===== */
+function drawPhase(){
+  var cv=document.getElementById('cv-phase');var o=rc(cv);var ctx=o.ctx,W=o.w,H=o.h;
+  ctx.clearRect(0,0,W,H);
+  var pad={l:50,r:20,t:20,b:40};
+  var gw=W-pad.l-pad.r,gh=H-pad.t-pad.b;
+  var xmax=1.5,ymin=0.5,ymax=1.25;
+  function toX(v){return pad.l+(v/xmax)*gw;}
+  function toY(v){return pad.t+((ymax-v)/(ymax-ymin))*gh;}
+  // Grid
+  ctx.strokeStyle='#e2e8f0';ctx.lineWidth=0.5;
+  for(var v=0.6;v<=1.2;v+=0.2){ctx.beginPath();ctx.moveTo(pad.l,toY(v));ctx.lineTo(pad.l+gw,toY(v));ctx.stroke();}
+  // Axes
+  ctx.strokeStyle='#94a3b8';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(pad.l,toY(ymin));ctx.lineTo(pad.l+gw,toY(ymin));ctx.stroke();
+  ctx.beginPath();ctx.moveTo(pad.l,pad.t);ctx.lineTo(pad.l,toY(ymin));ctx.stroke();
+  // Reference at 1
+  ctx.strokeStyle='#94a3b8';ctx.lineWidth=1;ctx.setLineDash([6,4]);
+  ctx.beginPath();ctx.moveTo(pad.l,toY(1));ctx.lineTo(pad.l+gw,toY(1));ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#94a3b8';ctx.font='9px system-ui';ctx.textAlign='left';
+  ctx.fillText('Perfect speed',pad.l+gw-60,toY(1)-5);
+  // Labels
+  ctx.textAlign='center';ctx.fillText('\u03bc = \u03c9\u0394t',W/2,H-5);
+  ctx.save();ctx.translate(14,H/2);ctx.rotate(-Math.PI/2);ctx.fillText('\u03b8/(\u03c9\u0394t)',0,0);ctx.restore();
+  // Schemes
+  var schemes=[
+    {name:'Euler',color:'#dc2626',fn:function(m){return Math.atan(m)/m;}},
+    {name:'Backward',color:'#0891b2',fn:function(m){return Math.atan(m)/m;},dash:[4,2]},
+    {name:'Trap',color:'#22c55e',fn:function(m){return 2*Math.atan(m/2)/m;}},
+    {name:'Matsuno',color:'#ea580c',fn:function(m){return Math.atan2(m,1-m*m)/m;}},
+    {name:'Heun',color:'#8b5cf6',fn:function(m){return Math.atan2(m,1-0.5*m*m)/m;}}
+  ];
+  schemes.forEach(function(s){
+    ctx.strokeStyle=s.color;ctx.lineWidth=2;
+    if(s.dash)ctx.setLineDash(s.dash);
+    ctx.beginPath();
+    for(var i=1;i<=200;i++){
+      var m=i/200*xmax;if(m<0.01)continue;
+      var v=s.fn(m);v=Math.max(ymin,Math.min(ymax,v));
+      if(i===1)ctx.moveTo(toX(m),toY(v));else ctx.lineTo(toX(m),toY(v));
+    }ctx.stroke();ctx.setLineDash([]);
+  });
+  // Ticks
+  ctx.fillStyle='#94a3b8';ctx.font='9px system-ui';ctx.textAlign='center';
+  for(var v=0;v<=xmax;v+=0.5)ctx.fillText(v.toFixed(1),toX(v),toY(ymin)+14);
+  ctx.textAlign='right';
+  for(var v=0.6;v<=1.2;v+=0.2)ctx.fillText(v.toFixed(1),pad.l-5,toY(v)+3);
+}
+
+/* ===== VIS 6: COMPUTATIONAL MODE ===== */
+function drawCM(){
+  var cv=document.getElementById('cv-cm');var o=rc(cv);var ctx=o.ctx,W=o.w,H=o.h;
+  var mu=parseInt(document.getElementById('cm-mu').value)/100;
+  var cmFrac=parseInt(document.getElementById('cm-amp').value)/100;
+  document.getElementById('cm-muv').textContent=mu.toFixed(2);
+  document.getElementById('cm-ampv').textContent=(cmFrac*100).toFixed(0)+'%';
+  ctx.clearRect(0,0,W,H);
+  var pad={l:40,r:20,t:20,b:35};
+  var gw=W-pad.l-pad.r,gh=H-pad.t-pad.b;
+  var Nsteps=40;
+  var amp=gh*0.35;
+  var cy=pad.t+gh/2;
+  function toX(n){return pad.l+(n/Nsteps)*gw;}
+  function toY(v){return cy-v*amp;}
+  // Grid
+  ctx.strokeStyle='#e2e8f0';ctx.lineWidth=0.5;
+  ctx.beginPath();ctx.moveTo(pad.l,cy);ctx.lineTo(pad.l+gw,cy);ctx.stroke();
+  ctx.strokeStyle='#94a3b8';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(pad.l,pad.t);ctx.lineTo(pad.l,pad.t+gh);ctx.stroke();
+  ctx.fillStyle='#94a3b8';ctx.font='9px system-ui';ctx.textAlign='center';
+  ctx.fillText('Time step n',W/2,H-5);
+  // Compute
+  var sq=Math.sqrt(Math.max(0,1-mu*mu));
+  var th1=Math.atan2(mu,sq);
+  var th2=Math.atan2(mu,-sq);
+  // Data
+  var trueV=[],physV=[],compV=[],combV=[];
+  for(var n=0;n<=Nsteps;n++){
+    trueV.push(Math.cos(n*mu));
+    physV.push(Math.cos(n*th1));
+    compV.push(cmFrac*Math.cos(n*th2));
+    combV.push(Math.cos(n*th1)+cmFrac*Math.cos(n*th2));
+  }
+  // Draw functions
+  function drawLine(data,color,lw,dash){
+    ctx.strokeStyle=color;ctx.lineWidth=lw;
+    if(dash)ctx.setLineDash(dash);
+    ctx.beginPath();
+    for(var n=0;n<=Nsteps;n++){if(n===0)ctx.moveTo(toX(n),toY(data[n]));else ctx.lineTo(toX(n),toY(data[n]));}
+    ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle=color;
+    for(var n=0;n<=Nsteps;n++){ctx.beginPath();ctx.arc(toX(n),toY(data[n]),2,0,Math.PI*2);ctx.fill();}
+  }
+  drawLine(trueV,'#94a3b8',1.5,[3,3]);
+  drawLine(physV,'#22c55e',2);
+  if(cmFrac>0.005){drawLine(compV,'#dc2626',1.5);drawLine(combV,'#8b5cf6',2);}
+  // Insight
+  var ins=document.getElementById('cm-insight');
+  if(cmFrac<0.01){ins.className='insight green';ins.textContent='Computational mode amplitude is zero \u2014 the physical mode alone gives a clean solution.';}
+  else if(mu>0.9){ins.className='insight red';ins.textContent='\u03bc is near 1 \u2014 approaching the stability limit. Both modes are active, the zigzag is severe.';}
+  else{ins.className='insight amber';ins.textContent='The red zigzag (computational mode) contaminates the smooth green curve. The purple combined signal is what the model actually computes \u2014 notice the noisy oscillation superimposed on the physical wave.';}
+}
+
+/* ===== INIT ===== */
+window.addEventListener('load',function(){drawOsc();requestAnimationFrame(redrawAll);});
+window.addEventListener('resize',function(){redrawAll();});
+</script>
+</body>
+</html>

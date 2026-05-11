@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLIM-715 · Lecture 4 — Basic Euler Equations &amp; Waves</title>
+<style>
+:root{
+  --bg:#fafbff;--bg2:#f5f7ff;--bg3:#eef1fa;
+  --card:#ffffff;
+  --border:#e2e8f0;--border-light:#cbd5e1;
+  --text:#1e293b;--text-muted:#64748b;--text-dim:#94a3b8;
+  --accent:#7c3aed;--accent2:#8b5cf6;
+  --warm:#f97316;--warm2:#ea580c;--warm-bg:#fff7ed;--warm-border:#fdba74;
+  --cool:#14b8a6;--cool2:#0891b2;--cool-bg:#ecfdf5;--cool-border:#6ee7b7;
+  --purple:#a78bfa;--purple-dark:#7c3aed;--purple-bg:rgba(139,92,246,.06);
+  --red:#dc2626;--red-bg:#fef2f2;
+  --fd:Georgia,serif;
+  --fb:system-ui,-apple-system,sans-serif;
+  --r:12px;--rl:16px;
+  --shadow:0 4px 16px rgba(99,102,241,.12);
+  --shadow-sm:0 2px 8px rgba(0,0,0,.08);
+  --pad:clamp(.8rem,3vw,1.5rem)
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:clamp(13px,1.4vw,16px)}
+body{background:linear-gradient(135deg,var(--bg),var(--bg2));color:var(--text);font-family:var(--fb);line-height:1.7;min-height:100vh}
+.hdr{background:#fff;border-bottom:1px solid var(--border);padding:clamp(1rem,3vw,2rem) var(--pad) clamp(.5rem,1.5vw,.8rem);text-align:center;box-shadow:var(--shadow-sm)}
+.hdr-tag{font-size:clamp(8px,1.2vw,11px);letter-spacing:clamp(1.5px,.4vw,3px);text-transform:uppercase;color:var(--accent);margin-bottom:.4rem;font-weight:600}
+.hdr h1{font-family:var(--fd);font-size:clamp(1.1rem,3.5vw,2.2rem);font-weight:700;line-height:1.2;margin-bottom:.3rem;color:var(--text)}
+.hdr p{font-size:clamp(.75rem,1.8vw,.95rem);color:var(--text-muted);margin-bottom:.5rem;padding:0 clamp(0px,2vw,2rem)}
+.tabs{display:flex;flex-wrap:wrap;gap:0;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;background:#fff;box-shadow:0 1px 4px rgba(99,102,241,.06)}
+.tab{font-size:clamp(8px,1.1vw,10.5px);font-weight:500;padding:clamp(4px,.8vw,8px) clamp(5px,1vw,11px);color:var(--text-dim);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none}
+.tab:hover{color:var(--text-muted);background:rgba(124,58,237,.02)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(124,58,237,.04)}
+.panel{display:none;padding:clamp(1rem,3vw,2.5rem) var(--pad) clamp(2rem,4vw,4rem);max-width:1100px;margin:0 auto;animation:fadeIn .35s ease}
+.panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.sh{margin-bottom:clamp(1rem,2.5vw,2rem)}
+.sh-num{font-size:clamp(10px,1.3vw,13px);letter-spacing:0.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:.4rem;font-weight:600}
+.sh h2{font-family:var(--fd);font-size:clamp(1.15rem,3vw,2rem);font-weight:700;line-height:1.2;margin-bottom:.4rem;color:var(--text)}
+.sh .lead{color:var(--text-muted);font-size:clamp(.8rem,1.8vw,.95rem);max-width:100%}
+.card{background:var(--card);border:none;border-radius:var(--rl);padding:clamp(1rem,2.5vw,1.6rem);transition:all .3s;margin-bottom:1rem;box-shadow:var(--shadow)}
+.card:hover{box-shadow:0 6px 24px rgba(99,102,241,.16);transform:translateY(-1px)}
+.cg{display:grid;gap:clamp(.6rem,1.5vw,1rem)}
+.cg2{grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr))}
+.cg3{grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr))}
+.card h3{font-family:var(--fd);font-size:clamp(.9rem,2vw,1.05rem);font-weight:600;margin-bottom:.4rem;color:var(--text)}
+.card p,.card li{color:var(--text-muted);font-size:clamp(.8rem,1.6vw,.88rem);line-height:1.65}
+.card ul{list-style:none;padding:0;margin-top:.4rem}
+.card ul li{position:relative;padding-left:1.2rem;margin-bottom:.25rem}
+.card ul li::before{content:'→';position:absolute;left:0;color:var(--accent);font-weight:600}
+.ct{width:100%;border-collapse:separate;border-spacing:0;border-radius:var(--rl);overflow:hidden;font-size:clamp(.7rem,1.4vw,.83rem);margin-top:1rem;box-shadow:var(--shadow)}
+.ct th,.ct td{padding:clamp(5px,1.2vw,10px) clamp(6px,1.5vw,14px);text-align:left;word-break:break-word}
+.ct thead th{background:var(--bg3);color:var(--text-muted);font-size:clamp(8px,1.1vw,11px);letter-spacing:0.5px;text-transform:uppercase;font-weight:600;border-bottom:1px solid var(--border)}
+.ct tbody td{color:var(--text-muted);border-bottom:1px solid var(--border);background:#fff}
+.ct tbody td:first-child{color:var(--text);font-weight:500}
+.vp{background:#fff;border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin:clamp(.8rem,2vw,1.2rem) 0;box-shadow:var(--shadow)}
+.vh{padding:clamp(.5rem,1.2vw,.8rem) clamp(.8rem,2vw,1.2rem);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;background:var(--bg3)}
+.vh h4{font-size:clamp(9px,1.2vw,11px);letter-spacing:0.5px;text-transform:uppercase;color:var(--text-muted);font-weight:600}
+.vb{padding:clamp(.6rem,2vw,1.2rem);position:relative}
+.vw{position:relative;width:100%;overflow:hidden}
+.vw canvas{display:block;width:100%;border-radius:8px}
+.vw svg{display:block;width:100%;height:auto;border-radius:8px}
+.vn{font-size:clamp(10px,1.3vw,12px);color:var(--text-dim);margin-top:8px;line-height:1.6}
+.vl{display:flex;gap:clamp(6px,1.5vw,14px);margin-top:6px;font-size:clamp(9px,1.2vw,11px);color:var(--text-dim);flex-wrap:wrap}
+.sw{display:inline-block;width:10px;height:3px;border-radius:1px;vertical-align:middle;margin-right:3px}
+.ctr{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.sg{display:flex;align-items:center;gap:clamp(3px,1vw,6px)}
+.sg label{font-size:clamp(9px,1.2vw,11px);color:var(--text-dim);white-space:nowrap;font-weight:500}
+.sg input[type=range]{-webkit-appearance:none;appearance:none;width:clamp(70px,15vw,120px);height:4px;background:var(--border);border-radius:2px;outline:none;touch-action:manipulation}
+.sg input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:clamp(12px,1.6vw,14px);height:clamp(12px,1.6vw,14px);border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 1px 4px rgba(99,102,241,.3)}
+.sg span{font-size:clamp(9px,1.2vw,11px);color:var(--text-muted);min-width:clamp(28px,5vw,40px);font-weight:500}
+.eb{background:#fff;border:1px solid var(--border);border-radius:var(--rl);padding:clamp(.6rem,1.5vw,1rem) clamp(.8rem,2vw,1.2rem);margin:.6rem 0;font-family:var(--fd);font-size:clamp(.8rem,1.7vw,.95rem);color:var(--warm2);overflow-x:auto;box-shadow:var(--shadow-sm);font-style:italic;word-break:break-word}
+.el{font-style:normal;font-size:clamp(9px,1.1vw,11px);color:var(--text-dim);display:block;margin-bottom:4px;font-family:system-ui,-apple-system,sans-serif;letter-spacing:.5px;text-transform:uppercase;font-weight:600}
+.ss{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(110px,45%),1fr));gap:clamp(.4rem,1.2vw,.8rem);margin-top:1rem}
+.si{background:#fff;border-radius:var(--rl);padding:clamp(.6rem,1.5vw,1rem);text-align:center;box-shadow:var(--shadow)}
+.sv{font-family:var(--fd);font-size:clamp(1.1rem,3vw,1.6rem);font-weight:700;color:var(--accent)}
+.sl{font-size:clamp(8px,1.1vw,10px);color:var(--text-dim);margin-top:2px;letter-spacing:.5px;text-transform:uppercase;font-weight:600}
+.tkg{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:.8rem;margin-top:1rem}
+.tk{background:#fff;border:1px solid var(--border);border-radius:var(--rl);padding:clamp(.8rem,2vw,1.2rem);box-shadow:var(--shadow-sm);border-left:3px solid var(--accent)}
+.tk .n{font-size:clamp(9px,1.1vw,11px);color:var(--accent);margin-bottom:4px;font-weight:600}
+.tk h4{font-size:clamp(.8rem,1.6vw,.9rem);margin-bottom:4px;color:var(--text)}
+.tk p{font-size:clamp(.75rem,1.4vw,.82rem);color:var(--text-muted)}
+.prose{max-width:100%;margin-bottom:clamp(1rem,2.5vw,1.5rem)}
+.prose h3{font-family:var(--fd);font-size:clamp(.95rem,2.2vw,1.1rem);margin:clamp(1rem,3vw,1.8rem) 0 clamp(.3rem,1vw,.6rem);color:var(--text);font-weight:600}
+.prose p{color:var(--text-muted);font-size:clamp(.8rem,1.6vw,.88rem);margin-bottom:.7rem;line-height:1.75}
+.prose strong{color:var(--text);font-weight:600}
+.prose code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-size:.9em;font-family:Consolas,monospace;color:var(--accent)}
+.prose .eq{font-family:var(--fd);font-style:italic;color:var(--warm2);display:block;margin:.5rem 0;padding:clamp(.4rem,1vw,.6rem) clamp(.6rem,1.5vw,1rem);background:#fff;border:1px solid var(--border);border-radius:var(--r);font-size:clamp(.78rem,1.7vw,.95rem);box-shadow:var(--shadow-sm);overflow-x:auto;word-break:break-word}
+.prose .eq.boxed{border:2px solid var(--accent);background:rgba(124,58,237,.02)}
+.prose .analogy{background:var(--purple-bg);border:1px solid rgba(139,92,246,.15);border-radius:var(--rl);padding:clamp(.6rem,2vw,1rem) clamp(.8rem,2vw,1.2rem);margin:.8rem 0}
+.prose .analogy p{color:var(--text-muted);font-size:clamp(.78rem,1.5vw,.85rem);margin-bottom:.3rem}
+.prose .analogy strong{color:var(--accent)}
+.prose .keyfact{background:var(--cool-bg);border-left:3px solid var(--cool);padding:clamp(.5rem,1.5vw,.8rem) clamp(.6rem,2vw,1rem);border-radius:0 var(--r) var(--r) 0;margin:.8rem 0}
+.prose .keyfact p{color:var(--text-muted);font-size:clamp(.78rem,1.5vw,.85rem);margin:0 0 .3rem;line-height:1.7}
+.prose .warn{background:var(--warm-bg);border-left:3px solid var(--warm);padding:clamp(.5rem,1.5vw,.8rem) clamp(.6rem,2vw,1rem);border-radius:0 var(--r) var(--r) 0;margin:.8rem 0}
+.prose .warn p{color:var(--text-muted);font-size:clamp(.78rem,1.5vw,.85rem);margin:0 0 .3rem;line-height:1.7}
+.prose .step-box{background:#fff;border:1px solid var(--border);border-radius:var(--rl);padding:clamp(.6rem,1.5vw,1rem) clamp(.8rem,2vw,1.2rem);margin:.6rem 0;box-shadow:var(--shadow-sm)}
+.prose .step-box .step-label{font-size:clamp(9px,1.1vw,11px);color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.3rem;font-family:var(--fb);font-style:normal}
+.prose .step-box p{margin-bottom:.3rem}
+.prose ul,.prose ol{padding-left:1.5rem;margin:.5rem 0}
+.prose li{color:var(--text-muted);font-size:clamp(.8rem,1.6vw,.88rem);margin-bottom:.3rem;line-height:1.65}
+footer{text-align:center;padding:clamp(1rem,3vw,2rem) var(--pad);color:var(--text-dim);font-size:clamp(9px,1.2vw,11px);border-top:1px solid var(--border);margin-top:2rem;background:#fff}
+@media(max-width:700px){
+  .ct{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .vh{flex-direction:column;align-items:stretch;gap:8px}
+  .ctr{width:100%}
+  .sg{width:100%;justify-content:space-between}
+  .sg input[type=range]{flex:1;width:auto;min-width:50px}
+}
+@keyframes bob{0%,100%{transform:translateY(0)}25%{transform:translateY(-40px)}75%{transform:translateY(40px)}}
+.ibtn{font-size:clamp(9px,1.2vw,11px);font-weight:500;padding:clamp(3px,.8vw,5px) clamp(8px,1.5vw,12px);border:1px solid var(--border);border-radius:13px;background:#fff;color:var(--text-muted);cursor:pointer;touch-action:manipulation;transition:all .2s}
+.ibtn:hover{color:var(--accent);border-color:var(--accent)}
+.ibtn.ab{color:#fff;background:var(--accent);border-color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="hdr-tag">CLIM-715 · George Mason University · Notes #5, Part 1</div>
+  <h1>Basic Euler Equations &amp; Waves</h1>
+  <p>Lecture 4 — Sound waves, gravity waves, Rossby waves, and the practical problem they create for numerical modeling</p>
+</div>
+<div class="tabs" id="tabbar">
+  <button class="tab active" onclick="showTab(0,this)">01 Why Simplify?</button>
+  <button class="tab" onclick="showTab(1,this)">02 Assumptions</button>
+  <button class="tab" onclick="showTab(2,this)">03 Euler Equations</button>
+  <button class="tab" onclick="showTab(3,this)">04 Advection vs Waves</button>
+  <button class="tab" onclick="showTab(4,this)">05 Perturbation Method</button>
+  <button class="tab" onclick="showTab(5,this)">06 Spectral Gap</button>
+  <button class="tab" onclick="showTab(6,this)">07 Sound Wave Setup</button>
+  <button class="tab" onclick="showTab(7,this)">08 Eliminating &theta;</button>
+  <button class="tab" onclick="showTab(8,this)">09 Linearizing</button>
+  <button class="tab" onclick="showTab(9,this)">10 Wave Equation</button>
+  <button class="tab" onclick="showTab(10,this)">11 Wave Solution</button>
+  <button class="tab" onclick="showTab(11,this)">12 Sound Speed</button>
+  <button class="tab" onclick="showTab(12,this)">13 Modeling Impact</button>
+  <button class="tab" onclick="showTab(13,this)">14 Longitudinal Waves</button>
+  <button class="tab" onclick="showTab(14,this)">15 Gravity Waves</button>
+  <button class="tab" onclick="showTab(15,this)">16 Gravity Setup</button>
+  <button class="tab" onclick="showTab(16,this)">17 Gravity Equations</button>
+  <button class="tab" onclick="showTab(17,this)">18 Gravity Derivation</button>
+  <button class="tab" onclick="showTab(18,this)">19 Brunt-V&auml;is&auml;l&auml;</button>
+  <button class="tab" onclick="showTab(19,this)">20 Dispersion</button>
+  <button class="tab" onclick="showTab(20,this)">21 Gravity Speed</button>
+  <button class="tab" onclick="showTab(21,this)">22 Both Waves</button>
+  <button class="tab" onclick="showTab(22,this)">23 Rossby Waves</button>
+  <button class="tab" onclick="showTab(23,this)">24 Rossby Speed</button>
+  <button class="tab" onclick="showTab(24,this)">25 Three Waves</button>
+  <button class="tab" onclick="showTab(25,this)">26 CFL Problem</button>
+  <button class="tab" onclick="showTab(26,this)">27 Incompressibility</button>
+  <button class="tab" onclick="showTab(27,this)">28 Anelastic</button>
+  <button class="tab" onclick="showTab(28,this)">29 Other Methods</button>
+  <button class="tab" onclick="showTab(29,this)">30 Summary</button>
+</div>
+
+<!-- ===== PANEL 0: WHY SIMPLIFY ===== -->
+<div class="panel active" id="p0">
+<div class="sh"><div class="sh-num">Concept 01</div><h2>Why Simplify? The Multiscale Problem</h2><p class="lead">Before we write any equations, let's understand <em>why</em> this lecture exists.</p></div>
+<div class="prose">
+<p>The real atmosphere is incredibly complex. Energy flows through it at every scale — from tiny turbulent eddies (meters) to planetary waves (thousands of kilometers). There's density stratification (air gets thinner as you go up), wind shear (wind speed changes with height), terrain effects, moisture, rotation of the Earth... it's overwhelming.</p>
+<p>So the first move of any scientist facing a system this complex is: <strong>strip it down to its bare essentials and see what behaviors emerge from the simplest possible version.</strong></p>
+<p>That's what this lecture does. We're going to take the full governing equations of the atmosphere and make a series of simplifying assumptions to get the simplest possible model that still captures the fundamental wave motions. Then we'll discover what kinds of waves this simplified atmosphere can support — and that discovery has enormous practical consequences for how we build numerical models.</p>
+<div class="analogy">
+<p><strong>Guitar string analogy:</strong> Think of it like this: if you want to understand how a guitar string vibrates, you don't start with a full 3D simulation of the wood, the air, the room acoustics, and the musician's fingers. You start with an idealized string under tension. Once you understand that, you add complexity back piece by piece.</p>
+</div>
+</div>
+<div class="vp"><div class="vh"><h4>The Multiscale Challenge</h4></div>
+<div class="vb"><div class="vw"><svg viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="scG" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#fef3c7"/><stop offset="50%" style="stop-color:#c4b5fd"/><stop offset="100%" style="stop-color:#ecfdf5"/></linearGradient><filter id="s1" x="-5%" y="-10%" width="110%" height="130%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#6366f1" flood-opacity=".1"/></filter></defs>
+<rect width="700" height="220" rx="12" fill="#fafbff"/>
+<text x="350" y="28" text-anchor="middle" font-family="system-ui" font-size="14" font-weight="700" fill="#1e293b">Atmospheric Scales of Motion</text>
+<rect x="50" y="55" width="600" height="18" rx="9" fill="url(#scG)" opacity=".6"/>
+<text x="50" y="50" font-family="system-ui" font-size="9" fill="#94a3b8" font-weight="600">SMALL</text>
+<text x="620" y="50" font-family="system-ui" font-size="9" fill="#94a3b8" font-weight="600">LARGE</text>
+<rect x="50" y="90" width="110" height="56" rx="10" fill="#fff" filter="url(#s1)"/><text x="105" y="108" text-anchor="middle" font-family="system-ui" font-size="10" font-weight="600" fill="#ea580c">Turbulent Eddies</text><text x="105" y="122" text-anchor="middle" font-family="Georgia" font-size="10" fill="#94a3b8" font-style="italic">~1–100 m</text><text x="105" y="138" text-anchor="middle" font-family="system-ui" font-size="8" fill="#94a3b8">seconds</text>
+<rect x="185" y="90" width="110" height="56" rx="10" fill="#fff" filter="url(#s1)"/><text x="240" y="108" text-anchor="middle" font-family="system-ui" font-size="10" font-weight="600" fill="#7c3aed">Convective Cells</text><text x="240" y="122" text-anchor="middle" font-family="Georgia" font-size="10" fill="#94a3b8" font-style="italic">~1–10 km</text><text x="240" y="138" text-anchor="middle" font-family="system-ui" font-size="8" fill="#94a3b8">min–hours</text>
+<rect x="320" y="90" width="110" height="56" rx="10" fill="#fff" filter="url(#s1)"/><text x="375" y="108" text-anchor="middle" font-family="system-ui" font-size="10" font-weight="600" fill="#7c3aed">Mesoscale</text><text x="375" y="122" text-anchor="middle" font-family="Georgia" font-size="10" fill="#94a3b8" font-style="italic">~10–200 km</text><text x="375" y="138" text-anchor="middle" font-family="system-ui" font-size="8" fill="#94a3b8">hours</text>
+<rect x="455" y="90" width="110" height="56" rx="10" fill="#fff" filter="url(#s1)"/><text x="510" y="108" text-anchor="middle" font-family="system-ui" font-size="10" font-weight="600" fill="#0891b2">Synoptic Storms</text><text x="510" y="122" text-anchor="middle" font-family="Georgia" font-size="10" fill="#94a3b8" font-style="italic">~1000 km</text><text x="510" y="138" text-anchor="middle" font-family="system-ui" font-size="8" fill="#94a3b8">days</text>
+<rect x="590" y="90" width="100" height="56" rx="10" fill="#fff" filter="url(#s1)"/><text x="640" y="108" text-anchor="middle" font-family="system-ui" font-size="10" font-weight="600" fill="#0d9488">Planetary Waves</text><text x="640" y="122" text-anchor="middle" font-family="Georgia" font-size="10" fill="#94a3b8" font-style="italic">~10,000 km</text><text x="640" y="138" text-anchor="middle" font-family="system-ui" font-size="8" fill="#94a3b8">weeks</text>
+<rect x="100" y="165" width="500" height="40" rx="12" fill="rgba(124,58,237,.05)" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4,3"/>
+<text x="350" y="183" text-anchor="middle" font-family="system-ui" font-size="11" font-weight="600" fill="#7c3aed">Goal: find the simplest equations that capture fundamental wave behavior</text>
+<text x="350" y="197" text-anchor="middle" font-family="system-ui" font-size="9" fill="#94a3b8">Strip away complexity → discover sound, gravity, and Rossby waves</text>
+</svg></div></div></div>
+</div>
+
+<!-- ===== PANEL 1: ASSUMPTIONS ===== -->
+<div class="panel" id="p1">
+<div class="sh"><div class="sh-num">Concept 02</div><h2>The Simplifying Assumptions</h2><p class="lead">We build a <strong>toy atmosphere</strong> by making these simplifications:</p></div>
+<div class="prose">
+<h3>2D only (x-z plane)</h3>
+<p>We ignore the y-direction entirely. Imagine looking at a vertical slice of the atmosphere — like cutting a cake and looking at the cross-section. This means we only consider horizontal motion (left-right, which we call <code>u</code>) and vertical motion (up-down, which we call <code>w</code>).</p>
+<h3>Completely dry</h3>
+<p>No moisture, no clouds, no rain. Water vapor complicates things enormously because when it condenses it releases heat, which changes everything. We'll add moisture back later in the course.</p>
+<h3>Adiabatic</h3>
+<p>No heating or cooling from radiation, from the ground, or from any external source. The only temperature changes come from air parcels being compressed or expanded as they move vertically.</p>
+<h3>No rotation (no Coriolis)</h3>
+<p>We ignore that the Earth is spinning. The Coriolis effect is what makes hurricanes spin and creates the jet stream, but for understanding basic wave motions we don't need it yet.</p>
+<h3>No friction</h3>
+<p>Air parcels slide freely without any drag or viscosity.</p>
+<h3>No diffusion</h3>
+<p>No turbulent mixing.</p>
+<div class="keyfact"><p><strong style="color:var(--cool2)">The remarkable result:</strong> Even with all these simplifications, the resulting equations still produce remarkably rich behavior — they support <em>three different kinds of waves</em>, which is the main discovery of this lecture.</p></div>
+</div>
+</div>
+
+<!-- ===== PANEL 2: EULER EQUATIONS ===== -->
+<div class="panel" id="p2">
+<div class="sh"><div class="sh-num">Concept 03</div><h2>The Four Euler Equations</h2><p class="lead">Now, what equations describe this simplified atmosphere? We need equations that express three fundamental physical laws plus one relationship.</p></div>
+<div class="prose">
+<h3>Equation 1 — Horizontal Momentum (Newton's 2nd Law in x-direction)</h3>
+<div class="eq boxed"><span class="el">Horizontal Momentum</span>du/dt + (1/&rho;) &part;p/&part;x = 0</div>
+<p>Let me unpack every single symbol and what this equation <em>says physically</em>.</p>
+<ul>
+<li><code>u</code> is the horizontal wind speed (m/s).</li>
+<li><code>du/dt</code> is how that wind speed changes over time — the acceleration of the air parcel.</li>
+<li><code>&rho;</code> (rho) is air density (kg/m&sup3;).</li>
+<li><code>p</code> is pressure (Pa).</li>
+<li><code>&part;p/&part;x</code> is how pressure changes as you move horizontally.</li>
+</ul>
+<p>The term <code>(1/&rho;)(&part;p/&part;x)</code> is the <strong>pressure gradient force per unit mass</strong> in the horizontal direction. If pressure is higher on the left and lower on the right, then &part;p/&part;x is negative (pressure decreases as x increases), and the force pushes the air to the right (toward lower pressure).</p>
+<p>So this equation says: <strong>the horizontal acceleration of an air parcel equals the horizontal pressure gradient force (with a minus sign because high-to-low pressure pushes in the negative gradient direction).</strong></p>
+<p>It's Newton's F = ma, but written as a = F/m, where the only force is the pressure gradient.</p>
+
+<h3>Equation 2 — Vertical Momentum (Newton's 2nd Law in z-direction)</h3>
+<div class="eq boxed"><span class="el">Vertical Momentum</span>dw/dt + (1/&rho;) &part;p/&part;z + g = 0</div>
+<p>This is the same idea but vertically. <code>w</code> is vertical wind speed. There are now <em>two</em> forces: the vertical pressure gradient <code>(1/&rho;)(&part;p/&part;z)</code> pushing upward (because pressure decreases with height), and gravity <code>g</code> pulling downward.</p>
+<p>This equation says: <strong>the vertical acceleration of an air parcel equals the net of the upward pressure gradient force minus gravity.</strong></p>
+<p>In the normal atmosphere, these two nearly cancel (that's hydrostatic balance from Lecture 3), and vertical motions are very small compared to horizontal ones.</p>
+
+<h3>Equation 3 — Thermodynamic Equation (Conservation of Energy)</h3>
+<div class="eq boxed"><span class="el">Thermodynamic</span>d&theta;/dt = 0</div>
+<p>This is beautifully simple. <code>&theta;</code> is potential temperature — the temperature an air parcel would have if you brought it adiabatically to a reference pressure level (1000 mb). Since we assumed no heating or cooling (adiabatic), potential temperature is <strong>conserved</strong> — it doesn't change as the parcel moves around. d&theta;/dt = 0 means "&theta; stays constant following the parcel."</p>
+
+<h3>Equation 4 — Continuity Equation (Conservation of Mass)</h3>
+<div class="eq boxed"><span class="el">Continuity</span>d&rho;/dt + &rho; &nabla;&middot;V = 0</div>
+<p>This says mass is neither created nor destroyed. If air converges into a region (&nabla;&middot;V &lt; 0, meaning more air flowing in than out), then density must increase (d&rho;/dt &gt; 0). If air diverges (spreads out), density decreases.</p>
+
+<h3>Plus the Equation of State (Ideal Gas Law)</h3>
+<div class="eq"><span class="el">Equation of State</span>p = &rho; R<sub>d</sub> T<sub>v</sub></div>
+<p>This isn't a "new" equation in the sense of expressing a physical law — it's a thermodynamic relationship connecting pressure, density, and temperature. It's what closes the system (gives us enough equations for the number of unknowns).</p>
+
+<h3>The Material Derivative d/dt</h3>
+<p>One crucial thing to clarify. The notation <code>d/dt</code> here is the <strong>material derivative</strong> (also called the total or Lagrangian derivative):</p>
+<div class="eq boxed"><span class="el">Material (Lagrangian) Derivative</span>d/dt = &part;/&part;t + u &part;/&part;x + w &part;/&part;z</div>
+<p>This measures the rate of change <em>following the moving air parcel</em>, not at a fixed point. In our 2D simplification (no y-direction), it only has x and z terms.</p>
+</div>
+
+<!-- SVG overview -->
+<div class="vp"><div class="vh"><h4>The Four Euler Equations — Overview</h4></div>
+<div class="vb"><div class="vw"><svg viewBox="0 0 700 480" xmlns="http://www.w3.org/2000/svg">
+<defs><filter id="s2" x="-5%" y="-10%" width="110%" height="130%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#6366f1" flood-opacity=".1"/></filter></defs>
+<rect width="700" height="480" rx="12" fill="#fafbff"/>
+<text x="350" y="30" text-anchor="middle" font-family="system-ui" font-size="16" font-weight="700" fill="#1e293b">Simplified 2D Euler Equations</text>
+<text x="350" y="48" text-anchor="middle" font-family="system-ui" font-size="10" fill="#94a3b8">Dry, adiabatic, no rotation, no friction, no diffusion</text>
+<rect x="30" y="68" width="250" height="70" rx="12" fill="#fff" filter="url(#s2)" stroke="#0891b2" stroke-width="1"/><text x="45" y="88" font-family="system-ui" font-size="10" font-weight="700" fill="#0891b2">HORIZONTAL MOMENTUM</text><text x="45" y="104" font-family="system-ui" font-size="9" fill="#64748b">Newton's 2nd law, x-direction</text><text x="45" y="126" font-family="system-ui" font-size="9" fill="#94a3b8">Governs: wind speed u</text>
+<rect x="325" y="68" width="350" height="70" rx="12" fill="#fff" filter="url(#s2)" stroke="#8b5cf6" stroke-width="1"/><text x="500" y="92" text-anchor="middle" font-family="Georgia" font-size="16" font-style="italic" fill="#ea580c">du/dt + (1/&rho;) &part;p/&part;x = 0</text><text x="500" y="126" text-anchor="middle" font-family="system-ui" font-size="9" fill="#64748b">Acceleration = horizontal pressure gradient force</text>
+<rect x="30" y="158" width="250" height="70" rx="12" fill="#fff" filter="url(#s2)" stroke="#0891b2" stroke-width="1"/><text x="45" y="178" font-family="system-ui" font-size="10" font-weight="700" fill="#0891b2">VERTICAL MOMENTUM</text><text x="45" y="194" font-family="system-ui" font-size="9" fill="#64748b">Newton's 2nd law, z-direction</text><text x="45" y="216" font-family="system-ui" font-size="9" fill="#94a3b8">Governs: vertical wind w</text>
+<rect x="325" y="158" width="350" height="70" rx="12" fill="#fff" filter="url(#s2)" stroke="#8b5cf6" stroke-width="1"/><text x="500" y="182" text-anchor="middle" font-family="Georgia" font-size="16" font-style="italic" fill="#ea580c">dw/dt + (1/&rho;) &part;p/&part;z + g = 0</text><text x="500" y="216" text-anchor="middle" font-family="system-ui" font-size="9" fill="#64748b">Acceleration = pressure gradient &minus; gravity</text>
+<rect x="30" y="248" width="250" height="70" rx="12" fill="#fff" filter="url(#s2)" stroke="#14b8a6" stroke-width="1"/><text x="45" y="268" font-family="system-ui" font-size="10" font-weight="700" fill="#14b8a6">THERMODYNAMIC</text><text x="45" y="284" font-family="system-ui" font-size="9" fill="#64748b">Conservation of energy</text><text x="45" y="306" font-family="system-ui" font-size="9" fill="#94a3b8">Governs: potential temperature &theta;</text>
+<rect x="325" y="248" width="350" height="70" rx="12" fill="#fff" filter="url(#s2)" stroke="#8b5cf6" stroke-width="1"/><text x="500" y="278" text-anchor="middle" font-family="Georgia" font-size="18" font-style="italic" fill="#ea580c">d&theta;/dt = 0</text><text x="500" y="306" text-anchor="middle" font-family="system-ui" font-size="9" fill="#64748b">&theta; is conserved along parcel trajectory</text>
+<rect x="30" y="338" width="250" height="70" rx="12" fill="#fff" filter="url(#s2)" stroke="#f97316" stroke-width="1"/><text x="45" y="358" font-family="system-ui" font-size="10" font-weight="700" fill="#f97316">CONTINUITY</text><text x="45" y="374" font-family="system-ui" font-size="9" fill="#64748b">Conservation of mass</text><text x="45" y="396" font-family="system-ui" font-size="9" fill="#94a3b8">Governs: density &rho;</text>
+<rect x="325" y="338" width="350" height="70" rx="12" fill="#fff" filter="url(#s2)" stroke="#8b5cf6" stroke-width="1"/><text x="500" y="366" text-anchor="middle" font-family="Georgia" font-size="15" font-style="italic" fill="#ea580c">d&rho;/dt + &rho; &nabla;&middot;V = 0</text><text x="500" y="396" text-anchor="middle" font-family="system-ui" font-size="9" fill="#64748b">Convergence &rarr; density &uarr;, Divergence &rarr; density &darr;</text>
+<rect x="120" y="430" width="460" height="34" rx="13" fill="rgba(124,58,237,.04)" stroke="#c4b5fd" stroke-width="1"/>
+<text x="350" y="452" text-anchor="middle" font-family="system-ui" font-size="11" fill="#64748b">+ Equation of state: <tspan font-family="Georgia" font-style="italic" fill="#ea580c">p = &rho; R<tspan font-size="8" baseline-shift="sub">d</tspan> T<tspan font-size="8" baseline-shift="sub">v</tspan></tspan> (ideal gas law — closes the system)</text>
+</svg></div></div></div>
+</div>
+
+<!-- ===== PANEL 3: ADVECTION VS WAVES ===== -->
+<div class="panel" id="p3">
+<div class="sh"><div class="sh-num">Concept 04</div><h2>Two Kinds of Phenomena — Advection vs. Waves</h2><p class="lead">Here's a key insight from the lecture that you need to internalize before we go further.</p></div>
+<div class="prose">
+<p>These Euler equations describe <strong>two fundamentally different kinds of motion</strong>:</p>
+<p><strong>Advection</strong> is when stuff gets carried along by the wind. Imagine dropping a leaf into a river — it moves downstream with the current. In the atmosphere, temperature, moisture, pollutants all get <em>advected</em> (carried) by the wind. Advection always moves things <strong>downstream</strong>, in the direction the wind is blowing.</p>
+<p><strong>Waves</strong> are oscillatory disturbances that can propagate <em>independently</em> of the mean wind. Unlike advection, waves can travel <strong>upstream</strong> (against the wind), <strong>downstream</strong> (with the wind), or even stay stationary. A familiar example: you drop a stone into a pond, and ripples spread outward in all directions regardless of whether there's a current.</p>
+<div class="keyfact"><p>The crucial question this lecture answers is: <strong>What kinds of waves do these simplified Euler equations support?</strong></p>
+<p>The answer turns out to be three types: <strong>sound waves</strong>, <strong>gravity waves</strong>, and (if we add back Earth's rotation) <strong>Rossby waves</strong>. Each travels at a dramatically different speed, and this has enormous consequences for numerical modeling.</p></div>
+</div>
+<div class="vp"><div class="vh"><h4>Advection vs. Wave Propagation — Animated</h4>
+<div class="ctr"><button class="ibtn ab" id="aw-btn0" onclick="awMode='advection';document.getElementById('aw-btn0').classList.add('ab');document.getElementById('aw-btn1').classList.remove('ab')">Advection</button><button class="ibtn" id="aw-btn1" onclick="awMode='wave';document.getElementById('aw-btn1').classList.add('ab');document.getElementById('aw-btn0').classList.remove('ab')">Wave</button></div></div>
+<div class="vb"><div class="vw"><canvas id="cv-aw" height="220"></canvas></div>
+<p class="vn" id="aw-desc">Advection: the blob moves with the wind. All parts travel in the same direction at the same speed.</p></div></div>
+</div>
+
+<!-- ===== PANEL 4: PERTURBATION METHOD ===== -->
+<div class="panel" id="p4">
+<div class="sh"><div class="sh-num">Concept 05</div><h2>The Perturbation Method — The Key Mathematical Trick</h2><p class="lead">Before we can find the waves, we need a powerful mathematical tool: the <strong>perturbation method</strong>. This is perhaps the single most important technique in this lecture, and it's used throughout atmospheric science.</p></div>
+<div class="prose">
+<h3>The Core Idea</h3>
+<p><strong>The core idea:</strong> Any atmospheric variable can be split into a <strong>mean part</strong> (the background state) and a <strong>perturbation</strong> (a small deviation from that background):</p>
+<div class="eq boxed" style="text-align:center;font-size:clamp(1rem,2.5vw,1.3rem);color:var(--accent)"><span class="el">The Perturbation Decomposition</span>a = &#x101; + a&prime;</div>
+<p>For example, the wind speed at any point is: u = &#x16B; + u&prime;, where &#x16B; might be a steady 10 m/s background wind, and u&prime; is a small fluctuation (maybe &plusmn;0.5 m/s) on top of that.</p>
+<p><strong>Why is this useful?</strong> Because the perturbations are small compared to the mean, we can make a massive simplification: <strong>we can throw away any terms that multiply two perturbations together</strong> (like u&prime;&middot;p&prime; or u&prime;&sup2;). Since each perturbation is small, the product of two small things is <em>really</em> small — negligibly so.</p>
+<p>This process is called <strong>linearization</strong>, and it transforms the original nonlinear equations (which are basically impossible to solve analytically) into much simpler linear equations (which we <em>can</em> solve).</p>
+
+<h3>Key Properties of Perturbations</h3>
+<p><strong>Property 1:</strong> The average of a perturbation is zero:</p>
+<div class="eq" style="text-align:center">avg(a&prime;) = 0</div>
+<p>This makes sense — the perturbation is the deviation from the mean, so deviations above the mean exactly cancel deviations below the mean when averaged.</p>
+
+<p><strong>Property 2:</strong> Products of perturbations are NOT zero:</p>
+<div class="eq" style="text-align:center">avg(a&prime; b&prime;) &ne; 0</div>
+<p>This is subtle but critical. Even though avg(a&prime;) = 0 and avg(b&prime;) = 0, their product can have a non-zero average. Think of it this way: if temperature fluctuations and vertical wind fluctuations are correlated (warm air tends to rise), then avg(w&prime;&theta;&prime;) is positive even though both avg(w&prime;) = 0 and avg(&theta;&prime;) = 0.</p>
+<p>These products (avg(u&prime;w&prime;), avg(w&prime;&theta;&prime;), etc.) represent <strong>turbulent fluxes</strong> — the transport of momentum, heat, and moisture by turbulence. They're enormously important in PBL physics (Lecture 9), but for now, <strong>we're going to throw them away</strong> to get our linearized wave equations.</p>
+
+<p><strong>Property 3:</strong> When we linearize (drop products of perturbations), the equations become <strong>linear</strong>, which means the principle of <strong>superposition</strong> applies — we can study individual waves one at a time and add them up later.</p>
+</div>
+<div class="vp"><div class="vh"><h4>Perturbation Decomposition — Interactive</h4>
+<div class="ctr"><div class="sg"><label>Mean &#x16B;</label><input type="range" id="pt-mean" min="0" max="20" value="10" oninput="ptDraw()"><span id="pt-mv">10</span></div>
+<div class="sg"><label>Perturbation amplitude</label><input type="range" id="pt-amp" min="1" max="40" value="10" oninput="ptDraw()"><span id="pt-av">1.0</span></div></div></div>
+<div class="vb"><div class="vw"><canvas id="cv-pt" height="260"></canvas></div>
+<div class="vl"><span><span class="sw" style="background:var(--text-dim)"></span>Mean &#x16B; (constant)</span><span><span class="sw" style="background:var(--accent)"></span>Perturbation u&prime;</span><span><span class="sw" style="background:var(--warm)"></span>Total u = &#x16B; + u&prime;</span></div>
+<p class="vn">Drag the perturbation amplitude slider to see how the total signal is just the mean plus small oscillations. Linearization works when the perturbation is much smaller than the mean.</p></div></div>
+</div>
+
+<!-- ===== PANEL 5: SPECTRAL GAP ===== -->
+<div class="panel" id="p5">
+<div class="sh"><div class="sh-num">Concept 06</div><h2>The Spectral Gap — Why Linearization Works</h2><p class="lead">You might wonder: is it really justified to throw away those perturbation products? The answer comes from an observational fact called the <strong>spectral gap</strong>.</p></div>
+<div class="prose">
+<p>If you measure wind speed over time at a single point and plot the energy at each frequency (a power spectrum), you'll see three peaks: one at large scales (synoptic weather systems, ~days), one at the diurnal cycle (~24 hours), and one at microscale turbulence (~seconds to minutes). Between the synoptic and turbulent peaks, there's a <strong>gap</strong> — a region of frequencies where very little energy exists.</p>
+<p>This gap lets us cleanly separate the atmosphere into "resolved" motions (larger than the gap, which we compute explicitly) and "unresolved" motions (smaller than the gap, which we parameterize). Most NWP models use grid spacings that fall right in this gap.</p>
+<p>For our wave analysis, this gap justifies treating the mean state as slowly varying and the perturbations as small, rapid fluctuations on top of it.</p>
+</div>
+<div class="vp"><div class="vh"><h4>Atmospheric Energy Spectrum (Schematic)</h4></div>
+<div class="vb"><div class="vw">
+<svg id="sg-svg" viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg">
+<rect width="700" height="320" rx="12" fill="#fafbff"/>
+<text x="350" y="25" text-anchor="middle" font-family="system-ui" font-size="13" font-weight="700" fill="#1e293b">Atmospheric Energy Spectrum</text>
+<!-- Axes -->
+<line x1="60" y1="270" x2="660" y2="270" stroke="#94a3b8" stroke-width="1.5"/>
+<line x1="60" y1="270" x2="60" y2="40" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="360" y="300" text-anchor="middle" font-family="system-ui" font-size="10" fill="#94a3b8">Frequency (Period) →</text>
+<text x="25" y="155" text-anchor="middle" font-family="system-ui" font-size="10" fill="#94a3b8" transform="rotate(-90,25,155)">Energy</text>
+<!-- Gap shading -->
+<rect x="330" y="40" width="120" height="230" fill="rgba(139,92,246,.08)"/>
+<text x="390" y="58" text-anchor="middle" font-family="system-ui" font-size="10" font-weight="700" fill="#8b5cf6">SPECTRAL GAP</text>
+<!-- Curve: synoptic peak -->
+<path d="M70,250 Q100,250 130,120 Q150,60 180,90 Q210,140 260,220 Q290,250 330,260 Q360,265 390,262 Q420,260 450,240 Q480,180 530,80 Q560,60 590,100 Q620,180 650,250" fill="none" stroke="#14b8a6" stroke-width="2.5"/>
+<!-- Fill under -->
+<path d="M70,250 Q100,250 130,120 Q150,60 180,90 Q210,140 260,220 Q290,250 330,260 Q360,265 390,262 Q420,260 450,240 Q480,180 530,80 Q560,60 590,100 Q620,180 650,250 L650,270 L70,270 Z" fill="rgba(20,184,166,.08)"/>
+<!-- Peak labels -->
+<text x="155" y="52" text-anchor="middle" font-family="system-ui" font-size="11" font-weight="700" fill="#ea580c">Synoptic</text>
+<text x="155" y="66" text-anchor="middle" font-family="system-ui" font-size="9" fill="#64748b">(~days)</text>
+<text x="240" y="195" text-anchor="middle" font-family="system-ui" font-size="10" font-weight="600" fill="#ea580c">Diurnal</text>
+<text x="240" y="208" text-anchor="middle" font-family="system-ui" font-size="9" fill="#64748b">(~24 hr)</text>
+<text x="545" y="52" text-anchor="middle" font-family="system-ui" font-size="11" font-weight="700" fill="#ea580c">Turbulent</text>
+<text x="545" y="66" text-anchor="middle" font-family="system-ui" font-size="9" fill="#64748b">(sec–min)</text>
+<!-- NWP arrow -->
+<line x1="370" y1="240" x2="370" y2="80" stroke="#7c3aed" stroke-width="1" stroke-dasharray="4,3"/>
+<text x="390" y="90" font-family="system-ui" font-size="8" fill="#7c3aed">NWP grid spacing</text>
+<text x="390" y="100" font-family="system-ui" font-size="8" fill="#7c3aed">falls here</text>
+</svg>
+</div>
+<p class="vn">The spectral gap between synoptic and turbulent scales is a region with very little energy. It allows clean separation of the atmosphere into "resolved" (computed explicitly) and "parameterized" (unresolved) motions.</p>
+</div></div>
+</div>
+
+<!-- ===== PANEL 6: SOUND WAVE SETUP ===== -->
+<div class="panel" id="p6">
+<div class="sh"><div class="sh-num">Concept 07</div><h2>Setting Up the Sound Wave Problem</h2><p class="lead">What Do We Keep and What Do We Drop?</p></div>
+<div class="prose">
+<p>Sound waves are <strong>horizontal compressions and expansions</strong> of air. Picture clapping your hands — you squeeze the air between your palms, creating a region of slightly higher pressure and density. That compressed region pushes on the neighboring air, which compresses <em>it</em>, and so on — the disturbance propagates outward as a pressure pulse.</p>
+<p>The key physical features of sound waves are:</p>
+<ul>
+<li>They involve <strong>horizontal</strong> motion (air molecules vibrate left and right)</li>
+<li>They involve <strong>pressure</strong> and <strong>density</strong> fluctuations (compressions and rarefactions)</li>
+<li>They do <strong>NOT</strong> involve vertical motion — a horizontal sound wave doesn't make air move up or down</li>
+<li>They are <strong>longitudinal</strong> waves: the air molecules vibrate in the <em>same direction</em> as the wave propagates</li>
+</ul>
+<p>Because sound waves don't involve vertical motion, we can <strong>drop the vertical momentum equation</strong> (the <code>dw/dt</code> equation) entirely. We also drop the vertical component from our system — everything happens in the horizontal <code>x</code> direction only.</p>
+<p>This leaves us with <strong>three equations</strong>:</p>
+<div class="eq"><span class="el">Horizontal Momentum</span>du/dt + (1/&rho;) &part;p/&part;x = 0</div>
+<div class="eq"><span class="el">Thermodynamic — &theta; is conserved</span>d&theta;/dt = 0</div>
+<div class="eq"><span class="el">Continuity — mass conservation</span>d&rho;/dt + &rho; &part;u/&part;x = 0</div>
+<p>And three unknowns: <code>u</code> (wind), <code>p</code> (pressure), and <code>&rho;</code> (density), with <code>&theta;</code> related to <code>p</code> and <code>&rho;</code> through the definition of potential temperature.</p>
+<p>Our goal is to reduce this to <strong>two equations in two unknowns</strong>, then combine them into a single <strong>wave equation</strong>, and finally extract the wave speed.</p>
+</div>
+<div class="vp"><div class="vh"><h4>Sound Wave — Compression &amp; Rarefaction</h4></div>
+<div class="vb"><div class="vw"><canvas id="cv-sound-anim" height="200"></canvas></div>
+<div class="vl"><span><span class="sw" style="background:var(--warm)"></span>High pressure (compressed)</span><span><span class="sw" style="background:var(--cool)"></span>Low pressure (rarefied)</span></div>
+<p class="vn">Molecules oscillate left-right while the wave pattern propagates to the right. This is a longitudinal wave.</p></div></div>
+</div>
+
+<!-- ===== PANEL 7: ELIMINATING THETA ===== -->
+<div class="panel" id="p7">
+<div class="sh"><div class="sh-num">Concept 08</div><h2>Eliminating &theta; — The Algebraic Trick</h2><p class="lead">We have three equations but we want two. The thermodynamic equation d&theta;/dt = 0 looks simple, but &theta; is defined in terms of p and T (and T relates to p and &rho; via the ideal gas law). So we can use d&theta;/dt = 0 to create a relationship between dp/dt and d&rho;/dt, effectively eliminating &theta; from the system.</p></div>
+<div class="prose">
+<p>Here's the step-by-step derivation:</p>
+
+<div class="step-box"><div class="step-label">Step 1 — Definition of potential temperature</div>
+<div class="eq">&theta; = T (p&#x2080;/p)<sup>R<sub>d</sub>/c<sub>pd</sub></sup></div></div>
+
+<div class="step-box"><div class="step-label">Step 2 — Replace T using ideal gas law</div>
+<p>Use <code>p = &rho;R<sub>d</sub>T<sub>v</sub></code> to replace T. Solving for T gives T = p/(&rho;R<sub>d</sub>) (ignoring the small moisture correction since our atmosphere is dry):</p>
+<div class="eq">&theta; = [p / (&rho; R<sub>d</sub>)] &middot; (p&#x2080;/p)<sup>R<sub>d</sub>/c<sub>pd</sub></sup></div></div>
+
+<div class="step-box"><div class="step-label">Step 3 — Simplify the powers of p</div>
+<p>Note that p appears twice — once as p in the numerator and once as p<sup>&minus;R<sub>d</sub>/c<sub>pd</sub></sup> from the bracket. Combining:</p>
+<div class="eq">&theta; = (p&#x2080;<sup>R<sub>d</sub>/c<sub>pd</sub></sup> / &rho;R<sub>d</sub>) &middot; p<sup>1 &minus; R<sub>d</sub>/c<sub>pd</sub></sup></div>
+<p>Now, 1 &minus; R<sub>d</sub>/c<sub>pd</sub> = (c<sub>pd</sub> &minus; R<sub>d</sub>)/c<sub>pd</sub> = c<sub>vd</sub>/c<sub>pd</sub> (because for an ideal gas, c<sub>pd</sub> &minus; R<sub>d</sub> = c<sub>vd</sub>). So:</p>
+<div class="eq">&theta; = (p&#x2080;<sup>R<sub>d</sub>/c<sub>pd</sub></sup> / &rho;R<sub>d</sub>) &middot; p<sup>c<sub>vd</sub>/c<sub>pd</sub></sup></div></div>
+
+<div class="step-box"><div class="step-label">Step 4 — Take the natural log of both sides</div>
+<div class="eq">ln &theta; = const + (c<sub>vd</sub>/c<sub>pd</sub>) ln p &minus; ln &rho;</div>
+<p>(The "const" absorbs the p&#x2080; and R<sub>d</sub> terms since they're constants.)</p></div>
+
+<div class="step-box"><div class="step-label">Step 5 — Differentiate following the parcel (apply d/dt)</div>
+<div class="eq">d(ln &theta;)/dt = (c<sub>vd</sub>/c<sub>pd</sub>) d(ln p)/dt &minus; d(ln &rho;)/dt</div></div>
+
+<div class="step-box"><div class="step-label">Step 6 — Apply d&theta;/dt = 0 (left side vanishes)</div>
+<p>Since d&theta;/dt = 0 (our thermodynamic equation), and since d(ln &theta;)/dt = (1/&theta;)(d&theta;/dt) = 0, the left side is zero:</p>
+<div class="eq boxed">0 = (c<sub>vd</sub>/c<sub>pd</sub>) d(ln p)/dt &minus; d(ln &rho;)/dt</div>
+<p>This is a beautiful result! It says that for adiabatic motion, changes in pressure and density are <strong>locked together</strong> in a specific ratio. This relationship is what makes sound waves possible — pressure and density oscillate together.</p></div>
+
+<div class="step-box"><div class="step-label">Step 7 — Eliminate d&rho;/dt using continuity</div>
+<p>Recall that d(ln &rho;)/dt = (1/&rho;)(d&rho;/dt), and the continuity equation says d&rho;/dt = &minus;&rho;(&part;u/&part;x). So:</p>
+<div class="eq">d(ln &rho;)/dt = (1/&rho;)(d&rho;/dt) = &minus;&part;u/&part;x</div>
+<p>Substituting into the boxed equation above:</p>
+<div class="eq">0 = (c<sub>vd</sub>/c<sub>pd</sub>) d(ln p)/dt + &part;u/&part;x</div></div>
+
+<div class="step-box"><div class="step-label">Step 8 — Rearrange, define &gamma; = c<sub>pd</sub>/c<sub>vd</sub> &approx; 1.4</div>
+<div class="eq">(1/&gamma;) d(ln p)/dt + &part;u/&part;x = 0</div>
+<p>Since d(ln p)/dt = (1/p)(dp/dt), this becomes:</p>
+<div class="eq">(1/&gamma;p) dp/dt + &part;u/&part;x = 0</div>
+<p>Or equivalently:</p>
+<div class="eq">dp/dt + p&gamma; &part;u/&part;x = 0</div>
+<p>Expanding the material derivative dp/dt = &part;p/&part;t + u&middot;&part;p/&part;x:</p>
+<div class="eq">&part;p/&part;t + u &part;p/&part;x + p&gamma; &part;u/&part;x = 0</div></div>
+
+<h3>Result: Two Nonlinear Equations</h3>
+<p>We've now reduced four equations to two:</p>
+<div class="eq boxed"><span class="el">Momentum</span>&part;u/&part;t + u &part;u/&part;x + (1/&rho;) &part;p/&part;x = 0</div>
+<div class="eq boxed"><span class="el">Pressure</span>&part;p/&part;t + u &part;p/&part;x + p&gamma; &part;u/&part;x = 0</div>
+<p>Two equations, two unknowns (<code>u</code> and <code>p</code>). But they're still <strong>nonlinear</strong> (notice the <code>u&middot;&part;u/&part;x</code> term — the unknown <code>u</code> multiplied by its own derivative). We need to linearize them using the perturbation method.</p>
+</div>
+</div>
+
+<!-- ===== PANEL 8: LINEARIZING ===== -->
+<div class="panel" id="p8">
+<div class="sh"><div class="sh-num">Concept 09</div><h2>Linearizing — Applying the Perturbation Method to Sound Waves</h2><p class="lead">Now we split each variable into mean + perturbation, substitute into the equations, and drop products of perturbations.</p></div>
+<div class="prose">
+<p>Now we split each variable into mean + perturbation:</p>
+<div class="eq">u = &#x16B; + u&prime;, &emsp; p = p&#x0304; + p&prime;, &emsp; &rho; = &rho;&#x0304; + &rho;&prime;</div>
+<p>where the bars are <strong>constants</strong> (steady, uniform background state) and the primes are small fluctuations.</p>
+<p>Since the mean values are constants, their spatial and time derivatives are zero: &part;&#x16B;/&part;t = 0, &part;&#x16B;/&part;x = 0, &part;p&#x0304;/&part;x = 0, etc.</p>
+
+<h3>Substitution into the Horizontal Momentum Equation</h3>
+<div class="eq">&part;(&#x16B;+u&prime;)/&part;t + (&#x16B;+u&prime;)&part;(&#x16B;+u&prime;)/&part;x + [1/(&rho;&#x0304;+&rho;&prime;)] &part;(p&#x0304;+p&prime;)/&part;x = 0</div>
+<p>Expanding term by term:</p>
+
+<div class="step-box"><div class="step-label">First term</div>
+<p>&part;&#x16B;/&part;t + &part;u&prime;/&part;t = 0 + &part;u&prime;/&part;t</p></div>
+
+<div class="step-box"><div class="step-label">Second term</div>
+<p>(&#x16B; + u&prime;)(&part;&#x16B;/&part;x + &part;u&prime;/&part;x) = (&#x16B; + u&prime;)(0 + &part;u&prime;/&part;x) = &#x16B;&middot;&part;u&prime;/&part;x + <span style="color:var(--red);text-decoration:line-through">u&prime;&middot;&part;u&prime;/&part;x</span></p>
+<p>The term <strong>u&prime;&middot;&part;u&prime;/&part;x</strong> is a <strong>product of two perturbations</strong> — this is negligibly small, so we <strong>DROP</strong> it.</p></div>
+
+<div class="step-box"><div class="step-label">Third term — the 1/(1+x) &approx; 1&minus;x trick</div>
+<p>We need a trick for 1/(&rho;&#x0304; + &rho;&prime;). Using the Taylor series approximation for small &rho;&prime;/&rho;&#x0304;:</p>
+<div class="eq">1/(&rho;&#x0304;+&rho;&prime;) = (1/&rho;&#x0304;) &middot; 1/(1 + &rho;&prime;/&rho;&#x0304;) &approx; (1/&rho;&#x0304;)(1 &minus; &rho;&prime;/&rho;&#x0304;)</div>
+<p>This is the same idea as 1/(1+x) &approx; 1&minus;x for small x. So:</p>
+<div class="eq">[1/(&rho;&#x0304;+&rho;&prime;)] &part;(p&#x0304;+p&prime;)/&part;x &approx; (1/&rho;&#x0304;)(1 &minus; &rho;&prime;/&rho;&#x0304;) &part;p&prime;/&part;x</div>
+<p>The (&rho;&prime;/&rho;&#x0304;)&middot;&part;p&prime;/&part;x term is again a product of two perturbations — <strong>DROP</strong> it.</p></div>
+
+<h3>Linearized Momentum Equation</h3>
+<div class="eq boxed"><span class="el">Linearized Momentum</span>&part;u&prime;/&part;t + &#x16B; &part;u&prime;/&part;x + (1/&rho;&#x0304;) &part;p&prime;/&part;x = 0</div>
+
+<h3>Linearized Pressure Equation</h3>
+<p>Following identical logic (expanding, dropping products of perturbations, noting &part;p&#x0304;/&part;x = 0):</p>
+<div class="eq boxed"><span class="el">Linearized Pressure</span>&part;p&prime;/&part;t + &#x16B; &part;p&prime;/&part;x + p&#x0304;&gamma; &part;u&prime;/&part;x = 0</div>
+
+<p>These are the <strong>linearized sound wave equations</strong>. Notice how clean they are — everything is now in terms of the perturbation quantities <code>u&prime;</code> and <code>p&prime;</code>, with constant coefficients <code>&#x16B;</code>, <code>&rho;&#x0304;</code>, <code>p&#x0304;</code>, and <code>&gamma;</code>. These are linear equations, which means we can solve them exactly.</p>
+</div>
+
+<!-- Derivation flowchart SVG -->
+<div class="vp"><div class="vh"><h4>Sound Wave Derivation Flowchart</h4></div>
+<div class="vb"><div class="vw"><svg viewBox="0 0 700 520" xmlns="http://www.w3.org/2000/svg">
+<defs><filter id="s3" x="-5%" y="-10%" width="110%" height="130%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#6366f1" flood-opacity=".1"/></filter></defs>
+<rect width="700" height="520" rx="12" fill="#fafbff"/>
+<rect x="20" y="15" width="140" height="42" rx="8" fill="#fff" filter="url(#s3)" stroke="#0891b2" stroke-width="1"/><text x="90" y="40" text-anchor="middle" font-family="Georgia" font-size="11" font-style="italic" fill="#0891b2">du/dt eq.</text>
+<rect x="180" y="15" width="140" height="42" rx="8" fill="#fff" filter="url(#s3)" stroke="#94a3b8" stroke-width="1"/><text x="250" y="40" text-anchor="middle" font-family="Georgia" font-size="11" font-style="italic" fill="#94a3b8">dw/dt eq.</text>
+<line x1="240" y1="20" x2="260" y2="52" stroke="#dc2626" stroke-width="2"/><line x1="260" y1="20" x2="240" y2="52" stroke="#dc2626" stroke-width="2"/>
+<text x="310" y="68" font-family="system-ui" font-size="8" fill="#dc2626" font-weight="600">Sound is horizontal → drop</text>
+<rect x="370" y="15" width="140" height="42" rx="8" fill="#fff" filter="url(#s3)" stroke="#14b8a6" stroke-width="1"/><text x="440" y="40" text-anchor="middle" font-family="Georgia" font-size="11" font-style="italic" fill="#14b8a6">d&theta;/dt = 0</text>
+<rect x="540" y="15" width="140" height="42" rx="8" fill="#fff" filter="url(#s3)" stroke="#f97316" stroke-width="1"/><text x="610" y="40" text-anchor="middle" font-family="Georgia" font-size="11" font-style="italic" fill="#f97316">d&rho;/dt eq.</text>
+<line x1="90" y1="57" x2="90" y2="100" stroke="#c4b5fd" stroke-width="1.5"/><polygon points="85,98 95,98 90,107" fill="#c4b5fd"/>
+<line x1="440" y1="57" x2="480" y2="100" stroke="#c4b5fd" stroke-width="1.5"/><line x1="610" y1="57" x2="520" y2="100" stroke="#c4b5fd" stroke-width="1.5"/>
+<rect x="20" y="110" width="210" height="50" rx="10" fill="#fff" filter="url(#s3)" stroke="#0891b2" stroke-width="1"/><text x="125" y="132" text-anchor="middle" font-family="system-ui" font-size="10" font-weight="600" fill="#0891b2">Keep u equation</text><text x="125" y="148" text-anchor="middle" font-family="system-ui" font-size="8" fill="#94a3b8">Unchanged at this step</text>
+<rect x="340" y="110" width="340" height="50" rx="10" fill="#fff" filter="url(#s3)" stroke="#8b5cf6" stroke-width="1"/><text x="510" y="128" text-anchor="middle" font-family="system-ui" font-size="10" font-weight="600" fill="#8b5cf6">Combine &theta; and &rho; equations</text><text x="510" y="148" text-anchor="middle" font-family="system-ui" font-size="8" fill="#94a3b8">Use d&theta;/dt=0 to link dp/dt and d&rho;/dt → get p equation</text>
+<line x1="125" y1="160" x2="200" y2="210" stroke="#c4b5fd" stroke-width="1.5"/><line x1="510" y1="160" x2="450" y2="210" stroke="#c4b5fd" stroke-width="1.5"/>
+<rect x="50" y="215" width="600" height="65" rx="10" fill="#fff" filter="url(#s3)" stroke="#ea580c" stroke-width="1"/><text x="350" y="234" text-anchor="middle" font-family="system-ui" font-size="10" font-weight="600" fill="#ea580c">TWO NONLINEAR EQUATIONS</text><text x="200" y="256" text-anchor="middle" font-family="Georgia" font-size="11" font-style="italic" fill="#ea580c">&part;u/&part;t + u &part;u/&part;x + (1/&rho;)&part;p/&part;x = 0</text><text x="520" y="256" text-anchor="middle" font-family="Georgia" font-size="11" font-style="italic" fill="#ea580c">&part;p/&part;t + u &part;p/&part;x + p&gamma; &part;u/&part;x = 0</text><text x="350" y="272" text-anchor="middle" font-family="system-ui" font-size="8" fill="#94a3b8">Still nonlinear: u·&part;u/&part;x terms</text>
+<line x1="350" y1="280" x2="350" y2="310" stroke="#c4b5fd" stroke-width="1.5"/><polygon points="345,308 355,308 350,317" fill="#c4b5fd"/>
+<rect x="140" y="320" width="420" height="45" rx="10" fill="rgba(139,92,246,.08)" stroke="#8b5cf6" stroke-width="1.5"/><text x="350" y="340" text-anchor="middle" font-family="system-ui" font-size="11" font-weight="700" fill="#7c3aed">Perturbation method + Linearize</text><text x="350" y="356" text-anchor="middle" font-family="system-ui" font-size="9" fill="#64748b">u=&#x16B;+u&prime;, p=p&#x0304;+p&prime; → drop products of primes</text>
+<line x1="350" y1="365" x2="350" y2="395" stroke="#c4b5fd" stroke-width="1.5"/><polygon points="345,393 355,393 350,402" fill="#c4b5fd"/>
+<rect x="50" y="405" width="600" height="65" rx="10" fill="#fff" filter="url(#s3)" stroke="#14b8a6" stroke-width="2"/><text x="350" y="424" text-anchor="middle" font-family="system-ui" font-size="10" font-weight="600" fill="#14b8a6">TWO LINEARIZED EQUATIONS — SOLVABLE!</text><text x="200" y="446" text-anchor="middle" font-family="Georgia" font-size="11" font-style="italic" fill="#0d9488">&part;u&prime;/&part;t + &#x16B; &part;u&prime;/&part;x + (1/&rho;&#x0304;)&part;p&prime;/&part;x = 0</text><text x="520" y="446" text-anchor="middle" font-family="Georgia" font-size="11" font-style="italic" fill="#0d9488">&part;p&prime;/&part;t + &#x16B; &part;p&prime;/&part;x + p&#x0304;&gamma; &part;u&prime;/&part;x = 0</text><text x="350" y="462" text-anchor="middle" font-family="system-ui" font-size="9" fill="#64748b">Linear! Constant coefficients → can solve exactly for wave speed</text>
+<text x="350" y="500" text-anchor="middle" font-family="system-ui" font-size="10" font-weight="600" fill="#7c3aed">Two linear equations in two unknowns (u&prime;, p&prime;) → solvable!</text>
+</svg></div></div></div>
+</div>
+
+<!-- ===== PANEL 9: WAVE EQUATION ===== -->
+<div class="panel" id="p9">
+<div class="sh"><div class="sh-num">Concept 10</div><h2>Deriving the Wave Equation for Sound</h2><p class="lead">Now comes the exciting part — combining those two linearized equations into a <strong>single wave equation</strong>, then solving it.</p></div>
+<div class="prose">
+<h3>Forming a Single Equation for p&prime;</h3>
+<p>We have:</p>
+<div class="eq"><span class="el">Eq. A — Momentum</span>&part;u&prime;/&part;t + &#x16B; &part;u&prime;/&part;x + (1/&rho;&#x0304;) &part;p&prime;/&part;x = 0</div>
+<div class="eq"><span class="el">Eq. B — Pressure</span>&part;p&prime;/&part;t + &#x16B; &part;p&prime;/&part;x + p&#x0304;&gamma; &part;u&prime;/&part;x = 0</div>
+<p>The strategy is to eliminate <code>u&prime;</code> and get one equation purely in terms of <code>p&prime;</code>.</p>
+<p>The result can be written compactly as:</p>
+<div class="eq boxed"><span class="el">Wave Equation (expanded operator form)</span>(&part;/&part;t + &#x16B; &part;/&part;x)&sup2; p&prime; &minus; (&gamma;p&#x0304;/&rho;&#x0304;) &part;&sup2;p&prime;/&part;x&sup2; = 0</div>
+<p>The operator (&part;/&part;t + &#x16B;&middot;&part;/&part;x) appears twice (squared). This operator is actually the <strong>material derivative following the mean flow</strong> — it measures the rate of change as seen by an observer moving with the background wind &#x16B;. Let's call it D/Dt for short:</p>
+<div class="eq boxed" style="text-align:center;color:var(--accent)"><span class="el">Classical Wave Equation</span>D&sup2;p&prime;/Dt&sup2; = c<sub>s</sub>&sup2; &part;&sup2;p&prime;/&part;x&sup2;</div>
+<p>where <strong>c<sub>s</sub>&sup2; = &gamma;p&#x0304;/&rho;&#x0304;</strong> is the square of the sound speed. The wave equation says: <strong>the acceleration of the pressure perturbation (in the frame moving with the mean wind) is proportional to the curvature of the pressure perturbation in space.</strong></p>
+<div class="analogy"><p><strong>Vibrating string analogy:</strong> If you've ever seen the wave equation for a vibrating string — &part;&sup2;y/&part;t&sup2; = c&sup2;&middot;&part;&sup2;y/&part;x&sup2; — this is the exact same structure. It guarantees wave-like solutions.</p></div>
+</div>
+</div>
+
+<!-- ===== PANEL 10: WAVE SOLUTION ===== -->
+<div class="panel" id="p10">
+<div class="sh"><div class="sh-num">Concept 11</div><h2>Solving the Wave Equation — The Wave Solution</h2><p class="lead">We assume a wave-like solution, compute derivatives, substitute, and extract the phase speed.</p></div>
+<div class="prose">
+<h3>Assumed Solution</h3>
+<p>We <strong>assume</strong> the solution has a wave-like form:</p>
+<div class="eq boxed" style="text-align:center"><span class="el">Wave Ansatz</span>p&prime; = A e<sup>ik(x &minus; ct)</sup></div>
+<p>Every piece of this expression:</p>
+<ul>
+<li><strong>A</strong> is the <strong>amplitude</strong> — how strong the pressure fluctuation is</li>
+<li><strong>e<sup>i(&hellip;)</sup></strong> is Euler's formula: e<sup>i&phi;</sup> = cos &phi; + i sin &phi;. So this represents an oscillating wave. The imaginary number i is just a mathematical convenience — the physical pressure is the real part.</li>
+<li><strong>k</strong> is the <strong>wavenumber</strong>: k = 2&pi;/L<sub>x</sub>, where L<sub>x</sub> is the wavelength. A larger k means a shorter wavelength (more waves packed into the same distance).</li>
+<li><strong>c</strong> is the <strong>phase speed</strong> — how fast the wave crests move. This is what we're trying to find!</li>
+<li><strong>(x &minus; ct)</strong> means the wave pattern moves to the right at speed c. At time t=0, the pattern looks like cos(kx). At time t=1, it looks like cos(k(x&minus;c)) — the same pattern shifted rightward by distance c.</li>
+</ul>
+
+<h3>Computing the Required Derivatives</h3>
+<p>Taking derivatives of p&prime; = Ae<sup>ik(x&minus;ct)</sup>:</p>
+<div class="step-box"><div class="step-label">Time derivative</div>
+<p>Inside the exponent, the t part is &minus;ikct, so:</p>
+<div class="eq">&part;p&prime;/&part;t = A &middot; (ik)(&minus;c) &middot; e<sup>ik(x&minus;ct)</sup> = &minus;ikc &middot; p&prime;</div></div>
+<div class="step-box"><div class="step-label">Space derivative</div>
+<p>The x part of the exponent is ikx, so:</p>
+<div class="eq">&part;p&prime;/&part;x = ik &middot; p&prime;</div></div>
+<div class="step-box"><div class="step-label">Second space derivative</div>
+<div class="eq">&part;&sup2;p&prime;/&part;x&sup2; = (ik)&sup2; &middot; p&prime; = &minus;k&sup2; &middot; p&prime;</div></div>
+
+<h3>Substituting into the Wave Equation</h3>
+<p>The first bracket (material derivative applied to p&prime;):</p>
+<div class="eq">&part;p&prime;/&part;t + &#x16B; &part;p&prime;/&part;x = &minus;ikc &middot; p&prime; + &#x16B; &middot; ik &middot; p&prime; = ik(&#x16B; &minus; c) &middot; p&prime;</div>
+<p>Applying the operator twice gives:</p>
+<div class="eq">[ik(&#x16B; &minus; c)]&sup2; &middot; p&prime; = &minus;k&sup2;(&#x16B; &minus; c)&sup2; &middot; p&prime;</div>
+<p>The second term:</p>
+<div class="eq">&minus;(&gamma;p&#x0304;/&rho;&#x0304;) &middot; (&minus;k&sup2;) &middot; p&prime; = (&gamma;p&#x0304;/&rho;&#x0304;) k&sup2; &middot; p&prime;</div>
+<p>Setting the whole thing to zero and dividing by p&prime; (which isn't zero) and by k&sup2;:</p>
+<div class="eq boxed">&minus;(&#x16B; &minus; c)&sup2; + &gamma;p&#x0304;/&rho;&#x0304; = 0 &nbsp; &rArr; &nbsp; (&#x16B; &minus; c)&sup2; = &gamma;p&#x0304;/&rho;&#x0304;</div>
+</div>
+</div>
+
+<!-- ===== PANEL 11: SOUND SPEED ===== -->
+<div class="panel" id="p11">
+<div class="sh"><div class="sh-num">Concept 12</div><h2>The Phase Speed of Sound — The Punchline</h2><p class="lead">The first major result: sound waves travel at ~350 m/s in both directions, riding on the mean wind.</p></div>
+<div class="prose">
+<p>Taking the square root:</p>
+<div class="eq">&#x16B; &minus; c = &plusmn;&radic;(&gamma;p&#x0304;/&rho;&#x0304;)</div>
+<p>Solving for c:</p>
+<div class="eq boxed" style="text-align:center;font-size:clamp(1rem,2.5vw,1.3rem);color:var(--accent)"><span class="el">Phase Speed of Sound</span>c = &#x16B; &plusmn; &radic;(&gamma;p&#x0304;/&rho;&#x0304;)</div>
+<p>Using the ideal gas law p&#x0304; = &rho;&#x0304;R<sub>d</sub>T&#x0304; to simplify &gamma;p&#x0304;/&rho;&#x0304; = &gamma;R<sub>d</sub>T&#x0304;:</p>
+<div class="eq boxed" style="text-align:center;font-size:clamp(1rem,2.5vw,1.3rem);color:var(--accent)"><span class="el">Phase Speed of Sound (final form)</span>c = &#x16B; &plusmn; &radic;(&gamma; R<sub>d</sub> T&#x0304;)</div>
+<p><strong>This is the phase speed of sound waves in the atmosphere!</strong></p>
+
+<h3>Physical Interpretation</h3>
+<p><strong>The &#x16B; part:</strong> The sound wave is carried along by the background wind. If the wind is blowing at 10 m/s, the wave rides on top of that.</p>
+<p><strong>The &plusmn; sign:</strong> There are <strong>two</strong> sound waves — one propagating to the right (+) and one to the left (&minus;). Sound radiates in both directions from its source.</p>
+<p><strong>The &radic;(&gamma;R<sub>d</sub>T&#x0304;) part:</strong> This is the <strong>intrinsic speed of sound</strong> — the speed relative to the air itself. It depends only on temperature (and the gas constants). For a typical tropospheric temperature of T&#x0304; = 300 K:</p>
+<div class="eq">&radic;(&gamma; R<sub>d</sub> T&#x0304;) = &radic;(1.4 &times; 287 &times; 300) = &radic;(120,540) &approx; 347 m/s</div>
+<p>So <strong>sound travels at roughly 350 m/s</strong> (~1,260 km/hr, or about Mach 1).</p>
+</div>
+<!-- Interactive Sound Speed Calculator -->
+<div class="vp"><div class="vh"><h4>Sound Wave Speed Calculator — Interactive</h4>
+<div class="ctr"><div class="sg"><label>T&#x0304; (K)</label><input type="range" id="ss-t" min="200" max="330" value="300" step="1" oninput="ssDraw()"><span id="ss-tv">300</span></div>
+<div class="sg"><label>&#x16B; (m/s)</label><input type="range" id="ss-u" min="-30" max="30" value="0" step="1" oninput="ssDraw()"><span id="ss-uv">0</span></div></div></div>
+<div class="vb">
+<div class="ss" style="margin-top:0;margin-bottom:.8rem"><div class="si"><div class="sv" id="ss-cs">347</div><div class="sl">Intrinsic c<sub>s</sub> (m/s)</div></div><div class="si"><div class="sv" id="ss-right" style="color:var(--cool2)">347</div><div class="sl">Rightward &#x16B;+c<sub>s</sub></div></div><div class="si"><div class="sv" id="ss-left" style="color:var(--warm2)">&minus;347</div><div class="sl">Leftward &#x16B;&minus;c<sub>s</sub></div></div></div>
+<div class="vw"><svg id="ss-svg" viewBox="0 0 680 120" xmlns="http://www.w3.org/2000/svg"><rect width="680" height="120" fill="#fafbff" rx="8"/></svg></div>
+<p class="vn" style="font-family:var(--fd);font-style:italic;margin-top:.5rem;color:var(--text-dim)">c = &#x16B; &plusmn; &radic;(&gamma; R<sub>d</sub> T&#x0304;) &nbsp;&nbsp; &gamma;=1.4, R<sub>d</sub>=287 J/(kg&middot;K)</p>
+<p class="vn">The intrinsic sound speed depends only on temperature — warmer air means faster sound. The mean wind shifts both wave speeds equally: it boosts the downstream wave and slows the upstream wave.</p></div></div>
+</div>
+
+<!-- ===== PANEL 12: MODELING IMPACT ===== -->
+<div class="panel" id="p12">
+<div class="sh"><div class="sh-num">Concept 13</div><h2>Why Sound Waves Matter for Modeling — And Why They're a Problem</h2><p class="lead">Here's the punchline that connects this physics to numerical modeling.</p></div>
+<div class="prose">
+<p>Sound waves travel at ~350 m/s. But the weather phenomena we actually care about — cyclones, fronts, convective systems — move at speeds of 10&ndash;30 m/s. Sound waves are roughly <strong>10&ndash;30 times faster</strong> than the interesting meteorology.</p>
+<p>Why is this a problem? Because of the <strong>CFL condition</strong> from Lecture 5. The CFL condition says:</p>
+<div class="eq boxed" style="text-align:center"><span class="el">CFL Stability Constraint</span>&Delta;t &le; &Delta;x / c<sub>max</sub></div>
+<p>The maximum time step you can use is limited by the <strong>fastest wave</strong> in your system. If your fastest wave is sound at 350 m/s (or even faster at higher temperatures), and your grid spacing is, say, 10 km = 10,000 m, then:</p>
+<div class="eq">&Delta;t &le; 10,000 / 350 &approx; 29 seconds</div>
+<p>You're forced to take tiny time steps just to keep sound waves stable, even though you don't care about sound waves at all! They carry no useful weather information — they just prevent vacuum holes from forming in the atmosphere.</p>
+<p>This is why the lecture later discusses methods to <strong>eliminate or slow down sound waves</strong> (anelastic equation, time-splitting, implicit methods). It's one of the most important practical issues in atmospheric model design.</p>
+</div>
+<div class="vp"><div class="vh"><h4>CFL Time Step Calculator — Interactive</h4>
+<div class="ctr"><div class="sg"><label>&Delta;x (km)</label><input type="range" id="cfl-dx" min="1" max="50" value="10" step="1" oninput="cflDraw()"><span id="cfl-dxv">10</span></div></div></div>
+<div class="vb"><div class="ss" style="margin-top:0"><div class="si" style="border-left:3px solid var(--warm)"><div class="sv" id="cfl-with" style="color:var(--warm2)">29s</div><div class="sl">With sound (350 m/s)</div></div><div class="si" style="border-left:3px solid var(--cool)"><div class="sv" id="cfl-without" style="color:var(--cool2)">667s</div><div class="sl">Without sound (15 m/s)</div></div><div class="si" style="border-left:3px solid var(--accent)"><div class="sv" id="cfl-ratio" style="color:var(--accent)">23&times;</div><div class="sl">Speedup factor</div></div></div></div></div>
+</div>
+
+<!-- ===== PANEL 13: LONGITUDINAL ===== -->
+<div class="panel" id="p13">
+<div class="sh"><div class="sh-num">Concept 14</div><h2>Sound Waves Are Longitudinal</h2><p class="lead">One final physical property to internalize: sound waves are <strong>longitudinal</strong> waves.</p></div>
+<div class="prose">
+<p>This means the air molecules vibrate <strong>parallel to</strong> the direction the wave travels.</p>
+<div class="analogy"><p><strong>Slinky analogy:</strong> Picture a long slinky toy stretched out on a table. If you push one end, a compression pulse travels along the slinky — the coils bunch up, then spread apart, then bunch up again. The coils move left-right (same direction as the pulse travels), not up-down. That's a longitudinal wave.</p></div>
+<p>In the atmosphere: a sound wave moving to the right causes air molecules to oscillate left-right. Pressure and density fluctuate together — where molecules are bunched (compressed), pressure is high; where they're spread apart (rarefied), pressure is low.</p>
+<p>This is fundamentally different from gravity waves, which are <strong>transverse</strong> waves where the motion is perpendicular to the propagation direction.</p>
+</div>
+<div class="vp"><div class="vh"><h4>Longitudinal vs. Transverse Waves — Animated</h4></div>
+<div class="vb"><div class="vw"><canvas id="cv-lt" height="280"></canvas></div>
+<div class="vl"><span><span class="sw" style="background:var(--warm)"></span>Longitudinal (sound): motion &parallel; propagation</span><span><span class="sw" style="background:var(--cool)"></span>Transverse (gravity): motion &perp; propagation</span></div></div></div>
+</div>
+
+<!-- ===== PANEL 14: GRAVITY WAVES ===== -->
+<div class="panel" id="p14">
+<div class="sh"><div class="sh-num">Concept 15</div><h2>What Are Gravity Waves? The Physical Picture</h2><p class="lead">Gravity waves are the second type of wave hidden inside the Euler equations. This is physically very different from sound waves.</p></div>
+<div class="prose">
+<p>Imagine the atmosphere is <strong>stably stratified</strong> — meaning warmer (lighter) air sits on top of cooler (denser) air. This is the normal state of most of the atmosphere above the boundary layer. The potential temperature &theta; increases with height: d&theta;&#x0304;/dz &gt; 0.</p>
+<p>Now imagine you take an air parcel from some level and <strong>push it upward</strong> by a small distance. What happens?</p>
+<ol>
+<li>The parcel rises into a region of <strong>lower pressure</strong> (pressure always decreases with height).</li>
+<li>Lower pressure means the parcel <strong>expands</strong>.</li>
+<li>Expansion without heating (adiabatic) means the parcel <strong>cools</strong> — its temperature drops at the dry adiabatic lapse rate (about 9.8&deg;C per km).</li>
+<li>But the <em>environment</em> at that higher level is warmer than the parcel has become (because the atmosphere is stably stratified — the environment cools more slowly with height than the adiabatic rate).</li>
+<li>So the displaced parcel is now <strong>cooler and denser</strong> than its surroundings.</li>
+<li>Being denser, gravity pulls it <strong>back down</strong> — it's a restoring force!</li>
+</ol>
+<p>The parcel overshoots its original level, now finding itself in warmer surroundings again, so it's pushed back up. The result: the parcel <strong>oscillates up and down</strong> like a mass on a spring. The "spring constant" is the stability of the atmosphere — how strongly &theta; increases with height.</p>
+<p>These vertical oscillations of air parcels are gravity waves. But here's the subtle part: while each parcel oscillates <strong>vertically</strong>, the <em>wave pattern</em> propagates <strong>horizontally</strong>. Think of a stadium wave — each person stands up and sits down (vertical motion), but the wave pattern sweeps sideways around the arena. Gravity waves are <strong>transverse</strong> waves: the particle motion (vertical) is perpendicular to the wave propagation (horizontal).</p>
+</div>
+<!-- Buoyancy animation SVG -->
+<div class="vp"><div class="vh"><h4>Gravity Wave Buoyancy Mechanism — Animated</h4></div>
+<div class="vb"><div class="vw"><svg viewBox="0 0 680 340" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="strG" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" style="stop-color:#bfdbfe"/><stop offset="100%" style="stop-color:#fecaca"/></linearGradient><filter id="s4" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#6366f1" flood-opacity=".1"/></filter></defs>
+<rect width="680" height="340" rx="12" fill="#fafbff"/>
+<rect x="30" y="20" width="180" height="220" rx="10" fill="url(#strG)" stroke="#e2e8f0" stroke-width="1"/>
+<text x="120" y="15" text-anchor="middle" font-family="system-ui" font-size="10" font-weight="600" fill="#1e293b">Stable Atmosphere</text>
+<text x="40" y="48" font-family="system-ui" font-size="9" fill="#dc2626">&theta;=310K (warm, light)</text>
+<text x="40" y="138" font-family="system-ui" font-size="9" fill="#64748b">&theta;=300K</text>
+<text x="40" y="228" font-family="system-ui" font-size="9" fill="#0891b2">&theta;=290K (cool, dense)</text>
+<text x="218" y="80" font-family="Georgia" font-size="13" fill="#ea580c" font-style="italic">&theta; &uarr;</text>
+<line x1="222" y1="210" x2="222" y2="40" stroke="#ea580c" stroke-width="1.5"/>
+<polygon points="218,44 226,44 222,34" fill="#ea580c"/>
+<text x="460" y="15" text-anchor="middle" font-family="system-ui" font-size="11" font-weight="600" fill="#1e293b">Displaced Parcel Oscillates</text>
+<line x1="300" y1="130" x2="620" y2="130" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,3"/>
+<text x="630" y="134" font-family="system-ui" font-size="8" fill="#94a3b8">Equilibrium</text>
+<text x="400" y="55" text-anchor="middle" font-family="system-ui" font-size="9" fill="#ea580c" font-weight="600">Parcel is cooler</text>
+<text x="400" y="67" text-anchor="middle" font-family="system-ui" font-size="9" fill="#ea580c">than environment</text>
+<text x="400" y="85" text-anchor="middle" font-family="system-ui" font-size="10" fill="#ea580c">&darr; sinks back</text>
+<text x="400" y="190" text-anchor="middle" font-family="system-ui" font-size="9" fill="#0891b2" font-weight="600">Parcel is warmer</text>
+<text x="400" y="202" text-anchor="middle" font-family="system-ui" font-size="9" fill="#0891b2">than environment</text>
+<text x="400" y="220" text-anchor="middle" font-family="system-ui" font-size="10" fill="#0891b2">&uarr; rises back</text>
+<g style="animation:bob 3s ease-in-out infinite"><circle cx="530" cy="130" r="20" fill="#dbeafe" stroke="#3b82f6" stroke-width="2" filter="url(#s4)"/><text x="530" y="134" text-anchor="middle" font-family="system-ui" font-size="8" font-weight="600" fill="#1e293b">Parcel</text></g>
+<line x1="490" y1="85" x2="490" y2="175" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="3,2"/>
+<text x="478" y="135" text-anchor="end" font-family="system-ui" font-size="8" fill="#7c3aed" font-weight="600">Oscillates</text>
+<rect x="30" y="260" width="300" height="60" rx="10" fill="#fff" filter="url(#s4)" stroke="#ea580c" stroke-width="1"/><text x="180" y="282" text-anchor="middle" font-family="system-ui" font-size="10" font-weight="600" fill="#ea580c">Sound Wave (comparison)</text><text x="180" y="298" text-anchor="middle" font-family="system-ui" font-size="9" fill="#64748b">Longitudinal. ~350 m/s. Compressibility-driven.</text><text x="180" y="312" text-anchor="middle" font-family="system-ui" font-size="9" fill="#64748b">Compression/expansion along direction of travel.</text>
+<rect x="350" y="260" width="300" height="60" rx="10" fill="#fff" filter="url(#s4)" stroke="#14b8a6" stroke-width="1"/><text x="500" y="282" text-anchor="middle" font-family="system-ui" font-size="10" font-weight="600" fill="#14b8a6">Gravity Wave</text><text x="500" y="298" text-anchor="middle" font-family="system-ui" font-size="9" fill="#64748b">Transverse. ~15 m/s. Buoyancy-driven.</text><text x="500" y="312" text-anchor="middle" font-family="system-ui" font-size="9" fill="#64748b">Vertical oscillation, horizontal propagation.</text>
+</svg></div>
+<p class="vn">Parcel motion is vertical, but the wave pattern propagates horizontally → transverse wave. Restoring force = buoyancy (gravity + density difference).</p></div></div>
+</div>
+
+<!-- ===== PANEL 15: GRAVITY SETUP ===== -->
+<div class="panel" id="p15">
+<div class="sh"><div class="sh-num">Concept 16</div><h2>Setting Up the Gravity Wave Derivation</h2><p class="lead">The setup is different from sound waves in several important ways.</p></div>
+<div class="prose">
+<p><strong>For sound waves</strong> we worked in 1D (x only) and the key physics was <strong>compressibility</strong> — air getting squeezed and un-squeezed horizontally.</p>
+<p><strong>For gravity waves</strong> we need 2D (x and z) because the physics involves <strong>vertical displacement</strong> in a gravitationally stratified atmosphere. The key physics is <strong>buoyancy</strong> — the restoring force when a parcel is displaced vertically in a stable environment.</p>
+<p>We also make one additional simplification that we didn't make for sound waves: we assume the atmosphere is <strong>incompressible</strong>. This is a deliberate choice — by removing compressibility, we <strong>filter out sound waves entirely</strong> and isolate gravity waves. The incompressible continuity equation is:</p>
+<div class="eq boxed"><span class="el">Incompressible Continuity</span>&part;u&prime;/&part;x + &part;w&prime;/&part;z = 0</div>
+<p>instead of the full d&rho;/dt + &rho;&nabla;&middot;V = 0. This simply says: if air converges horizontally (&part;u&prime;/&part;x &lt; 0), it must diverge vertically (&part;w&prime;/&part;z &gt; 0) to conserve volume. No density changes allowed.</p>
+
+<h3>Perturbation Setup</h3>
+<p>We split every variable into a mean (function of height only) and a perturbation:</p>
+<div class="eq">u = &#x16B;(z) + u&prime;(x,z,t) &emsp; w = 0 + w&prime;(x,z,t) &emsp; &theta; = &theta;&#x0304;(z) + &theta;&prime;(x,z,t)</div>
+<div class="eq">p = p&#x0304;(z) + p&prime;(x,z,t) &emsp; &rho; = &rho;&#x0304;(z) + &rho;&prime;(x,z,t)</div>
+<p>Notice that the mean vertical wind w&#x0304; is set to zero — the background state has no vertical motion. Also notice the means are functions of height z, not constants like they were for sound waves.</p>
+
+<h3>The Buoyancy Relation</h3>
+<p>From the perturbation analysis of the vertical momentum equation (using the Boussinesq approximation from Lecture 3):</p>
+<div class="eq boxed"><span class="el">Density-Temperature Link</span>&rho;&prime;/&rho;&#x0304; &approx; &minus;&theta;&prime;/&theta;&#x0304;</div>
+<p>This says: if a parcel is <strong>warmer</strong> than its surroundings (&theta;&prime; &gt; 0), it is <strong>less dense</strong> (&rho;&prime; &lt; 0), and vice versa.</p>
+</div>
+</div>
+
+<!-- ===== PANEL 16: GRAVITY EQUATIONS ===== -->
+<div class="panel" id="p16">
+<div class="sh"><div class="sh-num">Concept 17</div><h2>The Four Linearized Gravity Wave Equations</h2><p class="lead">After applying the perturbation method and linearizing (dropping products of perturbations), and also assuming &#x16B; = 0 for simplicity (no background wind), we get four clean equations.</p></div>
+<div class="prose">
+<h3>Equation 1 — Horizontal momentum</h3>
+<div class="eq"><span class="el">Horizontal Momentum</span>&part;u&prime;/&part;t = &minus;(1/&rho;&#x0304;) &part;p&prime;/&part;x</div>
+<p>Horizontal acceleration is driven by the horizontal pressure perturbation gradient.</p>
+
+<h3>Equation 2 — Vertical momentum (the most important equation)</h3>
+<div class="eq boxed"><span class="el">Vertical Momentum — with Buoyancy!</span>&part;w&prime;/&part;t = &minus;(1/&rho;&#x0304;) &part;p&prime;/&part;z + g &theta;&prime;/&theta;&#x0304;</div>
+<p>This is the most important equation. There are <strong>two forces</strong> on a vertically displaced parcel:</p>
+<ul>
+<li>The vertical pressure perturbation gradient: &minus;(1/&rho;&#x0304;) &part;p&prime;/&part;z</li>
+<li>The <strong>buoyancy force</strong>: g&middot;&theta;&prime;/&theta;&#x0304;. If the parcel is warm (&theta;&prime; &gt; 0), buoyancy pushes it up. If cool (&theta;&prime; &lt; 0), buoyancy pushes it down.</li>
+</ul>
+<div class="warn"><p><strong style="color:var(--warm2)">This buoyancy term is what makes gravity waves possible.</strong> Sound waves had no buoyancy — they were purely pressure-driven.</p></div>
+
+<h3>Equation 3 — Incompressible continuity</h3>
+<div class="eq"><span class="el">Incompressible Continuity</span>&part;u&prime;/&part;x + &part;w&prime;/&part;z = 0</div>
+<p>Volume is conserved. Horizontal convergence equals vertical divergence.</p>
+
+<h3>Equation 4 — Thermodynamic</h3>
+<div class="eq"><span class="el">Thermodynamic</span>&part;&theta;&prime;/&part;t + w&prime; d&theta;&#x0304;/dz = 0</div>
+<p>This says: the perturbation potential temperature at a fixed point changes because the vertical wind w&prime; <strong>advects the background &theta; profile</strong>. If the background &theta; increases with height (d&theta;&#x0304;/dz &gt; 0, stable stratification) and there's upward motion (w&prime; &gt; 0), then cooler air from below is being brought to this level, so &theta;&prime; decreases (&part;&theta;&prime;/&part;t &lt; 0).</p>
+<p>In other words: vertical motion in a stratified atmosphere automatically creates temperature perturbations, and those temperature perturbations create buoyancy forces, which drive further vertical motion. This feedback loop is the gravity wave mechanism.</p>
+<div class="keyfact"><p><strong style="color:var(--cool2)">The feedback loop:</strong> Vertical motion → creates &theta;&prime; → creates buoyancy force → drives more vertical motion → and so on. This self-sustaining oscillation IS the gravity wave.</p></div>
+</div>
+</div>
+
+<!-- ===== PANEL 17: GRAVITY DERIVATION ===== -->
+<div class="panel" id="p17">
+<div class="sh"><div class="sh-num">Concept 18</div><h2>Deriving the Gravity Wave Equation — The Algebra</h2><p class="lead">Now we combine these four equations into a single wave equation for w&prime;. The strategy is to systematically eliminate u&prime;, p&prime;, and &theta;&prime;, leaving only w&prime;.</p></div>
+<div class="prose">
+<div class="step-box"><div class="step-label">Step 1 — Take partial derivatives needed for elimination</div>
+<p>Take &part;/&part;x of Equation 2 (vertical momentum):</p>
+<div class="eq">(&part;/&part;t)(&part;w&prime;/&part;x) = &minus;(1/&rho;&#x0304;) &part;&sup2;p&prime;/&part;x&part;z + (g/&theta;&#x0304;) &part;&theta;&prime;/&part;x</div>
+<p>Take &part;/&part;z of Equation 1 (horizontal momentum):</p>
+<div class="eq">(&part;/&part;t)(&part;u&prime;/&part;z) = &minus;(1/&rho;&#x0304;) &part;&sup2;p&prime;/&part;z&part;x</div></div>
+
+<div class="step-box"><div class="step-label">Step 2 — Subtract to cancel pressure</div>
+<p>The pressure terms cancel! (Because &part;&sup2;p&prime;/&part;x&part;z = &part;&sup2;p&prime;/&part;z&part;x — mixed partials are equal for smooth functions.)</p>
+<div class="eq">(&part;/&part;t)(&part;w&prime;/&part;x &minus; &part;u&prime;/&part;z) = (g/&theta;&#x0304;) &part;&theta;&prime;/&part;x</div></div>
+
+<div class="step-box"><div class="step-label">Step 3 — Differentiate with respect to t</div>
+<p>Use Equation 4 to replace &part;&theta;&prime;/&part;t = &minus;w&prime;(d&theta;&#x0304;/dz):</p>
+<div class="eq">(&part;&sup2;/&part;t&sup2;)(&part;w&prime;/&part;x &minus; &part;u&prime;/&part;z) = &minus;(g/&theta;&#x0304;)(d&theta;&#x0304;/dz) &part;w&prime;/&part;x</div></div>
+
+<div class="step-box"><div class="step-label">Step 4 — Use continuity to express everything in terms of w&prime;</div>
+<p>Since &part;u&prime;/&part;x = &minus;&part;w&prime;/&part;z, we can take appropriate derivatives and substitute. After careful manipulation, we arrive at:</p>
+<div class="eq boxed" style="text-align:center;font-size:clamp(.9rem,2vw,1.1rem);color:var(--accent)"><span class="el">The Gravity Wave Equation</span>(&part;&sup2;/&part;t&sup2;)(&part;&sup2;w&prime;/&part;x&sup2; + &part;&sup2;w&prime;/&part;z&sup2;) + N&sup2; &part;&sup2;w&prime;/&part;x&sup2; = 0</div>
+<p>where N is the Brunt-V&auml;is&auml;l&auml; frequency defined in the next section.</p></div>
+</div>
+</div>
+
+<!-- ===== PANEL 18: BRUNT-VÄISÄLÄ ===== -->
+<div class="panel" id="p18">
+<div class="sh"><div class="sh-num">Concept 19</div><h2>The Brunt-V&auml;is&auml;l&auml; Frequency N</h2><p class="lead">One of the most fundamental parameters in atmospheric science — the natural oscillation frequency of a displaced air parcel.</p></div>
+<div class="prose">
+<div class="eq boxed" style="text-align:center;font-size:clamp(1rem,2.5vw,1.3rem);color:var(--accent)"><span class="el">Brunt-V&auml;is&auml;l&auml; Frequency</span>N &equiv; &radic;[(g/&theta;&#x0304;)(d&theta;&#x0304;/dz)] = &radic;[g &middot; d(ln &theta;&#x0304;)/dz]</div>
+<p>This is the <strong>Brunt-V&auml;is&auml;l&auml; buoyancy frequency</strong>, and it is one of the most fundamental parameters in atmospheric science.</p>
+<p>N is the <strong>natural frequency of oscillation</strong> of a vertically displaced air parcel in a stably stratified atmosphere. It's like the frequency of a pendulum or a mass on a spring — it tells you how many times per second the parcel bobs up and down.</p>
+
+<h3>What Determines N</h3>
+<ul>
+<li><strong>g (gravity, 9.8 m/s&sup2;):</strong> Stronger gravity means a stronger restoring force, so faster oscillations, so larger N.</li>
+<li><strong>d&theta;&#x0304;/dz (rate of increase of potential temperature with height):</strong> This is the <strong>stability</strong> of the atmosphere. If &theta; increases rapidly with height (strongly stable), the displaced parcel feels a strong restoring force and oscillates quickly — large N. If &theta; barely increases (weakly stable), oscillations are slow — small N. If d&theta;&#x0304;/dz &lt; 0 (unstable), N&sup2; is negative, meaning no oscillation — the parcel just keeps accelerating (convection!).</li>
+<li><strong>&theta;&#x0304; (background potential temperature, ~300 K):</strong> This just normalizes things.</li>
+</ul>
+
+<h3>Typical Values</h3>
+<p>In the troposphere, N &asymp; 0.01 s<sup>&minus;1</sup>. This means the oscillation period is:</p>
+<div class="eq">P = 2&pi;/N = 2&pi;/0.01 &asymp; 628 seconds &asymp; 10 minutes</div>
+
+<h3>Physical Interpretation of the Three Regimes</h3>
+<ul>
+<li><strong>N&sup2; &gt; 0 (stable):</strong> &theta; increases with height. Displaced parcels oscillate → gravity waves exist.</li>
+<li><strong>N&sup2; = 0 (neutral):</strong> &theta; is constant with height. No restoring force. Displaced parcels stay where they are.</li>
+<li><strong>N&sup2; &lt; 0 (unstable):</strong> &theta; <em>decreases</em> with height. Displaced parcels accelerate away → convection, thunderstorms. N is imaginary, no oscillation.</li>
+</ul>
+</div>
+<!-- BV Explorer -->
+<div class="vp"><div class="vh"><h4>Brunt-V&auml;is&auml;l&auml; Frequency Explorer — Interactive</h4>
+<div class="ctr"><div class="sg"><label>d&theta;/dz (K/km)</label><input type="range" id="bv-dtheta" min="-50" max="150" value="30" oninput="bvDraw()"><span id="bv-dtv">3.0</span></div>
+<div class="sg"><label>&theta;&#x0304; (K)</label><input type="range" id="bv-theta" min="250" max="330" value="300" step="5" oninput="bvDraw()"><span id="bv-thv">300</span></div></div></div>
+<div class="vb"><div class="ss" style="margin-top:0;margin-bottom:.8rem"><div class="si"><div class="sv" id="bv-nsq">9.8e-5</div><div class="sl">N&sup2; (s<sup>&minus;2</sup>)</div></div><div class="si"><div class="sv" id="bv-n">0.0099</div><div class="sl">N (s<sup>&minus;1</sup>)</div></div><div class="si"><div class="sv" id="bv-per">10.6 min</div><div class="sl">Period</div></div></div>
+<div id="bv-status" class="keyfact"><p id="bv-status-text"><strong style="color:var(--cool2)">Stable (N&sup2; &gt; 0):</strong> Gravity waves exist. A displaced parcel oscillates vertically with the period shown above. Stronger stability → faster oscillation → higher N.</p></div></div></div>
+</div>
+
+<!-- ===== PANEL 19: DISPERSION ===== -->
+<div class="panel" id="p19">
+<div class="sh"><div class="sh-num">Concept 20</div><h2>Solving the Gravity Wave Equation — Dispersion Relation</h2><p class="lead">Assume a 2D wave solution, substitute, and extract the relationship between frequency and wavenumber.</p></div>
+<div class="prose">
+<h3>Assumed 2D Wave Solution</h3>
+<p>Now we solve the gravity wave equation. We assume a wave-like solution with 2D spatial structure:</p>
+<div class="eq"><span class="el">Wave Ansatz</span>w&prime; = A e<sup>i(kx + mz &minus; &omega;t)</sup></div>
+<p>Where:</p>
+<ul>
+<li><strong>k = 2&pi;/L<sub>x</sub></strong> is the <strong>horizontal wavenumber</strong></li>
+<li><strong>m = 2&pi;/L<sub>z</sub></strong> is the <strong>vertical wavenumber</strong> (gravity waves have structure in both dimensions)</li>
+<li><strong>&omega; = 2&pi;/P</strong> is the <strong>frequency</strong></li>
+<li><strong>A</strong> is the amplitude</li>
+</ul>
+
+<h3>Computing the Required Derivatives</h3>
+<div class="eq">&part;&sup2;w&prime;/&part;x&sup2; = (ik)&sup2; w&prime; = &minus;k&sup2; w&prime;</div>
+<div class="eq">&part;&sup2;w&prime;/&part;z&sup2; = (im)&sup2; w&prime; = &minus;m&sup2; w&prime;</div>
+<p>Since &part;w&prime;/&part;t = &minus;i&omega; &middot; w&prime;, we get &part;&sup2;w&prime;/&part;t&sup2; = &minus;&omega;&sup2; w&prime;. Therefore:</p>
+<div class="eq">(&part;&sup2;/&part;t&sup2;)[&minus;(k&sup2;+m&sup2;)w&prime;] = &minus;(k&sup2;+m&sup2;)(&minus;&omega;&sup2;)w&prime; = &omega;&sup2;(k&sup2;+m&sup2;)w&prime;</div>
+<p>And:</p>
+<div class="eq">N&sup2; &part;&sup2;w&prime;/&part;x&sup2; = N&sup2;(&minus;k&sup2;)w&prime; = &minus;N&sup2;k&sup2;w&prime;</div>
+
+<h3>Substituting into the Gravity Wave Equation</h3>
+<div class="eq">&omega;&sup2;(k&sup2; + m&sup2;)w&prime; &minus; N&sup2;k&sup2;w&prime; = 0</div>
+<p>Divide by w&prime;:</p>
+<div class="eq">&omega;&sup2;(k&sup2; + m&sup2;) = N&sup2;k&sup2;</div>
+<p>Solve for &omega;:</p>
+<div class="eq boxed" style="text-align:center;font-size:clamp(1rem,2.5vw,1.2rem);color:var(--accent)"><span class="el">Gravity Wave Dispersion Relation</span>&omega; = &plusmn; Nk / &radic;(k&sup2; + m&sup2;)</div>
+<p><strong>This is the gravity wave dispersion relation!</strong></p>
+</div>
+</div>
+
+<!-- ===== PANEL 20: GRAVITY SPEED ===== -->
+<div class="panel" id="p20">
+<div class="sh"><div class="sh-num">Concept 21</div><h2>Gravity Wave Phase Speed — The Physical Result</h2><p class="lead">Gravity waves travel at ~15 m/s — about 20 times slower than sound — and they are dispersive.</p></div>
+<div class="prose">
+<p>The <strong>phase speed</strong> in the horizontal direction:</p>
+<div class="eq">c<sub>x</sub> = &omega;/k = &plusmn; N / &radic;(k&sup2; + m&sup2;)</div>
+<p>Adding back the mean wind &#x16B;:</p>
+<div class="eq boxed" style="text-align:center;font-size:clamp(1rem,2.5vw,1.2rem);color:var(--accent)"><span class="el">Gravity Wave Phase Speed</span>c<sub>x</sub> = &#x16B; &plusmn; N / &radic;(k&sup2; + m&sup2;)</div>
+
+<h3>Typical Value</h3>
+<p>For standard tropospheric conditions (N = 0.01 s<sup>&minus;1</sup>, horizontal wavelength L<sub>x</sub> = 10 km, m = 0):</p>
+<div class="eq">c<sub>x</sub> = N/k = 0.01 / (6.28 &times; 10<sup>&minus;4</sup>) &approx; 16 m/s</div>
+<p>So gravity waves travel at roughly <strong>15 m/s</strong> — about <strong>20 times slower</strong> than sound waves!</p>
+
+<h3>Key Properties</h3>
+<p><strong>Property 1: Gravity waves are dispersive.</strong> The phase speed depends on wavenumber. Different wavelengths travel at different speeds, unlike non-dispersive sound waves.</p>
+<p><strong>Property 2: The frequency is bounded by N.</strong> Since k/&radic;(k&sup2;+m&sup2;) &le; 1, we have &omega; &le; N. The Brunt-V&auml;is&auml;l&auml; frequency is the <strong>maximum possible frequency</strong> for gravity waves.</p>
+<p><strong>Property 3: Longer waves are faster.</strong> Smaller k (longer wavelength) gives a larger phase speed.</p>
+<p><strong>Property 4: Vertical structure slows the wave.</strong> Adding vertical wavenumber m increases &radic;(k&sup2;+m&sup2;), which decreases the phase speed.</p>
+</div>
+<!-- Speed comparison SVG -->
+<div class="vp"><div class="vh"><h4>Sound vs. Gravity Wave Speed Comparison</h4></div>
+<div class="vb"><div class="vw"><svg viewBox="0 0 680 260" xmlns="http://www.w3.org/2000/svg">
+<rect width="680" height="260" rx="12" fill="#fafbff"/>
+<text x="340" y="28" text-anchor="middle" font-family="system-ui" font-size="12" font-weight="700" fill="#1e293b">Speed Comparison (Same Scale)</text>
+<rect x="40" y="50" width="560" height="36" rx="8" fill="#fef3c7" stroke="#ea580c" stroke-width="1"/><text x="320" y="73" text-anchor="middle" font-family="system-ui" font-size="13" font-weight="700" fill="#ea580c">Sound wave: ~350 m/s</text>
+<text x="100" y="102" font-family="system-ui" font-size="9" fill="#94a3b8">Compressibility-driven</text><text x="250" y="102" font-family="system-ui" font-size="9" fill="#94a3b8">Longitudinal</text><text x="380" y="102" font-family="system-ui" font-size="9" fill="#94a3b8">Non-dispersive</text><text x="510" y="102" font-family="system-ui" font-size="9" fill="#dc2626">No weather info</text>
+<text x="340" y="125" text-anchor="middle" font-family="Georgia" font-size="10" font-style="italic" fill="#94a3b8">Same scale:</text>
+<rect x="40" y="140" width="24" height="36" rx="8" fill="#ecfdf5" stroke="#14b8a6" stroke-width="1"/><text x="76" y="163" font-family="system-ui" font-size="13" font-weight="700" fill="#14b8a6">Gravity wave: ~15 m/s</text>
+<text x="100" y="192" font-family="system-ui" font-size="9" fill="#94a3b8">Buoyancy-driven</text><text x="250" y="192" font-family="system-ui" font-size="9" fill="#94a3b8">Transverse</text><text x="380" y="192" font-family="system-ui" font-size="9" fill="#94a3b8">Dispersive</text><text x="510" y="192" font-family="system-ui" font-size="9" fill="#14b8a6">Carries energy</text>
+<rect x="160" y="210" width="360" height="38" rx="12" fill="rgba(139,92,246,.06)" stroke="#8b5cf6" stroke-width="1"/><text x="340" y="228" text-anchor="middle" font-family="system-ui" font-size="12" font-weight="700" fill="#7c3aed">Sound is ~23&times; faster than gravity</text><text x="340" y="242" text-anchor="middle" font-family="system-ui" font-size="9" fill="#64748b">Yet carries no useful weather information!</text>
+</svg></div></div></div>
+</div>
+
+<!-- ===== PANEL 21: BOTH WAVES ===== -->
+<div class="panel" id="p21">
+<div class="sh"><div class="sh-num">Concept 22</div><h2>Sound and Gravity Waves Happen Simultaneously</h2><p class="lead">When an air parcel is displaced vertically, <strong>both</strong> kinds of waves are triggered simultaneously.</p></div>
+<div class="prose">
+<p>The displaced parcel needs to compress the neighboring air to make room for itself. That compression signal travels outward as a <strong>sound wave</strong> at ~350 m/s — almost instantaneously relative to everything else.</p>
+<p>At the same time, if the atmosphere is stable, the displaced parcel begins to oscillate vertically under buoyancy, creating a <strong>gravity wave</strong> that radiates horizontally at ~15 m/s — roughly at the speed of the flow itself.</p>
+<p>So the environment response to a vertical displacement has two components:</p>
+<ol>
+<li><strong>Fast horizontal adjustment</strong> via sound waves (pressure equilibrates almost instantly)</li>
+<li><strong>Slow vertical oscillation</strong> via gravity waves (buoyancy restores the parcel over minutes)</li>
+</ol>
+</div>
+</div>
+
+<!-- ===== PANEL 22: ROSSBY WAVES ===== -->
+<div class="panel" id="p22">
+<div class="sh"><div class="sh-num">Concept 23</div><h2>Rossby Waves — The Third Wave Type</h2><p class="lead">Rossby waves are the third and <strong>slowest</strong> type of wave supported by the atmospheric equations. To get them, we need to add back <strong>the rotation of the Earth</strong> — specifically, the <strong>variation of the Coriolis parameter with latitude</strong>, called <strong>beta (&beta;)</strong>.</p></div>
+<div class="prose">
+<h3>The Coriolis Parameter</h3>
+<p>The Earth is spinning. The Coriolis parameter describes the strength of the apparent deflection of moving objects:</p>
+<div class="eq"><span class="el">Coriolis Parameter</span>f = 2&Omega; sin &phi;</div>
+<p>where &Omega; is Earth's rotation rate (7.29 &times; 10<sup>&minus;5</sup> rad/s) and &phi; is latitude. At the equator, f = 0; at the poles, f is maximum.</p>
+
+<h3>The &beta;-Effect</h3>
+<p>The rate at which f changes with latitude:</p>
+<div class="eq"><span class="el">Beta Parameter</span>&beta; = df/dy = (2&Omega; cos &phi;) / R<sub>earth</sub></div>
+<p>At mid-latitudes (45&deg;N), &beta; &asymp; 1.6 &times; 10<sup>&minus;11</sup> m<sup>&minus;1</sup>s<sup>&minus;1</sup>.</p>
+
+<h3>The Physical Mechanism</h3>
+<p>Imagine a parcel of air sitting at some latitude. It has <strong>absolute vorticity</strong> f + &zeta; (planetary + relative), which is conserved:</p>
+<div class="eq boxed"><span class="el">Vorticity Conservation</span>f + &zeta; = constant following the parcel</div>
+<ul>
+<li>Parcel pushed <strong>northward</strong> → f increases → &zeta; must decrease (anticyclonic spin) → curves back south</li>
+<li>Parcel pushed <strong>southward</strong> → f decreases → &zeta; must increase (cyclonic spin) → curves back north</li>
+</ul>
+<p>The result: meridional oscillations — <strong>Rossby waves</strong>. These are the dominant wave pattern of the large-scale atmosphere, the familiar troughs and ridges on a 500 mb weather map, with wavelengths of 4,000 to 6,000 km.</p>
+</div>
+<!-- Rossby wave animated SVG -->
+<div class="vp"><div class="vh"><h4>Rossby Wave Mechanism — Animated</h4></div>
+<div class="vb"><div class="vw"><canvas id="cv-rossby" height="350"></canvas></div>
+<p class="vn">Top: vorticity conservation mechanism. Bottom: the resulting planetary-scale wave pattern (troughs and ridges).</p></div></div>
+</div>
+
+<!-- ===== PANEL 23: ROSSBY SPEED ===== -->
+<div class="panel" id="p23">
+<div class="sh"><div class="sh-num">Concept 24</div><h2>Rossby Wave Phase Speed</h2><p class="lead">The Rossby wave phase speed (presented without full derivation):</p></div>
+<div class="prose">
+<div class="eq boxed" style="text-align:center;font-size:clamp(1rem,2.5vw,1.3rem);color:var(--accent)"><span class="el">Rossby Wave Phase Speed</span>c = &#x16B; &minus; &beta;/k&sup2;</div>
+
+<h3>Physical Interpretation</h3>
+<p><strong>&#x16B;:</strong> The mean zonal (west-to-east) wind speed carries the wave along.</p>
+<p><strong>&minus;&beta;/k&sup2;:</strong> The <strong>intrinsic Rossby wave phase speed</strong>. The <strong>minus sign</strong> means Rossby waves propagate <strong>westward</strong> relative to the mean flow — fundamentally different from sound and gravity waves which go both directions.</p>
+<p><strong>k&sup2; in the denominator:</strong> Longer wavelengths (smaller k) have stronger westward intrinsic speed.</p>
+
+<h3>The Stationary Wave Condition</h3>
+<p>A Rossby wave is stationary (c = 0) when:</p>
+<div class="eq">&#x16B; = &beta;/k&sup2;</div>
+<p>For 3 troughs/ridges around the hemisphere (L<sub>x</sub> &asymp; 6,000 km), this gives &#x16B; &asymp; 15 m/s — remarkably close to typical upper-tropospheric jet stream speeds.</p>
+
+<h3>Direction of Movement</h3>
+<ul>
+<li><strong>&#x16B; &lt; &beta;/k&sup2;:</strong> Waves drift <strong>westward</strong> (retrograde)</li>
+<li><strong>&#x16B; = &beta;/k&sup2;:</strong> Waves are <strong>stationary</strong></li>
+<li><strong>&#x16B; &gt; &beta;/k&sup2;:</strong> Waves drift <strong>eastward</strong> (progressive)</li>
+</ul>
+</div>
+<!-- Rossby speed explorer -->
+<div class="vp"><div class="vh"><h4>Rossby Wave Phase Speed Explorer — Interactive</h4>
+<div class="ctr"><div class="sg"><label>&#x16B; (m/s)</label><input type="range" id="rw-u" min="0" max="40" value="15" step="1" oninput="rwDraw()"><span id="rw-uv">15</span></div>
+<div class="sg"><label>L (1000 km)</label><input type="range" id="rw-l" min="20" max="120" value="60" oninput="rwDraw()"><span id="rw-lv">6.0</span></div></div></div>
+<div class="vb"><div class="ss" style="margin-top:0;margin-bottom:.8rem"><div class="si"><div class="sv" id="rw-intr">15.5</div><div class="sl">Intrinsic (&beta;/k&sup2;) m/s west</div></div><div class="si"><div class="sv" id="rw-c">-0.5</div><div class="sl">Phase speed c (m/s)</div></div><div class="si"><div class="sv" id="rw-dir">&asymp; Stationary</div><div class="sl">Wave movement</div></div></div>
+<div id="rw-status" class="keyfact"><p id="rw-status-text"><strong style="color:var(--cool2)">Nearly stationary:</strong> The mean flow almost exactly balances the intrinsic westward propagation. This is why large-scale troughs and ridges appear "locked" in place for days.</p></div>
+<p class="vn" style="font-family:var(--fd);font-style:italic;margin-top:.5rem;color:var(--text-dim)">c = &#x16B; &minus; &beta;/k&sup2; &nbsp;&nbsp; &beta; = 1.6&times;10<sup>&minus;11</sup> m<sup>&minus;1</sup>s<sup>&minus;1</sup> &nbsp;&nbsp; k = 2&pi;/L</p></div></div>
+</div>
+
+<!-- ===== PANEL 24: THREE WAVES ===== -->
+<div class="panel" id="p24">
+<div class="sh"><div class="sh-num">Concept 25</div><h2>The Combined Picture — Three Waves, Three Speeds</h2><p class="lead">The central insight of the entire lecture:</p></div>
+<div class="prose">
+<div class="eq"><span class="el">Sound</span>c<sub>sound</sub> = &#x16B; &plusmn; &radic;(&gamma;R<sub>d</sub>T&#x0304;) &asymp; &#x16B; &plusmn; 350 m/s</div>
+<div class="eq"><span class="el">Gravity</span>c<sub>gravity</sub> = &#x16B; &plusmn; N/&radic;(k&sup2;+m&sup2;) &asymp; &#x16B; &plusmn; 15 m/s</div>
+<div class="eq"><span class="el">Rossby</span>c<sub>Rossby</sub> = &#x16B; &minus; &beta;/k&sup2; &asymp; &#x16B; &minus; 15 m/s</div>
+
+<h3>What Each Wave Transports</h3>
+<ul>
+<li><strong>Sound waves</strong> prevent vacuum holes. Carry <strong>no useful weather information</strong>. Yet they're 20&times; faster than everything else.</li>
+<li><strong>Gravity waves</strong> transport <strong>momentum and energy</strong>. Mountain waves, clear-air turbulence triggers. ~15 m/s.</li>
+<li><strong>Rossby waves</strong> are the <strong>fundamental weather-making waves</strong>. Jet stream troughs/ridges, cyclone formation, heat redistribution. &lt; 15 m/s.</li>
+</ul>
+</div>
+<div class="vp"><div class="vh"><h4>Three Wave Types — Complete Comparison</h4></div>
+<div class="vb"><table class="ct"><thead><tr><th>Wave Type</th><th>Speed</th><th>Driven By</th><th>Weather Role</th></tr></thead>
+<tbody>
+<tr style="border-left:3px solid var(--warm)"><td><strong>Sound</strong><br><span style="font-size:.85em;color:var(--text-dim)">Longitudinal, both directions (&plusmn;)</span></td><td><span style="color:var(--warm2);font-weight:700;font-family:Georgia">~350 m/s</span></td><td>Compressibility<br><span style="font-size:.85em;color:var(--text-dim)">Pressure &harr; density</span></td><td><span style="color:var(--red);font-weight:600">None!</span> Prevents vacuum; <span style="color:var(--red)">slows models</span></td></tr>
+<tr style="border-left:3px solid var(--cool)"><td><strong>Gravity</strong><br><span style="font-size:.85em;color:var(--text-dim)">Transverse, both directions (&plusmn;)</span></td><td><span style="color:var(--cool2);font-weight:700;font-family:Georgia">~15 m/s</span></td><td>Buoyancy (N&sup2;)<br><span style="font-size:.85em;color:var(--text-dim)">Stable stratification</span></td><td>Transports energy. Mountain waves, triggers CAT</td></tr>
+<tr style="border-left:3px solid var(--accent)"><td><strong>Rossby</strong><br><span style="font-size:.85em;color:var(--text-dim)">Vorticity wave, westward only</span></td><td><span style="color:var(--accent);font-weight:700;font-family:Georgia">&lt; 15 m/s</span></td><td>&beta;-effect (df/dy)<br><span style="font-size:.85em;color:var(--text-dim)">Vorticity conservation</span></td><td><span style="color:var(--accent);font-weight:600">Weather maker!</span> Jet stream, cyclone formation</td></tr>
+</tbody></table>
+<div class="warn" style="margin-top:.8rem"><p><strong style="color:var(--warm2)">The CFL problem:</strong> &Delta;t &le; &Delta;x / c<sub>max</sub> = &Delta;x / 350 — sound waves force tiny time steps for no weather benefit.</p></div></div></div>
+</div>
+
+<!-- ===== PANEL 25: CFL ===== -->
+<div class="panel" id="p25">
+<div class="sh"><div class="sh-num">Concept 26</div><h2>The CFL Problem — Why Sound Waves Must Be Dealt With</h2><p class="lead">The CFL condition says the maximum time step is limited by the fastest wave.</p></div>
+<div class="prose">
+<div class="eq boxed" style="text-align:center"><span class="el">CFL Condition</span>&Delta;t &le; &Delta;x / c<sub>max</sub></div>
+<p>The fastest wave (c<sub>max</sub>) is <strong>sound at ~350 m/s</strong>. For a grid spacing of &Delta;x = 10 km:</p>
+<ul>
+<li><strong>With sound waves</strong> (c<sub>max</sub> = 350 m/s): &Delta;t &le; 10,000/350 &asymp; <strong>29 seconds</strong></li>
+<li><strong>Without sound waves</strong> (c<sub>max</sub> = 15 m/s): &Delta;t &le; 10,000/15 &asymp; <strong>667 seconds &asymp; 11 minutes</strong></li>
+</ul>
+<div class="warn"><p>That's a factor of <strong>23&times; more time steps</strong> needed just because of sound waves! Each time step costs computational resources. For a week-long forecast, this means 23&times; more computation for absolutely no weather benefit.</p></div>
+</div>
+</div>
+
+<!-- ===== PANEL 26: INCOMPRESSIBILITY ===== -->
+<div class="panel" id="p26">
+<div class="sh"><div class="sh-num">Concept 27</div><h2>Method 1 — Complete Elimination by Assuming Incompressibility</h2><p class="lead">The most straightforward approach: declare the atmosphere to be <strong>incompressible</strong>. If air can't be compressed, sound waves can't exist.</p></div>
+<div class="prose">
+<p>Mathematically, set d&rho;/dt = 0:</p>
+<div class="eq">d&rho;/dt + &rho;&nabla;&middot;V = 0 &nbsp; &rArr; &nbsp; &nabla;&middot;V = 0</div>
+<p><strong>The problem:</strong> This requires three conditions:</p>
+<ol>
+<li><strong>u&sup2; &Lt; c<sub>s</sub>&sup2;</strong> — <strong>easily satisfied</strong></li>
+<li>Time scales much larger than acoustic propagation time — <strong>easily satisfied</strong></li>
+<li><strong>L<sub>z</sub> &Lt; H<sub>z</sub></strong> (vertical scale much less than scale height ~8 km) — <strong>NOT satisfied</strong> for deep circulations!</li>
+</ol>
+<p>The third condition is the killer. Sea breezes, mountain waves, and thunderstorms all have deep vertical circulations. The incompressible assumption is <strong>too restrictive</strong> — it only works for very shallow phenomena.</p>
+</div>
+</div>
+
+<!-- ===== PANEL 27: ANELASTIC ===== -->
+<div class="panel" id="p27">
+<div class="sh"><div class="sh-num">Concept 28</div><h2>The Anelastic Approximation — The Practical Solution</h2><p class="lead">The clever compromise: allow density to vary <strong>with height</strong> but not <strong>locally in time</strong>.</p></div>
+<div class="prose">
+<div class="eq boxed" style="text-align:center;font-size:clamp(1rem,2.5vw,1.3rem);color:var(--accent)"><span class="el">Anelastic Continuity Equation</span>&nabla;&middot;(&rho;&#x2080; V) = 0</div>
+<p>This is the <strong>anelastic continuity equation</strong>.</p>
+
+<h3>Why It Works</h3>
+<p>The full continuity equation allows d&rho;/dt &ne; 0, which is what sound waves need (local compression/decompression). By forcing &part;&rho;/&part;t = 0 while keeping &rho;&#x2080;(z), we:</p>
+<ul>
+<li><strong>Remove</strong> the mechanism that supports sound waves (local compression)</li>
+<li><strong>Keep</strong> the important effect that air thins with altitude</li>
+<li><strong>Handle</strong> deep circulations properly</li>
+</ul>
+<p>This is <strong>widely used in atmospheric models</strong> — the standard approach for mesoscale models needing deep convection without CFL constraints from sound waves.</p>
+</div>
+</div>
+
+<!-- ===== PANEL 28: OTHER METHODS ===== -->
+<div class="panel" id="p28">
+<div class="sh"><div class="sh-num">Concept 29</div><h2>Alternative Approaches to Handling Sound Waves</h2><p class="lead">Beyond the anelastic approximation: time splitting, artificial slowing, and filtering techniques.</p></div>
+<div class="prose">
+<h3>Method 2 — Time Splitting</h3>
+<p>Integrate fast sound wave modes with a very small time step (or implicit/damping method), while integrating slower gravity and Rossby modes with a larger time step.</p>
+<ul><li><em>Advantage:</em> Relatively economical</li><li><em>Disadvantage:</em> Complicates code, can interfere with physics</li></ul>
+
+<h3>Method 3 — Artificially Slow Down Sound Waves</h3>
+<p>Modify the equations to reduce the speed of sound (e.g., from 350 to 50 m/s).</p>
+<ul><li><em>Advantage:</em> Efficient and straightforward. Most commonly used in practice.</li><li><em>Disadvantage:</em> Slightly wrong physics</li></ul>
+
+<h3>Method 4 — Artificially Speed Up Sound Waves</h3>
+<p>Make sound waves infinitely fast (instantaneous pressure adjustment).</p>
+<ul><li><em>Advantage:</em> Eliminates sound waves completely</li><li><em>Disadvantage:</em> Difficult to implement</li></ul>
+
+<h3>Filtering Methods</h3>
+<ul>
+<li><strong>Vertical filters:</strong> Semi-implicit treatment of vertical momentum that slows gravity/sound wave growth</li>
+<li><strong>Temporal filters:</strong> Adding diffusion-like correction terms that smooth fast modes over time (temporal smoothing based on current and two stored values)</li>
+</ul>
+</div>
+<!-- Methods SVG -->
+<div class="vp"><div class="vh"><h4>Acoustic Wave Elimination Methods</h4></div>
+<div class="vb"><div class="vw"><svg viewBox="0 0 680 440" xmlns="http://www.w3.org/2000/svg">
+<defs><filter id="s7" x="-5%" y="-10%" width="110%" height="130%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#6366f1" flood-opacity=".1"/></filter></defs>
+<rect width="680" height="440" rx="12" fill="#fafbff"/>
+<rect x="100" y="10" width="480" height="46" rx="10" fill="#fef2f2" stroke="#dc2626" stroke-width="1"/><text x="340" y="30" text-anchor="middle" font-family="system-ui" font-size="12" font-weight="700" fill="#dc2626">Sound at 350 m/s forces tiny &Delta;t</text><text x="340" y="46" text-anchor="middle" font-family="system-ui" font-size="9" fill="#64748b">CFL: &Delta;t &le; &Delta;x/350 → ~29s for 10km grid</text>
+<text x="340" y="78" text-anchor="middle" font-family="system-ui" font-size="10" font-weight="600" fill="#1e293b">Solutions:</text>
+<rect x="30" y="92" width="300" height="48" rx="8" fill="#fff" filter="url(#s7)" stroke="#94a3b8" stroke-width="1"/><text x="45" y="112" font-family="system-ui" font-size="10" font-weight="600" fill="#64748b">1. Incompressible (&nabla;&middot;V = 0)</text><text x="45" y="130" font-family="system-ui" font-size="9" fill="#94a3b8">Too restrictive — shallow flows only</text><text x="350" y="108" font-family="system-ui" font-size="9" fill="#dc2626" font-weight="600">Fails for deep storms</text>
+<rect x="30" y="152" width="300" height="48" rx="8" fill="#fff" filter="url(#s7)" stroke="#14b8a6" stroke-width="1.5"/><text x="45" y="172" font-family="system-ui" font-size="10" font-weight="600" fill="#14b8a6">2. Anelastic (&nabla;&middot;&rho;&#x2080;V = 0)</text><text x="45" y="190" font-family="system-ui" font-size="9" fill="#94a3b8">Best for deep circulations</text><text x="350" y="172" font-family="system-ui" font-size="9" fill="#047857" font-weight="600">Widely used. Sound fully removed.</text>
+<rect x="30" y="212" width="300" height="48" rx="8" fill="#fff" filter="url(#s7)" stroke="#3b82f6" stroke-width="1"/><text x="45" y="232" font-family="system-ui" font-size="10" font-weight="600" fill="#3b82f6">3. Time splitting</text><text x="45" y="250" font-family="system-ui" font-size="9" fill="#94a3b8">Small &Delta;t for fast, large for slow</text><text x="350" y="232" font-family="system-ui" font-size="9" fill="#64748b">Economical but complex</text>
+<rect x="30" y="272" width="300" height="48" rx="8" fill="#fff" filter="url(#s7)" stroke="#8b5cf6" stroke-width="1"/><text x="45" y="292" font-family="system-ui" font-size="10" font-weight="600" fill="#8b5cf6">4. Artificially slow sound</text><text x="45" y="310" font-family="system-ui" font-size="9" fill="#94a3b8">Most common in practice</text><text x="350" y="292" font-family="system-ui" font-size="9" fill="#64748b">Efficient but slightly wrong physics</text>
+<rect x="30" y="332" width="300" height="48" rx="8" fill="#fff" filter="url(#s7)" stroke="#fbbf24" stroke-width="1"/><text x="45" y="352" font-family="system-ui" font-size="10" font-weight="600" fill="#b45309">5. Semi-implicit / temporal filters</text><text x="45" y="370" font-family="system-ui" font-size="9" fill="#94a3b8">Damp fast modes selectively</text><text x="350" y="352" font-family="system-ui" font-size="9" fill="#64748b">Flexible but can over-damp</text>
+<rect x="100" y="395" width="480" height="34" rx="10" fill="var(--cool-bg)" stroke="#14b8a6" stroke-width="1"/><text x="340" y="417" text-anchor="middle" font-family="system-ui" font-size="11" font-weight="600" fill="#0d9488">Goal: &Delta;t set by weather, not by sound → 23&times; speedup</text>
+</svg></div></div></div>
+</div>
+
+<!-- ===== PANEL 29: SUMMARY ===== -->
+<div class="panel" id="p29">
+<div class="sh"><div class="sh-num">Concept 30</div><h2>Summary — Key Takeaways</h2><p class="lead">Everything you need to remember from Lecture 4, distilled into seven takeaways and two reference tables.</p></div>
+<div class="prose"><h3>Seven Key Takeaways</h3></div>
+<div class="tkg">
+<div class="tk"><div class="n">Takeaway 1</div><h4>Three Wave Types</h4><p>The simplified Euler equations support sound, gravity, and Rossby waves — each with dramatically different speeds and physical mechanisms.</p></div>
+<div class="tk"><div class="n">Takeaway 2</div><h4>The Perturbation Method</h4><p>Split variables into mean + perturbation, linearize by dropping products of perturbations — the essential tool for extracting wave behavior from nonlinear equations.</p></div>
+<div class="tk"><div class="n">Takeaway 3</div><h4>Sound Waves (~350 m/s)</h4><p>Arise from compressibility, carry no weather information, but dominate the CFL constraint.</p></div>
+<div class="tk"><div class="n">Takeaway 4</div><h4>Gravity Waves (~15 m/s)</h4><p>Arise from buoyancy in stable stratification, characterized by the Brunt-V&auml;is&auml;l&auml; frequency N, and transport energy/momentum.</p></div>
+<div class="tk"><div class="n">Takeaway 5</div><h4>Rossby Waves (&lt;15 m/s)</h4><p>Arise from the &beta;-effect (latitudinal variation of Earth's rotation), propagate westward relative to the flow, and are the fundamental weather-making waves.</p></div>
+<div class="tk"><div class="n">Takeaway 6</div><h4>The Central Practical Problem</h4><p>Sound waves force tiny time steps via the CFL condition, wasting computation on dynamically irrelevant waves.</p></div>
+<div class="tk"><div class="n">Takeaway 7</div><h4>The Anelastic Solution</h4><p>&nabla;&middot;(&rho;&#x2080;V) = 0 is the most elegant solution — it removes sound while preserving deep circulations.</p></div>
+</div>
+<div class="prose" style="margin-top:1.5rem"><h3>Key Equations Summary</h3></div>
+<table class="ct"><thead><tr><th>Quantity</th><th>Formula</th><th>Typical Value</th></tr></thead><tbody>
+<tr><td>Sound wave phase speed</td><td style="font-family:Georgia;font-style:italic;color:var(--warm2)">c = &#x16B; &plusmn; &radic;(&gamma;R<sub>d</sub>T&#x0304;)</td><td>~350 m/s</td></tr>
+<tr><td>Brunt-V&auml;is&auml;l&auml; frequency</td><td style="font-family:Georgia;font-style:italic;color:var(--warm2)">N = &radic;(g &middot; d ln&theta;&#x0304;/dz)</td><td>~0.01 s<sup>&minus;1</sup></td></tr>
+<tr><td>Gravity wave phase speed</td><td style="font-family:Georgia;font-style:italic;color:var(--warm2)">c<sub>x</sub> = &#x16B; &plusmn; N/&radic;(k&sup2;+m&sup2;)</td><td>~15 m/s</td></tr>
+<tr><td>Rossby wave phase speed</td><td style="font-family:Georgia;font-style:italic;color:var(--warm2)">c = &#x16B; &minus; &beta;/k&sup2;</td><td>&lt; 15 m/s</td></tr>
+<tr><td>CFL condition</td><td style="font-family:Georgia;font-style:italic;color:var(--warm2)">&Delta;t &le; &Delta;x / c<sub>max</sub></td><td>~29 s (with sound, 10 km)</td></tr>
+<tr><td>Anelastic continuity</td><td style="font-family:Georgia;font-style:italic;color:var(--warm2)">&nabla;&middot;(&rho;&#x2080;V) = 0</td><td>Eliminates sound</td></tr>
+</tbody></table>
+<div class="prose" style="margin-top:1.5rem"><h3>Key Definitions</h3></div>
+<table class="ct"><thead><tr><th>Term</th><th>Definition</th></tr></thead><tbody>
+<tr><td>Euler equations</td><td>Governing equations for inviscid (no friction) fluid flow</td></tr>
+<tr><td>Material derivative</td><td>Rate of change following a moving parcel: d/dt = &part;/&part;t + V&middot;&nabla;</td></tr>
+<tr><td>Perturbation method</td><td>Splitting variables into mean + small deviation: a = &#x101; + a&prime;</td></tr>
+<tr><td>Linearization</td><td>Dropping products of perturbations (a&prime;b&prime; &asymp; 0) to make equations linear</td></tr>
+<tr><td>Spectral gap</td><td>Region in the energy spectrum with little energy, separating resolved from turbulent scales</td></tr>
+<tr><td>Longitudinal wave</td><td>Particle motion parallel to wave propagation (e.g., sound)</td></tr>
+<tr><td>Transverse wave</td><td>Particle motion perpendicular to wave propagation (e.g., gravity waves)</td></tr>
+<tr><td>Dispersion</td><td>Phenomenon where wave speed depends on wavelength</td></tr>
+<tr><td>Non-dispersive</td><td>All wavelengths travel at the same speed (e.g., sound waves)</td></tr>
+<tr><td>Phase speed</td><td>Speed at which wave crests move: c = &omega;/k</td></tr>
+<tr><td>Wavenumber</td><td>Spatial frequency of a wave: k = 2&pi;/L</td></tr>
+<tr><td>CFL condition</td><td>Stability constraint: &Delta;t &le; &Delta;x/c<sub>max</sub></td></tr>
+<tr><td>Brunt-V&auml;is&auml;l&auml; frequency (N)</td><td>Natural oscillation frequency of a displaced parcel in stable air</td></tr>
+<tr><td>&beta;-effect</td><td>Variation of Coriolis parameter with latitude: &beta; = df/dy</td></tr>
+<tr><td>Anelastic approximation</td><td>Modified continuity equation that filters sound: &nabla;&middot;(&rho;&#x2080;V) = 0</td></tr>
+<tr><td>Incompressible assumption</td><td>Air density doesn't change: &nabla;&middot;V = 0 (too restrictive for deep flows)</td></tr>
+<tr><td>Potential temperature (&theta;)</td><td>Temperature adjusted to a reference pressure; conserved in adiabatic flow</td></tr>
+<tr><td>Adiabatic</td><td>No heat exchange with surroundings</td></tr>
+<tr><td>Hydrostatic balance</td><td>Vertical pressure gradient force balanced by gravity: dp/dz = &minus;&rho;g</td></tr>
+<tr><td>Boussinesq approximation</td><td>Density perturbations only matter in the buoyancy term</td></tr>
+<tr><td>&gamma; (gamma)</td><td>Ratio of specific heats c<sub>pd</sub>/c<sub>vd</sub> &asymp; 1.4 for dry air</td></tr>
+<tr><td>Time splitting</td><td>Using different &Delta;t for fast and slow modes</td></tr>
+</tbody></table>
+</div>
+
+<footer>CLIM-715 Numerical Modeling · George Mason University · Climate Dynamics PhD Program · Lecture 4 Mastery Guide</footer>
+
+<script>
+function showTab(i,btn){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById('p'+i).classList.add('active');btn.classList.add('active');btn.scrollIntoView({behavior:'smooth',block:'nearest',inline:'nearest'})}
+
+function setupCanvas(id,h){var c=document.getElementById(id);if(!c||!c.parentElement.clientWidth)return null;var r=window.devicePixelRatio||1,w=c.parentElement.clientWidth;c.width=w*r;c.height=h*r;c.style.width=w+'px';c.style.height=h+'px';var ctx=c.getContext('2d');ctx.scale(r,r);return{ctx:ctx,w:w,h:h}}
+
+// Advection vs Wave
+var awMode='advection',awF=0;
+function awDraw(){var o=setupCanvas('cv-aw',220);if(!o){requestAnimationFrame(awDraw);return}var ctx=o.ctx,w=o.w,h=o.h;ctx.clearRect(0,0,w,h);var cx=w/2,cy=h/2;
+if(awMode==='advection'){document.getElementById('aw-desc').textContent='Advection: the blob moves with the wind. All parts travel in the same direction at the same speed.';var bx=(awF*1.5)%w;ctx.fillStyle='rgba(249,115,22,0.15)';ctx.beginPath();ctx.ellipse(bx,cy,40,25,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#f97316';ctx.beginPath();ctx.ellipse(bx,cy,20,12,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#94a3b8';ctx.lineWidth=1;for(var x=30;x<w;x+=60){ctx.beginPath();ctx.moveTo(x,30);ctx.lineTo(x+20,30);ctx.stroke();ctx.beginPath();ctx.moveTo(x+15,26);ctx.lineTo(x+20,30);ctx.lineTo(x+15,34);ctx.stroke()}ctx.fillStyle='#94a3b8';ctx.font='11px system-ui';ctx.fillText('Wind direction →',w/2-40,20)}else{document.getElementById('aw-desc').textContent='Wave: the pattern propagates outward in all directions, independent of the mean wind. Particles oscillate in place.';var rad=(awF*2)%Math.max(w,h);for(var i=0;i<4;i++){var r2=rad-i*50;if(r2>0){ctx.strokeStyle='rgba(20,184,166,'+Math.max(0,1-r2/200)+')';ctx.lineWidth=2;ctx.beginPath();ctx.arc(cx,cy,r2,0,Math.PI*2);ctx.stroke()}}ctx.fillStyle='#14b8a6';ctx.beginPath();ctx.arc(cx,cy,6,0,Math.PI*2);ctx.fill();for(var a=0;a<Math.PI*2;a+=Math.PI/6){var d=80+8*Math.sin(awF*0.15+a*3);var px=cx+Math.cos(a)*d,py=cy+Math.sin(a)*d;ctx.fillStyle='rgba(20,184,166,0.4)';ctx.beginPath();ctx.arc(px,py,3,0,Math.PI*2);ctx.fill()}}awF++;requestAnimationFrame(awDraw)}awDraw();
+
+// Perturbation
+function ptDraw(){var mean=+document.getElementById('pt-mean').value,amp=+document.getElementById('pt-amp').value/10;document.getElementById('pt-mv').textContent=mean;document.getElementById('pt-av').textContent=amp.toFixed(1);var o=setupCanvas('cv-pt',260);if(!o)return;var ctx=o.ctx,w=o.w,h=o.h;ctx.clearRect(0,0,w,h);var pad=40,gw=w-2*pad,gh=h-2*pad,maxY=mean+amp+2,minY=Math.min(0,mean-amp-2);var toX=function(i){return pad+i/200*gw},toY=function(v){return pad+gh-(v-minY)/(maxY-minY)*gh};ctx.strokeStyle='#e2e8f0';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad,pad);ctx.lineTo(pad,h-pad);ctx.lineTo(w-pad,h-pad);ctx.stroke();ctx.strokeStyle='#94a3b8';ctx.lineWidth=1.5;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(pad,toY(mean));ctx.lineTo(w-pad,toY(mean));ctx.stroke();ctx.setLineDash([]);ctx.strokeStyle='#8b5cf6';ctx.lineWidth=1.5;ctx.beginPath();for(var i=0;i<=200;i++){var x=toX(i),v=amp*Math.sin(i*0.1)+amp*0.5*Math.sin(i*0.17+1),y=toY(mean+v);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}ctx.stroke();ctx.strokeStyle='#f97316';ctx.lineWidth=2;ctx.beginPath();for(var i=0;i<=200;i++){var x=toX(i),v2=mean+amp*Math.sin(i*0.1)+amp*0.5*Math.sin(i*0.17+1),y2=toY(v2);i===0?ctx.moveTo(x,y2):ctx.lineTo(x,y2)}ctx.stroke();ctx.fillStyle='#94a3b8';ctx.font='11px system-ui';ctx.fillText('Mean ū = '+mean,pad+5,toY(mean)-6)}ptDraw();
+
+// Sound wave animation
+var swF=0;function swDraw(){var o=setupCanvas('cv-sound-anim',200);if(!o){requestAnimationFrame(swDraw);return}var ctx=o.ctx,w=o.w,h=o.h;ctx.clearRect(0,0,w,h);var n=40,bs=w/(n+1),cy=h/2;for(var i=0;i<n;i++){var bx=(i+1)*bs,ph=i*0.4-swF*0.08,dx=12*Math.sin(ph),x=bx+dx,c=Math.cos(ph),r=3+c*1.5;ctx.fillStyle=c>0?'rgba(249,115,22,'+(0.2+c*0.4)+')':'rgba(20,184,166,'+(0.2+Math.abs(c)*0.3)+')';ctx.beginPath();ctx.arc(x,cy,Math.max(2,r),0,Math.PI*2);ctx.fill()}ctx.strokeStyle='#64748b';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(w*.3,h-25);ctx.lineTo(w*.7,h-25);ctx.stroke();ctx.beginPath();ctx.moveTo(w*.68,h-29);ctx.lineTo(w*.7,h-25);ctx.lineTo(w*.68,h-21);ctx.stroke();ctx.fillStyle='#64748b';ctx.font='10px system-ui';ctx.fillText('Wave propagation →',w*.4,h-12);swF++;requestAnimationFrame(swDraw)}swDraw();
+
+// Sound speed calculator
+function ssDraw(){var T=+document.getElementById('ss-t').value,u=+document.getElementById('ss-u').value;document.getElementById('ss-tv').textContent=T;document.getElementById('ss-uv').textContent=u;var cs=Math.sqrt(1.4*287*T),right=u+cs,left=u-cs;document.getElementById('ss-cs').textContent=Math.round(cs);document.getElementById('ss-right').textContent=Math.round(right);document.getElementById('ss-left').textContent=Math.round(left);var svg=document.getElementById('ss-svg'),mapX=function(v){return 40+(v+450)/900*600};var h='<rect width="680" height="120" fill="#fafbff" rx="8"/><line x1="40" y1="60" x2="640" y2="60" stroke="#e2e8f0" stroke-width="1.5"/>';for(var v=-400;v<=400;v+=100){var x=mapX(v);h+='<line x1="'+x+'" y1="55" x2="'+x+'" y2="65" stroke="#94a3b8" stroke-width="1"/><text x="'+x+'" y="80" text-anchor="middle" font-family="system-ui" font-size="8" fill="#94a3b8">'+v+'</text>'}var x0=mapX(0);h+='<line x1="'+x0+'" y1="50" x2="'+x0+'" y2="70" stroke="#1e293b" stroke-width="1.5"/><text x="'+x0+'" y="90" text-anchor="middle" font-family="system-ui" font-size="9" font-weight="600" fill="#1e293b">0</text>';var xu=mapX(u);h+='<circle cx="'+xu+'" cy="60" r="5" fill="#64748b"/><text x="'+xu+'" y="40" text-anchor="middle" font-family="system-ui" font-size="9" fill="#64748b">ū='+u+'</text>';var xr=Math.min(640,mapX(right));h+='<line x1="'+xu+'" y1="52" x2="'+xr+'" y2="52" stroke="#0891b2" stroke-width="3" stroke-linecap="round"/><text x="'+((xu+xr)/2)+'" y="44" text-anchor="middle" font-family="system-ui" font-size="9" fill="#0891b2" font-weight="600">→ '+Math.round(right)+'</text>';var xl=Math.max(40,mapX(left));h+='<line x1="'+xu+'" y1="68" x2="'+xl+'" y2="68" stroke="#ea580c" stroke-width="3" stroke-linecap="round"/><text x="'+((xu+xl)/2)+'" y="102" text-anchor="middle" font-family="system-ui" font-size="9" fill="#ea580c" font-weight="600">← '+Math.round(left)+'</text>';svg.innerHTML=h}ssDraw();
+
+// CFL calculator
+function cflDraw(){var dx=+document.getElementById('cfl-dx').value;document.getElementById('cfl-dxv').textContent=dx;var dxm=dx*1000,ws=dxm/350,wos=dxm/15,ratio=wos/ws;document.getElementById('cfl-with').textContent=ws<60?Math.round(ws)+'s':(ws/60).toFixed(1)+'min';document.getElementById('cfl-without').textContent=wos<60?Math.round(wos)+'s':Math.round(wos/60)+'min';document.getElementById('cfl-ratio').textContent=Math.round(ratio)+'×'}cflDraw();
+
+// Longitudinal vs Transverse
+var ltF=0;function ltDraw(){var o=setupCanvas('cv-lt',280);if(!o){requestAnimationFrame(ltDraw);return}var ctx=o.ctx,w=o.w,h=o.h;ctx.clearRect(0,0,w,h);var midY=h/2;ctx.fillStyle='#1e293b';ctx.font='bold 12px system-ui';ctx.fillText('Longitudinal (Sound)',20,25);ctx.fillText('Transverse (Gravity)',20,midY+25);ctx.strokeStyle='#94a3b8';ctx.lineWidth=1;[midY/2,midY+midY/2].forEach(function(cy){ctx.beginPath();ctx.moveTo(w*.3,cy+50);ctx.lineTo(w*.7,cy+50);ctx.stroke();ctx.beginPath();ctx.moveTo(w*.68,cy+46);ctx.lineTo(w*.7,cy+50);ctx.lineTo(w*.68,cy+54);ctx.stroke()});ctx.fillStyle='#94a3b8';ctx.font='9px system-ui';ctx.fillText('Propagation →',w*.45,midY/2+44);ctx.fillText('Propagation →',w*.45,midY+midY/2+44);var n=25;for(var i=0;i<n;i++){var bx=40+i*(w-80)/n,ph=i*0.5-ltF*0.08;ctx.fillStyle=Math.sin(ph)>0?'rgba(249,115,22,0.6)':'rgba(20,184,166,0.5)';ctx.beginPath();ctx.arc(bx+10*Math.sin(ph),midY/2,4,0,Math.PI*2);ctx.fill();ctx.fillStyle='rgba(20,184,166,0.6)';ctx.beginPath();ctx.arc(bx,midY+midY/2+15*Math.sin(ph),4,0,Math.PI*2);ctx.fill()}ctx.strokeStyle='#e2e8f0';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(20,midY);ctx.lineTo(w-20,midY);ctx.stroke();ltF++;requestAnimationFrame(ltDraw)}ltDraw();
+
+// BV Explorer
+function bvDraw(){var dt=+document.getElementById('bv-dtheta').value/10,th=+document.getElementById('bv-theta').value;document.getElementById('bv-dtv').textContent=dt.toFixed(1);document.getElementById('bv-thv').textContent=th;var dtdz=dt/1000,Nsq=9.81*dtdz/th,el=document.getElementById('bv-status'),tx=document.getElementById('bv-status-text');if(Nsq>1e-6){var N=Math.sqrt(Nsq),P=2*Math.PI/N;document.getElementById('bv-nsq').textContent=Nsq.toExponential(1);document.getElementById('bv-n').textContent=N.toFixed(4);document.getElementById('bv-per').textContent=P>120?(P/60).toFixed(1)+' min':Math.round(P)+' s';el.className='prose keyfact';tx.innerHTML='<strong style="color:var(--cool2)">Stable (N² > 0):</strong> Gravity waves exist. A displaced parcel oscillates vertically with the period shown above. Stronger stability → faster oscillation → higher N.'}else if(Nsq>-1e-6){document.getElementById('bv-nsq').textContent='≈ 0';document.getElementById('bv-n').textContent='≈ 0';document.getElementById('bv-per').textContent='N/A';el.className='prose warn';tx.innerHTML='<strong style="color:var(--warm2)">Neutral (N² ≈ 0):</strong> No restoring force. A displaced parcel stays where it is pushed. No gravity waves. θ is constant with height.'}else{document.getElementById('bv-nsq').textContent=Nsq.toExponential(1);document.getElementById('bv-n').textContent='imaginary';document.getElementById('bv-per').textContent='N/A';el.className='prose warn';el.style.background='var(--red-bg)';el.style.borderLeftColor='var(--red)';tx.innerHTML='<strong style="color:var(--red)">Unstable (N² < 0):</strong> No oscillation! A displaced parcel accelerates away — convective instability (thunderstorms, thermals). N is imaginary, no gravity waves.'}}bvDraw();
+
+// Rossby wave animation
+var rwAF=0;function rossbyDraw(){var o=setupCanvas('cv-rossby',350);if(!o){requestAnimationFrame(rossbyDraw);return}var ctx=o.ctx,w=o.w,h=o.h;ctx.clearRect(0,0,w,h);
+// Top: vorticity mechanism
+ctx.fillStyle='rgba(59,130,246,.06)';ctx.fillRect(20,10,w-40,45);
+ctx.fillStyle='rgba(249,115,22,.06)';ctx.fillRect(20,100,w-40,45);
+ctx.setLineDash([4,3]);ctx.strokeStyle='#94a3b8';ctx.beginPath();ctx.moveTo(20,80);ctx.lineTo(w-20,80);ctx.stroke();ctx.setLineDash([]);
+ctx.fillStyle='#3b82f6';ctx.font='9px system-ui';ctx.fillText('Higher latitude (f larger)',30,35);
+ctx.fillStyle='#64748b';ctx.fillText('Equilibrium latitude',w/2-40,84);
+ctx.fillStyle='#ea580c';ctx.fillText('Lower latitude (f smaller)',30,125);
+// Northward push
+ctx.fillStyle='#3b82f6';ctx.beginPath();ctx.arc(w*0.3,80,6,0,Math.PI*2);ctx.fill();
+ctx.strokeStyle='#3b82f6';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(w*0.3,74);ctx.lineTo(w*0.3,30);ctx.stroke();ctx.beginPath();ctx.moveTo(w*0.3-4,34);ctx.lineTo(w*0.3,26);ctx.lineTo(w*0.3+4,34);ctx.fill();
+ctx.font='bold 9px system-ui';ctx.fillText('f↑ → ζ↓ (anticyclonic)',w*0.3+12,35);ctx.fillText('→ curves south',w*0.3+12,48);
+// Southward push
+ctx.fillStyle='#ea580c';ctx.beginPath();ctx.arc(w*0.65,80,6,0,Math.PI*2);ctx.fill();
+ctx.strokeStyle='#ea580c';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(w*0.65,86);ctx.lineTo(w*0.65,130);ctx.stroke();ctx.beginPath();ctx.moveTo(w*0.65-4,126);ctx.lineTo(w*0.65,134);ctx.lineTo(w*0.65+4,126);ctx.fill();
+ctx.fillStyle='#ea580c';ctx.fillText('f↓ → ζ↑ (cyclonic)',w*0.65+12,118);ctx.fillText('→ curves north',w*0.65+12,131);
+// Conservation box
+ctx.fillStyle='rgba(139,92,246,.08)';var bw=220,bx=w/2-bw/2;ctx.fillRect(bx,148,bw,24);ctx.strokeStyle='#8b5cf6';ctx.lineWidth=1;ctx.strokeRect(bx,148,bw,24);ctx.fillStyle='#7c3aed';ctx.font='bold 10px system-ui';ctx.textAlign='center';ctx.fillText('f + ζ = constant',w/2,164);ctx.textAlign='left';
+// Bottom: wave pattern
+ctx.fillStyle='#1e293b';ctx.font='bold 11px system-ui';ctx.fillText('Resulting Large-Scale Wave Pattern',20,200);
+var baseY=265;ctx.setLineDash([4,3]);ctx.strokeStyle='#94a3b8';ctx.beginPath();ctx.moveTo(20,baseY);ctx.lineTo(w-20,baseY);ctx.stroke();ctx.setLineDash([]);
+ctx.fillStyle='#94a3b8';ctx.font='8px system-ui';ctx.fillText('Eq. lat.',w-55,baseY-4);
+// Animated sinusoidal wave
+ctx.strokeStyle='#8b5cf6';ctx.lineWidth=2.5;ctx.beginPath();
+var amp=50,wl=(w-80)/2.5,phase=rwAF*0.02;
+for(var x=30;x<=w-30;x++){var y=baseY-amp*Math.sin(2*Math.PI*(x-30)/wl+phase);x===30?ctx.moveTo(x,y):ctx.lineTo(x,y)}ctx.stroke();
+// Labels on peaks/troughs
+var peakX=30+wl*0.25,troughX=30+wl*0.75;
+ctx.fillStyle='#3b82f6';ctx.font='9px system-ui';ctx.fillText('Ridge (N)',peakX-20+wl*phase%(wl)>wl?0:0,baseY-amp-10);
+ctx.fillStyle='#ea580c';ctx.fillText('Trough (S)',troughX-20,baseY+amp+15);
+// Mean flow arrow
+ctx.strokeStyle='#64748b';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(w*0.5,baseY+65);ctx.lineTo(w*0.7,baseY+65);ctx.stroke();ctx.beginPath();ctx.moveTo(w*0.68,baseY+61);ctx.lineTo(w*0.7,baseY+65);ctx.lineTo(w*0.68,baseY+69);ctx.fill();
+ctx.fillStyle='#64748b';ctx.font='9px system-ui';ctx.fillText('Mean westerly ū →',w*0.5,baseY+80);
+// Wavelength
+ctx.strokeStyle='#7c3aed';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(30,baseY+55);ctx.lineTo(30+wl,baseY+55);ctx.stroke();ctx.beginPath();ctx.moveTo(30,baseY+50);ctx.lineTo(30,baseY+60);ctx.stroke();ctx.beginPath();ctx.moveTo(30+wl,baseY+50);ctx.lineTo(30+wl,baseY+60);ctx.stroke();ctx.fillStyle='#7c3aed';ctx.font='8px system-ui';ctx.fillText('Wavelength: 4,000–6,000 km',30+wl/2-60,baseY+52);
+rwAF++;requestAnimationFrame(rossbyDraw)}rossbyDraw();
+
+// Rossby speed explorer
+function rwDraw(){var u=+document.getElementById('rw-u').value,L=+document.getElementById('rw-l').value/10;document.getElementById('rw-uv').textContent=u;document.getElementById('rw-lv').textContent=L.toFixed(1);var beta=1.6e-11,k=2*Math.PI/(L*1e6),intr=beta/(k*k),c=u-intr;document.getElementById('rw-intr').textContent=intr.toFixed(1);document.getElementById('rw-c').textContent=c.toFixed(1);var el=document.getElementById('rw-status'),tx=document.getElementById('rw-status-text');if(Math.abs(c)<1){document.getElementById('rw-dir').textContent='≈ Stationary';document.getElementById('rw-dir').style.color='var(--warm)';el.className='prose warn';tx.innerHTML='<strong style="color:var(--warm2)">Nearly stationary:</strong> The mean flow almost exactly balances the intrinsic westward propagation. This is why large-scale troughs and ridges appear "locked" in place for days.'}else if(c>0){document.getElementById('rw-dir').textContent='→ Eastward';document.getElementById('rw-dir').style.color='var(--cool2)';el.className='prose keyfact';tx.innerHTML='<strong style="color:var(--cool2)">Eastward (progressive):</strong> The strong westerly wind overwhelms the intrinsic westward propagation. Weather systems travel rapidly downstream.'}else{document.getElementById('rw-dir').textContent='← Westward';document.getElementById('rw-dir').style.color='var(--accent)';el.className='prose keyfact';el.style.background='var(--purple-bg)';tx.innerHTML='<strong style="color:var(--accent)">Westward (retrograde):</strong> The intrinsic westward propagation dominates over the weak mean flow.'}}rwDraw();
+
+// Resize handler
+var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){ptDraw();ssDraw();cflDraw();bvDraw();rwDraw()},150)});
+</script>
+</body>
+</html>

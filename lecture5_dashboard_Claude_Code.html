@@ -1,0 +1,1807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLIM-715 · Lecture 5 — Properties of Numerical Schemes: Finite Difference Methods</title>
+<style>
+:root{
+  --bg:#fafbff;--bg2:#f5f7ff;--bg3:#eef1fa;
+  --card:#ffffff;
+  --border:#e2e8f0;--border-light:#cbd5e1;
+  --text:#1e293b;--text-muted:#64748b;--text-dim:#94a3b8;
+  --accent:#7c3aed;--accent2:#8b5cf6;
+  --warm:#f97316;--warm2:#ea580c;--warm-bg:#fff7ed;--warm-border:#fdba74;
+  --cool:#14b8a6;--cool2:#0891b2;--cool-bg:#ecfdf5;--cool-border:#6ee7b7;
+  --purple:#a78bfa;--purple-dark:#7c3aed;--purple-bg:rgba(139,92,246,.06);
+  --red:#dc2626;--red-bg:#fef2f2;
+  --fd:Georgia,serif;
+  --fb:system-ui,-apple-system,sans-serif;
+  --r:12px;--rl:16px;
+  --shadow:0 4px 16px rgba(99,102,241,.12);
+  --shadow-sm:0 2px 8px rgba(0,0,0,.08);
+  --pad:clamp(.8rem,3vw,1.5rem)
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:clamp(13px,1.4vw,16px)}
+body{background:linear-gradient(135deg,var(--bg),var(--bg2));color:var(--text);font-family:var(--fb);line-height:1.7;min-height:100vh}
+.hdr{background:#fff;border-bottom:1px solid var(--border);padding:clamp(1rem,3vw,2rem) var(--pad) clamp(.5rem,1.5vw,.8rem);text-align:center;box-shadow:var(--shadow-sm)}
+.hdr-tag{font-size:clamp(8px,1.2vw,11px);letter-spacing:clamp(1.5px,.4vw,3px);text-transform:uppercase;color:var(--accent);margin-bottom:.4rem;font-weight:600}
+.hdr h1{font-family:var(--fd);font-size:clamp(1.1rem,3.5vw,2.2rem);font-weight:700;line-height:1.2;margin-bottom:.3rem;color:var(--text)}
+.hdr p{font-size:clamp(.75rem,1.8vw,.95rem);color:var(--text-muted);margin-bottom:.5rem;padding:0 clamp(0px,2vw,2rem)}
+
+/* Tabs — wrap and stack vertically when needed */
+.tabs{display:flex;flex-wrap:wrap;gap:0;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;background:#fff;box-shadow:0 1px 4px rgba(99,102,241,.06);justify-content:center;padding:clamp(2px,.5vw,4px) clamp(4px,1vw,8px)}
+.tab{font-size:clamp(8px,1.1vw,10.5px);font-weight:500;padding:clamp(4px,.8vw,8px) clamp(5px,1vw,11px);color:var(--text-dim);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none}
+.tab:hover{color:var(--text-muted);background:rgba(124,58,237,.02)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(124,58,237,.04)}
+
+.panel{display:none;padding:clamp(1rem,3vw,2.5rem) var(--pad) clamp(2rem,4vw,4rem);max-width:1100px;margin:0 auto;animation:fadeIn .35s ease}
+.panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.sh{margin-bottom:clamp(1rem,2.5vw,2rem)}
+.sh-num{font-size:clamp(10px,1.3vw,13px);letter-spacing:0.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:.4rem;font-weight:600}
+.sh h2{font-family:var(--fd);font-size:clamp(1.15rem,3vw,2rem);font-weight:700;line-height:1.2;margin-bottom:.4rem;color:var(--text)}
+.sh .lead{color:var(--text-muted);font-size:clamp(.8rem,1.8vw,.95rem);max-width:100%}
+
+.card{background:var(--card);border:none;border-radius:var(--rl);padding:clamp(1rem,2.5vw,1.6rem);transition:all .3s;margin-bottom:1rem;box-shadow:var(--shadow)}
+.card:hover{box-shadow:0 6px 24px rgba(99,102,241,.16);transform:translateY(-1px)}
+.cg{display:grid;gap:clamp(.6rem,1.5vw,1rem)}
+.cg2{grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr))}
+.cg3{grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr))}
+.card h3{font-family:var(--fd);font-size:clamp(.9rem,2vw,1.05rem);font-weight:600;margin-bottom:.4rem;color:var(--text)}
+.card p,.card li{color:var(--text-muted);font-size:clamp(.8rem,1.6vw,.88rem);line-height:1.65}
+.card ul{list-style:none;padding:0;margin-top:.4rem}
+.card ul li{position:relative;padding-left:1.2rem;margin-bottom:.25rem}
+.card ul li::before{content:'→';position:absolute;left:0;color:var(--accent);font-weight:600}
+
+.ct{width:100%;border-collapse:separate;border-spacing:0;border-radius:var(--rl);overflow:hidden;font-size:clamp(.7rem,1.4vw,.83rem);margin-top:1rem;box-shadow:var(--shadow)}
+.ct th,.ct td{padding:clamp(5px,1.2vw,10px) clamp(6px,1.5vw,14px);text-align:left;word-break:break-word}
+.ct thead th{background:var(--bg3);color:var(--text-muted);font-size:clamp(8px,1.1vw,11px);letter-spacing:0.5px;text-transform:uppercase;font-weight:600;border-bottom:1px solid var(--border)}
+.ct tbody td{color:var(--text-muted);border-bottom:1px solid var(--border);background:#fff}
+.ct tbody td:first-child{color:var(--text);font-weight:500}
+
+.vp{background:#fff;border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin:clamp(.8rem,2vw,1.2rem) 0;box-shadow:var(--shadow)}
+.vh{padding:clamp(.5rem,1.2vw,.8rem) clamp(.8rem,2vw,1.2rem);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;background:var(--bg3)}
+.vh h4{font-size:clamp(9px,1.2vw,11px);letter-spacing:0.5px;text-transform:uppercase;color:var(--text-muted);font-weight:600}
+.vb{padding:clamp(.6rem,2vw,1.2rem);position:relative}
+.vw{position:relative;width:100%;overflow:hidden}
+.vw canvas{display:block;width:100%;border-radius:8px}
+.vw svg{display:block;width:100%;height:auto;border-radius:8px}
+.vn{font-size:clamp(10px,1.3vw,12px);color:var(--text-dim);margin-top:8px;line-height:1.6}
+.vl{display:flex;gap:clamp(6px,1.5vw,14px);margin-top:6px;font-size:clamp(9px,1.2vw,11px);color:var(--text-dim);flex-wrap:wrap}
+.sw{display:inline-block;width:10px;height:3px;border-radius:1px;vertical-align:middle;margin-right:3px}
+
+.ctr{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.sg{display:flex;align-items:center;gap:clamp(3px,1vw,6px)}
+.sg label{font-size:clamp(9px,1.2vw,11px);color:var(--text-dim);white-space:nowrap;font-weight:500}
+.sg input[type=range]{-webkit-appearance:none;appearance:none;width:clamp(70px,15vw,120px);height:4px;background:var(--border);border-radius:2px;outline:none;touch-action:manipulation}
+.sg input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:clamp(12px,1.6vw,14px);height:clamp(12px,1.6vw,14px);border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 1px 4px rgba(99,102,241,.3)}
+.sg span{font-size:clamp(9px,1.2vw,11px);color:var(--text-muted);min-width:clamp(28px,5vw,40px);font-weight:500}
+
+.eb{background:#fff;border:1px solid var(--border);border-radius:var(--rl);padding:clamp(.6rem,1.5vw,1rem) clamp(.8rem,2vw,1.2rem);margin:.6rem 0;font-family:var(--fd);font-size:clamp(.8rem,1.7vw,.95rem);color:var(--warm2);overflow-x:auto;box-shadow:var(--shadow-sm);font-style:italic;word-break:break-word}
+.el{font-style:normal;font-size:clamp(9px,1.1vw,11px);color:var(--text-dim);display:block;margin-bottom:4px;font-family:system-ui,-apple-system,sans-serif;letter-spacing:.5px;text-transform:uppercase;font-weight:600}
+
+.ss{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(110px,45%),1fr));gap:clamp(.4rem,1.2vw,.8rem);margin-top:1rem}
+.si{background:#fff;border-radius:var(--rl);padding:clamp(.6rem,1.5vw,1rem);text-align:center;box-shadow:var(--shadow)}
+.sv{font-family:var(--fd);font-size:clamp(1.1rem,3vw,1.6rem);font-weight:700;color:var(--accent)}
+.sl{font-size:clamp(8px,1.1vw,10px);color:var(--text-dim);margin-top:2px;letter-spacing:.5px;text-transform:uppercase;font-weight:600}
+
+.tkg{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:.8rem;margin-top:1rem}
+.tk{background:#fff;border:1px solid var(--border);border-radius:var(--rl);padding:clamp(.8rem,2vw,1.2rem);box-shadow:var(--shadow-sm);border-left:3px solid var(--accent)}
+.tk .n{font-size:clamp(9px,1.1vw,11px);color:var(--accent);margin-bottom:4px;font-weight:600}
+.tk h4{font-size:clamp(.8rem,1.6vw,.9rem);margin-bottom:4px;color:var(--text)}
+.tk p{font-size:clamp(.75rem,1.4vw,.82rem);color:var(--text-muted)}
+
+.prose{max-width:100%;margin-bottom:clamp(1rem,2.5vw,1.5rem)}
+.prose h3{font-family:var(--fd);font-size:clamp(.95rem,2.2vw,1.1rem);margin:clamp(1rem,3vw,1.8rem) 0 clamp(.3rem,1vw,.6rem);color:var(--text);font-weight:600}
+.prose p{color:var(--text-muted);font-size:clamp(.8rem,1.6vw,.88rem);margin-bottom:.7rem;line-height:1.75}
+.prose strong{color:var(--text);font-weight:600}
+.prose code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-size:.9em;font-family:Consolas,monospace;color:var(--accent)}
+.prose .eq{font-family:var(--fd);font-style:italic;color:var(--warm2);display:block;margin:.5rem 0;padding:clamp(.4rem,1vw,.6rem) clamp(.6rem,1.5vw,1rem);background:#fff;border:1px solid var(--border);border-radius:var(--r);font-size:clamp(.78rem,1.7vw,.95rem);box-shadow:var(--shadow-sm);overflow-x:auto;word-break:break-word}
+.prose .eq.boxed{border:2px solid var(--accent);background:rgba(124,58,237,.02)}
+.prose .analogy{background:var(--purple-bg);border:1px solid rgba(139,92,246,.15);border-radius:var(--rl);padding:clamp(.6rem,2vw,1rem) clamp(.8rem,2vw,1.2rem);margin:.8rem 0}
+.prose .analogy p{color:var(--text-muted);font-size:clamp(.78rem,1.5vw,.85rem);margin-bottom:.3rem}
+.prose .analogy strong{color:var(--accent)}
+.prose .keyfact{background:var(--cool-bg);border-left:3px solid var(--cool);padding:clamp(.5rem,1.5vw,.8rem) clamp(.6rem,2vw,1rem);border-radius:0 var(--r) var(--r) 0;margin:.8rem 0}
+.prose .keyfact p{color:var(--text-muted);font-size:clamp(.78rem,1.5vw,.85rem);margin:0 0 .3rem;line-height:1.7}
+.prose .warn{background:var(--warm-bg);border-left:3px solid var(--warm);padding:clamp(.5rem,1.5vw,.8rem) clamp(.6rem,2vw,1rem);border-radius:0 var(--r) var(--r) 0;margin:.8rem 0}
+.prose .warn p{color:var(--text-muted);font-size:clamp(.78rem,1.5vw,.85rem);margin:0 0 .3rem;line-height:1.7}
+.prose .step-box{background:#fff;border:1px solid var(--border);border-radius:var(--rl);padding:clamp(.6rem,1.5vw,1rem) clamp(.8rem,2vw,1.2rem);margin:.6rem 0;box-shadow:var(--shadow-sm)}
+.prose .step-box .step-label{font-size:clamp(9px,1.1vw,11px);color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.3rem;font-family:var(--fb);font-style:normal}
+.prose .step-box p{margin-bottom:.3rem}
+.prose ul,.prose ol{padding-left:1.5rem;margin:.5rem 0}
+.prose li{color:var(--text-muted);font-size:clamp(.8rem,1.6vw,.88rem);margin-bottom:.3rem;line-height:1.65}
+.prose blockquote{background:var(--purple-bg);border-left:3px solid var(--accent);padding:clamp(.5rem,1.5vw,.8rem) clamp(.6rem,2vw,1rem);border-radius:0 var(--r) var(--r) 0;margin:.8rem 0;font-style:italic}
+.prose blockquote p{color:var(--text-muted);font-size:clamp(.78rem,1.5vw,.85rem);margin:0;line-height:1.7}
+
+footer{text-align:center;padding:clamp(1rem,3vw,2rem) var(--pad);color:var(--text-dim);font-size:clamp(9px,1.2vw,11px);border-top:1px solid var(--border);margin-top:2rem;background:#fff}
+
+@media(max-width:700px){
+  .ct{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .vh{flex-direction:column;align-items:stretch;gap:8px}
+  .ctr{width:100%}
+  .sg{width:100%;justify-content:space-between}
+  .sg input[type=range]{flex:1;width:auto;min-width:50px}
+}
+
+.ibtn{font-size:clamp(9px,1.2vw,11px);font-weight:500;padding:clamp(3px,.8vw,5px) clamp(8px,1.5vw,12px);border:1px solid var(--border);border-radius:13px;background:#fff;color:var(--text-muted);cursor:pointer;touch-action:manipulation;transition:all .2s}
+.ibtn:hover{color:var(--accent);border-color:var(--accent)}
+.ibtn.ab{color:#fff;background:var(--accent);border-color:var(--accent)}
+
+/* Step cards for derivations */
+.deriv-steps{display:flex;flex-direction:column;gap:clamp(.5rem,1.2vw,.8rem);margin:1rem 0}
+.deriv-step{display:flex;gap:clamp(.6rem,1.5vw,1rem);align-items:flex-start;background:#fff;border:1px solid var(--border);border-radius:var(--rl);padding:clamp(.6rem,1.5vw,1rem);box-shadow:var(--shadow-sm)}
+.deriv-step .step-num{width:clamp(28px,4vw,36px);height:clamp(28px,4vw,36px);border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:clamp(11px,1.3vw,14px);font-weight:700;flex-shrink:0}
+.deriv-step .step-content{flex:1;min-width:0}
+.deriv-step .step-content h4{font-size:clamp(.8rem,1.6vw,.9rem);color:var(--text);margin-bottom:.2rem;font-weight:600}
+.deriv-step .step-content p{font-size:clamp(.75rem,1.4vw,.84rem);color:var(--text-muted);margin-bottom:.2rem;line-height:1.6}
+.deriv-step .step-content .eq{margin:.3rem 0;font-size:clamp(.75rem,1.5vw,.88rem)}
+
+/* Cancellation visualization */
+.cancel-row{display:flex;flex-wrap:wrap;gap:clamp(4px,.8vw,8px);align-items:center;margin:.4rem 0;padding:clamp(.3rem,.8vw,.5rem);background:var(--bg3);border-radius:8px;overflow-x:auto}
+.term-box{display:inline-block;padding:clamp(3px,.6vw,5px) clamp(6px,1.2vw,10px);border-radius:6px;font-family:var(--fd);font-style:italic;font-size:clamp(.7rem,1.3vw,.82rem);white-space:nowrap}
+.term-keep{background:#ecfdf5;color:#047857;border:1px solid #6ee7b7}
+.term-cancel{background:#fef2f2;color:#dc2626;border:1px solid #fca5a5;text-decoration:line-through;opacity:.6}
+.term-target{background:#ecfdf5;color:#047857;border:2px solid #14b8a6;font-weight:600}
+.term-error{background:#fff7ed;color:#ea580c;border:1px solid #fdba74}
+
+/* Metric cards row */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(140px,45%),1fr));gap:clamp(.4rem,1vw,.6rem);margin-top:.8rem}
+.metric{background:#fff;border-radius:var(--rl);padding:clamp(.5rem,1.2vw,.8rem);text-align:center;box-shadow:var(--shadow-sm);border:1px solid var(--border)}
+.metric .mv{font-family:var(--fd);font-size:clamp(1rem,2.5vw,1.4rem);font-weight:700;color:var(--accent)}
+.metric .ml{font-size:clamp(8px,1.1vw,10px);color:var(--text-dim);margin-top:2px;letter-spacing:.3px;text-transform:uppercase;font-weight:500}
+.metric.green .mv{color:#047857}
+.metric.red .mv{color:#dc2626}
+.metric.warn .mv{color:#ea580c}
+
+/* Insight box */
+.insight{padding:clamp(.5rem,1.2vw,.8rem) clamp(.6rem,1.5vw,1rem);border-radius:var(--r);margin-top:.6rem;font-size:clamp(.75rem,1.4vw,.84rem);line-height:1.6}
+.insight.green{background:var(--cool-bg);border:1px solid var(--cool-border);color:#047857}
+.insight.red{background:var(--red-bg);border:1px solid #fca5a5;color:#dc2626}
+.insight.blue{background:rgba(99,102,241,.06);border:1px solid rgba(99,102,241,.2);color:#4338ca}
+.insight.amber{background:var(--warm-bg);border:1px solid var(--warm-border);color:var(--warm2)}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-tag">CLIM-715 · George Mason University · Notes #5, Part 2</div>
+  <h1>Properties of Numerical Schemes: Finite Difference Methods</h1>
+  <p>Lecture 5 — Finite differences, truncation error, upstream scheme, consistency, stability, Von Neumann analysis, CFL condition, and model evaluation</p>
+</div>
+
+<div class="tabs" id="tabbar">
+  <button class="tab active" onclick="showTab(0,this)">01 Finite Differences</button>
+  <button class="tab" onclick="showTab(1,this)">02 Truncation Error</button>
+  <button class="tab" onclick="showTab(2,this)">03 Upstream Scheme</button>
+  <button class="tab" onclick="showTab(3,this)">04 Consistency</button>
+  <button class="tab" onclick="showTab(4,this)">05 Stability &amp; Energy</button>
+  <button class="tab" onclick="showTab(5,this)">06 Von Neumann</button>
+  <button class="tab" onclick="showTab(6,this)">07 CFL Condition</button>
+  <button class="tab" onclick="showTab(7,this)">08 Model Evaluation</button>
+  <button class="tab" onclick="showTab(8,this)">09 Summary</button>
+</div>
+
+<!-- ===== PANEL 0: FINITE DIFFERENCES ===== -->
+<div class="panel active" id="p0">
+<div class="sh"><div class="sh-num">Concept 01</div><h2>What Are Finite Differences?</h2><p class="lead">Approximating derivatives using nearby grid-point values — the foundation of numerical weather prediction.</p></div>
+<div class="prose">
+
+<h3>The Core Problem</h3>
+<p>We have equations that describe the atmosphere, like:</p>
+<div class="eq boxed"><span class="el">1D Advection Equation</span>&part;u/&part;t + c &middot; &part;u/&part;x = 0</div>
+<p>This equation says: "the wind speed <em>u</em> changes over time because it's being carried (advected) by a flow moving at speed <em>c</em>." The symbols &part;u/&part;t and &part;u/&part;x are <em>derivatives</em> — they describe how something changes <em>continuously</em>, at every single point in space and time.</p>
+<p><strong>The problem:</strong> Computers cannot do calculus. They can add, subtract, multiply, and divide numbers — but they cannot compute a true derivative, because a derivative requires knowing the function at <em>infinitely many</em> points infinitely close together. A computer only stores a <em>finite</em> number of values at <em>specific</em> locations.</p>
+<p><strong>The solution:</strong> We <em>approximate</em> the derivative using values at a few nearby points. This approximation is called a <strong>finite difference</strong>.</p>
+
+<div class="analogy">
+<p><strong>Analogy:</strong> Imagine you're driving on a highway and your speedometer is broken. You can still estimate your speed by noting your position at two different times:</p>
+<p style="text-align:center;font-family:var(--fd);font-style:italic;color:var(--warm2)">speed &asymp; (position at time 2 &minus; position at time 1) / (time 2 &minus; time 1)</p>
+<p>That's a finite difference! You're replacing the <em>instantaneous</em> rate of change (what the speedometer shows) with an <em>average</em> rate of change over a small interval.</p>
+</div>
+
+<h3>Two Ways to Represent Functions on a Computer</h3>
+<p>There are two fundamentally different ways to store a continuous function on a computer:</p>
+
+<div class="cg cg2" style="margin:.8rem 0">
+<div class="card" style="border-left:3px solid var(--warm)">
+<h3 style="color:var(--warm2)">Way 1 — Grid Points (Finite Differences)</h3>
+<p>You pick specific locations in space (x<sub>1</sub>, x<sub>2</sub>, x<sub>3</sub>, ...) and store the value of the function at each point. Like recording the temperature at weather stations scattered across a state.</p>
+<ul>
+<li><strong>What is stored:</strong> Values f<sub>i</sub> = f(x<sub>i</sub>)</li>
+<li><strong>Pros:</strong> Easy to implement, local stencils (uses adjacent grid points)</li>
+<li><strong>Cons:</strong> Lower accuracy unless grid is very fine</li>
+</ul>
+</div>
+<div class="card" style="border-left:3px solid var(--cool)">
+<h3 style="color:var(--cool2)">Way 2 — Series Expansion (Spectral Methods)</h3>
+<p>You store coefficients of mathematical basis functions (like sine and cosine waves) that, when added together, reconstruct the function. Like describing a musical chord by listing the frequencies and volumes of each note.</p>
+<ul>
+<li><strong>What is stored:</strong> Coefficients a<sub>k</sub></li>
+<li><strong>Pros:</strong> Very high accuracy for smooth problems</li>
+<li><strong>Cons:</strong> Global basis (spans entire domain) — harder with shocks and boundaries</li>
+</ul>
+</div>
+</div>
+
+<div class="keyfact"><p><strong style="color:var(--cool2)">This course focuses on Way 1</strong> — the grid-point / finite-difference approach — because it's the most widely used method in weather and climate models, and because time is <em>almost always</em> treated with finite differences even in spectral models.</p></div>
+
+<h3>The Three Basic Finite Difference Formulas</h3>
+<p>The derivative of a function f at point x<sub>0</sub> is defined as:</p>
+<div class="eq boxed"><span class="el">Definition of the Derivative</span>f'(x<sub>0</sub>) = lim<sub>&Delta;x&rarr;0</sub> [f(x<sub>0</sub> + &Delta;x) &minus; f(x<sub>0</sub>)] / &Delta;x</div>
+<p>This says: "take two points that are &Delta;x apart, compute the slope between them, and then let &Delta;x shrink to zero." In the <em>limit</em>, you get the <em>exact</em> derivative.</p>
+<p>But on a computer, &Delta;x can never be zero — our grid points are separated by some finite spacing. So we drop the limit and just use the fraction with a <em>finite</em> &Delta;x. This gives three different approximations depending on <em>which</em> points we use:</p>
+
+<div class="cg" style="grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));margin:.8rem 0">
+<div class="card" style="border-top:3px solid #f97316">
+<h3 style="color:#ea580c">1. Forward (Right-Sided) Difference</h3>
+<div class="eq">f'(x<sub>0</sub>) &asymp; [f(x<sub>0</sub> + &Delta;x) &minus; f(x<sub>0</sub>)] / &Delta;x</div>
+<p>You look <em>forward</em> (to the right) from x<sub>0</sub>.</p>
+</div>
+<div class="card" style="border-top:3px solid #0891b2">
+<h3 style="color:#0891b2">2. Backward (Left-Sided) Difference</h3>
+<div class="eq">f'(x<sub>0</sub>) &asymp; [f(x<sub>0</sub>) &minus; f(x<sub>0</sub> &minus; &Delta;x)] / &Delta;x</div>
+<p>You look <em>backward</em> (to the left) from x<sub>0</sub>.</p>
+</div>
+<div class="card" style="border-top:3px solid #8b5cf6">
+<h3 style="color:#7c3aed">3. Centered (Leapfrog) Difference</h3>
+<div class="eq">f'(x<sub>0</sub>) &asymp; [f(x<sub>0</sub> + &Delta;x) &minus; f(x<sub>0</sub> &minus; &Delta;x)] / (2&Delta;x)</div>
+<p>You look <em>both ways</em> from x<sub>0</sub>, straddling it symmetrically.</p>
+</div>
+</div>
+
+<div class="keyfact"><p><strong style="color:var(--cool2)">Key point:</strong> If the derivative is continuous and &Delta;x &rarr; 0, all three give the same answer — the true derivative. But when &Delta;x is <em>finite</em> (which it always is on a computer), they are <strong>not equivalent</strong>. They differ in their accuracy and structure, and these differences profoundly affect the <strong>stability</strong> of the numerical solution.</p></div>
+
+</div>
+
+<!-- Visualization 1: Three Types of Finite Differences -->
+<div class="vp"><div class="vh"><h4>Three Types of Finite Differences — Interactive</h4>
+<div class="ctr">
+<div class="sg"><label>&Delta;x</label><input type="range" id="fd-dx" min="5" max="40" value="20" oninput="drawFD()"><span id="fd-dxv">2.0</span></div>
+</div>
+</div>
+<div class="vb"><div class="vw"><canvas id="cv-fd" height="320"></canvas></div>
+<div class="vl">
+<span><span class="sw" style="background:#22c55e"></span>True tangent</span>
+<span><span class="sw" style="background:#f97316"></span>Forward difference</span>
+<span><span class="sw" style="background:#0891b2"></span>Backward difference</span>
+<span><span class="sw" style="background:#8b5cf6"></span>Centered difference</span>
+</div>
+<p class="vn">Drag the &Delta;x slider to see how the three finite difference approximations converge to the true tangent as &Delta;x shrinks. Notice the centered difference (purple) is always closest to the true tangent (green).</p>
+</div></div>
+
+</div>
+
+<!-- ===== PANEL 1: TRUNCATION ERROR ===== -->
+<div class="panel" id="p1">
+<div class="sh"><div class="sh-num">Concept 02</div><h2>Accuracy and Truncation Error</h2><p class="lead">How good are these finite difference approximations? Taylor series reveals the exact error.</p></div>
+<div class="prose">
+
+<h3>The Big Idea</h3>
+<p>We want to answer: <strong>How good are these finite difference approximations? How big is the error?</strong></p>
+<p>The strategy:</p>
+<ol>
+<li>We have a finite difference formula (like the forward difference)</li>
+<li>We want to know the <em>exact</em> relationship between this formula and the true derivative</li>
+<li>We use <strong>Taylor series</strong> to <em>expand</em> the function values in the formula, revealing exactly what the formula computes — the true derivative PLUS some extra "error" terms</li>
+<li>Those extra terms are the <strong>truncation error</strong> — the price we pay for using a finite &Delta;x</li>
+</ol>
+
+<h3>Taylor Series Review</h3>
+<p>If you know everything about a function at one point x<sub>0</sub> (its value, its first derivative, its second derivative, etc.), you can <em>reconstruct</em> the function's value at any nearby point x<sub>0</sub> + &Delta;x:</p>
+<div class="eq boxed"><span class="el">Taylor Series Expansion</span>f(x<sub>0</sub> + &Delta;x) = f(x<sub>0</sub>) + &Delta;x &middot; f'(x<sub>0</sub>) + (&Delta;x)&sup2;/2! &middot; f''(x<sub>0</sub>) + (&Delta;x)&sup3;/3! &middot; f'''(x<sub>0</sub>) + &hellip;</div>
+<p>Breaking down every piece:</p>
+<ul>
+<li><strong>f(x<sub>0</sub>)</strong> is the function value at your "starting point"</li>
+<li><strong>f'(x<sub>0</sub>)</strong> is the first derivative at x<sub>0</sub> — the slope</li>
+<li><strong>f''(x<sub>0</sub>)</strong> is the second derivative — the curvature</li>
+<li><strong>&Delta;x</strong> is the distance you're stepping away from x<sub>0</sub></li>
+<li><strong>2!</strong> = 2 &times; 1 = 2, <strong>3!</strong> = 3 &times; 2 &times; 1 = 6 (factorials)</li>
+</ul>
+<p>Each successive term involves a <em>higher power</em> of &Delta;x. If &Delta;x is small (say, 0.01), then (&Delta;x)&sup2; = 0.0001 and (&Delta;x)&sup3; = 0.000001 — each term becomes <em>much</em> smaller than the previous one. This is why truncating (cutting off) the series after a few terms still gives a good approximation.</p>
+
+<h3>Applying Taylor Series to the Forward Difference</h3>
+
+<div class="deriv-steps">
+<div class="deriv-step">
+<div class="step-num">1</div>
+<div class="step-content">
+<h4>Write the Taylor expansion for f(x<sub>0</sub> + &Delta;x)</h4>
+<div class="eq">f(x<sub>0</sub> + &Delta;x) = f(x<sub>0</sub>) + &Delta;x &middot; f'(x<sub>0</sub>) + (&Delta;x)&sup2;/2! &middot; f''(x<sub>0</sub>) + (&Delta;x)&sup3;/3! &middot; f'''(x<sub>0</sub>) + &hellip;</div>
+</div>
+</div>
+<div class="deriv-step">
+<div class="step-num">2</div>
+<div class="step-content">
+<h4>Subtract f(x<sub>0</sub>) from both sides</h4>
+<div class="eq">f(x<sub>0</sub> + &Delta;x) &minus; f(x<sub>0</sub>) = &Delta;x &middot; f'(x<sub>0</sub>) + (&Delta;x)&sup2;/2! &middot; f''(x<sub>0</sub>) + (&Delta;x)&sup3;/3! &middot; f'''(x<sub>0</sub>) + &hellip;</div>
+<p>The f(x<sub>0</sub>) terms cancel completely.</p>
+</div>
+</div>
+<div class="deriv-step">
+<div class="step-num">3</div>
+<div class="step-content">
+<h4>Divide everything by &Delta;x</h4>
+<div class="eq">[f(x<sub>0</sub> + &Delta;x) &minus; f(x<sub>0</sub>)] / &Delta;x = f'(x<sub>0</sub>) + (&Delta;x/2!) &middot; f''(x<sub>0</sub>) + (&Delta;x)&sup2;/3! &middot; f'''(x<sub>0</sub>) + &hellip;</div>
+</div>
+</div>
+</div>
+
+<p><strong>Result:</strong> The forward difference equals:</p>
+<div class="eq boxed" style="text-align:center"><span class="el">Forward Difference = True Derivative + Truncation Error</span>
+<span style="color:#047857">f'(x<sub>0</sub>)</span> <span style="color:var(--text-dim)">+</span> <span style="color:var(--red)">&Delta;x/2 &middot; f''(x<sub>0</sub>) + (&Delta;x)&sup2;/6 &middot; f'''(x<sub>0</sub>) + &hellip;</span></div>
+
+<h3>What Is "Truncation Error"?</h3>
+<p>The truncation error is everything <em>beyond</em> the true derivative — all those extra terms that exist because &Delta;x is not zero. Written compactly:</p>
+<div class="eq">[f(x<sub>0</sub> + &Delta;x) &minus; f(x<sub>0</sub>)] / &Delta;x = f'(x<sub>0</sub>) + O(&Delta;x)</div>
+<p>The notation <strong>O(&Delta;x)</strong> — "order &Delta;x" or "big-O of &Delta;x" — means the leading error term is proportional to &Delta;x to the first power.</p>
+
+<h3>Order of Accuracy: Definition and Significance</h3>
+<p>The <strong>order of accuracy</strong> is determined by the lowest power of &Delta;x in the truncation error:</p>
+
+<table class="ct">
+<thead><tr><th>Leading error proportional to</th><th>Order of accuracy</th><th>Effect of halving &Delta;x</th></tr></thead>
+<tbody>
+<tr><td>&Delta;x&sup1;</td><td>First-order</td><td>Error cut in half (2&times; better)</td></tr>
+<tr><td>&Delta;x&sup2;</td><td>Second-order</td><td>Error cut to one quarter (4&times; better)</td></tr>
+<tr><td>&Delta;x&sup3;</td><td>Third-order</td><td>Error cut to one eighth (8&times; better)</td></tr>
+</tbody>
+</table>
+
+<p style="margin-top:.8rem"><strong>Higher-order schemes give much more "bang for your buck" when increasing resolution.</strong></p>
+<p>The forward difference is <strong>first-order accurate</strong> (leading error ~ &Delta;x&sup1;).</p>
+
+<h3>Taylor Series Analysis of the Centered Difference</h3>
+<p>The centered difference formula is:</p>
+<div class="eq">[f(x<sub>0</sub> + &Delta;x) &minus; f(x<sub>0</sub> &minus; &Delta;x)] / (2&Delta;x)</div>
+<p>We need Taylor expansions in <em>both</em> directions.</p>
+
+</div>
+
+<!-- Visualization 2: Taylor Cancellation -->
+<div class="vp"><div class="vh"><h4>Taylor Series Cancellation in Centered Differences</h4></div>
+<div class="vb">
+<p style="font-size:clamp(.75rem,1.4vw,.85rem);color:var(--text-muted);margin-bottom:.6rem"><strong>Step 1:</strong> Write both Taylor expansions</p>
+<p style="font-size:clamp(.7rem,1.2vw,.78rem);color:var(--text-dim);margin-bottom:.3rem">f(x<sub>0</sub> + &Delta;x) =</p>
+<div class="cancel-row">
+<span class="term-box term-keep">f</span>
+<span class="term-box term-keep">+ &Delta;x&middot;f'</span>
+<span class="term-box term-cancel">+ &Delta;x&sup2;/2&middot;f''</span>
+<span class="term-box term-keep">+ &Delta;x&sup3;/6&middot;f'''</span>
+<span class="term-box term-cancel">+ &Delta;x&#8308;/24&middot;f''''</span>
+</div>
+<p style="font-size:clamp(.7rem,1.2vw,.78rem);color:var(--text-dim);margin-bottom:.3rem;margin-top:.4rem">f(x<sub>0</sub> &minus; &Delta;x) =</p>
+<div class="cancel-row">
+<span class="term-box term-keep">f</span>
+<span class="term-box term-keep">&minus; &Delta;x&middot;f'</span>
+<span class="term-box term-cancel">+ &Delta;x&sup2;/2&middot;f''</span>
+<span class="term-box term-keep">&minus; &Delta;x&sup3;/6&middot;f'''</span>
+<span class="term-box term-cancel">+ &Delta;x&#8308;/24&middot;f''''</span>
+</div>
+<p style="font-size:clamp(.7rem,1.2vw,.78rem);color:var(--text-dim);margin-top:.4rem">Odd-power terms flip sign between rows; even-power terms keep the same sign.</p>
+
+<p style="font-size:clamp(.75rem,1.4vw,.85rem);color:var(--text-muted);margin:.8rem 0 .4rem"><strong>Step 2:</strong> Subtract bottom from top</p>
+<div class="cancel-row">
+<span class="term-box term-cancel">0</span>
+<span class="term-box term-target">+ 2&Delta;x&middot;f'</span>
+<span class="term-box term-cancel">0</span>
+<span class="term-box term-keep">+ 2&Delta;x&sup3;/6&middot;f'''</span>
+<span class="term-box term-cancel">0</span>
+</div>
+<p style="font-size:clamp(.7rem,1.2vw,.78rem);color:var(--text-dim);margin-top:.3rem">Even-power terms cancelled perfectly. Only odd-power terms survive and double!</p>
+
+<p style="font-size:clamp(.75rem,1.4vw,.85rem);color:var(--text-muted);margin:.8rem 0 .4rem"><strong>Step 3:</strong> Divide by 2&Delta;x</p>
+<div style="background:rgba(124,58,237,.04);border:2px solid var(--accent);border-radius:var(--rl);padding:clamp(.5rem,1.2vw,.8rem);text-align:center;font-family:var(--fd);font-style:italic;font-size:clamp(.8rem,1.6vw,.95rem)">
+<span style="color:#047857;font-weight:600">f'(x<sub>0</sub>)</span> <span style="color:var(--text-dim)">+</span> <span style="color:#dc2626">(&Delta;x&sup2;/6)&middot;f'''(x<sub>0</sub>)</span> <span style="color:var(--text-dim)">+ &hellip;</span>
+<span style="display:block;font-size:clamp(.65rem,1.1vw,.75rem);color:var(--accent);font-family:var(--fb);font-style:normal;margin-top:.3rem;font-weight:600">O(&Delta;x&sup2;) — SECOND-ORDER ACCURATE!</span>
+</div>
+
+<div class="metrics" style="margin-top:1rem">
+<div class="metric warn"><div class="mv">O(&Delta;x)</div><div class="ml">Forward / Backward</div><p style="font-size:clamp(.65rem,1.1vw,.72rem);color:var(--text-dim);margin-top:.2rem">&frac12;&times; error when &Delta;x &rarr; &Delta;x/2</p></div>
+<div class="metric green"><div class="mv">O(&Delta;x&sup2;)</div><div class="ml">Centered</div><p style="font-size:clamp(.65rem,1.1vw,.72rem);color:var(--text-dim);margin-top:.2rem">&frac14;&times; error when &Delta;x &rarr; &Delta;x/2</p></div>
+</div>
+</div></div>
+
+<!-- Interactive: Error vs Delta x -->
+<div class="vp"><div class="vh"><h4>Error Comparison — Interactive Bar Chart</h4>
+<div class="ctr">
+<div class="sg"><label>&Delta;x</label><input type="range" id="conv-dx" min="10" max="200" value="100" step="5" oninput="drawConv()"><span id="conv-dxv">0.50</span></div>
+<div class="sg"><label>Function</label>
+<select id="conv-fn" onchange="drawConv()" style="font-size:clamp(9px,1.2vw,11px);padding:2px 6px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--text-muted)">
+<option value="sin">sin(x)</option><option value="exp">e^x</option><option value="poly">x&sup3;</option>
+</select>
+</div>
+</div>
+</div>
+<div class="vb"><div class="vw"><canvas id="cv-conv" height="280"></canvas></div>
+<div class="vl">
+<span><span class="sw" style="background:#f97316"></span>Forward (1st order)</span>
+<span><span class="sw" style="background:#0891b2"></span>Backward (1st order)</span>
+<span><span class="sw" style="background:#8b5cf6"></span>Centered (2nd order)</span>
+<span style="opacity:.5">Solid = &Delta;x, Striped = &Delta;x/2</span>
+</div>
+<div class="insight green" id="conv-insight">Drag the &Delta;x slider to see how halving the grid spacing reduces error differently for 1st-order vs 2nd-order schemes.</div>
+</div></div>
+
+</div>
+
+<!-- ===== PANEL 2: UPSTREAM SCHEME ===== -->
+<div class="panel" id="p2">
+<div class="sh"><div class="sh-num">Concept 03</div><h2>The Upstream (Upwind) Scheme — A Complete Case Study</h2><p class="lead">Applying finite differences to the 1D advection equation reveals the fundamental trade-off between accuracy and stability.</p></div>
+<div class="prose">
+
+<h3>The Physical Problem: 1D Advection</h3>
+<p>We solve:</p>
+<div class="eq boxed"><span class="el">1D Advection Equation</span>&part;u/&part;t + c &middot; &part;u/&part;x = 0</div>
+<p><strong>Physical meaning:</strong> A quantity <em>u</em> (temperature, moisture, pollutant) is carried along by a constant wind speed <em>c</em>, without any change in shape or amplitude. Imagine a blob of dye floating downstream in a river — it doesn't dissolve or spread, it just translates at the river's speed.</p>
+<p><strong>Exact solution:</strong> <span style="font-family:var(--fd);font-style:italic;color:var(--warm2)">u(x, t) = f(x &minus; ct)</span> — the initial shape f simply shifts to the right at speed c, perfectly preserved. This makes it an ideal test case: we know the exact answer.</p>
+
+<h3>Discretizing: The Space-Time Grid</h3>
+<p><strong>In space:</strong> Grid points at regular intervals: x<sub>j</sub> = j &middot; &Delta;x, for j = 0, 1, 2, 3, ...</p>
+<p><strong>In time:</strong> Discrete time steps: t<sup>n</sup> = n &middot; &Delta;t, for n = 0, 1, 2, 3, ...</p>
+<p>The value of u at grid point j and time level n is written: <span style="font-family:var(--fd);font-style:italic;color:var(--warm2)">u<sub>j</sub><sup>n</sup></span> &equiv; u(j&Delta;x, n&Delta;t)</p>
+<p>The subscript tells you <em>where</em> in space, the superscript tells you <em>when</em> in time.</p>
+
+</div>
+
+<!-- Stencil SVG -->
+<div class="vp"><div class="vh"><h4>The Upstream Scheme Stencil</h4></div>
+<div class="vb"><div class="vw">
+<svg viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg">
+<defs><filter id="s3" x="-5%" y="-10%" width="110%" height="130%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#6366f1" flood-opacity=".1"/></filter></defs>
+<rect width="700" height="340" rx="12" fill="#fafbff"/>
+<text x="350" y="28" text-anchor="middle" font-family="system-ui" font-size="14" font-weight="700" fill="#1e293b">Upstream Scheme Stencil (c &gt; 0)</text>
+<!-- Grid -->
+<line x1="100" y1="280" x2="600" y2="280" stroke="#e2e8f0" stroke-width="1.5"/>
+<line x1="100" y1="180" x2="600" y2="180" stroke="#e2e8f0" stroke-width="1.5"/>
+<line x1="100" y1="80" x2="600" y2="80" stroke="#e2e8f0" stroke-width="1.5"/>
+<line x1="200" y1="60" x2="200" y2="300" stroke="#e2e8f0" stroke-width="1"/>
+<line x1="350" y1="60" x2="350" y2="300" stroke="#e2e8f0" stroke-width="1"/>
+<line x1="500" y1="60" x2="500" y2="300" stroke="#e2e8f0" stroke-width="1"/>
+<!-- Axis labels -->
+<text x="90" y="284" text-anchor="end" font-family="system-ui" font-size="10" fill="#94a3b8">n&minus;1</text>
+<text x="90" y="184" text-anchor="end" font-family="system-ui" font-size="10" fill="#94a3b8">n</text>
+<text x="90" y="84" text-anchor="end" font-family="system-ui" font-size="10" fill="#94a3b8">n+1</text>
+<text x="200" y="310" text-anchor="middle" font-family="system-ui" font-size="10" fill="#94a3b8">j&minus;1</text>
+<text x="350" y="310" text-anchor="middle" font-family="system-ui" font-size="10" fill="#94a3b8">j</text>
+<text x="500" y="310" text-anchor="middle" font-family="system-ui" font-size="10" fill="#94a3b8">j+1</text>
+<text x="620" y="184" font-family="system-ui" font-size="10" fill="#94a3b8">x (space) &rarr;</text>
+<text x="62" y="60" font-family="system-ui" font-size="10" fill="#94a3b8" transform="rotate(-90,62,170)">t (time) &uarr;</text>
+<!-- Grid dots -->
+<g fill="#cbd5e1"><circle cx="200" cy="280" r="3"/><circle cx="350" cy="280" r="3"/><circle cx="500" cy="280" r="3"/><circle cx="500" cy="180" r="3"/><circle cx="200" cy="80" r="3"/><circle cx="500" cy="80" r="3"/></g>
+<!-- Stencil points -->
+<circle cx="200" cy="180" r="10" fill="#0891b2" opacity=".9"/>
+<text x="200" y="165" text-anchor="middle" font-family="system-ui" font-size="9" font-weight="600" fill="#0891b2">Upstream</text>
+<text x="200" y="210" text-anchor="middle" font-family="Georgia" font-size="10" fill="#0891b2" font-style="italic">u<tspan font-size="7" baseline-shift="sub">j&minus;1</tspan><tspan font-size="7" baseline-shift="super">n</tspan></text>
+<circle cx="350" cy="180" r="12" fill="#dc2626" opacity=".9"/>
+<text x="350" y="165" text-anchor="middle" font-family="system-ui" font-size="9" font-weight="600" fill="#dc2626">Here &amp; Now</text>
+<text x="350" y="210" text-anchor="middle" font-family="Georgia" font-size="10" fill="#dc2626" font-style="italic">u<tspan font-size="7" baseline-shift="sub">j</tspan><tspan font-size="7" baseline-shift="super">n</tspan></text>
+<circle cx="350" cy="80" r="12" fill="#22c55e" opacity=".9"/>
+<text x="350" y="65" text-anchor="middle" font-family="system-ui" font-size="9" font-weight="600" fill="#22c55e">Future (unknown)</text>
+<text x="395" y="85" font-family="Georgia" font-size="10" fill="#22c55e" font-style="italic">u<tspan font-size="7" baseline-shift="sub">j</tspan><tspan font-size="7" baseline-shift="super">n+1</tspan></text>
+<!-- Connecting lines -->
+<line x1="208" y1="173" x2="343" y2="87" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="6,3"/>
+<line x1="350" y1="168" x2="350" y2="92" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="6,3"/>
+<!-- Wave direction -->
+<line x1="420" y1="50" x2="530" y2="50" stroke="#ea580c" stroke-width="2" marker-end="url(#arrowR)"/>
+<defs><marker id="arrowR" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="#ea580c"/></marker></defs>
+<text x="475" y="44" text-anchor="middle" font-family="system-ui" font-size="9" fill="#ea580c" font-weight="600">Wave direction (c &gt; 0)</text>
+<!-- Brackets -->
+<line x1="200" y1="232" x2="350" y2="232" stroke="#94a3b8" stroke-width="1"/><text x="275" y="248" text-anchor="middle" font-family="Georgia" font-size="10" fill="#94a3b8" font-style="italic">&Delta;x</text>
+<line x1="115" y1="180" x2="115" y2="80" stroke="#94a3b8" stroke-width="1"/><text x="128" y="135" font-family="Georgia" font-size="10" fill="#94a3b8" font-style="italic">&Delta;t</text>
+<!-- Info box -->
+<rect x="380" y="240" width="280" height="60" rx="10" fill="rgba(124,58,237,.04)" stroke="#c4b5fd" stroke-width="1"/>
+<text x="520" y="258" text-anchor="middle" font-family="system-ui" font-size="9" fill="#64748b">The upstream scheme uses info from where</text>
+<text x="520" y="272" text-anchor="middle" font-family="system-ui" font-size="9" fill="#64748b">the wave comes from. Only 1 unknown &rarr; explicit.</text>
+<text x="520" y="286" text-anchor="middle" font-family="system-ui" font-size="9" font-weight="600" fill="#7c3aed">Forward-in-time, backward-in-space (FTBS)</text>
+</svg>
+</div></div></div>
+
+<!-- Interactive Weighted Average Visualization -->
+<div class="vp"><div class="vh"><h4>Upstream Scheme as Weighted Average — Interactive</h4>
+<div class="ctr">
+<div class="sg"><label>&mu; (Courant)</label><input type="range" id="wa-mu" min="0" max="100" value="50" oninput="drawWA()"><span id="wa-muv">0.50</span></div>
+</div>
+</div>
+<div class="vb">
+<div class="vw"><canvas id="cv-wa" height="300"></canvas></div>
+<div class="vl">
+<span><span class="sw" style="background:#0891b2"></span>Weight on upstream (j&minus;1)</span>
+<span><span class="sw" style="background:#dc2626"></span>Weight on current (j)</span>
+</div>
+<div class="insight green" id="wa-insight">&mu; = 0.50: Future value = 50% of current point + 50% of upstream point. The wave moves half a grid cell per step.</div>
+</div></div>
+
+<div class="prose">
+<h3>Building the Upstream Scheme</h3>
+<p><strong>Time derivative</strong> — forward difference in time:</p>
+<div class="eq">&part;u/&part;t &asymp; (u<sub>j</sub><sup>n+1</sup> &minus; u<sub>j</sub><sup>n</sup>) / &Delta;t</div>
+<p><strong>Space derivative</strong> — backward difference in space (looking upstream, left when c &gt; 0):</p>
+<div class="eq">&part;u/&part;x &asymp; (u<sub>j</sub><sup>n</sup> &minus; u<sub>j&minus;1</sub><sup>n</sup>) / &Delta;x</div>
+<p><strong>Combined:</strong></p>
+<div class="eq">(u<sub>j</sub><sup>n+1</sup> &minus; u<sub>j</sub><sup>n</sup>) / &Delta;t + c &middot; (u<sub>j</sub><sup>n</sup> &minus; u<sub>j&minus;1</sub><sup>n</sup>) / &Delta;x = 0</div>
+<p><strong>Solving for the unknown:</strong></p>
+<div class="eq">u<sub>j</sub><sup>n+1</sup> = u<sub>j</sub><sup>n</sup> &minus; (c&Delta;t/&Delta;x) &middot; (u<sub>j</sub><sup>n</sup> &minus; u<sub>j&minus;1</sub><sup>n</sup>)</div>
+
+<h3>The Courant Number &mu;</h3>
+<div class="eq boxed"><span class="el">Courant Number</span>&mu; = c&Delta;t / &Delta;x</div>
+<p><strong>Physical meaning:</strong> The ratio of the distance the wave travels in one time step (c&Delta;t) to the grid spacing (&Delta;x):</p>
+<ul>
+<li>&mu; = 1: wave moves exactly one grid cell per step</li>
+<li>&mu; = 0.5: wave moves half a grid cell per step</li>
+<li>&mu; = 2: wave moves two grid cells per step (will cause trouble!)</li>
+</ul>
+<p>Using &mu;, the upstream scheme becomes:</p>
+<div class="eq boxed" style="text-align:center;font-size:clamp(.85rem,1.8vw,1.05rem);color:var(--accent)"><span class="el">Upstream Scheme (Compact Form)</span>u<sub>j</sub><sup>n+1</sup> = (1 &minus; &mu;) &middot; u<sub>j</sub><sup>n</sup> + &mu; &middot; u<sub>j&minus;1</sub><sup>n</sup></div>
+<p><strong>Interpretation:</strong> The future value is a <em>weighted average</em> of the present value at point j and the upstream value at j&minus;1, with weights determined by &mu;. When &mu; = 0, nothing moves. When &mu; = 1, the value shifts exactly one cell upstream — physically perfect.</p>
+
+<h3>Truncation Error of the Full Scheme</h3>
+<p>Using Taylor series to expand u<sub>j</sub><sup>n+1</sup> and u<sub>j&minus;1</sub><sup>n</sup> around (j, n), substituting into the scheme, and simplifying:</p>
+<div class="eq">u<sub>t</sub> + c&middot;u<sub>x</sub> = &minus;(&Delta;t/2)u<sub>tt</sub> + (c&Delta;x/2)u<sub>xx</sub> &minus; (&Delta;t)&sup2;/6 &middot; u<sub>ttt</sub> &minus; c(&Delta;x)&sup2;/6 &middot; u<sub>xxx</sub> + &hellip;</div>
+<p>The left side is the PDE we want (should equal zero). The right side is the truncation error — nonzero for finite &Delta;t, &Delta;x.</p>
+
+<h3>The Modified Equation: Discovering Numerical Diffusion</h3>
+<p>After algebraic manipulation (replacing u<sub>tt</sub> using the PDE repeatedly), the truncation error simplifies to:</p>
+<div class="eq boxed"><span class="el">Modified Equation — The Most Important Result</span>u<sub>t</sub> + c&middot;u<sub>x</sub> = (c&Delta;x/2)(1 &minus; c&Delta;t/&Delta;x) &middot; u<sub>xx</sub> + O[(&Delta;t)&sup2;, (&Delta;x)&sup2;]</div>
+<p><strong>This is the most important result of this analysis.</strong> The right side has a u<sub>xx</sub> term — the <strong>diffusion operator</strong>! The scheme is NOT solving pure advection. It's solving <strong>advection + artificial diffusion</strong>, with numerical diffusion coefficient:</p>
+<div class="eq boxed" style="text-align:center;color:var(--accent)"><span class="el">Numerical Diffusion Coefficient</span>K<sub>numerical</sub> = (c&Delta;x/2)(1 &minus; &mu;)</div>
+<p>This <strong>numerical diffusion</strong>:</p>
+<ul>
+<li>Is NOT real physics — it's an artifact of the scheme</li>
+<li>Causes the wave amplitude to <strong>decrease</strong> each time step (except at &mu; = 1)</li>
+<li>Over long integrations, it <strong>diffuses away all features</strong> — fronts, gradients, boundaries get smoothed</li>
+<li>Makes the upstream scheme <strong>useless for long-term integrations</strong> like climate simulations</li>
+</ul>
+<p><strong>Special case &mu; = 1:</strong> K<sub>numerical</sub> = (c&Delta;x/2)(1 &minus; 1) = 0 — diffusion vanishes! The wave moves exactly one grid cell per step, so no interpolation smearing occurs.</p>
+</div>
+
+<!-- Visualization 4: Interactive upstream diffusion demo -->
+<div class="vp"><div class="vh"><h4>Interactive Upstream Scheme — Numerical Diffusion Demo</h4>
+<div class="ctr">
+<div class="sg"><label>Time steps</label><input type="range" id="up-steps" min="0" max="200" value="0" oninput="runUpstream()"><span id="up-sv">0</span></div>
+<div class="sg"><label>&mu; (Courant)</label><input type="range" id="up-mu" min="1" max="10" value="5" oninput="runUpstream()"><span id="up-muv">0.5</span></div>
+</div>
+</div>
+<div class="vb">
+<div class="vw"><canvas id="cv-up" height="280"></canvas></div>
+<div class="vl">
+<span><span class="sw" style="background:rgba(99,102,241,.3)"></span>Initial condition</span>
+<span><span class="sw" style="background:#22c55e"></span>True (exact) solution</span>
+<span><span class="sw" style="background:#dc2626"></span>Upstream scheme</span>
+</div>
+<div class="metrics">
+<div class="metric" id="up-m1"><div class="mv" id="up-peak">1.000</div><div class="ml">Peak amplitude</div></div>
+<div class="metric" id="up-m2"><div class="mv" id="up-pos">50 / 50</div><div class="ml">Num / True peak</div></div>
+<div class="metric" id="up-m3"><div class="mv" id="up-loss">0.0%</div><div class="ml">Amplitude loss</div></div>
+</div>
+<div class="insight amber" id="up-insight">Drag the "Time steps" slider to see how numerical diffusion erodes the wave amplitude over time. Try &mu; = 1.0 for zero diffusion!</div>
+</div></div>
+
+</div>
+
+<!-- ===== PANEL 3: CONSISTENCY ===== -->
+<div class="panel" id="p3">
+<div class="sh"><div class="sh-num">Concept 04</div><h2>Consistency — "Are We Solving the Right Equation?"</h2><p class="lead">Consistency ensures that as the grid is refined, the numerical scheme actually reduces to the original PDE.</p></div>
+<div class="prose">
+
+<h3>Definition</h3>
+<p><strong>Consistency</strong> asks: If we make our grid infinitely fine (&Delta;x &rarr; 0 and &Delta;t &rarr; 0), does our numerical scheme actually reduce to the original PDE we're trying to solve?</p>
+<ul>
+<li>If yes &rarr; the scheme is <strong>consistent</strong>.</li>
+<li>If no &rarr; no matter how fine we make the grid, we'll never approach the correct answer — we'd be solving a <em>different</em> equation.</li>
+</ul>
+
+<h3>Checking Consistency for the Upstream Scheme</h3>
+<p>The truncation error is:</p>
+<div class="eq">&tau; = &minus;(&Delta;t/2)u<sub>tt</sub> + (c&Delta;x/2)u<sub>xx</sub> &minus; (&Delta;t)&sup2;/6 &middot; u<sub>ttt</sub> &minus; c(&Delta;x)&sup2;/6 &middot; u<sub>xxx</sub> + &hellip;</div>
+<p><strong>Every term</strong> in &tau; contains at least one power of &Delta;t or &Delta;x. Therefore:</p>
+<div class="eq boxed" style="text-align:center;color:var(--accent)"><span class="el">Consistency Check</span>&tau; &rarr; 0 as &Delta;t &rarr; 0 and &Delta;x &rarr; 0</div>
+<p>The upstream scheme <strong>is consistent</strong>. In the limit of infinitely fine resolution, the numerical equation collapses back to the true PDE.</p>
+
+<h3>Can a Scheme Fail Consistency?</h3>
+<p>Yes. If &Delta;t and &Delta;x are linked in an unusual way that prevents certain error terms from vanishing. For example, a truncation error term like (&Delta;t)&sup2;/&Delta;x would not vanish if &Delta;t = (&Delta;x)<sup>1/2</sup>, because (&Delta;t)&sup2;/&Delta;x = &Delta;x/&Delta;x = 1 &ne; 0.</p>
+<p>For the upstream scheme, no such pathological relationship is needed.</p>
+
+<h3>Consistency Is Necessary but Not Sufficient</h3>
+<p>Consistency alone does NOT guarantee a good numerical solution. It only guarantees you're solving the <em>right equation</em>. The solution could still blow up if the scheme is unstable.</p>
+
+<div class="analogy">
+<p><strong>Analogy:</strong> Consistency is like verifying you have the correct recipe for a cake. But even with the correct recipe, you could ruin the cake if your oven temperature is wildly unstable. You need both the right recipe (consistency) AND a stable oven (stability) to get a good cake (convergence).</p>
+</div>
+
+<h3>The Lax Equivalence Theorem (Lax &amp; Richtmyer, 1956)</h3>
+<p>For linear, well-posed initial value problems:</p>
+<div class="eq boxed" style="text-align:center;font-size:clamp(.9rem,2vw,1.15rem);color:var(--accent)"><span class="el">Lax Equivalence Theorem</span>Consistency + Stability &hArr; Convergence</div>
+<p>The double arrow means:</p>
+<ul>
+<li>Convergence happens <strong>if and only if</strong> the scheme is both consistent AND stable</li>
+<li>Consistency alone is NOT enough — a consistent but unstable scheme will blow up</li>
+<li>Stability alone is NOT enough — a stable but inconsistent scheme converges to the wrong answer</li>
+<li>You need BOTH to guarantee convergence</li>
+</ul>
+</div>
+
+<!-- Lax Theorem SVG -->
+<div class="vp"><div class="vh"><h4>Lax Equivalence Theorem — Visual Summary</h4></div>
+<div class="vb"><div class="vw">
+<svg viewBox="0 0 700 350" xmlns="http://www.w3.org/2000/svg">
+<defs><filter id="s4" x="-5%" y="-10%" width="110%" height="130%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#6366f1" flood-opacity=".1"/></filter></defs>
+<rect width="700" height="350" rx="12" fill="#fafbff"/>
+<rect x="120" y="15" width="460" height="28" rx="13" fill="rgba(124,58,237,.06)" stroke="#c4b5fd" stroke-width="1"/>
+<text x="350" y="34" text-anchor="middle" font-family="system-ui" font-size="11" font-weight="600" fill="#7c3aed">Lax Equivalence Theorem (1956) — for linear, well-posed IVPs</text>
+<!-- Consistency box -->
+<rect x="80" y="65" width="240" height="100" rx="16" fill="#fff" filter="url(#s4)" stroke="#0891b2" stroke-width="1.5"/>
+<text x="200" y="95" text-anchor="middle" font-family="system-ui" font-size="16" font-weight="700" fill="#0891b2">Consistency</text>
+<text x="200" y="115" text-anchor="middle" font-family="Georgia" font-size="11" fill="#64748b" font-style="italic">&tau; &rarr; 0 as &Delta;t, &Delta;x &rarr; 0</text>
+<text x="200" y="135" text-anchor="middle" font-family="system-ui" font-size="10" fill="#94a3b8">Solving the right equation</text>
+<!-- Plus sign -->
+<text x="350" y="125" text-anchor="middle" font-family="system-ui" font-size="28" font-weight="700" fill="#1e293b">+</text>
+<!-- Stability box -->
+<rect x="380" y="65" width="240" height="100" rx="16" fill="#fff" filter="url(#s4)" stroke="#ea580c" stroke-width="1.5"/>
+<text x="500" y="95" text-anchor="middle" font-family="system-ui" font-size="16" font-weight="700" fill="#ea580c">Stability</text>
+<text x="500" y="115" text-anchor="middle" font-family="Georgia" font-size="11" fill="#64748b" font-style="italic">&#x2016;&#x3D5;<tspan font-size="8" baseline-shift="super">n</tspan>&#x2016; &#x2264; C<tspan font-size="8" baseline-shift="sub">T</tspan> &#x2016;&#x3D5;<tspan font-size="8" baseline-shift="super">0</tspan>&#x2016;</text>
+<text x="500" y="135" text-anchor="middle" font-family="system-ui" font-size="10" fill="#94a3b8">Solution stays bounded</text>
+<!-- Arrows down -->
+<line x1="200" y1="165" x2="310" y2="210" stroke="#94a3b8" stroke-width="2"/>
+<line x1="500" y1="165" x2="390" y2="210" stroke="#94a3b8" stroke-width="2"/>
+<!-- If and only if -->
+<text x="350" y="225" text-anchor="middle" font-family="Georgia" font-size="16" font-weight="700" fill="#7c3aed" font-style="italic">&hArr;</text>
+<text x="350" y="243" text-anchor="middle" font-family="system-ui" font-size="9" fill="#94a3b8">(if and only if)</text>
+<!-- Convergence box -->
+<rect x="170" y="260" width="360" height="72" rx="16" fill="#fff" filter="url(#s4)" stroke="#22c55e" stroke-width="2"/>
+<text x="350" y="290" text-anchor="middle" font-family="system-ui" font-size="18" font-weight="700" fill="#22c55e">Convergence</text>
+<text x="350" y="312" text-anchor="middle" font-family="system-ui" font-size="11" fill="#64748b">Numerical solution &rarr; true solution as &Delta;t, &Delta;x &rarr; 0</text>
+</svg>
+</div></div></div>
+
+</div>
+
+<!-- ===== PANEL 4: STABILITY & ENERGY METHOD ===== -->
+<div class="panel" id="p4">
+<div class="sh"><div class="sh-num">Concept 05</div><h2>Stability — "Will the Solution Blow Up?"</h2><p class="lead">Stability ensures the numerical solution stays bounded. The Energy Method provides one way to prove it.</p></div>
+<div class="prose">
+
+<h3>The Problem We're Worried About</h3>
+<p>Imagine running a weather model. After 100 steps, temperatures look fine. After 500 steps, small wiggles appear. After 1000 steps, enormous oscillations. After 2000 steps, a grid point reads 10,000&deg;C. The model has <strong>blown up</strong>. This is numerical instability — a purely numerical disease, unrelated to physics.</p>
+
+<h3>The Precise Definition</h3>
+<p><strong>Setup:</strong> Let &phi;<sub>j</sub><sup>n</sup> = numerical solution, &psi;(n&Delta;t, j&Delta;x) = true solution.</p>
+<p><strong>Formal statement:</strong> A scheme is <strong>stable</strong> if:</p>
+<div class="eq boxed"><span class="el">Stability Definition</span>&Vert;&phi;<sup>n</sup>&Vert; &le; C<sub>T</sub> &middot; &Vert;&phi;<sup>0</sup>&Vert; for all n&Delta;t &le; T</div>
+<p>Where:</p>
+<ul>
+<li>&Vert;&phi;<sup>n</sup>&Vert; = the <strong>norm</strong> (measure of "size") of the solution at time step n</li>
+<li>&Vert;&phi;<sup>0</sup>&Vert; = the norm of the initial condition</li>
+<li>C<sub>T</sub> = a constant that may depend on final time T, but NOT on &Delta;x or &Delta;t</li>
+</ul>
+<p><strong>In plain English:</strong> The solution at any future time cannot be more than C<sub>T</sub> times bigger than the initial condition.</p>
+
+<h3>What Is a Norm?</h3>
+<p>A <strong>norm</strong> measures the "size" or "magnitude" of a collection of numbers on the grid.</p>
+
+<div class="cg cg2" style="margin:.8rem 0">
+<div class="card" style="border-left:3px solid var(--warm)">
+<h3 style="color:var(--warm2)">Maximum norm (&ell;<sub>&infin;</sub>)</h3>
+<div class="eq">&Vert;&phi;&Vert;<sub>&infin;</sub> = max<sub>j</sub> |&phi;<sub>j</sub>|</div>
+<p>Finds the largest value anywhere on the grid. Like asking: "What's the worst-case temperature error at any single station?"</p>
+<p style="font-size:clamp(.72rem,1.3vw,.8rem);color:var(--text-dim)">Example: vector (3, &minus;7, 2) &rarr; &ell;<sub>&infin;</sub> norm = |&minus;7| = 7.</p>
+</div>
+<div class="card" style="border-left:3px solid var(--cool)">
+<h3 style="color:var(--cool2)">Euclidean norm (&ell;<sub>2</sub>)</h3>
+<div class="eq">&Vert;&phi;&Vert;<sub>2</sub> = (&Sigma;<sub>j</sub> |&phi;<sub>j</sub>|&sup2; &Delta;x)<sup>1/2</sup></div>
+<p>Measures "total energy" across the grid. Connected to physical quantities like total kinetic energy.</p>
+<p style="font-size:clamp(.72rem,1.3vw,.8rem);color:var(--text-dim)">Example: vector (3, &minus;7, 2) with &Delta;x=1 &rarr; &ell;<sub>2</sub> norm = (9+49+4)<sup>1/2</sup> = 7.87.</p>
+</div>
+</div>
+
+<h3>What Stability Does NOT Promise</h3>
+<ol>
+<li>Says <strong>nothing about solution quality</strong> at finite &Delta;x, &Delta;t — only promises good behavior in the limit</li>
+<li><strong>Allows solutions that grow with time</strong> — as long as growth doesn't depend on grid size (physical solutions sometimes grow)</li>
+<li>For constant-amplitude problems (like advection), simplifies to: &Vert;&phi;<sup>n</sup>&Vert; &le; &Vert;&phi;<sup>0</sup>&Vert;</li>
+</ol>
+
+<h3>The Energy Method</h3>
+<p><strong>Core idea:</strong> Track the total "energy" from one time step to the next, show it never grows.</p>
+<ol>
+<li>Define discrete energy: E<sup>n</sup> = &Sigma;<sub>j</sub> (&phi;<sub>j</sub><sup>n</sup>)&sup2; &middot; &Delta;x</li>
+<li>Express E<sup>n+1</sup> in terms of E<sup>n</sup> using the scheme</li>
+<li>Show E<sup>n+1</sup> &le; E<sup>n</sup></li>
+</ol>
+
+<h3>Energy Method Applied to the Upstream Scheme: Step-by-Step</h3>
+<p>Start with: &phi;<sub>j</sub><sup>n+1</sup> = (1 &minus; &mu;)&phi;<sub>j</sub><sup>n</sup> + &mu;&phi;<sub>j&minus;1</sub><sup>n</sup></p>
+</div>
+
+<!-- Energy derivation steps -->
+<div class="vp"><div class="vh"><h4>Energy Method Derivation — 6 Steps</h4></div>
+<div class="vb">
+<div class="deriv-steps">
+<div class="deriv-step">
+<div class="step-num">1</div>
+<div class="step-content">
+<h4>Start with the scheme</h4>
+<div class="eq">&phi;<sub>j</sub><sup>n+1</sup> = (1 &minus; &mu;)&phi;<sub>j</sub><sup>n</sup> + &mu;&phi;<sub>j&minus;1</sub><sup>n</sup></div>
+</div>
+</div>
+<div class="deriv-step">
+<div class="step-num">2</div>
+<div class="step-content">
+<h4>Square both sides, sum over all j</h4>
+<div class="eq">&Sigma;<sub>j</sub>(&phi;<sub>j</sub><sup>n+1</sup>)&sup2; = (1&minus;&mu;)&sup2; &Sigma;<sub>j</sub>(&phi;<sub>j</sub><sup>n</sup>)&sup2; + 2&mu;(1&minus;&mu;)&Sigma;<sub>j</sub>&phi;<sub>j</sub><sup>n</sup>&phi;<sub>j&minus;1</sub><sup>n</sup> + &mu;&sup2; &Sigma;<sub>j</sub>(&phi;<sub>j&minus;1</sub><sup>n</sup>)&sup2;</div>
+<p>Using the identity (a + b)&sup2; = a&sup2; + 2ab + b&sup2;</p>
+</div>
+</div>
+<div class="deriv-step">
+<div class="step-num">3</div>
+<div class="step-content">
+<h4>Periodic BCs: shift indices freely</h4>
+<div class="eq">&Sigma;<sub>j</sub>(&phi;<sub>j&minus;1</sub><sup>n</sup>)&sup2; = &Sigma;<sub>j</sub>(&phi;<sub>j</sub><sup>n</sup>)&sup2;</div>
+<p>Shifting all indices by one doesn't change the sum (same numbers, different order).</p>
+</div>
+</div>
+<div class="deriv-step">
+<div class="step-num">4</div>
+<div class="step-content">
+<h4>Rearrange into energy form</h4>
+<p>Using (1&minus;&mu;)&sup2; + &mu;&sup2; = 1 &minus; 2&mu;(1&minus;&mu;):</p>
+<div class="eq">E<sup>n+1</sup> = E<sup>n</sup> &minus; 2&mu;(1&minus;&mu;)[&Sigma;<sub>j</sub>(&phi;<sub>j</sub><sup>n</sup>)&sup2; &minus; &Sigma;<sub>j</sub>&phi;<sub>j</sub><sup>n</sup>&phi;<sub>j&minus;1</sub><sup>n</sup>]</div>
+</div>
+</div>
+<div class="deriv-step">
+<div class="step-num">5</div>
+<div class="step-content">
+<h4>Cauchy-Schwarz inequality</h4>
+<div class="eq">&Sigma;<sub>j</sub>&phi;<sub>j</sub><sup>n</sup>&phi;<sub>j&minus;1</sub><sup>n</sup> &le; (&Sigma;<sub>j</sub>(&phi;<sub>j</sub><sup>n</sup>)&sup2;)<sup>1/2</sup> &middot; (&Sigma;<sub>j</sub>(&phi;<sub>j&minus;1</sub><sup>n</sup>)&sup2;)<sup>1/2</sup> = &Sigma;<sub>j</sub>(&phi;<sub>j</sub><sup>n</sup>)&sup2;</div>
+<p>The "cross product" sum &le; the "self product" sum. So the bracket [&hellip;] is <strong>non-negative</strong> (&ge; 0).</p>
+</div>
+</div>
+<div class="deriv-step">
+<div class="step-num">6</div>
+<div class="step-content">
+<h4>Determine stability condition</h4>
+<p>For E<sup>n+1</sup> &le; E<sup>n</sup>, the subtracted term must be non-negative. Since the bracket &ge; 0, we need:</p>
+<div class="eq">&mu;(1 &minus; &mu;) &ge; 0</div>
+<p>This requires: &mu; &ge; 0 (automatic) AND (1 &minus; &mu;) &ge; 0 (i.e., &mu; &le; 1).</p>
+</div>
+</div>
+</div>
+
+<div style="background:var(--cool-bg);border:2px solid var(--cool);border-radius:var(--rl);padding:clamp(.6rem,1.5vw,1rem);text-align:center;margin-top:.8rem">
+<div style="font-size:clamp(9px,1.1vw,11px);color:#047857;text-transform:uppercase;font-weight:700;letter-spacing:.5px;margin-bottom:.3rem">CFL Stability Condition (Energy Method)</div>
+<div style="font-family:var(--fd);font-style:italic;font-size:clamp(1rem,2.5vw,1.4rem);color:#047857;font-weight:600">0 &le; c&Delta;t / &Delta;x &le; 1</div>
+</div>
+
+<div class="metrics" style="margin-top:.8rem">
+<div class="metric green"><div class="mv">&mu; = 0.5</div><div class="ml">Stable</div><p style="font-size:clamp(.65rem,1vw,.72rem);color:var(--text-dim);margin-top:.2rem">E<sup>n+1</sup> &le; E<sup>n</sup> — Energy decays</p></div>
+<div class="metric red"><div class="mv">&mu; = 1.5</div><div class="ml">Unstable</div><p style="font-size:clamp(.65rem,1vw,.72rem);color:var(--text-dim);margin-top:.2rem">E<sup>n+1</sup> &gt; E<sup>n</sup> — Blows up</p></div>
+</div>
+
+<div class="warn" style="margin-top:.8rem;background:var(--warm-bg);border-left:3px solid var(--warm);padding:clamp(.5rem,1.5vw,.8rem) clamp(.6rem,2vw,1rem);border-radius:0 var(--r) var(--r) 0">
+<p style="color:var(--text-muted);font-size:clamp(.78rem,1.5vw,.85rem);margin:0"><strong style="color:var(--warm2)">Drawback:</strong> Each new problem requires fresh creativity to define an appropriate energy and prove the bound. No universal recipe.</p>
+</div>
+</div></div>
+
+<!-- CFL Violation Interactive Demo -->
+<div class="vp"><div class="vh"><h4>Interactive CFL Violation Demo</h4>
+<div class="ctr">
+<div class="sg"><label>&mu; (Courant)</label><input type="range" id="cfl-mu" min="4" max="36" value="16" oninput="runCFL()"><span id="cfl-muv">0.80</span></div>
+<div class="sg"><label>Time steps</label><input type="range" id="cfl-steps" min="0" max="100" value="20" oninput="runCFL()"><span id="cfl-sv">20</span></div>
+</div>
+</div>
+<div class="vb">
+<div class="vw"><canvas id="cv-cfl" height="280"></canvas></div>
+<div class="vl">
+<span><span class="sw" style="background:#22c55e"></span>True solution</span>
+<span><span class="sw" style="background:#dc2626"></span>Upstream scheme</span>
+</div>
+<div class="metrics">
+<div class="metric" id="cfl-m1"><div class="mv" id="cfl-max">1.000</div><div class="ml">Max |&phi;|</div></div>
+<div class="metric" id="cfl-m2"><div class="mv" id="cfl-ratio">0.80</div><div class="ml">CFL ratio &mu;</div></div>
+<div class="metric" id="cfl-m3"><div class="mv" id="cfl-status" style="color:#22c55e">Stable</div><div class="ml">Status</div></div>
+</div>
+<div class="insight green" id="cfl-insight">CFL satisfied. Solution is stable but damped due to numerical diffusion.</div>
+</div></div>
+
+</div>
+
+<!-- ===== PANEL 5: VON NEUMANN ===== -->
+<div class="panel" id="p5">
+<div class="sh"><div class="sh-num">Concept 06</div><h2>Von Neumann's Stability Method</h2><p class="lead">A systematic, mechanical procedure for analyzing stability of any linear, constant-coefficient scheme.</p></div>
+<div class="prose">
+
+<h3>Why Von Neumann?</h3>
+<p>The Energy Method requires problem-specific creativity. <strong>Von Neumann's Method</strong> provides a <em>systematic, mechanical</em> procedure for any linear, constant-coefficient finite difference scheme.</p>
+
+<div class="analogy">
+<p><strong>Musical analogy:</strong> Think of the numerical solution as a musical chord — a superposition of "notes" (Fourier modes) of different frequencies. Von Neumann asks: <strong>Does each individual "note" grow or decay after one time step?</strong></p>
+<p>If every note stays the same or shrinks &rarr; stable. If any single note grows &rarr; that note eventually dominates &rarr; unstable.</p>
+</div>
+
+<h3>Step 1: Fourier Decomposition</h3>
+<p>Any function on the grid can be written as:</p>
+<div class="eq">&phi;<sub>j</sub><sup>n</sup> = &Sigma;<sub>k</sub> a<sub>k</sub><sup>n</sup> &middot; e<sup>ikj&Delta;x</sup></div>
+<p>Where:</p>
+<ul>
+<li>e<sup>ikj&Delta;x</sup> = a single Fourier mode with wavenumber k (one "note")</li>
+<li>a<sub>k</sub><sup>n</sup> = amplitude of that mode at time n (how "loud")</li>
+<li>Sum goes over all resolvable wavenumbers, N = &pi;/&Delta;x</li>
+</ul>
+<p><strong>Critical insight:</strong> For linear constant-coefficient schemes, each mode evolves independently. We analyze one mode at a time: &phi;<sub>j</sub><sup>n</sup> = a<sub>k</sub><sup>n</sup> &middot; e<sup>ikj&Delta;x</sup></p>
+
+<h3>Step 2: The Amplification Factor</h3>
+<p>After one time step:</p>
+<div class="eq">A<sub>k</sub> = a<sub>k</sub><sup>n+1</sup> / a<sub>k</sub><sup>n</sup></div>
+<p>After n steps:</p>
+<div class="eq">a<sub>k</sub><sup>n</sup> = (A<sub>k</sub>)<sup>n</sup> &middot; a<sub>k</sub><sup>0</sup></div>
+
+<div class="cg cg3" style="margin:.8rem 0">
+<div class="card" style="border-left:3px solid var(--red)"><h3 style="color:var(--red)">|A<sub>k</sub>| &gt; 1</h3><p>Mode amplifies &rarr; (A<sub>k</sub>)<sup>n</sup> &rarr; &infin; &rarr; <strong>blow-up!</strong></p></div>
+<div class="card" style="border-left:3px solid var(--cool)"><h3 style="color:var(--cool)">|A<sub>k</sub>| = 1</h3><p>Mode unchanged &rarr; <strong>neutral</strong> (perfect)</p></div>
+<div class="card" style="border-left:3px solid var(--warm)"><h3 style="color:var(--warm)">|A<sub>k</sub>| &lt; 1</h3><p>Mode shrinks &rarr; (A<sub>k</sub>)<sup>n</sup> &rarr; 0 &rarr; <strong>damping</strong></p></div>
+</div>
+
+<h3>Step 3: The Von Neumann Stability Criterion</h3>
+<div class="eq boxed" style="text-align:center;font-size:clamp(.9rem,2vw,1.1rem);color:var(--accent)"><span class="el">Von Neumann Stability Criterion</span>|A<sub>k</sub>| &le; 1 for all resolvable k</div>
+<p>If even one wavenumber has |A<sub>k</sub>| &gt; 1, that mode eventually dominates and blows up the solution.</p>
+
+<h3>Step 4: Computing A<sub>k</sub> for the Upstream Scheme</h3>
+</div>
+
+<div class="deriv-steps">
+<div class="deriv-step">
+<div class="step-num">1</div>
+<div class="step-content">
+<h4>Start with the scheme</h4>
+<div class="eq">&phi;<sub>j</sub><sup>n+1</sup> = (1 &minus; &mu;)&phi;<sub>j</sub><sup>n</sup> + &mu;&phi;<sub>j&minus;1</sub><sup>n</sup></div>
+</div>
+</div>
+<div class="deriv-step">
+<div class="step-num">2</div>
+<div class="step-content">
+<h4>Substitute Fourier mode</h4>
+<div class="eq">a<sub>k</sub><sup>n+1</sup> e<sup>ikj&Delta;x</sup> = (1&minus;&mu;) a<sub>k</sub><sup>n</sup> e<sup>ikj&Delta;x</sup> + &mu; a<sub>k</sub><sup>n</sup> e<sup>ik(j&minus;1)&Delta;x</sup></div>
+<p>Key: e<sup>ik(j&minus;1)&Delta;x</sup> = e<sup>ikj&Delta;x</sup> &middot; e<sup>&minus;ik&Delta;x</sup></p>
+</div>
+</div>
+<div class="deriv-step">
+<div class="step-num">3</div>
+<div class="step-content">
+<h4>Divide by a<sub>k</sub><sup>n</sup> e<sup>ikj&Delta;x</sup></h4>
+<div class="eq boxed" style="text-align:center;color:var(--accent)">A<sub>k</sub> = 1 &minus; &mu; + &mu; e<sup>&minus;ik&Delta;x</sup></div>
+</div>
+</div>
+</div>
+
+<div class="prose">
+<h3>Step 5: Finding |A<sub>k</sub>|&sup2;</h3>
+<p>A<sub>k</sub> is complex. Multiply by its complex conjugate:</p>
+<div class="eq">|A<sub>k</sub>|&sup2; = A<sub>k</sub> &middot; A<sub>k</sub>* = (1&minus;&mu; + &mu;e<sup>&minus;ik&Delta;x</sup>)(1&minus;&mu; + &mu;e<sup>+ik&Delta;x</sup>)</div>
+<p><strong>Two key identities used:</strong></p>
+<ul>
+<li>Euler's formula: e<sup>i&theta;</sup> + e<sup>&minus;i&theta;</sup> = 2cos&theta;</li>
+<li>Exponential product: e<sup>i&theta;</sup> &middot; e<sup>&minus;i&theta;</sup> = e<sup>0</sup> = 1</li>
+</ul>
+<p>Expanding and simplifying:</p>
+<div class="eq">|A<sub>k</sub>|&sup2; = (1&minus;&mu;)&sup2; + 2&mu;(1&minus;&mu;)cos(k&Delta;x) + &mu;&sup2;</div>
+<p>Using (1&minus;&mu;)&sup2; + &mu;&sup2; = 1 &minus; 2&mu;(1&minus;&mu;):</p>
+<div class="eq boxed" style="text-align:center;font-size:clamp(.85rem,1.8vw,1.05rem);color:var(--accent)"><span class="el">Amplification Factor Squared</span>|A<sub>k</sub>|&sup2; = 1 &minus; 2&mu;(1&minus;&mu;)(1 &minus; cos(k&Delta;x))</div>
+
+<h3>Analysis of the Result</h3>
+<p>The term (1 &minus; cos(k&Delta;x)) varies with wavenumber:</p>
+<ul>
+<li><strong>Long waves</strong> (k&Delta;x &rarr; 0): (1&minus;cos(k&Delta;x)) &asymp; 0, so |A<sub>k</sub>|&sup2; &asymp; 1 — almost no error</li>
+<li><strong>Short waves</strong> (k&Delta;x &rarr; &pi;, the 2&Delta;x wave): (1&minus;cos&pi;) = 2, so |A<sub>k</sub>|&sup2; = 1 &minus; 4&mu;(1&minus;&mu;) — maximum error</li>
+</ul>
+
+<div class="warn"><p><strong style="color:var(--warm2)">The shortest resolvable wave (2&Delta;x) always has the worst amplification factor.</strong> When the scheme goes unstable (&mu; &gt; 1), it's the 2&Delta;x wave that blows up first.</p></div>
+
+<h3>Stability Condition from Von Neumann</h3>
+<p>For |A<sub>k</sub>|&sup2; &le; 1 for all k:</p>
+<div class="eq">2&mu;(1&minus;&mu;)(1 &minus; cos(k&Delta;x)) &ge; 0</div>
+<p>Since (1 &minus; cos(k&Delta;x)) &ge; 0 for all resolvable k, we need &mu;(1&minus;&mu;) &ge; 0, giving:</p>
+<div class="eq boxed" style="text-align:center;color:var(--accent);font-size:clamp(.9rem,2vw,1.1rem)"><span class="el">CFL Condition (Von Neumann)</span>0 &le; c&Delta;t / &Delta;x &le; 1</div>
+<p><strong>Same CFL condition as the Energy Method!</strong> Both approaches agree.</p>
+
+<div class="keyfact"><p><strong style="color:var(--cool2)">Universal Lesson:</strong> Do not invest much importance into the shortest waves owing to their poor handling. Make sure you choose your grid spacing to properly resolve the phenomenon you are trying to advect. For example, if your primary wave of interest is 10 km wide, choose &Delta;x on the order of 1 km, so your feature is 10&Delta;x wide.</p></div>
+
+<h3>Comparison: Energy Method vs. Von Neumann Method</h3>
+</div>
+
+<table class="ct">
+<thead><tr><th>Feature</th><th>Energy Method</th><th>Von Neumann Method</th></tr></thead>
+<tbody>
+<tr><td>Approach</td><td>Track total discrete energy</td><td>Decompose into Fourier modes</td></tr>
+<tr><td>Applicability</td><td>Works for nonlinear equations too</td><td>Only linear, constant-coefficient</td></tr>
+<tr><td>Boundary conditions</td><td>Can handle various BCs</td><td>Assumes periodic boundaries</td></tr>
+<tr><td>Creativity required</td><td>High — must define energy, prove bound</td><td>Low — systematic "plug and crank"</td></tr>
+<tr><td>Wavenumber info</td><td>No — gives global bound only</td><td>Yes — reveals which k's are worst</td></tr>
+<tr><td>Usage frequency</td><td>Less frequent, special cases</td><td>The workhorse tool in CFD/NWP</td></tr>
+</tbody>
+</table>
+
+<!-- Visualization 8: Interactive Von Neumann -->
+<div class="vp" style="margin-top:1.2rem"><div class="vh"><h4>Interactive Von Neumann Amplification Factor</h4>
+<div class="ctr">
+<div class="sg"><label>&mu; (Courant)</label><input type="range" id="vn-mu" min="0" max="32" value="10" oninput="drawVN()"><span id="vn-muv">0.50</span></div>
+</div>
+</div>
+<div class="vb">
+<div class="vw"><canvas id="cv-vn" height="300"></canvas></div>
+<div class="vl">
+<span><span class="sw" style="background:#22c55e;height:2px"></span>|A<sub>k</sub>|&sup2; = 1 (neutral)</span>
+<span><span class="sw" style="background:#dc2626"></span>|A<sub>k</sub>|&sup2; curve</span>
+</div>
+<div class="metrics">
+<div class="metric" id="vn-m1"><div class="mv" id="vn-long">1.000</div><div class="ml">|A|&sup2; at k&Delta;x=0</div></div>
+<div class="metric" id="vn-m2"><div class="mv" id="vn-mid">—</div><div class="ml">|A|&sup2; at k&Delta;x=&pi;/2</div></div>
+<div class="metric" id="vn-m3"><div class="mv" id="vn-short">—</div><div class="ml">|A|&sup2; at k&Delta;x=&pi;</div></div>
+</div>
+<div class="insight green" id="vn-insight">Stable. Short waves are damped most. The 2&Delta;x wave loses the most amplitude per step.</div>
+</div></div>
+
+</div>
+
+<!-- ===== PANEL 6: CFL CONDITION ===== -->
+<div class="panel" id="p6">
+<div class="sh"><div class="sh-num">Concept 07</div><h2>The CFL Condition — Deep Dive and Physical Interpretation</h2><p class="lead">The most important stability condition in computational science, discovered in 1928 — before digital computers existed.</p></div>
+<div class="prose">
+
+<h3>Historical Context</h3>
+<p>In 1928, Richard Courant, Kurt Friedrichs, and Hans Lewy published their paper — long before digital computers. They were using finite differences to prove <em>existence</em> of PDE solutions, not to build numerical methods. But they discovered a stability condition that became one of the most important results in computational science.</p>
+
+<h3>Physical Interpretation: Domain of Dependence</h3>
+<p>For the advection equation u<sub>t</sub> + cu<sub>x</sub> = 0, characteristics are straight lines: x &minus; ct = constant. The true solution at any point (x, t) depends only on the initial data where the characteristic intersects t = 0. This is the <strong>physical domain of dependence</strong>.</p>
+<p>A numerical scheme also has a domain of dependence — the set of grid points at previous time levels that influence the computed value. For the upstream scheme, u<sub>j</sub><sup>n+1</sup> depends on u<sub>j</sub><sup>n</sup> and u<sub>j&minus;1</sub><sup>n</sup>. Tracing back further creates a triangle of influence — the <strong>numerical domain of dependence</strong>.</p>
+
+<div class="keyfact"><p><strong style="color:var(--cool2)">The CFL condition states:</strong> The numerical domain of dependence must <em>contain</em> the physical domain of dependence. If the characteristic "escapes" outside the numerical stencil, the scheme is trying to compute a solution without access to the needed physical information &rarr; instability.</p></div>
+
+</div>
+
+<!-- Visualization 9: CFL Domain of Dependence -->
+<div class="vp"><div class="vh"><h4>CFL Domain of Dependence — Stable vs. Unstable</h4></div>
+<div class="vb"><div class="vw">
+<svg viewBox="0 0 700 310" xmlns="http://www.w3.org/2000/svg">
+<defs><filter id="s5" x="-5%" y="-10%" width="110%" height="130%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#6366f1" flood-opacity=".1"/></filter></defs>
+<rect width="700" height="310" rx="12" fill="#fafbff"/>
+<!-- LEFT: CFL Satisfied -->
+<rect x="20" y="10" width="320" height="290" rx="12" fill="#fff" filter="url(#s5)"/>
+<text x="180" y="36" text-anchor="middle" font-family="system-ui" font-size="12" font-weight="700" fill="#22c55e">CFL Satisfied: &mu; = 0.6</text>
+<!-- Grid left -->
+<line x1="60" y1="240" x2="300" y2="240" stroke="#e2e8f0" stroke-width="1.5"/>
+<line x1="60" y1="120" x2="300" y2="120" stroke="#e2e8f0" stroke-width="1.5"/>
+<circle cx="100" cy="240" r="6" fill="#0891b2"/>
+<circle cx="200" cy="240" r="6" fill="#0891b2"/>
+<circle cx="200" cy="120" r="8" fill="#22c55e"/>
+<text x="100" y="260" text-anchor="middle" font-family="system-ui" font-size="9" fill="#94a3b8">j&minus;1</text>
+<text x="200" y="260" text-anchor="middle" font-family="system-ui" font-size="9" fill="#94a3b8">j</text>
+<text x="55" y="244" text-anchor="end" font-family="system-ui" font-size="9" fill="#94a3b8">n</text>
+<text x="55" y="124" text-anchor="end" font-family="system-ui" font-size="9" fill="#94a3b8">n+1</text>
+<!-- Stencil triangle -->
+<path d="M100,240 L200,240 L200,120 Z" fill="rgba(59,130,246,.08)" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="5,3"/>
+<!-- Characteristic - inside -->
+<line x1="200" y1="120" x2="140" y2="240" stroke="#22c55e" stroke-width="3"/>
+<circle cx="140" cy="240" r="4" fill="#22c55e"/>
+<text x="130" y="210" font-family="system-ui" font-size="9" fill="#22c55e" font-weight="600" transform="rotate(-50,130,210)">Characteristic</text>
+<!-- Check mark -->
+<text x="260" y="80" font-family="system-ui" font-size="28" fill="#22c55e">&#10003;</text>
+<text x="75" y="280" font-family="system-ui" font-size="8" fill="#64748b">Characteristic is INSIDE the stencil</text>
+<!-- Brackets -->
+<line x1="100" y1="270" x2="200" y2="270" stroke="#94a3b8" stroke-width="1" marker-start="url(#tick)" marker-end="url(#tick)"/>
+<defs><marker id="tick" markerWidth="1" markerHeight="6" refX="0.5" refY="3"><line x1="0.5" y1="0" x2="0.5" y2="6" stroke="#94a3b8" stroke-width="1"/></marker></defs>
+<text x="150" y="282" text-anchor="middle" font-family="Georgia" font-size="9" fill="#94a3b8" font-style="italic">&Delta;x</text>
+
+<!-- RIGHT: CFL Violated -->
+<rect x="360" y="10" width="320" height="290" rx="12" fill="#fff" filter="url(#s5)"/>
+<text x="520" y="36" text-anchor="middle" font-family="system-ui" font-size="12" font-weight="700" fill="#dc2626">CFL Violated: &mu; = 1.4</text>
+<!-- Grid right -->
+<line x1="400" y1="240" x2="640" y2="240" stroke="#e2e8f0" stroke-width="1.5"/>
+<line x1="400" y1="120" x2="640" y2="120" stroke="#e2e8f0" stroke-width="1.5"/>
+<circle cx="440" cy="240" r="6" fill="#0891b2"/>
+<circle cx="540" cy="240" r="6" fill="#0891b2"/>
+<circle cx="540" cy="120" r="8" fill="#dc2626"/>
+<text x="440" y="260" text-anchor="middle" font-family="system-ui" font-size="9" fill="#94a3b8">j&minus;1</text>
+<text x="540" y="260" text-anchor="middle" font-family="system-ui" font-size="9" fill="#94a3b8">j</text>
+<text x="395" y="244" text-anchor="end" font-family="system-ui" font-size="9" fill="#94a3b8">n</text>
+<text x="395" y="124" text-anchor="end" font-family="system-ui" font-size="9" fill="#94a3b8">n+1</text>
+<!-- Stencil triangle -->
+<path d="M440,240 L540,240 L540,120 Z" fill="rgba(59,130,246,.08)" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="5,3"/>
+<!-- Characteristic - OUTSIDE -->
+<line x1="540" y1="120" x2="400" y2="240" stroke="#dc2626" stroke-width="3"/>
+<circle cx="400" cy="240" r="4" fill="#dc2626"/>
+<!-- Highlight the escaping portion -->
+<line x1="440" y1="220" x2="400" y2="240" stroke="#dc2626" stroke-width="6" opacity=".3"/>
+<text x="430" y="200" font-family="system-ui" font-size="9" fill="#dc2626" font-weight="600" transform="rotate(-30,430,200)">Characteristic</text>
+<!-- X mark -->
+<text x="600" y="80" font-family="system-ui" font-size="28" fill="#dc2626">&#10007;</text>
+<text x="415" y="280" font-family="system-ui" font-size="8" fill="#dc2626">Characteristic ESCAPES outside the stencil!</text>
+<text x="470" y="292" font-family="system-ui" font-size="8" fill="#94a3b8">c&Delta;t &gt; &Delta;x</text>
+</svg>
+</div></div></div>
+
+<div class="prose">
+<h3>The Sampling Rate Interpretation</h3>
+<p>Define the sampling rate: s = &Delta;x / (c&Delta;t) = 1/&mu;</p>
+<ul>
+<li>s = 1 (&mu; = 1): wave moves one grid point per step — sampled at every point</li>
+<li>s = 2 (&mu; = 0.5): wave moves half a grid point — sampled twice per cell</li>
+<li>s = 0.5 (&mu; = 2): wave moves two grid points — misses every other point!</li>
+</ul>
+<p>When s &lt; 1 (&mu; &gt; 1), we're "sampling too slowly" — analogous to violating the Nyquist theorem.</p>
+
+<div class="warn"><p><strong style="color:var(--warm2)">Caveat:</strong> Making &Delta;t extremely small does NOT automatically improve the solution. Quality depends on the <em>ratio</em> c&Delta;t/&Delta;x, not &Delta;t alone.</p></div>
+
+<h3>Practical Implications for Atmospheric Modeling</h3>
+<p>The CFL condition imposes a <strong>maximum allowed time step</strong>: &Delta;t &le; &Delta;x / c</p>
+<p>For the fastest atmospheric wave (sound at ~350 m/s):</p>
+
+<div class="cg cg2" style="margin:.6rem 0">
+<div class="card" style="border-left:3px solid var(--warm)"><h3>&Delta;x = 10 km</h3><p>&Delta;t &le; 10,000 / 350 &asymp; <strong>29 seconds</strong></p></div>
+<div class="card" style="border-left:3px solid var(--cool)"><h3>&Delta;x = 1 km</h3><p>&Delta;t &le; 1,000 / 350 &asymp; <strong>3 seconds</strong></p></div>
+</div>
+
+<p><strong>Doubling spatial resolution forces halving the time step.</strong> Combined with twice as many grid points in each direction, a factor-of-2 refinement in 3D costs roughly 2&#8308; = <strong>16 times</strong> more computation.</p>
+<p>This is why sound waves are a nuisance in atmospheric models — meteorologically unimportant but they dictate the time step.</p>
+
+<div class="warn"><p><strong style="color:var(--warm2)">Critical Caveat:</strong> The CFL condition does NOT guarantee stability! It only guarantees instability if violated! CFL is <em>necessary</em> (must satisfy it) but not always <em>sufficient</em> (satisfying it doesn't automatically ensure stability). Example: the forward-time, centered-space (FTCS) scheme satisfies CFL but is <strong>unconditionally unstable</strong> — its amplification factor always exceeds 1 regardless of &mu;.</p></div>
+
+</div>
+
+<!-- Interactive CFL cost calculator -->
+<div class="vp"><div class="vh"><h4>CFL Time Step Calculator</h4>
+<div class="ctr">
+<div class="sg"><label>&Delta;x (km)</label><input type="range" id="cfl2-dx" min="1" max="50" value="10" oninput="calcCFL()"><span id="cfl2-dxv">10</span></div>
+<div class="sg"><label>Wave speed (m/s)</label><input type="range" id="cfl2-c" min="10" max="400" value="350" step="10" oninput="calcCFL()"><span id="cfl2-cv">350</span></div>
+</div>
+</div>
+<div class="vb">
+<div class="metrics">
+<div class="metric"><div class="mv" id="cfl2-dt">28.6s</div><div class="ml">Max &Delta;t</div></div>
+<div class="metric"><div class="mv" id="cfl2-steps">3017</div><div class="ml">Steps per day</div></div>
+<div class="metric"><div class="mv" id="cfl2-cost">—</div><div class="ml">Cost vs. 10km base</div></div>
+</div>
+<p class="vn">The CFL condition constrains the maximum allowed time step. Sound waves (~350 m/s) force very short time steps, even though they carry almost no meteorological information.</p>
+</div></div>
+
+</div>
+
+<!-- ===== PANEL 7: MODEL EVALUATION ===== -->
+<div class="panel" id="p7">
+<div class="sh"><div class="sh-num">Concept 08</div><h2>Model Evaluation and Test Cases</h2><p class="lead">How do we know if our numerical scheme works? Standardized tests probe different aspects of performance.</p></div>
+<div class="prose">
+
+<h3>The Fundamental Challenge</h3>
+<p>Numerical atmospheric modeling is an <strong>ill-posed problem</strong>:</p>
+<ul>
+<li>Observations are sparse and contain errors</li>
+<li>Lateral and top boundary conditions are poorly defined</li>
+<li>Surface boundary conditions are incompletely specified</li>
+<li>Motions span many temporal and spatial scales</li>
+</ul>
+<p>Because of this, <strong>no mathematically rigorous validation</strong> of a complete atmospheric modeling system is possible.</p>
+
+<h3>The Sub-System Testing Approach</h3>
+<p>What we can do is validate individual <strong>sub-systems</strong>:</p>
+<table class="ct">
+<thead><tr><th>Sub-system</th><th>Tested for</th></tr></thead>
+<tbody>
+<tr><td>Data ingest (QA/QC)</td><td>Accuracy</td></tr>
+<tr><td>Data assimilation</td><td>Realism</td></tr>
+<tr><td>Advection/diffusion operators</td><td>Accuracy</td></tr>
+<tr><td>PBL/microphysics/turbulence</td><td>Realism</td></tr>
+</tbody>
+</table>
+<p>Then the entire system is compared to observations.</p>
+
+<h3>The Scalar Advection Test</h3>
+<p>The most fundamental sub-system test:</p>
+<div class="eq boxed"><span class="el">Scalar Advection Test</span>&part;&psi;/&part;t + u<sub>j</sub> &middot; &part;&psi;/&part;x<sub>j</sub> = 0</div>
+<p>The wind field is <em>prescribed</em> (not computed), isolating the advection scheme's performance from everything else.</p>
+
+<h3>Test 1: The Rotating Cone Test (Convergence)</h3>
+<p><strong>Setup:</strong></p>
+<ul>
+<li><strong>Wind field:</strong> Solid-body rotation — a spinning turntable: u(x,y) = &minus;(y &minus; y<sub>0</sub>)/x<sub>max</sub>, v(x,y) = (x &minus; x<sub>0</sub>)/y<sub>max</sub></li>
+<li><strong>Tracer:</strong> A cone peaked off-center: &psi;(x,y) = max(0, 1 &minus; r/r<sub>cone</sub>) where r = distance from cone center</li>
+<li><strong>Mesh:</strong> 100 &times; 100 units; cone at (50, 80) with radius 10 units, peak height 1</li>
+</ul>
+<p><strong>The test:</strong> Run for exactly one full revolution (360&deg;). The cone should return to its starting position and shape exactly. Any difference is purely numerical error.</p>
+<p><strong>What errors look like:</strong></p>
+<ul>
+<li><strong>Numerical diffusion</strong> &rarr; cone loses height, broadens (shorter and fatter)</li>
+<li><strong>Phase errors</strong> &rarr; cone arrives at the wrong angular position</li>
+<li><strong>Dispersion errors</strong> &rarr; trailing oscillations/wiggles behind the cone</li>
+</ul>
+<p><strong>Results:</strong> A 1st-order scheme exhibits large numerical diffusion after one revolution — the cone is severely flattened. Higher-order schemes preserve the cone much better.</p>
+</div>
+
+<!-- Rotating Cone Visualization -->
+<div class="vp"><div class="vh"><h4>Rotating Cone Test — Interactive Demo</h4>
+<div class="ctr">
+<div class="sg"><label>Rotation</label><input type="range" id="cone-angle" min="0" max="360" value="0" oninput="drawCone()"><span id="cone-av">0&deg;</span></div>
+<div class="sg"><label>Scheme order</label>
+<select id="cone-order" onchange="drawCone()" style="font-size:clamp(9px,1.2vw,11px);padding:2px 6px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--text-muted)">
+<option value="1">1st order</option><option value="2">2nd order</option><option value="4">4th order</option>
+</select>
+</div>
+</div>
+</div>
+<div class="vb">
+<div class="vw"><canvas id="cv-cone" height="320"></canvas></div>
+<div class="vl">
+<span><span class="sw" style="background:#22c55e"></span>True cone position</span>
+<span><span class="sw" style="background:#dc2626"></span>Numerical cone</span>
+</div>
+<div class="metrics">
+<div class="metric" id="cone-m1"><div class="mv" id="cone-peak">1.00</div><div class="ml">Peak height</div></div>
+<div class="metric" id="cone-m2"><div class="mv" id="cone-loss">0%</div><div class="ml">Height loss</div></div>
+<div class="metric" id="cone-m3"><div class="mv" id="cone-spread">0%</div><div class="ml">Base spread</div></div>
+</div>
+<p class="vn">Drag the rotation slider through 360&deg; to simulate one full revolution. The 1st-order scheme shows severe amplitude loss due to numerical diffusion. Higher orders preserve the cone shape much better.</p>
+</div></div>
+
+<div class="prose">
+<h3>Test 2: Smolarkiewicz's Deformational Flow Test (Stability)</h3>
+<p>The flow field <em>deforms</em> — stretches and squeezes the tracer. This creates sharp gradients that stress-test the scheme's ability to maintain features without spurious oscillations. Probes <strong>nonlinear instability</strong> and behavior at unresolved scales.</p>
+
+<h3>Test 3: Doswell's Frontogenesis Test (Accuracy/Convergence)</h3>
+<p>Simulates front formation — very sharp gradients approaching discontinuities. Tests where finite-difference approximations struggle most.</p>
+</div>
+
+</div>
+
+<!-- ===== PANEL 8: SUMMARY ===== -->
+<div class="panel" id="p8">
+<div class="sh"><div class="sh-num">Summary</div><h2>Summary of Everything in Notes #5 Part 2</h2><p class="lead">The complete intellectual arc — from finite differences to model evaluation.</p></div>
+<div class="prose">
+
+<h3>The Complete Intellectual Arc</h3>
+<ol>
+<li><strong>Finite differences</strong> — how to approximate derivatives on a computer using nearby grid values. Three types: forward, backward, centered.</li>
+<li><strong>Taylor series analysis</strong> — reveals the exact error (truncation error) in each approximation. Forward/backward are 1st-order accurate, centered is 2nd-order. The order of accuracy tells you how fast errors decrease with grid refinement.</li>
+<li><strong>The upstream scheme</strong> — a complete case study applying finite differences to the 1D advection equation. Forward-in-time, backward-in-space, explicit. The modified equation reveals its fatal flaw: <strong>numerical diffusion</strong> that destroys wave amplitudes.</li>
+<li><strong>Four pillars of scheme evaluation:</strong>
+<ul>
+<li><strong>Accuracy</strong> — how well does the scheme approximate derivatives? (measured by truncation error order)</li>
+<li><strong>Consistency</strong> — does it reduce to the true PDE as &Delta;x, &Delta;t &rarr; 0? (check that &tau; &rarr; 0)</li>
+<li><strong>Stability</strong> — does the solution stay bounded? (checked via Energy or Von Neumann method)</li>
+<li><strong>Convergence</strong> — does the numerical solution &rarr; true solution? (guaranteed by Lax Equivalence Theorem if consistent + stable)</li>
+</ul>
+</li>
+<li><strong>Two stability analysis methods:</strong>
+<ul>
+<li><strong>Energy Method</strong> — define discrete energy, show it doesn't grow. Works for nonlinear problems but requires creativity.</li>
+<li><strong>Von Neumann Method</strong> — decompose into Fourier modes, check each amplification factor |A<sub>k</sub>| &le; 1. Systematic, reveals which wavenumbers are most affected. The workhorse tool.</li>
+</ul>
+</li>
+<li><strong>The CFL condition</strong> — 0 &le; c&Delta;t/&Delta;x &le; 1. Physical meaning: the wave must not travel more than one grid cell per time step, or equivalently, the physical characteristic must stay inside the numerical stencil. Necessary for stability but NOT sufficient for all schemes.</li>
+<li><strong>Practical evaluation</strong> through standardized tests (rotating cone, deformational flow, frontogenesis) that probe different aspects of scheme performance.</li>
+</ol>
+</div>
+
+<h3 style="font-family:var(--fd);font-size:clamp(.95rem,2.2vw,1.1rem);margin:clamp(1rem,3vw,1.8rem) 0 clamp(.3rem,1vw,.6rem);color:var(--text);font-weight:600">Key Formulas to Remember</h3>
+<table class="ct">
+<thead><tr><th>Formula</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td style="font-family:var(--fd);font-style:italic;color:var(--warm2)">&mu; = c&Delta;t / &Delta;x</td><td>Courant number — wave distance per step / grid spacing</td></tr>
+<tr><td style="font-family:var(--fd);font-style:italic;color:var(--warm2)">u<sub>j</sub><sup>n+1</sup> = (1&minus;&mu;)u<sub>j</sub><sup>n</sup> + &mu;u<sub>j&minus;1</sub><sup>n</sup></td><td>Upstream scheme</td></tr>
+<tr><td style="font-family:var(--fd);font-style:italic;color:var(--warm2)">K<sub>num</sub> = (c&Delta;x/2)(1&minus;&mu;)</td><td>Numerical diffusion coefficient of upstream scheme</td></tr>
+<tr><td style="font-family:var(--fd);font-style:italic;color:var(--warm2)">|A<sub>k</sub>|&sup2; = 1 &minus; 2&mu;(1&minus;&mu;)(1&minus;cos(k&Delta;x))</td><td>Amplification factor (Von Neumann)</td></tr>
+<tr><td style="font-family:var(--fd);font-style:italic;color:var(--warm2)">0 &le; c&Delta;t/&Delta;x &le; 1</td><td>CFL stability condition</td></tr>
+<tr><td style="font-family:var(--fd);font-style:italic;color:var(--warm2)">Consistency + Stability &hArr; Convergence</td><td>Lax Equivalence Theorem</td></tr>
+</tbody>
+</table>
+
+<h3 style="font-family:var(--fd);font-size:clamp(.95rem,2.2vw,1.1rem);margin:clamp(1rem,3vw,1.8rem) 0 clamp(.3rem,1vw,.6rem);color:var(--text);font-weight:600">Key Takeaways</h3>
+<div class="tkg">
+<div class="tk"><div class="n">Takeaway 1</div><h4>Accuracy &ne; Stability</h4><p>A scheme can be accurate (small truncation error) but unstable, or inaccurate but stable.</p></div>
+<div class="tk"><div class="n">Takeaway 2</div><h4>Short Waves Are Always Handled Worst</h4><p>The 2&Delta;x wave has the largest errors in both amplitude and phase.</p></div>
+<div class="tk"><div class="n">Takeaway 3</div><h4>Numerical Diffusion Is the Fatal Flaw</h4><p>Low-order upwind schemes destroy all features over long integrations.</p></div>
+<div class="tk"><div class="n">Takeaway 4</div><h4>CFL Is Necessary but Not Sufficient</h4><p>Satisfying CFL doesn't guarantee stability for all schemes (e.g., FTCS is always unstable).</p></div>
+<div class="tk"><div class="n">Takeaway 5</div><h4>Higher-Order Accuracy Pays Off</h4><p>Halving &Delta;x gives 4&times; improvement (2nd-order) vs. only 2&times; (1st-order).</p></div>
+<div class="tk"><div class="n">Takeaway 6</div><h4>Always Test Your Scheme</h4><p>Use standardized cases before trusting a scheme for real atmospheric simulations.</p></div>
+</div>
+
+</div>
+
+<footer>CLIM-715 &middot; Numerical Modeling of the Atmosphere &amp; Oceans &middot; George Mason University &middot; Notes #5, Part 2 Mastery Guide</footer>
+
+<script>
+/* ====================== TAB SWITCHING ====================== */
+function showTab(i,btn){
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.getElementById('p'+i).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  // Redraw canvases in newly visible panel (they had 0 width when hidden)
+  requestAnimationFrame(function(){redrawAll();});
+}
+function redrawAll(){
+  // Only draw if the canvas parent is visible (non-zero width)
+  if(document.getElementById('cv-fd')&&document.getElementById('cv-fd').parentElement.offsetWidth>0) drawFD();
+  if(document.getElementById('cv-conv')&&document.getElementById('cv-conv').parentElement.offsetWidth>0) drawConv();
+  if(document.getElementById('cv-up')&&document.getElementById('cv-up').parentElement.offsetWidth>0) runUpstream();
+  if(document.getElementById('cv-cfl')&&document.getElementById('cv-cfl').parentElement.offsetWidth>0) runCFL();
+  if(document.getElementById('cv-vn')&&document.getElementById('cv-vn').parentElement.offsetWidth>0) drawVN();
+  if(document.getElementById('cv-cone')&&document.getElementById('cv-cone').parentElement.offsetWidth>0) drawCone();
+  if(document.getElementById('cv-wa')&&document.getElementById('cv-wa').parentElement.offsetWidth>0) drawWA();
+}
+
+/* ====================== CANVAS HELPERS ====================== */
+function resizeCanvas(cv){
+  // Store the original CSS height once so repeated calls don't compound DPR scaling
+  if(!cv.dataset.origH) cv.dataset.origH=cv.getAttribute('height');
+  var cssH=parseInt(cv.dataset.origH);
+  var r=cv.parentElement.getBoundingClientRect();
+  var dpr=window.devicePixelRatio||1;
+  cv.width=r.width*dpr;
+  cv.height=cssH*dpr;
+  cv.style.width=r.width+'px';
+  cv.style.height=cssH+'px';
+  var ctx=cv.getContext('2d');
+  ctx.scale(dpr,dpr);
+  return {ctx:ctx,w:r.width,h:cssH};
+}
+
+/* ====================== VIS 1: FINITE DIFFERENCES ====================== */
+function drawFD(){
+  var cv=document.getElementById('cv-fd');
+  var o=resizeCanvas(cv);var ctx=o.ctx,W=o.w,H=o.h;
+  var dx=parseInt(document.getElementById('fd-dx').value)/10;
+  document.getElementById('fd-dxv').textContent=dx.toFixed(1);
+  var pad=50,gw=W-2*pad,gh=H-80;
+  ctx.clearRect(0,0,W,H);
+  // Function: f(x) = sin(x) + 0.5
+  function f(x){return Math.sin(x)*0.9+1.2;}
+  function fp(x){return Math.cos(x)*0.9;}
+  var x0=2.0;
+  // Axes
+  ctx.strokeStyle='#e2e8f0';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(pad,H-30);ctx.lineTo(W-pad,H-30);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(pad,H-30);ctx.lineTo(pad,15);ctx.stroke();
+  ctx.fillStyle='#94a3b8';ctx.font='10px system-ui';
+  ctx.fillText('x',W-pad+5,H-25);ctx.fillText('f(x)',pad-5,12);
+  function toX(x){return pad+(x/4)*gw;}
+  function toY(y){return H-30-((y-0)/2.5)*gh;}
+  // Draw curve
+  ctx.strokeStyle='#94a3b8';ctx.lineWidth=2;ctx.beginPath();
+  for(var i=0;i<=200;i++){var x=i/50;ctx.lineTo(toX(x),toY(f(x)));}ctx.stroke();
+  // Grid points
+  var xl=x0-dx,xr=x0+dx;
+  // dx brackets
+  ctx.strokeStyle='#c4b5fd';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+  [[xl,'x_{i-1}'],[x0,'x_i'],[xr,'x_{i+1}']].forEach(function(p){
+    ctx.beginPath();ctx.moveTo(toX(p[0]),toY(f(p[0])));ctx.lineTo(toX(p[0]),H-30);ctx.stroke();
+  });
+  ctx.setLineDash([]);
+  // delta x label
+  ctx.fillStyle='#7c3aed';ctx.font='11px Georgia';ctx.textAlign='center';
+  ctx.fillText('\u0394x',toX((x0+xl)/2),H-15);
+  ctx.fillText('\u0394x',toX((x0+xr)/2),H-15);
+  // Points
+  [[xl,f(xl),'#0891b2',5],[x0,f(x0),'#dc2626',7],[xr,f(xr),'#0891b2',5]].forEach(function(p){
+    ctx.fillStyle=p[2];ctx.beginPath();ctx.arc(toX(p[0]),toY(p[1]),p[3],0,Math.PI*2);ctx.fill();
+  });
+  // Slope lines through x0
+  var sl=40;
+  function drawSlope(slope,color,lw){
+    ctx.strokeStyle=color;ctx.lineWidth=lw;ctx.beginPath();
+    ctx.moveTo(toX(x0)-sl,toY(f(x0))-slope*(-sl*(gw/4)));
+    ctx.lineTo(toX(x0)+sl,toY(f(x0))-slope*(sl*(gw/4)));
+    ctx.stroke();
+  }
+  // True tangent
+  ctx.setLineDash([6,4]);drawSlope(fp(x0),'#22c55e',2.5);ctx.setLineDash([]);
+  // Forward
+  var sf=(f(xr)-f(x0))/dx;
+  ctx.strokeStyle='#f97316';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(toX(x0),toY(f(x0)));ctx.lineTo(toX(xr),toY(f(xr)));ctx.stroke();
+  // Backward
+  var sb=(f(x0)-f(xl))/dx;
+  ctx.strokeStyle='#0891b2';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(toX(xl),toY(f(xl)));ctx.lineTo(toX(x0),toY(f(x0)));ctx.stroke();
+  // Centered
+  ctx.strokeStyle='#8b5cf6';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(toX(xl),toY(f(xl)));ctx.lineTo(toX(xr),toY(f(xr)));ctx.stroke();
+  // Error labels
+  ctx.textAlign='right';ctx.font='10px system-ui';
+  var trueD=fp(x0);
+  ctx.fillStyle='#f97316';ctx.fillText('Fwd err: '+(Math.abs(sf-trueD)).toFixed(4),W-pad,20);
+  ctx.fillStyle='#0891b2';ctx.fillText('Bwd err: '+(Math.abs(sb-trueD)).toFixed(4),W-pad,35);
+  var sc=(f(xr)-f(xl))/(2*dx);
+  ctx.fillStyle='#8b5cf6';ctx.fillText('Ctr err: '+(Math.abs(sc-trueD)).toFixed(4),W-pad,50);
+  ctx.fillStyle='#22c55e';ctx.fillText('True f\'(x\u2080) = '+trueD.toFixed(4),W-pad,65);
+  ctx.textAlign='start';
+}
+
+/* ====================== VIS: CONVERGENCE RATE ====================== */
+function drawConv(){
+  var cv=document.getElementById('cv-conv');
+  var o=resizeCanvas(cv);var ctx=o.ctx,W=o.w,H=o.h;
+  var fn=document.getElementById('conv-fn').value;
+  var dxSlider=document.getElementById('conv-dx');
+  var dxVal=parseInt(dxSlider.value)/200;
+  document.getElementById('conv-dxv').textContent=dxVal.toFixed(2);
+  var x0=1.0;
+  var f,fp,fnLabel;
+  if(fn==='sin'){f=Math.sin;fp=Math.cos;fnLabel='sin(x)';}
+  else if(fn==='exp'){f=Math.exp;fp=Math.exp;fnLabel='e^x';}
+  else{f=function(x){return x*x*x;};fp=function(x){return 3*x*x;};fnLabel='x\u00b3';}
+  var trueD=fp(x0);
+  // Compute errors at current dx and at dx/2
+  var fwdE=Math.abs((f(x0+dxVal)-f(x0))/dxVal-trueD);
+  var bwdE=Math.abs((f(x0)-f(x0-dxVal))/dxVal-trueD);
+  var ctrE=Math.abs((f(x0+dxVal)-f(x0-dxVal))/(2*dxVal)-trueD);
+  var dxH=dxVal/2;
+  var fwdEH=Math.abs((f(x0+dxH)-f(x0))/dxH-trueD);
+  var bwdEH=Math.abs((f(x0)-f(x0-dxH))/dxH-trueD);
+  var ctrEH=Math.abs((f(x0+dxH)-f(x0-dxH))/(2*dxH)-trueD);
+  // Layout
+  var pad={l:60,r:20,t:45,b:55};
+  var gw=W-pad.l-pad.r, gh=H-pad.t-pad.b;
+  ctx.clearRect(0,0,W,H);
+  // Title
+  ctx.fillStyle='#1e293b';ctx.font='bold 12px system-ui';ctx.textAlign='center';
+  ctx.fillText('Error of each finite difference at x\u2080 = 1 for f(x) = '+fnLabel,W/2,18);
+  ctx.fillStyle='#94a3b8';ctx.font='10px system-ui';
+  ctx.fillText('Comparing \u0394x = '+dxVal.toFixed(2)+' (solid) vs \u0394x/2 = '+dxH.toFixed(2)+' (striped)',W/2,33);
+  // Determine y-scale from max error
+  var maxE=Math.max(fwdE,bwdE,ctrE,1e-15);
+  var ymax=maxE*1.3;
+  function toY(v){return pad.t+(1-v/ymax)*gh;}
+  // Grid lines
+  ctx.strokeStyle='#e2e8f0';ctx.lineWidth=0.5;
+  for(var i=0;i<=4;i++){var y=toY(i*ymax/4);ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+gw,y);ctx.stroke();}
+  // Baseline
+  ctx.strokeStyle='#94a3b8';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(pad.l,toY(0));ctx.lineTo(pad.l+gw,toY(0));ctx.stroke();
+  ctx.beginPath();ctx.moveTo(pad.l,pad.t);ctx.lineTo(pad.l,toY(0));ctx.stroke();
+  // Y axis label
+  ctx.save();ctx.translate(14,H/2-10);ctx.rotate(-Math.PI/2);ctx.fillStyle='#94a3b8';ctx.font='10px system-ui';ctx.textAlign='center';ctx.fillText('Absolute Error',0,0);ctx.restore();
+  // Y axis ticks
+  ctx.fillStyle='#94a3b8';ctx.font='9px system-ui';ctx.textAlign='right';
+  for(var i=0;i<=4;i++){var val=i*ymax/4;ctx.fillText(val.toExponential(1),pad.l-5,toY(val)+3);}
+  // Bar groups — 3 groups (Forward, Backward, Centered), each with 2 bars (dx, dx/2)
+  var groups=[
+    {label:'Forward',color:'#f97316',err:fwdE,errH:fwdEH},
+    {label:'Backward',color:'#0891b2',err:bwdE,errH:bwdEH},
+    {label:'Centered',color:'#8b5cf6',err:ctrE,errH:ctrEH}
+  ];
+  var groupW=gw/3;
+  var barW=Math.min(groupW*0.3,40);
+  var gap=barW*0.3;
+  ctx.textAlign='center';
+  for(var g=0;g<3;g++){
+    var gx=pad.l+g*groupW+groupW/2;
+    // Solid bar (dx)
+    var bh=Math.max(1,(groups[g].err/ymax)*gh);
+    var bx=gx-barW-gap/2;
+    ctx.fillStyle=groups[g].color;
+    ctx.globalAlpha=0.85;
+    ctx.fillRect(bx,toY(0)-bh,barW,bh);
+    ctx.globalAlpha=1;
+    // Striped bar (dx/2)
+    var bh2=Math.max(1,(groups[g].errH/ymax)*gh);
+    var bx2=gx+gap/2;
+    ctx.fillStyle=groups[g].color;
+    ctx.globalAlpha=0.35;
+    ctx.fillRect(bx2,toY(0)-bh2,barW,bh2);
+    ctx.globalAlpha=1;
+    // Stripe pattern on second bar
+    ctx.strokeStyle=groups[g].color;ctx.lineWidth=1;
+    for(var sy=toY(0)-bh2;sy<toY(0);sy+=5){
+      ctx.beginPath();ctx.moveTo(bx2,sy);ctx.lineTo(bx2+barW,sy);ctx.stroke();
+    }
+    // Value labels on bars
+    ctx.fillStyle='#1e293b';ctx.font='bold 9px system-ui';
+    if(groups[g].err>ymax*0.05) ctx.fillText(groups[g].err.toExponential(2),bx+barW/2,toY(0)-bh-4);
+    else ctx.fillText(groups[g].err.toExponential(2),bx+barW/2,toY(0)-bh-4);
+    ctx.fillStyle='#64748b';ctx.font='9px system-ui';
+    ctx.fillText(groups[g].errH.toExponential(2),bx2+barW/2,toY(0)-bh2-4);
+    // Improvement ratio
+    var ratio=groups[g].err/(groups[g].errH||1e-20);
+    ctx.fillStyle=groups[g].color;ctx.font='bold 10px system-ui';
+    ctx.fillText(ratio.toFixed(1)+'\u00d7',gx,toY(0)+25);
+    ctx.fillStyle='#94a3b8';ctx.font='9px system-ui';
+    ctx.fillText('improvement',gx,toY(0)+37);
+    // Group label
+    ctx.fillStyle='#1e293b';ctx.font='bold 10px system-ui';
+    ctx.fillText(groups[g].label,gx,toY(0)+50);
+  }
+  // Update insight
+  var insEl=document.getElementById('conv-insight');
+  var fwdRatio=(fwdE/(fwdEH||1e-20)).toFixed(1);
+  var ctrRatio=(ctrE/(ctrEH||1e-20)).toFixed(1);
+  insEl.textContent='When \u0394x is halved: Forward/Backward error drops by ~'+fwdRatio+'\u00d7 (1st order \u2248 2\u00d7), Centered error drops by ~'+ctrRatio+'\u00d7 (2nd order \u2248 4\u00d7). Higher order = much better "bang for your buck."';
+}
+
+/* ====================== VIS 3b: WEIGHTED AVERAGE ====================== */
+function drawWA(){
+  var cv=document.getElementById('cv-wa');
+  var o=resizeCanvas(cv);var ctx=o.ctx,W=o.w,H=o.h;
+  var muVal=parseInt(document.getElementById('wa-mu').value)/100;
+  document.getElementById('wa-muv').textContent=muVal.toFixed(2);
+  ctx.clearRect(0,0,W,H);
+
+  var wUp=muVal, wCur=1-muVal;
+
+  // === ZONE 1: Formula at top (y: 0 to 40) ===
+  ctx.fillStyle='#1e293b';ctx.font='bold 13px Georgia';ctx.textAlign='center';
+  ctx.fillText('Future = (1\u2212\u03bc) \u00b7 Current  +  \u03bc \u00b7 Upstream',W/2,24);
+  ctx.fillStyle='#64748b';ctx.font='11px system-ui';
+  ctx.fillText('= '+wCur.toFixed(2)+' \u00d7 Current  +  '+wUp.toFixed(2)+' \u00d7 Upstream',W/2,42);
+
+  // === ZONE 2: Diagram (y: 55 to 200) ===
+  // Layout: upstream point (left), future point (center-top), current point (right)
+  var diagramTop=60, diagramBot=185;
+  var leftX=W*0.18, rightX=W*0.82, centerX=W*0.5;
+  var futY=diagramTop+20, baseY=diagramBot-10;
+
+  // Connection lines (dashed, from known points up to future)
+  ctx.setLineDash([5,4]);ctx.lineWidth=2;
+  // Upstream -> Future: line thickness proportional to weight
+  ctx.strokeStyle='#0891b2';ctx.lineWidth=Math.max(1,4*wUp);
+  ctx.beginPath();ctx.moveTo(leftX,baseY-14);ctx.lineTo(centerX,futY+14);ctx.stroke();
+  // Current -> Future
+  ctx.strokeStyle='#dc2626';ctx.lineWidth=Math.max(1,4*wCur);
+  ctx.beginPath();ctx.moveTo(rightX,baseY-14);ctx.lineTo(centerX,futY+14);ctx.stroke();
+  ctx.setLineDash([]);ctx.lineWidth=1;
+
+  // --- Upstream point (left) ---
+  var upR=Math.max(8,6+14*wUp);
+  ctx.fillStyle='#0891b2';ctx.beginPath();ctx.arc(leftX,baseY,upR,0,Math.PI*2);ctx.fill();
+  // White text inside circle if big enough
+  if(upR>10){ctx.fillStyle='#fff';ctx.font='bold '+(upR>14?'10':'8')+'px system-ui';ctx.textAlign='center';
+    ctx.fillText((wUp*100).toFixed(0)+'%',leftX,baseY+4);}
+  // Label below
+  ctx.fillStyle='#0891b2';ctx.font='bold 11px system-ui';ctx.textAlign='center';
+  ctx.fillText('Upstream',leftX,baseY+upR+16);
+  ctx.fillStyle='#94a3b8';ctx.font='10px Georgia';
+  ctx.fillText('u(j\u22121, n)',leftX,baseY+upR+30);
+  // Weight label above
+  ctx.fillStyle='#0891b2';ctx.font='bold 11px system-ui';
+  ctx.fillText('weight: \u03bc = '+wUp.toFixed(2),leftX,baseY-upR-8);
+
+  // --- Current point (right) ---
+  var curR=Math.max(8,6+14*wCur);
+  ctx.fillStyle='#dc2626';ctx.beginPath();ctx.arc(rightX,baseY,curR,0,Math.PI*2);ctx.fill();
+  if(curR>10){ctx.fillStyle='#fff';ctx.font='bold '+(curR>14?'10':'8')+'px system-ui';ctx.textAlign='center';
+    ctx.fillText((wCur*100).toFixed(0)+'%',rightX,baseY+4);}
+  ctx.fillStyle='#dc2626';ctx.font='bold 11px system-ui';ctx.textAlign='center';
+  ctx.fillText('Current',rightX,baseY+curR+16);
+  ctx.fillStyle='#94a3b8';ctx.font='10px Georgia';
+  ctx.fillText('u(j, n)',rightX,baseY+curR+30);
+  ctx.fillStyle='#dc2626';ctx.font='bold 11px system-ui';
+  ctx.fillText('weight: (1\u2212\u03bc) = '+wCur.toFixed(2),rightX,baseY-curR-8);
+
+  // --- Future point (center top) ---
+  ctx.fillStyle='#22c55e';ctx.beginPath();ctx.arc(centerX,futY,12,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#fff';ctx.font='bold 9px system-ui';ctx.textAlign='center';
+  ctx.fillText('?',centerX,futY+3);
+  ctx.fillStyle='#22c55e';ctx.font='bold 12px system-ui';
+  ctx.fillText('Future: u(j, n+1)',centerX,futY-20);
+
+  // === ZONE 3: Weight bar at bottom (y: 235 to 290) ===
+  var barTop=240, barH=22;
+  var barL=W*0.1, barW=W*0.8;
+  // Background
+  ctx.fillStyle='#f1f5f9';
+  ctx.fillRect(barL,barTop,barW,barH);
+  // Upstream portion (left, teal)
+  if(wUp>0.005){
+    ctx.fillStyle='#0891b2';ctx.globalAlpha=0.8;
+    ctx.fillRect(barL,barTop,barW*wUp,barH);
+    ctx.globalAlpha=1;
+  }
+  // Current portion (right, red)
+  if(wCur>0.005){
+    ctx.fillStyle='#dc2626';ctx.globalAlpha=0.8;
+    ctx.fillRect(barL+barW*wUp,barTop,barW*wCur,barH);
+    ctx.globalAlpha=1;
+  }
+  // Bar border
+  ctx.strokeStyle='#cbd5e1';ctx.lineWidth=1;
+  ctx.strokeRect(barL,barTop,barW,barH);
+  // Divider line
+  if(wUp>0.02&&wCur>0.02){
+    ctx.strokeStyle='#fff';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(barL+barW*wUp,barTop);ctx.lineTo(barL+barW*wUp,barTop+barH);ctx.stroke();
+  }
+  // Labels inside bar
+  ctx.font='bold 10px system-ui';ctx.textAlign='center';
+  if(wUp>0.12){ctx.fillStyle='#fff';ctx.fillText('\u03bc = '+wUp.toFixed(2),barL+barW*wUp/2,barTop+barH/2+4);}
+  if(wCur>0.12){ctx.fillStyle='#fff';ctx.fillText('(1\u2212\u03bc) = '+wCur.toFixed(2),barL+barW*wUp+barW*wCur/2,barTop+barH/2+4);}
+  // Bar legend below
+  ctx.fillStyle='#94a3b8';ctx.font='10px system-ui';ctx.textAlign='center';
+  ctx.fillText('Proportion of each known value contributing to the future value',W/2,barTop+barH+16);
+
+  // Insight
+  var ins=document.getElementById('wa-insight');
+  if(muVal<0.01){ins.className='insight blue';ins.textContent='\u03bc \u2248 0: No movement. The future value equals the current value. Nothing is advected.';}
+  else if(Math.abs(muVal-0.5)<0.02){ins.className='insight green';ins.textContent='\u03bc = 0.50: Future value = 50% current + 50% upstream. The wave moves half a grid cell per step.';}
+  else if(Math.abs(muVal-1)<0.02){ins.className='insight blue';ins.textContent='\u03bc = 1.00: Future value = 100% upstream. The wave shifts exactly one grid cell \u2014 physically perfect, zero diffusion!';}
+  else if(muVal<1){ins.className='insight green';ins.textContent='\u03bc = '+muVal.toFixed(2)+': Future = '+(wCur*100).toFixed(0)+'% current + '+(wUp*100).toFixed(0)+'% upstream. Stable, but numerical diffusion occurs.';}
+  else{ins.className='insight red';ins.textContent='\u03bc = '+muVal.toFixed(2)+': Weight (1\u2212\u03bc) is NEGATIVE! The scheme extrapolates instead of interpolating \u2014 CFL violated, unstable!';}
+}
+
+/* ====================== VIS 4: UPSTREAM SCHEME ====================== */
+function runUpstream(){
+  var NX=200,dx=1.0,c=1.0;
+  var muVal=parseInt(document.getElementById('up-mu').value)/10;
+  var nSteps=parseInt(document.getElementById('up-steps').value);
+  document.getElementById('up-muv').textContent=muVal.toFixed(1);
+  document.getElementById('up-sv').textContent=nSteps;
+  var sigma=8,center0=50;
+  // Initial condition
+  var u0=new Float64Array(NX);
+  for(var j=0;j<NX;j++){var d=j-center0;u0[j]=Math.exp(-d*d/(2*sigma*sigma));}
+  // Run upstream scheme
+  var u=new Float64Array(u0);
+  for(var n=0;n<nSteps;n++){
+    var uNew=new Float64Array(NX);
+    for(var j=0;j<NX;j++){
+      var jm=(j-1+NX)%NX;
+      uNew[j]=(1-muVal)*u[j]+muVal*u[jm];
+    }
+    u=uNew;
+  }
+  // True solution
+  var shift=c*nSteps*dx*muVal;
+  var trueU=new Float64Array(NX);
+  for(var j=0;j<NX;j++){var d=((j-center0-shift)%NX+NX)%NX;if(d>NX/2)d-=NX;trueU[j]=Math.exp(-d*d/(2*sigma*sigma));}
+  // Draw
+  var cv=document.getElementById('cv-up');
+  var o=resizeCanvas(cv);var ctx=o.ctx,W=o.w,H=o.h;
+  var pad=40,gw=W-pad-20,gh=H-60;
+  ctx.clearRect(0,0,W,H);
+  function toX(j){return pad+(j/NX)*gw;}
+  function toY(v){return 30+(1-v)*gh;}
+  // Grid
+  ctx.strokeStyle='#e2e8f0';ctx.lineWidth=0.5;
+  for(var i=0;i<=4;i++){var y=toY(i*0.25);ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(pad+gw,y);ctx.stroke();}
+  ctx.strokeStyle='#94a3b8';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(pad,toY(0));ctx.lineTo(pad+gw,toY(0));ctx.stroke();
+  ctx.beginPath();ctx.moveTo(pad,toY(0));ctx.lineTo(pad,toY(1.05));ctx.stroke();
+  // Initial (light)
+  ctx.strokeStyle='rgba(99,102,241,.2)';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);ctx.beginPath();
+  for(var j=0;j<NX;j++){if(j===0)ctx.moveTo(toX(j),toY(u0[j]));else ctx.lineTo(toX(j),toY(u0[j]));}ctx.stroke();ctx.setLineDash([]);
+  // True
+  ctx.strokeStyle='#22c55e';ctx.lineWidth=2.5;ctx.beginPath();
+  for(var j=0;j<NX;j++){if(j===0)ctx.moveTo(toX(j),toY(trueU[j]));else ctx.lineTo(toX(j),toY(trueU[j]));}ctx.stroke();
+  // Numerical
+  ctx.strokeStyle='#dc2626';ctx.lineWidth=2;ctx.beginPath();
+  for(var j=0;j<NX;j++){if(j===0)ctx.moveTo(toX(j),toY(u[j]));else ctx.lineTo(toX(j),toY(u[j]));}ctx.stroke();
+  // Metrics
+  var peak=0,peakJ=0;for(var j=0;j<NX;j++){if(u[j]>peak){peak=u[j];peakJ=j;}}
+  var truePeakJ=Math.round((center0+shift)%NX);
+  var loss=(1-peak)*100;
+  document.getElementById('up-peak').textContent=peak.toFixed(3);
+  document.getElementById('up-pos').textContent=peakJ+' / '+truePeakJ;
+  document.getElementById('up-loss').textContent=loss.toFixed(1)+'%';
+  // Insight
+  var ins=document.getElementById('up-insight');
+  if(nSteps===0){ins.className='insight amber';ins.textContent='Drag the "Time steps" slider to see how numerical diffusion erodes the wave amplitude over time. Try \u03bc = 1.0 for zero diffusion!';}
+  else if(loss<5){ins.className='insight green';ins.textContent='Slight damping. Peak loss: '+loss.toFixed(1)+'%. The numerical diffusion is small at this stage.';}
+  else if(loss<30){ins.className='insight amber';ins.textContent='Noticeable damping! Peak loss: '+loss.toFixed(1)+'%. Numerical diffusion coefficient K = (c\u0394x/2)(1\u2212\u03bc) = '+(0.5*(1-muVal)).toFixed(3)+' is eroding the pulse.';}
+  else{ins.className='insight red';ins.textContent='Severe damping! Peak loss: '+loss.toFixed(1)+'%. The pulse is nearly destroyed. This scheme is useless for long integrations. Try \u03bc = 1.0!';}
+}
+
+/* ====================== VIS 7: CFL VIOLATION ====================== */
+function runCFL(){
+  var NX=160,dx=1.0,c=1.0;
+  var muVal=parseInt(document.getElementById('cfl-mu').value)/20;
+  var nSteps=parseInt(document.getElementById('cfl-steps').value);
+  document.getElementById('cfl-muv').textContent=muVal.toFixed(2);
+  document.getElementById('cfl-sv').textContent=nSteps;
+  var sigma=7,center0=40;
+  var u0=new Float64Array(NX);
+  for(var j=0;j<NX;j++){var d=j-center0;u0[j]=Math.exp(-d*d/(2*sigma*sigma));}
+  var u=new Float64Array(u0);
+  var blownUp=false;
+  for(var n=0;n<nSteps;n++){
+    var uNew=new Float64Array(NX);
+    for(var j=0;j<NX;j++){
+      var jm=(j-1+NX)%NX;
+      uNew[j]=(1-muVal)*u[j]+muVal*u[jm];
+    }
+    u=uNew;
+    var mx=0;for(var j=0;j<NX;j++){if(Math.abs(u[j])>mx)mx=Math.abs(u[j]);}
+    if(mx>1e6){blownUp=true;break;}
+  }
+  // True solution
+  var shift=c*nSteps*muVal;
+  var trueU=new Float64Array(NX);
+  for(var j=0;j<NX;j++){var d=((j-center0-shift)%NX+NX)%NX;if(d>NX/2)d-=NX;trueU[j]=Math.exp(-d*d/(2*sigma*sigma));}
+  // Draw
+  var cv=document.getElementById('cv-cfl');
+  var o=resizeCanvas(cv);var ctx=o.ctx,W=o.w,H=o.h;
+  var pad=40,gw=W-pad-20,gh=H-60;
+  ctx.clearRect(0,0,W,H);
+  var ymax=blownUp?8:1.2;
+  function toX(j){return pad+(j/NX)*gw;}
+  function toY(v){return 30+(1-v/ymax)*gh;}
+  ctx.strokeStyle='#e2e8f0';ctx.lineWidth=0.5;
+  for(var i=0;i<=4;i++){var val=i*ymax/4;var y=toY(val);ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(pad+gw,y);ctx.stroke();}
+  ctx.strokeStyle='#94a3b8';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(pad,toY(0));ctx.lineTo(pad+gw,toY(0));ctx.stroke();
+  // True
+  ctx.strokeStyle='#22c55e';ctx.lineWidth=2;ctx.beginPath();
+  for(var j=0;j<NX;j++){if(j===0)ctx.moveTo(toX(j),toY(trueU[j]));else ctx.lineTo(toX(j),toY(trueU[j]));}ctx.stroke();
+  // Numerical
+  ctx.strokeStyle='#dc2626';ctx.lineWidth=2;ctx.beginPath();
+  for(var j=0;j<NX;j++){var v=Math.max(-ymax,Math.min(ymax,u[j]));if(j===0)ctx.moveTo(toX(j),toY(v));else ctx.lineTo(toX(j),toY(v));}ctx.stroke();
+  // Metrics
+  var mx=0;for(var j=0;j<NX;j++){if(Math.abs(u[j])>mx)mx=Math.abs(u[j]);}
+  document.getElementById('cfl-max').textContent=blownUp?'\u221E':mx.toFixed(3);
+  document.getElementById('cfl-ratio').textContent=muVal.toFixed(2);
+  var statusEl=document.getElementById('cfl-status');
+  var insEl=document.getElementById('cfl-insight');
+  if(muVal<=1.0){
+    statusEl.textContent='Stable';statusEl.style.color='#22c55e';
+    if(Math.abs(muVal-1.0)<0.03){
+      insEl.className='insight blue';insEl.textContent='Perfect! \u03bc \u2248 1.0 means zero numerical diffusion. The wave translates exactly one grid cell per step.';
+    }else{
+      insEl.className='insight green';insEl.textContent='CFL satisfied. Solution is stable but damped due to numerical diffusion. K_num = '+(0.5*(1-muVal)).toFixed(3);
+    }
+  }else{
+    statusEl.textContent='UNSTABLE';statusEl.style.color='#dc2626';
+    insEl.className='insight red';insEl.textContent='CFL VIOLATED! The wave travels more than one grid cell per step. The 2\u0394x wave amplifies each step, causing violent oscillations and blow-up.';
+  }
+}
+
+/* ====================== VIS 8: VON NEUMANN ====================== */
+function drawVN(){
+  var cv=document.getElementById('cv-vn');
+  var o=resizeCanvas(cv);var ctx=o.ctx,W=o.w,H=o.h;
+  var muVal=parseInt(document.getElementById('vn-mu').value)/20;
+  document.getElementById('vn-muv').textContent=muVal.toFixed(2);
+  var pad=50,gw=W-pad-30,gh=H-70;
+  ctx.clearRect(0,0,W,H);
+  // Compute |A_k|^2
+  var N=200;
+  var vals=[];
+  for(var i=0;i<=N;i++){
+    var kdx=i/N*Math.PI;
+    var a2=1-2*muVal*(1-muVal)*(1-Math.cos(kdx));
+    vals.push({kdx:kdx,a2:a2});
+  }
+  var ymin=Math.min(0,vals[N].a2-0.1);
+  var ymax=Math.max(1.3,vals[N].a2+0.2);
+  function toX(kdx){return pad+(kdx/Math.PI)*gw;}
+  function toY(v){return 30+(ymax-v)/(ymax-ymin)*gh;}
+  // Grid
+  ctx.strokeStyle='#e2e8f0';ctx.lineWidth=0.5;
+  for(var v=Math.ceil(ymin*4);v<=Math.floor(ymax*4);v++){var y=toY(v/4);ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(pad+gw,y);ctx.stroke();}
+  // Axes
+  ctx.strokeStyle='#94a3b8';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(pad,toY(ymin));ctx.lineTo(pad+gw,toY(ymin));ctx.stroke();
+  ctx.beginPath();ctx.moveTo(pad,toY(ymin));ctx.lineTo(pad,toY(ymax));ctx.stroke();
+  ctx.fillStyle='#94a3b8';ctx.font='10px system-ui';ctx.textAlign='center';
+  ctx.fillText('0',toX(0),toY(ymin)+14);
+  ctx.fillText('\u03c0/2',toX(Math.PI/2),toY(ymin)+14);
+  ctx.fillText('\u03c0',toX(Math.PI),toY(ymin)+14);
+  ctx.fillText('k\u0394x (wavenumber \u00d7 grid spacing)',W/2,H-5);
+  ctx.save();ctx.translate(14,H/2-20);ctx.rotate(-Math.PI/2);ctx.fillText('|A\u2096|\u00b2',0,0);ctx.restore();
+  // Neutral line at 1
+  ctx.strokeStyle='#22c55e';ctx.lineWidth=1.5;ctx.setLineDash([6,4]);
+  ctx.beginPath();ctx.moveTo(pad,toY(1));ctx.lineTo(pad+gw,toY(1));ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#22c55e';ctx.font='9px system-ui';ctx.textAlign='left';
+  ctx.fillText('|A|² = 1',pad+gw+3,toY(1)+3);
+  // Curve
+  ctx.strokeStyle='#dc2626';ctx.lineWidth=2.5;ctx.beginPath();
+  for(var i=0;i<=N;i++){
+    if(i===0)ctx.moveTo(toX(vals[i].kdx),toY(vals[i].a2));
+    else ctx.lineTo(toX(vals[i].kdx),toY(vals[i].a2));
+  }ctx.stroke();
+  // Fill unstable region
+  if(vals[N].a2>1){
+    ctx.fillStyle='rgba(220,38,38,.08)';ctx.beginPath();
+    ctx.moveTo(pad,toY(1));
+    for(var i=0;i<=N;i++){if(vals[i].a2>1)ctx.lineTo(toX(vals[i].kdx),toY(vals[i].a2));}
+    ctx.lineTo(toX(Math.PI),toY(1));ctx.closePath();ctx.fill();
+  }
+  // Metrics
+  var a2_0=vals[0].a2;
+  var a2_pi2=1-2*muVal*(1-muVal)*(1-Math.cos(Math.PI/2));
+  var a2_pi=vals[N].a2;
+  document.getElementById('vn-long').textContent=a2_0.toFixed(3);
+  document.getElementById('vn-mid').textContent=a2_pi2.toFixed(3);
+  document.getElementById('vn-short').textContent=a2_pi.toFixed(3);
+  var ins=document.getElementById('vn-insight');
+  if(muVal<0.01){ins.className='insight blue';ins.textContent='No advection (\u03bc \u2248 0). All wavenumbers are neutral — nothing moves.';}
+  else if(Math.abs(muVal-1)<0.03){ins.className='insight blue';ins.textContent='Perfect! |A|\u00b2 = 1 for every wavenumber. No damping, no amplification.';}
+  else if(muVal<=1){
+    var loss2dx=(1-a2_pi)*100;
+    ins.className='insight green';ins.textContent='Stable. Short waves damped most. The 2\u0394x wave has |A|\u00b2 = '+a2_pi.toFixed(3)+' (loses '+(loss2dx>0?loss2dx.toFixed(1):'0')+'% energy per step).';}
+  else{ins.className='insight red';ins.textContent='UNSTABLE! The 2\u0394x wave has |A|\u00b2 = '+a2_pi.toFixed(3)+' > 1 and grows every step. Blow-up is inevitable.';}
+}
+
+/* ====================== CFL CALCULATOR ====================== */
+function calcCFL(){
+  var dx=parseInt(document.getElementById('cfl2-dx').value);
+  var c=parseInt(document.getElementById('cfl2-c').value);
+  document.getElementById('cfl2-dxv').textContent=dx;
+  document.getElementById('cfl2-cv').textContent=c;
+  var dt=(dx*1000)/c;
+  var stepsPerDay=Math.ceil(86400/dt);
+  document.getElementById('cfl2-dt').textContent=dt.toFixed(1)+'s';
+  document.getElementById('cfl2-steps').textContent=stepsPerDay.toLocaleString();
+  // Cost vs 10km baseline
+  var baseDt=(10000)/350;
+  var baseSteps=Math.ceil(86400/baseDt);
+  var ratio3D=Math.pow(10/dx,3)*(stepsPerDay/baseSteps);
+  if(dx===10&&c===350){document.getElementById('cfl2-cost').textContent='1\u00d7 (base)';}
+  else{document.getElementById('cfl2-cost').textContent=ratio3D.toFixed(0)+'\u00d7';}
+}
+
+/* ====================== ROTATING CONE ====================== */
+function drawCone(){
+  var cv=document.getElementById('cv-cone');
+  var o=resizeCanvas(cv);var ctx=o.ctx,W=o.w,H=o.h;
+  var angle=parseInt(document.getElementById('cone-angle').value);
+  var order=parseInt(document.getElementById('cone-order').value);
+  document.getElementById('cone-av').textContent=angle+'\u00b0';
+  var cx0=W/2,cy0=H/2+10;
+  var radius=Math.min(W,H)*0.38;
+  ctx.clearRect(0,0,W,H);
+  // Domain circle
+  ctx.strokeStyle='#e2e8f0';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.arc(cx0,cy0,radius,0,Math.PI*2);ctx.stroke();
+  // Center dot
+  ctx.fillStyle='#94a3b8';ctx.beginPath();ctx.arc(cx0,cy0,3,0,Math.PI*2);ctx.fill();
+  // Rotation arrow
+  ctx.strokeStyle='#c4b5fd';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);
+  ctx.beginPath();ctx.arc(cx0,cy0,radius+8,Math.PI*1.2,Math.PI*1.8);ctx.stroke();ctx.setLineDash([]);
+  // Cone parameters
+  var coneR=radius*0.22;
+  var coneAngle0=Math.PI/2; // starts at top
+  // True cone position (rotated)
+  var trueAngle=coneAngle0+angle*Math.PI/180;
+  var coneDistFromCenter=radius*0.6;
+  var trueCX=cx0+Math.cos(trueAngle)*coneDistFromCenter;
+  var trueCY=cy0-Math.sin(trueAngle)*coneDistFromCenter;
+  // Numerical diffusion simulation
+  var diffFactor;
+  if(order===1) diffFactor=1-0.6*(angle/360);
+  else if(order===2) diffFactor=1-0.15*(angle/360);
+  else diffFactor=1-0.03*(angle/360);
+  var peakH=Math.max(0.05,diffFactor);
+  var spreadFactor=1+(1-diffFactor)*1.5;
+  var numConeR=coneR*spreadFactor;
+  // Draw true cone (green outline)
+  ctx.strokeStyle='#22c55e';ctx.lineWidth=2;ctx.setLineDash([5,3]);
+  ctx.beginPath();ctx.arc(trueCX,trueCY,coneR,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+  // Peak marker true
+  ctx.fillStyle='#22c55e';ctx.beginPath();ctx.arc(trueCX,trueCY,4,0,Math.PI*2);ctx.fill();
+  // Draw numerical cone (filled red, dimmer)
+  var grad=ctx.createRadialGradient(trueCX,trueCY,0,trueCX,trueCY,numConeR);
+  grad.addColorStop(0,'rgba(220,38,38,'+(peakH*0.6)+')');
+  grad.addColorStop(1,'rgba(220,38,38,0)');
+  ctx.fillStyle=grad;ctx.beginPath();ctx.arc(trueCX,trueCY,numConeR,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='rgba(220,38,38,.5)';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.arc(trueCX,trueCY,numConeR,0,Math.PI*2);ctx.stroke();
+  // Numerical peak marker
+  ctx.fillStyle='#dc2626';ctx.beginPath();ctx.arc(trueCX,trueCY,3,0,Math.PI*2);ctx.fill();
+  // Labels
+  ctx.fillStyle='#94a3b8';ctx.font='10px system-ui';ctx.textAlign='center';
+  ctx.fillText('Rotation: '+angle+'\u00b0',W/2,22);
+  ctx.fillText('Order: '+order,W/2,H-8);
+  // Metrics
+  document.getElementById('cone-peak').textContent=peakH.toFixed(2);
+  document.getElementById('cone-loss').textContent=((1-peakH)*100).toFixed(0)+'%';
+  document.getElementById('cone-spread').textContent=(((spreadFactor-1)*100)).toFixed(0)+'%';
+}
+
+/* ====================== INIT ====================== */
+window.addEventListener('load',function(){
+  // Draw tab 0 canvas immediately (it's visible on load)
+  drawFD();
+  // calcCFL is non-canvas, init with default values
+  calcCFL();
+  // Defer canvas drawing — they'll be drawn when their tab is shown
+  requestAnimationFrame(function(){redrawAll();});
+});
+window.addEventListener('resize',function(){redrawAll();});
+</script>
+</body>
+</html>
