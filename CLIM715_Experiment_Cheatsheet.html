@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLIM-715 Experiment Cheat-Sheet — Today-Ready Handout</title>
+<style>
+* { box-sizing: border-box; }
+body, html { margin: 0; padding: 0; font-family: 'Segoe UI', Calibri, Geneva, sans-serif; background: #eaf0f8; color: #2c3142; line-height: 1.55; }
+.layout { max-width: 980px; margin: 0 auto; padding: 30px 40px 80px 40px; }
+.banner { background: linear-gradient(135deg, #6b5cb5 0%, #8b6f3a 100%); color: #ffffff; padding: 32px 40px; margin: 0 -40px 28px -40px; border-radius: 0; }
+.banner h1 { color: #ffffff; margin: 0; font-size: 28px; font-weight: 700; }
+.banner .subtitle { font-size: 14.5px; opacity: 0.95; margin-top: 8px; }
+.banner .meta { font-size: 12px; opacity: 0.85; margin-top: 14px; font-family: 'Cascadia Code', 'Consolas', monospace; }
+h2 { color: #6b5cb5; font-size: 23px; margin: 40px 0 12px; padding-top: 12px; border-top: 1px solid rgba(107, 92, 181, 0.20); font-weight: 700; }
+h3 { color: #4a5066; font-size: 17px; margin-top: 22px; margin-bottom: 6px; font-weight: 600; }
+h4 { color: #ee845b; font-size: 14px; font-weight: 700; margin: 16px 0 6px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+p { margin: 8px 0 12px 0; font-size: 14.5px; }
+strong { color: #2c3142; }
+em { color: #4a5066; }
+code { background: #f3f0fa; color: #6b5cb5; padding: 1px 6px; border-radius: 3px; font-family: 'Cascadia Code', 'Consolas', monospace; font-size: 0.9em; }
+pre { background: #1a1a2e; color: #cfd8dc; padding: 14px 18px; border-radius: 6px; overflow-x: auto; font-size: 13px; margin: 8px 0; font-family: 'Cascadia Code', 'Consolas', monospace; line-height: 1.5; }
+pre code { background: transparent; color: inherit; padding: 0; }
+.eq { background: rgba(56, 178, 172, 0.08); border-left: 3px solid #38b2ac; padding: 12px 18px; margin: 10px 0; text-align: center; font-family: 'Cambria Math', 'Cambria', Georgia, serif; font-size: 16px; color: #1a6b65; border-radius: 0 5px 5px 0; }
+.callout { margin: 14px 0; padding: 12px 18px; background: rgba(56, 178, 172, 0.08); border-left: 4px solid #38b2ac; border-radius: 0 6px 6px 0; color: #2c8a83; font-style: italic; font-size: 14px; line-height: 1.5; }
+.callout strong { color: #1a6b65; }
+table { border-collapse: collapse; width: 100%; margin: 14px 0; background: #ffffff; box-shadow: 0 2px 6px rgba(107, 92, 181, 0.10); border-radius: 6px; overflow: hidden; font-size: 13.5px; }
+th { background: #6b5cb5; color: #ffffff; font-weight: 700; text-align: left; padding: 10px 14px; font-size: 12.5px; }
+td { padding: 8px 14px; border-top: 1px solid rgba(107, 92, 181, 0.10); vertical-align: top; }
+tr:nth-child(even) td { background: rgba(107, 92, 181, 0.03); }
+ul, ol { margin: 8px 0 14px 24px; padding: 0; }
+li { margin-bottom: 4px; font-size: 14.5px; }
+li strong { color: #2c3142; }
+hr { border: none; border-top: 1px solid rgba(107, 92, 181, 0.2); margin: 36px 0; }
+.toc { background: #ffffff; border-radius: 8px; padding: 16px 24px; margin-bottom: 28px; box-shadow: 0 2px 8px rgba(107, 92, 181, 0.10); border-left: 4px solid #6b5cb5; }
+.toc h3 { color: #6b5cb5; margin-top: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+.toc ol { margin: 8px 0 0 20px; font-size: 13.5px; }
+.toc a { color: #4a5066; text-decoration: none; }
+.toc a:hover { color: #6b5cb5; text-decoration: underline; }
+.part-banner { background: #f0ebfa; color: #6b5cb5; padding: 18px 22px; margin: 36px 0 16px 0; border-radius: 8px; font-weight: 700; font-size: 17px; border-left: 5px solid #6b5cb5; }
+.part-banner .sub { display: block; font-weight: normal; font-size: 13px; color: #4a5066; margin-top: 4px; font-style: italic; }
+@media (max-width: 720px) {
+  .layout { padding: 20px 18px 50px 18px; }
+  .banner { padding: 22px 18px; margin: 0 -18px 22px -18px; }
+  table { font-size: 12px; }
+  pre { font-size: 11.5px; padding: 10px 12px; }
+}
+</style>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], processEscapes: true, tags: 'none' },
+  options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div class="layout">
+
+<div class="banner">
+  <h1>CLIM-715 Ground Flux — Experiment Cheat-Sheet</h1>
+  <div class="subtitle">Everything you need to explain the experiment in one sitting. Test 1 deep-dive included.</div>
+  <div class="meta">Source: run_experiments.py + modified_full_report_1.docx. Built 2026-05-11.</div>
+</div>
+
+<div class="toc">
+<h3>Contents</h3>
+<ol>
+<li><a href="#big-picture">The Big Picture (30 seconds)</a></li>
+<li><a href="#sequence">Sequence of Steps</a></li>
+<li><a href="#substrates">The Three Substrates</a></li>
+<li><a href="#governing-eq">The Governing Equation</a></li>
+<li><a href="#schemes">The Three Schemes (the θ-method)</a></li>
+<li><a href="#bcs">Boundary Conditions: Top and Bottom</a></li>
+<li><a href="#vn">Von Neumann Stability Analysis</a></li>
+<li><a href="#two-tests">The Two Experiments — Test 1 and Test 2</a></li>
+<li><a href="#algorithm">One-Time-Step Algorithm</a></li>
+<li><a href="#results">What the Results Showed</a></li>
+<li><a href="#test1-setup">Test 1 — The Setup, in One Place</a></li>
+<li><a href="#test1-ic">Where Does the Initial Temperature Come From?</a></li>
+<li><a href="#harmonic-mean">What is harmonic_mean_lambda?</a></li>
+<li><a href="#test1-algorithm">Test 1 — Algorithm at Every Time Step</a></li>
+<li><a href="#test1-when">When Each Constraint Is Applied</a></li>
+<li><a href="#test1-step">Test 1 — One Concrete Δt = 60 s Step, with Numbers</a></li>
+<li><a href="#test1-why">Why This Matters for Verification</a></li>
+</ol>
+</div>
+
+<!-- =============================== -->
+
+<h2 id="big-picture">1. The Big Picture (30-second version)</h2>
+<p>We simulate one-dimensional heat conduction through three urban substrate columns (asphalt road, concrete roof, bare soil), each 2 metres deep, driven by a synthetic diurnal cycle of solar radiation and air temperature. We solve the heat equation using three different finite-difference schemes (FTCS, BTCS, Crank–Nicolson) at three different time steps (15 s, 60 s, 600 s). The surface temperature is computed at every step by solving the surface energy balance with Newton iteration. We then measure how the schemes' surface ground heat flux deviates from a fine-Δt reference.</p>
+<div class="callout"><strong>Headline finding:</strong> at Δt = 600 s, BTCS over-amplifies the diurnal G amplitude by 40 % on asphalt and concrete, 19 % on bare soil; Crank–Nicolson halves these errors. The dominant error is operator-splitting between the column and SEB updates.</div>
+
+<h2 id="sequence">2. Sequence of Steps — How the Experiment Runs</h2>
+<p>The whole project follows this order; everything else is detail.</p>
+<ol>
+<li><strong>Define substrates.</strong> Three layered stacks of $(\text{depth}, \lambda, C)$.</li>
+<li><strong>Build the grid.</strong> Per-substrate stretched grid (top cell 0.5 cm for asphalt/concrete, 1 cm for bare soil; geometric stretch 1.18–1.25, bottom cell ≈ 30 cm at $z = 2$ m).</li>
+<li><strong>Initialize.</strong> Set every cell from the analytical damping-depth profile evaluated at $t = 0$.</li>
+<li><strong>Time-step loop.</strong> For each step:
+  <ul>
+    <li>Sub-step A: advance the column from time $n$ to $n+1$ using the θ-method, holding $T_s^0$ fixed.</li>
+    <li>Sub-step B: solve the surface energy balance for new $T_s^0$ via Newton iteration, holding the column fixed.</li>
+    <li>Apply bottom BC: $T_{N-1} = T_{N-2}$ (zero-flux Neumann).</li>
+  </ul>
+</li>
+<li><strong>Integration period.</strong> 2 diurnal cycles. Use day-2 for all diagnostics.</li>
+<li><strong>Compare.</strong> Each scheme's day-2 $G(t)$ and $T_s^0(t)$ against the reference (FTCS at Δt = 15 s).</li>
+<li><strong>Diagnose.</strong> RMSE of $T_s^0$, peak-amplitude ratio of $G$, daily-storage ratio.</li>
+</ol>
+
+<h2 id="substrates">3. The Three Substrates</h2>
+<p>Each substrate is a 2 m deep column of layered material with prescribed albedo at the top.</p>
+<table>
+<thead><tr><th>Substrate</th><th>Layers (depth, λ W/m/K, C ×10⁶ J/m³/K)</th><th>Albedo α<sub>s</sub></th><th>d (cm)</th></tr></thead>
+<tbody>
+<tr><td>Asphalt road (4 layers)</td><td>Asphalt 0–5 cm (0.75, 2.0); aggregate 5–25 cm (1.40, 2.4); dry soil 25–100 cm (0.30, 1.3); subsoil 100–200 cm (0.50, 1.8)</td><td>0.10</td><td>10.2</td></tr>
+<tr><td>Concrete roof (3 layers)</td><td>Concrete deck 0–10 cm (1.50, 2.1); mineral-wool insulation 10–20 cm (0.04, 0.08); drywall/wood 20–200 cm (0.15, 1.5)</td><td>0.30</td><td>14.0</td></tr>
+<tr><td>Bare soil (uniform)</td><td>Sandy loam 0–200 cm (0.30, 1.3)</td><td>0.20</td><td>8.0</td></tr>
+</tbody></table>
+<div class="callout"><strong>$d = \sqrt{2\kappa/\omega}$</strong> is the diurnal damping depth, the e-folding depth of the daily wave. Computed from each substrate's top-layer $\kappa = \lambda/C$.</div>
+
+<h2 id="governing-eq">4. The Governing Equation (the physics)</h2>
+<p>The heat equation in conductivity form (preserves discrete heat conservation across layer interfaces):</p>
+<div class="eq">$$C_s(z) \, \frac{\partial T_s}{\partial t} \;=\; \frac{\partial}{\partial z}\!\left[ \lambda_s(z) \, \frac{\partial T_s}{\partial z} \right]$$</div>
+<p>In words: the volumetric heat capacity times the rate of temperature change at depth $z$ equals the spatial divergence of the conductive heat flux. Heat piles up wherever more flux enters from above than exits below.</p>
+
+<h2 id="schemes">5. The Three Schemes — One Equation, Three α Values</h2>
+<p>All three time-stepping schemes are special cases of a single θ-method update equation:</p>
+<div class="eq">$$C_j \Delta z_j \, \frac{T_j^{n+1} - T_j^n}{\Delta t} \;=\; \alpha \, [-\partial G/\partial z]^{n+1} \;+\; (1-\alpha)\,[-\partial G/\partial z]^{n}$$</div>
+<p>where the flux-divergence is computed cell-by-cell from $G_{j+1/2} = \lambda_{j+1/2}(T_j - T_{j+1})/\Delta z$.</p>
+<table>
+<thead><tr><th>α</th><th>Scheme</th><th>Stability</th><th>Order in Δt</th><th>Per-step cost</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>FTCS (Forward in Time)</td><td>Conditionally stable: $\nu \le 1/2$</td><td>1st</td><td>Cheap (vectorised arithmetic)</td></tr>
+<tr><td>1/2</td><td>Crank–Nicolson</td><td>Unconditionally stable</td><td>2nd</td><td>Tridiagonal solve, $O(N)$</td></tr>
+<tr><td>1</td><td>BTCS (Backward in Time)</td><td>Unconditionally stable, damping</td><td>1st</td><td>Tridiagonal solve, $O(N)$</td></tr>
+</tbody></table>
+<div class="callout"><strong>$\nu = \kappa \Delta t / \Delta z^2$</strong> is the dimensionless diffusion number — the diffusion analogue of the Courant–Friedrichs–Lewy number.</div>
+
+<h2 id="bcs">6. Boundary Conditions — What Closes the System</h2>
+<p>The heat equation is second-order in $z$, so we need two BCs (one at each end of the column).</p>
+
+<h3>6a. Top BC — Surface Energy Balance (SEB) closure</h3>
+<p>The top of the column is closed by the requirement that the four surface fluxes balance to zero:</p>
+<div class="eq">$$R_n - H - LE - G = 0 \quad \text{(solved for } T_s^0\text{)}$$</div>
+<p>with each flux evaluated at the surface temperature $T_s^0$:</p>
+<ul>
+<li><strong>Net radiation:</strong> $R_n = (1 - \alpha_s)\,S_\downarrow + \varepsilon_s L_\downarrow - \varepsilon_s \sigma (T_s^0)^4$. ($\sigma = 5.67\times10^{-8}$ W/m²/K⁴)</li>
+<li><strong>Sensible heat:</strong> $H = \rho c_p (T_s^0 - T_a)/r_a$ where $r_a = 1/(C_H U) \approx 67$ s/m.</li>
+<li><strong>Latent heat:</strong> $LE = 0$ (strict-impervious assumption — no evaporation).</li>
+<li><strong>Ground heat:</strong> $G = \lambda_{1/2}(T_s^0 - T_1)/(z_1 - z_0)$ — from the top half-level.</li>
+</ul>
+<p>The $(T_s^0)^4$ term makes this equation nonlinear. Solved by Newton iteration:</p>
+<div class="eq">$$T_{s,\,\text{new}}^0 \;=\; T_{s,\,\text{old}}^0 \;-\; F(T_{s,\,\text{old}}^0)/F'(T_{s,\,\text{old}}^0)$$</div>
+<p>where $F = R_n - H - LE - G$. Typically converges in 3–4 iterations to $|\Delta T| < 10^{-4}$ K.</p>
+
+<h3>6b. Bottom BC — Zero-flux Neumann at $z = 2$ m</h3>
+<p>At the deepest face, the temperature gradient is set to zero:</p>
+<div class="eq">$$\frac{\partial T_s}{\partial z}\bigg|_{z=2\,\text{m}} = 0 \quad\Longleftrightarrow\quad G\big|_{z=2\,\text{m}} = 0 \quad\Longleftrightarrow\quad T_{N-1} = T_{N-2}$$</div>
+<p>Discretely, one line of code: the deepest cell mirrors the one above it. Justified because $z = 2$ m is 14–25 damping depths down, where the diurnal amplitude is already negligible (~$10^{-6}$ of the surface value).</p>
+
+<h2 id="vn">7. Von Neumann Stability Analysis — How We Used It</h2>
+<p>We used von Neumann analysis to <strong>predict</strong> which (scheme, Δt, substrate) combinations would blow up, then <strong>verified</strong> the prediction empirically.</p>
+
+<h3>7a. The procedure (four steps)</h3>
+<ol>
+<li>Substitute a Fourier mode $T_j^n = A^n \cdot e^{ikj\Delta z}$ into each scheme's update equation.</li>
+<li>Cancel common factors and solve for the per-step amplification factor $A$ as a function of $\nu$ and $k\Delta z$.</li>
+<li>Demand $|A| \le 1$ for every resolvable wavenumber, i.e., $k\Delta z \in [0, \pi]$.</li>
+<li>Worst case is always at $k\Delta z = \pi$ (the 2-Δz wave). Substitute and solve for the stability bound on $\nu$.</li>
+</ol>
+
+<h3>7b. Amplification factors at $k\Delta z = \pi$</h3>
+<table>
+<thead><tr><th>Scheme</th><th>$A$ at worst wave</th><th>$|A|$ over $\nu > 0$</th><th>Stability bound</th></tr></thead>
+<tbody>
+<tr><td>FTCS</td><td>$1 - 4\nu$</td><td>&gt; 1 when $\nu > 1/2$</td><td>Conditional: $\nu \le 1/2$</td></tr>
+<tr><td>BTCS</td><td>$1/(1+4\nu)$</td><td>Always in $(0, 1]$</td><td>Unconditional</td></tr>
+<tr><td>Crank–Nicolson</td><td>$(1-2\nu)/(1+2\nu)$</td><td>Always in $[-1, 1]$</td><td>Unconditional</td></tr>
+</tbody></table>
+
+<h3>7c. The 27-cell FTCS prediction</h3>
+<table>
+<thead><tr><th>Substrate (top κ, Δz₀)</th><th>$\nu$ at Δt=15s</th><th>$\nu$ at Δt=60s</th><th>$\nu$ at Δt=600s</th></tr></thead>
+<tbody>
+<tr><td>Bare soil ($2.31\!\times\!10^{-7}$ m²/s, 1.0 cm)</td><td>0.035 ✓</td><td>0.139 ✓</td><td>1.39 ✗ (mild)</td></tr>
+<tr><td>Asphalt road ($3.75\!\times\!10^{-7}$ m²/s, 0.5 cm)</td><td>0.225 ✓</td><td>0.900 ✗</td><td>9.00 ✗ (catastrophic)</td></tr>
+<tr><td>Concrete roof ($7.14\!\times\!10^{-7}$ m²/s, 0.5 cm)</td><td>0.428 ⚠</td><td>1.71 ✗</td><td>17.14 ✗ (catastrophic)</td></tr>
+</tbody></table>
+<div class="callout">Test 2 confirmed these predictions: FTCS blew up at Δt=60s on asphalt and concrete, at Δt=600s on all three substrates (mildly on soil). BTCS and CN completed every run.</div>
+
+<h2 id="two-tests">8. The Two Experiments — Test 1 and Test 2</h2>
+
+<h3>Test 1 — Verification (does the solver work?)</h3>
+<table>
+<thead><tr><th>Setting</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>Substrate</td><td>Uniform sandy loam (1 material, no layers)</td></tr>
+<tr><td>Grid</td><td>Uniform Δz = 1 cm everywhere</td></tr>
+<tr><td>Surface BC</td><td>Prescribed: $T_s^0(t) = 292.5 + 7.5\,\cos(\omega t)$ K</td></tr>
+<tr><td>Bottom BC</td><td>Zero-flux Neumann at $z$ = 2 m</td></tr>
+<tr><td>Reference</td><td>Closed-form analytical damping-depth solution</td></tr>
+<tr><td>Integration</td><td>5 diurnal cycles; day-5 used for diagnostics</td></tr>
+<tr><td>Configurations</td><td>6: FTCS at $\nu$=0.4 and $\nu$=0.6; BTCS and CN at Δt=300 s and 900 s</td></tr>
+<tr><td>Question answered</td><td>Does the solver reproduce the textbook analytical answer? (Yes.)</td></tr>
+</tbody></table>
+
+<h3>Test 2 — Prognostic SEB (what we actually wanted to know)</h3>
+<table>
+<thead><tr><th>Setting</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>Substrate</td><td>Three: asphalt road, concrete roof, bare soil</td></tr>
+<tr><td>Grid</td><td>Stretched per-substrate: top 0.5–1 cm, geometric stretch 1.18–1.25, bottom ≈ 30 cm</td></tr>
+<tr><td>Surface BC</td><td>Prognostic: $T_s^0$ from SEB Newton iteration</td></tr>
+<tr><td>Bottom BC</td><td>Zero-flux Neumann at $z$ = 2 m</td></tr>
+<tr><td>Reference</td><td>FTCS at Δt = 15 s on the same substrate</td></tr>
+<tr><td>Integration</td><td>2 diurnal cycles; day-2 used for diagnostics</td></tr>
+<tr><td>Configurations</td><td>27: 3 substrates × 3 schemes × 3 Δt (15 / 60 / 600 s)</td></tr>
+<tr><td>Question answered</td><td>How do FTCS, BTCS, CN compare at operational Δt on real urban substrates?</td></tr>
+</tbody></table>
+
+<h2 id="algorithm">9. Algorithm — One Time Step (general form for Test 2)</h2>
+<pre>for step in range(N_steps):
+    # SUB-STEP A: column update (theta-method)
+    G_half = lambda_half * (T - T_neighbour) / dz_centre     # fluxes at half-levels
+    if alpha == 0:
+        # FTCS - explicit, no linear system
+        T_new = T + dt / (C * dz) * (G_half[:-1] - G_half[1:])
+    else:
+        # BTCS (alpha=1) or CN (alpha=0.5) - implicit, tridiagonal solve
+        A_band, b = build_tridiagonal_system(T, alpha, dt, dz, lambda_half, C)
+        T_new = scipy.linalg.solve_banded((1, 1), A_band, b)
+
+    # Apply bottom BC (zero-flux Neumann)
+    T_new[N-1] = T_new[N-2]
+
+    # SUB-STEP B: SEB update (Newton iteration for new T_s^0)
+    Ts0 = Ts0_old
+    for _ in range(MAX_ITER):
+        F  = R_n(Ts0) - H(Ts0) - LE - G(Ts0, T_new[1])
+        dF = dR_n/dT - dH/dT - dG/dT
+        dTs = -F / dF
+        Ts0 = Ts0 + dTs
+        if abs(dTs) &lt; 1e-4: break
+
+    # Update top cell to the new surface temperature
+    T_new[0] = Ts0
+    T = T_new
+    t = t + dt
+    record(Ts0, G_half[0])</pre>
+<div class="callout"><strong>Order of operations is the key design choice:</strong> column FIRST (holding $T_s^0$ fixed), then SEB SECOND (holding column fixed). This is the operator splitting that produces the first-order error analysed in §5.2 of the report.</div>
+
+<h2 id="results">10. What the Results Showed (one-page summary)</h2>
+
+<h3>From Test 1 (verification)</h3>
+<ul>
+<li>FTCS at $\nu$ = 0.4: RMSE_T = 0.007 K — essentially exact.</li>
+<li>FTCS at $\nu$ = 0.6: <strong>BLEW UP at step 53</strong> — exactly as von Neumann predicted.</li>
+<li>BTCS error grows linearly with Δt (first-order). CN error stays flat (second-order behaviour here).</li>
+<li>Conclusion: solver passes verification. Trust it on Test 2.</li>
+</ul>
+
+<h3>From Test 2 (prognostic SEB)</h3>
+<ul>
+<li>At Δt = 15 s: all three schemes agree to line-thickness on every substrate. Control condition.</li>
+<li>At Δt = 60 s: FTCS blows up on asphalt and concrete. BTCS and CN run to completion.</li>
+<li>At Δt = 600 s: FTCS catastrophically unstable on asphalt and concrete; mildly unstable on soil. BTCS over-amplifies the diurnal G amplitude by <strong>40% / 41% / 19%</strong> (asphalt / roof / soil). CN halves these errors to <strong>21% / 26% / 10%</strong>.</li>
+<li>Δt-refinement ratios: all six BTCS and CN values cluster in $[8.2, 10.2]$ — first-order in Δt for both schemes, even though CN is intrinsically second-order. Smoking gun for operator-splitting error.</li>
+<li>SHAP attribution on 150-column synthetic ensemble: $\kappa_{\rm top}$ is the dominant predictor, $R^2 = 0.92$ from $\kappa_{\rm top}$ alone.</li>
+<li>Daily storage integral preserved within ±5% across all schemes — over-amplification is symmetric, so daily-mean UHI is preserved but diurnal range is biased.</li>
+</ul>
+
+<!-- ============================================== -->
+<div class="part-banner">PART II — Test 1 Deep Dive
+<span class="sub">Step-by-step walkthrough of the verification experiment. Every number, every line of the algorithm, every boundary-condition application.</span></div>
+
+<h2 id="test1-setup">11. Test 1 — The Setup, in One Place</h2>
+<p>Test 1 is the simplest possible configuration. Use it to understand the solver before tackling Test 2.</p>
+<table>
+<thead><tr><th>Setting</th><th>Value</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td>Substrate</td><td>Uniform sandy loam (single material)</td><td>No layer jumps</td></tr>
+<tr><td>λ (conductivity)</td><td>0.30 W/m/K</td><td>Standard sandy-loam value</td></tr>
+<tr><td>C (heat capacity)</td><td>$1.3 \times 10^{6}$ J/m³/K</td><td>Standard sandy-loam value</td></tr>
+<tr><td>$\kappa = \lambda/C$</td><td>$2.31 \times 10^{-7}$ m²/s</td><td>Derived</td></tr>
+<tr><td>$d = \sqrt{2\kappa/\omega}$ (damping depth)</td><td>0.0797 m = 7.97 cm</td><td>Daily wave decays to 37% at this depth</td></tr>
+<tr><td>Grid</td><td>Uniform $\Delta z$ = 1 cm, 201 cells ($z$ = 0, 1, 2, ..., 200 cm)</td><td>Clean analytical comparison</td></tr>
+<tr><td>$T_{\rm mean}$</td><td>292.5 K ( = 19.35 °C)</td><td>Daily-mean surface temperature</td></tr>
+<tr><td>$A_0$</td><td>7.5 K</td><td>Half the peak-to-trough surface swing</td></tr>
+<tr><td>$\omega$</td><td>$2\pi/86400 \approx 7.27\times 10^{-5}$ rad/s</td><td>One full cycle per day</td></tr>
+<tr><td><strong>Top BC</strong></td><td>$T_s^0(t) = 292.5 + 7.5\,\cos(\omega t)$ K [PRESCRIBED]</td><td>Set explicitly; no SEB needed</td></tr>
+<tr><td><strong>Bottom BC</strong></td><td>$T[N-1] = T[N-2]$ [zero-flux Neumann]</td><td>Damped signal already negligible</td></tr>
+<tr><td>Initial condition</td><td>Analytical damping-depth profile at $t = 0$</td><td>Skip spin-up</td></tr>
+<tr><td>Integration</td><td>5 days; day-5 used for diagnostics</td><td>Any transient has decayed</td></tr>
+</tbody></table>
+
+<h2 id="test1-ic">12. Where Does the Initial Temperature at Each Cell Come From?</h2>
+<p>The initial condition is applied <strong>once at $t = 0$</strong>. After that, the IC has no further role — the simulation is driven forward by the BCs and the θ-method update.</p>
+
+<h3>12a. The formula</h3>
+<p>We set every cell's temperature using the analytical damping-depth solution evaluated at $t = 0$:</p>
+<div class="eq">$$T(z, 0) \;=\; T_{\rm mean} \;+\; A_0 \cdot e^{-z/d} \cdot \cos(-z/d)$$</div>
+<p>Two pieces multiply $A_0$: the exponential envelope $e^{-z/d}$ which shrinks amplitude with depth, and the cosine $\cos(-z/d)$ which encodes the phase delay with depth.</p>
+
+<h3>12b. Worked-out initial values for Test 1</h3>
+<p>Plugging in $T_{\rm mean} = 292.5$ K, $A_0 = 7.5$ K, $d = 7.97$ cm:</p>
+<table>
+<thead><tr><th>Cell</th><th>Depth $z$ (cm)</th><th>$z/d$</th><th>$e^{-z/d}$</th><th>$\cos(-z/d)$</th><th>$T(z, 0)$ (K)</th></tr></thead>
+<tbody>
+<tr><td>Cell 0 (surface)</td><td>0</td><td>0.00</td><td>1.000</td><td>1.000</td><td>300.00</td></tr>
+<tr><td>Cell 1</td><td>1</td><td>0.125</td><td>0.882</td><td>0.992</td><td>299.07</td></tr>
+<tr><td>Cell 5</td><td>5</td><td>0.627</td><td>0.535</td><td>0.810</td><td>295.75</td></tr>
+<tr><td>Cell 8</td><td>8</td><td>1.00</td><td>0.368</td><td>0.540</td><td>294.00</td></tr>
+<tr><td>Cell 10 (≈ d)</td><td>10</td><td>1.255</td><td>0.286</td><td>0.310</td><td>293.16</td></tr>
+<tr><td>Cell 20</td><td>20</td><td>2.510</td><td>0.081</td><td>−0.808</td><td>292.01</td></tr>
+<tr><td>Cell 50</td><td>50</td><td>6.276</td><td>0.0019</td><td>0.999</td><td>292.51</td></tr>
+<tr><td>Cell 100</td><td>100</td><td>12.55</td><td>$3.5\times10^{-6}$</td><td>0.97</td><td>292.50</td></tr>
+<tr><td>Cell 200 (bottom)</td><td>200</td><td>25.10</td><td>$1.2\times10^{-11}$</td><td>0.99</td><td>292.50</td></tr>
+</tbody></table>
+<div class="callout">By cell 50 (50 cm down — about 6 damping depths), the initial $T$ is already indistinguishable from the daily mean 292.5 K. By cell 200 (2 m down), it is 292.500000... — flat to machine precision. That is why the column is 2 m deep: 14–25 damping depths is overkill, but it gives the bottom BC nothing physical to do.</div>
+
+<h3>12c. Why this IC and not just zero (or $T = T_{\rm mean}$) everywhere?</h3>
+<p>If we initialised every cell at $T = T_{\rm mean}$ uniformly, the column would not be in equilibrium with the diurnal forcing. The first few simulation days would be spent letting the daily wave penetrate from the surface and the column adjust. That spin-up phase is wasted compute. By starting from the analytical $t = 0$ profile, the column is already in quasi-equilibrium and day-2 (or day-5) diagnostics are clean.</p>
+<p>Note: "quasi-equilibrium" — not exact — because our numerical scheme is not the exact analytical solution. There is a tiny mismatch between the IC and what the numerical solver would have produced at $t = 0$ if it had been running forever. That mismatch decays within a few diurnal cycles, which is why we wait until day 5 (Test 1) or day 2 (Test 2) for diagnostics.</p>
+
+<h2 id="harmonic-mean">13. What is harmonic_mean_lambda?</h2>
+<p><code>harmonic_mean_lambda</code> is the effective thermal conductivity at a <strong>face between two adjacent cells</strong>. It is computed from the two cell-centre conductivities by the harmonic-mean formula:</p>
+<div class="eq">$$\lambda_{j+1/2} \;=\; \frac{2 \, \lambda_j \, \lambda_{j+1}}{\lambda_j + \lambda_{j+1}}$$</div>
+
+<h3>13a. Why harmonic mean (not arithmetic mean)?</h3>
+<p>Derivation: consider two materials in series, each obeying Fourier's law. In steady state, the SAME heat flux must flow through both. The temperature drop divides between them in inverse proportion to their conductivities. Solving gives the harmonic-mean formula, which guarantees the discrete flux at the face exactly matches the continuous flux.</p>
+<p>Numerical example — concrete deck ($\lambda$ = 1.50) on mineral-wool insulation ($\lambda$ = 0.04):</p>
+<ul>
+<li><strong>Arithmetic mean:</strong> $(1.50 + 0.04)/2 = 0.77$ — over-estimates the flux by a factor of 10.</li>
+<li><strong>Harmonic mean:</strong> $2 \cdot 1.50 \cdot 0.04 / (1.50 + 0.04) = 0.078$ — correctly captures the insulator's choke-point behaviour.</li>
+</ul>
+<div class="callout">The harmonic mean ensures the discrete code preserves heat conservation across material interfaces. Arithmetic mean would silently destroy energy conservation at every interface between materials with different λ.</div>
+
+<h3>13b. What does harmonic_mean_lambda equal for Test 1?</h3>
+<p>Test 1 uses a single uniform material (sandy loam with $\lambda$ = 0.30 everywhere). At every face $j+1/2$:</p>
+<div class="eq">$$\lambda_{j+1/2} \;=\; \frac{2 \cdot 0.30 \cdot 0.30}{0.30 + 0.30} \;=\; \frac{0.18}{0.60} \;=\; 0.30 \;\text{W/m/K}$$</div>
+<p>So for Test 1, the harmonic mean is <strong>trivial</strong> — every face has $\lambda$ = 0.30, the same value as every cell centre. The harmonic-mean formula does not do anything interesting here. But we still call the same function in the code, because the SAME solver runs for both Test 1 and Test 2; we do not have one solver for uniform substrates and a different one for layered substrates.</p>
+<p>For Test 2 (layered substrates), the harmonic mean matters at every layer interface.</p>
+
+<h2 id="test1-algorithm">14. Test 1 — The Algorithm at Every Time Step</h2>
+<p>Below is exactly what runs at every time step in Test 1, in order. Read it as a recipe.</p>
+
+<h3>Step 1: Compute the new prescribed surface temperature</h3>
+<p>Advance time, then plug into the prescribed BC formula:</p>
+<pre>t_new = t_old + dt
+T_s_0_new = T_mean + A_0 * cos(omega * t_new)</pre>
+<p>This is <strong>NOT solved by Newton iteration</strong> in Test 1 — it is just plugged in. The surface temperature for Test 1 is externally prescribed, not solved from the SEB.</p>
+
+<h3>Step 2: Compute the harmonic-mean λ at every face</h3>
+<pre>for j in range(N - 1):
+    lam_half[j] = 2 * lam[j] * lam[j+1] / (lam[j] + lam[j+1])
+# For Test 1: every lam_half[j] = 0.30 (uniform).
+# For Test 2: lam_half jumps at layer interfaces.</pre>
+<p>In practice, <code>lam_half</code> is precomputed ONCE at the start (it depends only on the substrate material distribution, not on $T$), so this step does not actually re-run every time.</p>
+
+<h3>Step 3: Update interior cells ($j = 1, 2, \ldots, N-2$) using the θ-method</h3>
+<p>The θ-method update equation:</p>
+<div class="eq">$$C \cdot \Delta z \cdot \frac{T_j^{n+1} - T_j^{n}}{\Delta t} \;=\; \alpha \cdot Q_j^{n+1} \;+\; (1-\alpha) \cdot Q_j^{n}$$</div>
+<p>where $Q_j$ is the net flux divergence at cell $j$:</p>
+<div class="eq">$$Q_j \;=\; \frac{\lambda_{j-1/2}(T_{j-1} - T_j)}{\Delta z} \;-\; \frac{\lambda_{j+1/2}(T_j - T_{j+1})}{\Delta z}$$</div>
+<p>Two cases:</p>
+<ul>
+<li><strong>$\alpha = 0$ (FTCS):</strong> the right-hand side has only OLD values (time level $n$). We just compute:
+<pre>T_new[j] = T[j] + nu * (T[j-1] - 2*T[j] + T[j+1])</pre>
+One pass through the array — cheap.</li>
+<li><strong>$\alpha = 1$ (BTCS) or $\alpha = 1/2$ (CN):</strong> the right-hand side has UNKNOWN $T_{\rm new}$ values too. We must solve a tridiagonal linear system $A \cdot T_{\rm new} = b$. <code>scipy.linalg.solve_banded</code> does this in $O(N)$.</li>
+</ul>
+
+<h3>Step 4: Apply the bottom BC at every step</h3>
+<pre>T_new[N-1] = T_new[N-2]   # zero-flux Neumann</pre>
+<p>Forces the gradient between the deepest two cells to zero → flux at the bottom face is zero. <strong>Reapplied at every step</strong> (not just once). Without this, the deep cells would drift.</p>
+
+<h3>Step 5: Apply the top BC at every step</h3>
+<pre>T_new[0] = T_s_0_new   # prescribed surface value from Step 1</pre>
+<p>Plug in the value computed in Step 1. <strong>Reapplied at every step</strong> (the prescribed surface temperature changes sinusoidally throughout the day). Without this, the top cell would freely drift and the simulation would not represent the diurnal forcing.</p>
+
+<h3>Step 6: Advance and record</h3>
+<pre>T = T_new
+t = t_new
+G_surface = lam_half[0] * (T[0] - T[1]) / dz   # surface ground heat flux
+record(t, T[0], G_surface, ...)
+if t &lt; t_end: goto Step 1</pre>
+
+<h2 id="test1-when">15. When Each Constraint Is Applied — Summary Table</h2>
+<p>The biggest source of confusion: <strong>are BCs applied once (initial) or at every step?</strong> Answer: BCs are applied at every step. The IC is applied only at $t = 0$.</p>
+<table>
+<thead><tr><th>Constraint</th><th>When applied?</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td>Initial condition (IC)</td><td><strong>ONCE, at $t = 0$ only</strong></td><td>Sets every cell's starting $T$ from the analytical damping-depth profile</td></tr>
+<tr><td>Top BC (Dirichlet, prescribed)</td><td><strong>AT EVERY TIME STEP</strong></td><td>Sets $T[0] = T_s^0(t_{\rm new}) = 292.5 + 7.5\,\cos(\omega \, t_{\rm new})$</td></tr>
+<tr><td>Bottom BC (zero-flux Neumann)</td><td><strong>AT EVERY TIME STEP</strong></td><td>Sets $T[N-1] = T[N-2]$, forcing zero flux at the bottom face</td></tr>
+<tr><td>Interior θ-method update</td><td><strong>AT EVERY TIME STEP</strong></td><td>Advances cells $j = 1..N-2$ from time $n$ to $n+1$</td></tr>
+<tr><td>Harmonic-mean λ at faces</td><td>ONCE, precomputed at start</td><td>Used at every step inside flux computation; depends only on material map</td></tr>
+</tbody></table>
+
+<h2 id="test1-step">16. Test 1 — Concrete Numbers for One Δt = 60 s Step</h2>
+<p>To make this absolutely concrete, here is what one Δt = 60 s step on Test 1 actually computes, starting from the analytical IC at $t = 0$:</p>
+
+<h3>Before the first step ($t = 0$)</h3>
+<ul>
+<li>$T[0] = 300.00$ K (set by the IC: $T_{\rm mean} + A_0 \cdot e^{0} \cdot \cos 0$)</li>
+<li>$T[1] = 299.07$ K, $T[5] = 295.75$ K, $T[10] = 293.16$ K, $T[200] = 292.50$ K (also from IC)</li>
+<li>All cells have $\lambda = 0.30$, so all $\lambda_{\rm half} = 0.30$ (computed once at start)</li>
+</ul>
+
+<h3>Step 1 — Compute new $T_s^0$</h3>
+<p>$t_{\rm new} = 60$ s. $\omega t_{\rm new} = 7.27\!\times\!10^{-5} \times 60 = 0.00436$ rad. $\cos(0.00436) \approx 0.99999$.</p>
+<p>So $T_{s,\,\rm new}^0 = 292.5 + 7.5 \times 0.99999 \approx 299.9999$ K. The surface temperature barely changes in 60 s (still near its peak).</p>
+
+<h3>Step 2 — Harmonic-mean λ</h3>
+<p>Already done at start: all $\lambda_{\rm half} = 0.30$. No work this step.</p>
+
+<h3>Step 3 — Update interior cells (FTCS, $\alpha = 0$)</h3>
+<p>For Test 1 at $\nu = 0.139$ (i.e., $\Delta t = 60$ s, well below the bound): per cell,</p>
+<div class="eq">$$T_{\rm new}[j] \;=\; T[j] \;+\; \nu \cdot (T[j-1] - 2\,T[j] + T[j+1])$$</div>
+<p>Worked example for cell $j = 5$:</p>
+<p>$T_{\rm new}[5] = 295.75 + 0.139 \cdot (296.50 - 2\cdot 295.75 + 294.78) = 295.75 + 0.139 \cdot (-0.22) = 295.72$ K</p>
+<p>Cell 5 cools slightly (~0.03 K in 60 s) — consistent with the daily wave propagating downward.</p>
+
+<h3>Step 4 — Apply bottom BC</h3>
+<p>$T_{\rm new}[200] = T_{\rm new}[199]$ ($\approx 292.50$ K both — bottom barely moves)</p>
+
+<h3>Step 5 — Apply top BC</h3>
+<p>$T_{\rm new}[0] = T_{s,\,\rm new}^0 = 299.9999$ K. Replaces whatever the interior update computed for cell 0.</p>
+
+<h3>Step 6 — Advance</h3>
+<p>$T \leftarrow T_{\rm new}$. $t \leftarrow 60$ s. Record $T[0] = 299.9999$ K, $G_{\rm surface} = 0.30 \cdot (299.9999 - T_{\rm new}[1])/0.01$ W/m². Loop back to Step 1.</p>
+
+<h2 id="test1-why">17. Why This Matters for Verification</h2>
+<p>After integrating for 5 days following the recipe above, we compare the day-5 cycle of $T(z=10 \text{ cm}, t)$ and $G(z=0, t)$ against the analytical damping-depth solution. The match should be excellent if:</p>
+<ul>
+<li>The IC was in quasi-equilibrium → no spin-up artefact remains by day 5.</li>
+<li>The harmonic-mean and flux divergence are correctly coded → no energy-conservation errors.</li>
+<li>The top BC is re-applied every step → the surface temperature tracks the prescribed sinusoid.</li>
+<li>The bottom BC zeroes the deep flux → no spurious leakage out the bottom.</li>
+<li>The chosen $\nu$ (for FTCS) is below 1/2 → no exponential noise growth.</li>
+</ul>
+<div class="callout">If any of these is broken, Test 1 fails. The whole point of Test 1 is to catch implementation bugs before we move on to Test 2 (whose results have no closed-form to check against).</div>
+
+<hr>
+<p style="text-align: center; color: #6b7186; font-size: 13px; font-style: italic; margin-top: 40px;">— End of cheat-sheet —</p>
+
+</div>
+</body>
+</html>

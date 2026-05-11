@@ -414,6 +414,270 @@ add_para(
     "intervals). Either would eliminate the leading first-order splitting error.",
 )
 
+# =================================================================
+# TEST 1 DEEP DIVE - addressing follow-up confusion
+# =================================================================
+
+doc.add_page_break()
+add_title("Part II — Test 1 Deep Dive", color=PURPLE, size=20)
+add_subtitle("Walking through Test 1 step by step. Every number, every line of the algorithm, every boundary condition application.")
+
+# -----------------------------------------------------------------
+add_h("11. Test 1 — The Setup, in One Place", level=1)
+add_para("Test 1 is the simplest possible configuration. Use it to understand the solver before tackling Test 2.")
+add_table(
+    ["Setting", "Value", "Why"],
+    [
+        ["Substrate",          "Uniform sandy loam (single material)",                  "No layer jumps to worry about"],
+        ["λ (conductivity)",   "0.30 W/m/K",                                            "Standard sandy-loam value"],
+        ["C (heat capacity)",  "1.3 × 10⁶ J/m³/K",                                      "Standard sandy-loam value"],
+        ["κ = λ/C (diffusivity)", "2.31 × 10⁻⁷ m²/s",                                    "Derived from λ, C"],
+        ["d = √(2κ/ω) (damping depth)", "0.0797 m = 7.97 cm",                            "Daily wave decays to 37 % at this depth"],
+        ["Grid",               "Uniform Δz = 1 cm, 201 cells (z = 0, 1, 2, ..., 200 cm)", "Clean comparison to analytical solution"],
+        ["T_mean",             "292.5 K (= 19.35 °C)",                                  "Daily-mean surface temperature"],
+        ["A_0",                "7.5 K",                                                 "Half the peak-to-trough surface swing"],
+        ["ω",                  "2π/86400 ≈ 7.27 × 10⁻⁵ rad/s",                          "One full diurnal cycle per day"],
+        ["Top BC",             "T_s⁰(t) = 292.5 + 7.5 · cos(ω t) K  [PRESCRIBED]",      "Set explicitly; no SEB needed"],
+        ["Bottom BC",          "T[N-1] = T[N-2]  [zero-flux Neumann at z = 2 m]",       "Damped signal already negligible"],
+        ["Initial condition",  "Analytical damping-depth profile at t = 0",             "Skip spin-up, start in quasi-equilibrium"],
+        ["Integration",        "5 days; day-5 used for diagnostics",                    "Any transient from non-perfect IC has decayed"],
+    ],
+)
+
+# -----------------------------------------------------------------
+add_h("12. Where Does the Initial Temperature at Each Cell Come From?", level=1)
+add_para("The initial condition is used ONCE at t = 0. After that, the IC has no further role — the simulation is driven forward by the BCs and the θ-method update.")
+
+add_h("12a. The formula", level=2)
+add_para("We set every cell's temperature using the analytical damping-depth solution evaluated at t = 0:")
+add_equation_block("T(z, 0)  =  T_mean  +  A₀ · exp(−z / d) · cos(−z / d)")
+add_para("Two pieces multiply A₀: the exponential envelope exp(−z/d) which shrinks amplitude with depth, and the cosine cos(−z/d) which encodes the phase delay with depth.")
+
+add_h("12b. Worked-out initial values for Test 1", level=2)
+add_para("Plugging in T_mean = 292.5 K, A_0 = 7.5 K, d = 7.97 cm:")
+add_table(
+    ["Cell", "Depth z (cm)", "z/d", "exp(−z/d)", "cos(−z/d)", "T(z, 0) (K)"],
+    [
+        ["Cell 0 (surface)", "0",   "0.00",  "1.000", "1.000",  "300.00"],
+        ["Cell 1",           "1",   "0.125", "0.882", "0.992",  "299.07"],
+        ["Cell 5",           "5",   "0.627", "0.535", "0.810",  "295.75"],
+        ["Cell 8",           "8",   "1.00",  "0.368", "0.540",  "294.00"],
+        ["Cell 10 (≈ d)",    "10",  "1.255", "0.286", "0.310",  "293.16"],
+        ["Cell 20",          "20",  "2.510", "0.081", "−0.808", "292.01"],
+        ["Cell 50",          "50",  "6.276", "0.0019", "0.999", "292.51"],
+        ["Cell 100",         "100", "12.55",  "3.5e-6", "0.97", "292.50"],
+        ["Cell 200 (bottom)", "200", "25.10", "1.2e-11", "0.99", "292.50"],
+    ],
+)
+add_callout(
+    "By cell 50 (50 cm down — about 6 damping depths), the initial T is already indistinguishable "
+    "from the daily mean 292.5 K. By cell 200 (2 m down), it is 292.500000... — flat to machine "
+    "precision. That is why the column is 2 m deep: 14-25 damping depths is overkill, but it gives "
+    "the bottom BC nothing physical to do."
+)
+
+add_h("12c. Why this IC and not just zero (or T = T_mean) everywhere?", level=2)
+add_para(
+    "If we initialised every cell at T = T_mean uniformly, the column would not be in equilibrium "
+    "with the diurnal forcing. The first few simulation days would be spent letting the daily wave "
+    "penetrate from the surface and the column adjust. That spin-up phase is wasted compute. By "
+    "starting from the analytical t = 0 profile, the column is already in quasi-equilibrium and "
+    "day-2 (or day-5) diagnostics are clean."
+)
+add_para(
+    "Note: \"quasi-equilibrium\" — not exact — because our numerical scheme is not the exact "
+    "analytical solution. There is a tiny mismatch between the IC and what the numerical solver "
+    "would have produced at t = 0 if it had been running forever. That mismatch decays within a "
+    "few diurnal cycles, which is why we wait until day 5 (Test 1) or day 2 (Test 2) for "
+    "diagnostics."
+)
+
+# -----------------------------------------------------------------
+add_h("13. What is harmonic_mean_lambda?", level=1)
+add_para(
+    "harmonic_mean_lambda is the effective thermal conductivity at a FACE between two adjacent cells. "
+    "It is computed from the two cell-centre conductivities by the harmonic-mean formula:"
+)
+add_equation_block("λ_{j+½}  =  2 · λ_j · λ_{j+1} / (λ_j + λ_{j+1})")
+
+add_h("13a. Why harmonic mean (not arithmetic mean)?", level=2)
+add_para(
+    "Derivation: consider two materials in series, each obeying Fourier's law. In steady state, the "
+    "SAME heat flux must flow through both. The temperature drop divides between them in inverse "
+    "proportion to their conductivities. Solving gives the harmonic-mean formula, which guarantees "
+    "the discrete flux at the face exactly matches the continuous flux."
+)
+add_para("Numerical example — concrete deck (λ = 1.50) on mineral-wool insulation (λ = 0.04):")
+add_bullet("Arithmetic mean: (1.50 + 0.04) / 2 = 0.77 — over-estimates the flux by a factor of 10.",
+           bold_lead="Arithmetic.")
+add_bullet("Harmonic mean: 2 · 1.50 · 0.04 / (1.50 + 0.04) = 0.078 — correctly captures the insulator's choke-point behaviour.",
+           bold_lead="Harmonic.")
+add_callout(
+    "The harmonic mean ensures the discrete code preserves heat conservation across material "
+    "interfaces. Arithmetic mean would silently destroy energy conservation at every interface "
+    "between materials with different λ."
+)
+
+add_h("13b. What does harmonic_mean_lambda equal for Test 1?", level=2)
+add_para(
+    "Test 1 uses a single uniform material (sandy loam with λ = 0.30 everywhere). At every face j+½:"
+)
+add_equation_block("λ_{j+½}  =  2 · 0.30 · 0.30 / (0.30 + 0.30)  =  0.18 / 0.60  =  0.30 W/m/K")
+add_para(
+    "So for Test 1, the harmonic mean is trivial — every face has λ = 0.30, the same value as every "
+    "cell centre. The harmonic-mean formula does not do anything interesting here. But we still call "
+    "the same function in the code, because the SAME solver runs for both Test 1 and Test 2; we do "
+    "not have one solver for uniform substrates and a different one for layered substrates."
+)
+add_para("For Test 2 (layered substrates), the harmonic mean matters at every layer interface.")
+
+# -----------------------------------------------------------------
+add_h("14. Test 1 — The Algorithm at Every Time Step", level=1)
+add_para(
+    "Below is exactly what runs at every time step in Test 1, in order. Read it as a recipe."
+)
+
+add_h("Step 1: Compute the new prescribed surface temperature", level=2)
+add_para("Advance time, then plug into the prescribed BC formula:")
+add_code_block([
+    "t_new = t_old + dt",
+    "T_s_0_new = T_mean + A_0 * cos(omega * t_new)",
+])
+add_para(
+    "This is NOT solved by Newton iteration in Test 1 — it is just plugged in. The surface "
+    "temperature for Test 1 is externally prescribed, not solved from the SEB."
+)
+
+add_h("Step 2: Compute the harmonic-mean λ at every face", level=2)
+add_code_block([
+    "for j in range(N - 1):",
+    "    lam_half[j] = 2 * lam[j] * lam[j+1] / (lam[j] + lam[j+1])",
+    "# For Test 1: every lam_half[j] = 0.30 (uniform).",
+    "# For Test 2: lam_half jumps at layer interfaces.",
+])
+add_para(
+    "In practice, lam_half is precomputed ONCE at the start (it depends only on the substrate "
+    "material distribution, not on T), so this step does not actually re-run every time."
+)
+
+add_h("Step 3: Update interior cells (j = 1, 2, ..., N−2) using the θ-method", level=2)
+add_para("The θ-method update equation:")
+add_equation_block("C · Δz · (T_j^(n+1) − T_j^n) / Δt  =  α · Q_j^(n+1)  +  (1−α) · Q_j^n")
+add_para("where Q_j is the net flux divergence at cell j:")
+add_equation_block("Q_j  =  ( λ_{j−½} · (T_{j−1} − T_j) / Δz )  −  ( λ_{j+½} · (T_j − T_{j+1}) / Δz )")
+
+add_para("Two cases:")
+add_bullet(
+    "the right-hand side has only OLD values (time level n). We just compute:\n"
+    "  T_new[j] = T[j] + (Δt / (C·Δz)) · ( λ_half[j-1]·(T[j-1]−T[j])/Δz − λ_half[j]·(T[j]−T[j+1])/Δz )\n"
+    "One pass through the array — cheap.",
+    bold_lead="α = 0 (FTCS):"
+)
+add_bullet(
+    "the right-hand side has UNKNOWN T_new values too (time level n+1). We must solve a tridiagonal linear system:\n"
+    "  A · T_new = b\n"
+    "where A is built from −α, 1 + 2α (something), and the bottom and top BCs, and b is built from T (old).\n"
+    "SciPy: T_new = scipy.linalg.solve_banded((1,1), A, b). O(N) cost.",
+    bold_lead="α = 1 (BTCS) or α = 1/2 (CN):"
+)
+
+add_h("Step 4: Apply the bottom BC at every step", level=2)
+add_code_block([
+    "T_new[N-1] = T_new[N-2]   # zero-flux Neumann",
+])
+add_para(
+    "Forces the gradient between the deepest two cells to zero → flux at the bottom face is zero. "
+    "Reapplied at every step (not just once). Without this, the deep cells would drift."
+)
+
+add_h("Step 5: Apply the top BC at every step", level=2)
+add_code_block([
+    "T_new[0] = T_s_0_new   # prescribed surface value from Step 1",
+])
+add_para(
+    "Plug in the value computed in Step 1. Reapplied at every step (the prescribed surface "
+    "temperature changes sinusoidally throughout the day). Without this, the top cell would freely "
+    "drift and the simulation would not represent the diurnal forcing."
+)
+
+add_h("Step 6: Advance and record", level=2)
+add_code_block([
+    "T = T_new",
+    "t = t_new",
+    "G_surface = lam_half[0] * (T[0] - T[1]) / dz   # surface ground heat flux",
+    "record(t, T[0], G_surface, ...)",
+    "if t < t_end: goto Step 1",
+])
+
+# -----------------------------------------------------------------
+add_h("15. When Each Constraint Is Applied — Summary Table", level=1)
+add_para(
+    "The biggest source of confusion is whether the BCs are \"initial\" (one-time) or \"applied at every "
+    "step\". Answer: BCs are applied at every step. The IC is applied only at t = 0."
+)
+add_table(
+    ["Constraint", "When applied?", "What it does"],
+    [
+        ["Initial condition (IC)",       "ONCE, at t = 0 only",          "Sets every cell's starting T from the analytical damping-depth profile"],
+        ["Top BC (Dirichlet, prescribed)", "AT EVERY TIME STEP",          "Sets T[0] to T_s⁰(t_new) = 292.5 + 7.5·cos(ω·t_new)"],
+        ["Bottom BC (zero-flux Neumann)",  "AT EVERY TIME STEP",          "Sets T[N-1] = T[N-2], forcing zero flux at the bottom face"],
+        ["Interior θ-method update",       "AT EVERY TIME STEP",          "Advances cells j = 1..N-2 from time n to n+1"],
+        ["Harmonic-mean λ at faces",       "ONCE, at the start (precomputed)", "Used at every step inside the flux computation; depends only on the material map"],
+    ],
+)
+
+# -----------------------------------------------------------------
+add_h("16. Test 1 — Concrete Numbers, Step by Step (one Δt = 60 s step)", level=1)
+add_para(
+    "To make this absolutely concrete, here is what one Δt = 60 s step on Test 1 actually computes, "
+    "starting from the analytical IC at t = 0:"
+)
+
+add_h("Before the first step (t = 0)", level=2)
+add_bullet("T[0] = 300.00 K (set by the IC: T_mean + A_0·exp(0)·cos(0))")
+add_bullet("T[1] = 299.07 K, T[5] = 295.75 K, T[10] = 293.16 K, T[200] = 292.50 K (also IC)")
+add_bullet("All cells have λ = 0.30, so all λ_half = 0.30 (computed once at start)")
+
+add_h("Step 1 — Compute new T_s⁰", level=2)
+add_para("t_new = 60 s. ω · t_new = (7.27e-5)(60) = 0.00436 rad. cos(0.00436) ≈ 0.99999.")
+add_bullet("T_s_0_new = 292.5 + 7.5 · 0.99999 ≈ 299.9999 K")
+add_bullet("So the surface temperature barely changes in 60 s (still very near its peak).")
+
+add_h("Step 2 — Harmonic-mean λ", level=2)
+add_para("Already done: all λ_half = 0.30. No work this step.")
+
+add_h("Step 3 — Update interior cells (using FTCS, α = 0)", level=2)
+add_para("For ν = 0.4 (the safe FTCS case in Test 1), ν = κΔt/Δz² = (2.31e-7)(60)/(0.01)² = 0.139. Take Δt = 60 s. Per cell:")
+add_para("T_new[j] = T[j] + ν · (T[j-1] − 2·T[j] + T[j+1])")
+add_para("Worked example for cell j = 5:")
+add_para("T_new[5] = 295.75 + 0.139 · (296.50 − 2·295.75 + 294.78) = 295.75 + 0.139 · (−0.22) = 295.72 K")
+add_para("So cell 5 cools slightly (~0.03 K in 60 s) — consistent with the daily wave propagating from above.")
+
+add_h("Step 4 — Apply bottom BC", level=2)
+add_para("T_new[200] = T_new[199] (≈ 292.50 K both — bottom barely moves)")
+
+add_h("Step 5 — Apply top BC", level=2)
+add_para("T_new[0] = T_s_0_new = 299.9999 K. Replaces whatever the interior update tried to compute for cell 0 (if anything).")
+
+add_h("Step 6 — Advance", level=2)
+add_para("T = T_new. t = 60 s. Record T[0]=299.9999 K, G_surface = 0.30 · (299.9999 − T_new[1]) / 0.01 W/m². Loop back to Step 1.")
+
+# -----------------------------------------------------------------
+add_h("17. Why This Matters for Verification", level=1)
+add_para(
+    "After integrating for 5 days following the recipe above, we compare the day-5 cycle of T(z=10cm, t) "
+    "and G(z=0, t) against the analytical damping-depth solution. The match should be excellent if:"
+)
+add_bullet("The IC was in quasi-equilibrium → no spin-up artefact remains by day 5.")
+add_bullet("The harmonic-mean and flux divergence are correctly coded → no energy-conservation errors.")
+add_bullet("The top BC is re-applied every step → the surface temperature tracks the prescribed sinusoid.")
+add_bullet("The bottom BC zeroes the deep flux → no spurious leakage out the bottom.")
+add_bullet("The chosen ν (for FTCS) is below 1/2 → no exponential noise growth.")
+add_callout(
+    "If any of these is broken, Test 1 fails. The whole point of Test 1 is to catch implementation "
+    "bugs before we move on to Test 2 (whose results have no closed-form to check against)."
+)
+
 # -----------------------------------------------------------------
 add_h("Appendix — The atmospheric forcing functions", level=1)
 add_para("Synthetic, fully reproducible, sinusoidal:")
