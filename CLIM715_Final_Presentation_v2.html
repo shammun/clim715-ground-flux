@@ -4185,16 +4185,19 @@ FEATURES.forEach(function(f, i) {
 //   - a relative .html path → rendered via iframe.src (existing standalone viz)
 // Any string ending in .html is treated as an external file.
 // ============================================================
-// SLIDE_ORDER for v2 — context-first redesign, report-figure edition.
-// Interactive widgets (window_von_neuman, window_delta_t, s3) and the
-// custom SVG result slides (s4, s5, s8, s9) were dropped in favour of the
-// 6 figures rendered for the corrected long report. Slide 16 keeps the
-// 3D substrate viz exactly where it sat in the previous v2 layout.
-// Slides 1-2: motivation. Slides 3-8: problem framing (column, equations,
-// SEB, substrates, BCs, IC). Slide 9: θ-method family. Slide 10: Figure 1
-// (Von Neumann amplification). Slides 11-13: experimental design. Slide 14:
-// Figure 2 (Test 1 verification). Slide 15: algorithm. Slide 16: 3D viz.
-// Slides 17-20: Figures 3-6 (results + attribution). Slide 21: Conclusions.
+// SLIDE_ORDER for v2 — results-focused redesign, 19 slides.
+// Slides 1-9: intro + problem framing (Title, UHI hook, column anatomy,
+// governing eq, SEB closure, substrates, BCs, IC, θ-method family).
+// Slides 10-14: the five report figures back-to-back (results).
+// Slides 15-16: the two report tables (numerical summary + smoking-gun
+// refinement ratios).
+// Slide 17: mechanism slide (κ_top should dominate — a-priori prediction).
+// Slide 18: Figure 6 (SHAP attribution — the prediction's empirical test).
+// Slide 19: Conclusions (four findings + UHI implication).
+//
+// Removed from this layout vs the previous 22-slide version: t6 / t7 / t8
+// (Test 1 vs Test 2 setup), t9 (two-sub-step algorithm slide), and the
+// 3D substrate viz. Those slides remain on disk and can be reinstated.
 var SLIDE_ORDER = [
     's0',                                              //  1: Title
     's1',                                              //  2: UHI hook — why G matters
@@ -4206,18 +4209,15 @@ var SLIDE_ORDER = [
     't5',                                              //  8: Initial condition + damping depth
     's2',                                              //  9: θ-method family (FTCS / CN / BTCS)
     'fig1_von_neumann.html',                          // 10: Figure 1 — Von Neumann amplification
-    't6',                                              // 11: Test 1 vs Test 2 — side-by-side
-    't7',                                              // 12: Test 1 setup (verification)
-    't8',                                              // 13: Test 2 setup + 27-cell matrix
-    'fig2_damping_depth.html',                        // 14: Figure 2 — Test 1 damping-depth verification
-    't9',                                              // 15: Two-sub-step algorithm
-    'CLIM715_Substrate_3D_Visualization_v3.html',     // 16: 3D substrate viz (kept per user request)
-    'fig3_ts_dt15.html',                              // 17: Figure 3 — Ts(t) at Δt = 15 s, all schemes agree
-    'fig4_g_dt600.html',                              // 18: Figure 4 — G(t) at Δt = 600 s, FTCS/BTCS/CN
-    'fig5_profile_asphalt.html',                      // 19: Figure 5 — vertical T profile in asphalt
-    'mechanism_kappa_top.html',                       // 20: Why κ_top should dominate — mechanism slide (bridge to Figure 6)
-    'fig6_shap.html',                                 // 21: Figure 6 — SHAP attribution
-    's7'                                               // 22: Conclusions
+    'fig2_damping_depth.html',                        // 11: Figure 2 — Test 1 damping-depth verification
+    'fig3_ts_dt15.html',                              // 12: Figure 3 — Ts(t) at Δt = 15 s, all schemes agree
+    'fig4_g_dt600.html',                              // 13: Figure 4 — G(t) at Δt = 600 s, FTCS/BTCS/CN
+    'fig5_profile_asphalt.html',                      // 14: Figure 5 — vertical T profile in asphalt
+    'table2_results.html',                            // 15: Table 2 — 27-cell cross-substrate summary
+    'table3_refinement_ratios.html',                  // 16: Table 3 — Δt-refinement ratios (smoking gun)
+    'mechanism_kappa_top.html',                       // 17: Why κ_top should dominate — mechanism slide
+    'fig6_shap.html',                                 // 18: Figure 6 — SHAP attribution result
+    's7'                                               // 19: Conclusions
 ];
 
 var totalSlides = SLIDE_ORDER.length;

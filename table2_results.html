@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Table 2 — Cross-substrate quantitative summary</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #eaf0f8; color: #2c3142;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .title-bar { padding: 20px 52px 6px; display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+  .badge { background: #6b5cb5; color: #fff; font-size: 10.5px; font-weight: 700; letter-spacing: 1.5px; padding: 4px 12px; border-radius: 4px; text-transform: uppercase; }
+  .slide-title { font-size: 22px; font-weight: 700; color: #2c3142; }
+  .headline { font-size: 14.5px; font-weight: 600; color: #ee845b; text-align: center; margin: 4px 52px 10px; flex-shrink: 0; line-height: 1.4; }
+  .stage { flex: 1; padding: 4px 36px 8px; display: flex; align-items: center; justify-content: center; min-height: 0; overflow: hidden; }
+  .table-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(107, 92, 181, 0.12);
+    border: 1px solid rgba(107, 92, 181, 0.08);
+    padding: 18px 22px;
+    max-width: 100%;
+    overflow: auto;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 12.5px;
+    font-variant-numeric: tabular-nums;
+  }
+  thead th {
+    background: rgba(107, 92, 181, 0.10);
+    color: #6b5cb5;
+    font-weight: 700;
+    text-align: center;
+    padding: 9px 8px;
+    border: 1px solid rgba(107, 92, 181, 0.20);
+    font-size: 12px;
+    letter-spacing: 0.3px;
+  }
+  thead th.sub {
+    background: rgba(56, 178, 172, 0.07);
+    color: #2c8a83;
+    font-size: 10.5px;
+    font-weight: 600;
+    font-style: italic;
+    text-transform: none;
+    letter-spacing: 0.2px;
+  }
+  tbody td {
+    border: 1px solid rgba(107, 92, 181, 0.15);
+    padding: 8px 9px;
+    text-align: center;
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    font-size: 11.5px;
+  }
+  tbody td.lbl {
+    text-align: left;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    font-weight: 600;
+    font-size: 12.5px;
+    color: #2c3142;
+    background: rgba(107, 92, 181, 0.04);
+  }
+  tbody tr.surface-asphalt td.lbl { color: #6b5cb5; }
+  tbody tr.surface-roof td.lbl { color: #c2492a; }
+  tbody tr.surface-soil td.lbl { color: #8b6f3a; }
+  tbody td.blew { color: #c2492a; font-weight: 700; background: rgba(194, 73, 42, 0.06); font-family: 'Segoe UI', Calibri, Geneva, sans-serif; letter-spacing: 0.4px; }
+  tbody td.ref { color: #6b7186; font-style: italic; }
+  tbody td.coarse-bad { background: rgba(238, 132, 91, 0.10); }
+  tbody td.coarse-better { background: rgba(56, 178, 172, 0.08); }
+  .legend {
+    margin: 0 36px 8px;
+    background: rgba(107, 92, 181, 0.05);
+    border-left: 3px solid #6b5cb5;
+    padding: 8px 14px;
+    border-radius: 4px;
+    font-size: 11.5px;
+    color: #2c3142;
+    line-height: 1.45;
+    flex-shrink: 0;
+  }
+  .legend b { color: #6b5cb5; }
+  .legend .a { color: #ee845b; font-weight: 700; }
+  .legend .b { color: #38b2ac; font-weight: 700; }
+  .legend .c { color: #c2492a; font-weight: 700; }
+  .footer-band {
+    margin: 0 36px 14px;
+    background: rgba(238, 132, 91, 0.10);
+    border-left: 4px solid #ee845b;
+    padding: 10px 18px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    font-size: 12.5px;
+    color: #2c3142;
+    line-height: 1.45;
+  }
+  .footer-band b { color: #c2492a; font-weight: 700; }
+  .footer-band em { color: #6b5cb5; font-style: normal; font-weight: 700; }
+
+  @media (max-width: 760px) {
+    .title-bar { padding: 30px 14px 6px; flex-wrap: wrap; gap: 8px; }
+    .slide-title { font-size: 16px; line-height: 1.25; }
+    .headline { margin: 4px 14px 8px; font-size: 12px; }
+    .stage { padding: 4px 12px; }
+    .legend, .footer-band { margin: 0 14px 10px; font-size: 11px; }
+    tbody td { font-size: 10px; padding: 5px 4px; }
+    thead th { font-size: 10px; padding: 6px 4px; }
+    body { padding-bottom: 80px; }
+  }
+</style>
+</head>
+<body>
+  <div class="title-bar">
+    <span class="badge">Table 2</span>
+    <span class="slide-title">Cross-substrate quantitative summary &mdash; the 27-cell matrix</span>
+  </div>
+  <div class="headline">Each cell: <span style="color:#ee845b">G amplitude / reference</span> &nbsp;/&nbsp; <span style="color:#38b2ac">RMSE T<sub>s</sub> (K)</span> &nbsp;/&nbsp; <span style="color:#c2492a">daily storage / reference</span>. Three patterns to watch: cross-substrate ordering, CN halving BTCS, storage preserved.</div>
+
+  <div class="stage">
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th rowspan="2">Substrate</th>
+            <th rowspan="2">Scheme</th>
+            <th colspan="3">A<sub>G</sub>/A<sub>ref</sub> &nbsp;/&nbsp; RMSE T<sub>s</sub> (K) &nbsp;/&nbsp; S/S<sub>ref</sub></th>
+          </tr>
+          <tr>
+            <th class="sub">&Delta;t = 15 s (reference)</th>
+            <th class="sub">&Delta;t = 60 s (mesoscale)</th>
+            <th class="sub">&Delta;t = 600 s (coarse stress-test)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="surface-asphalt">
+            <td class="lbl" rowspan="3">Asphalt road</td>
+            <td>FTCS</td>
+            <td class="ref">1.000 / 0.000 / 1.000 &nbsp;(ref)</td>
+            <td>1.000 / 0.003 / 1.000</td>
+            <td class="blew">BLEW UP</td>
+          </tr>
+          <tr class="surface-asphalt">
+            <td>BTCS</td>
+            <td>1.010 / 0.056 / 1.001</td>
+            <td>1.042 / 0.225 / 1.003</td>
+            <td class="coarse-bad"><b>1.400</b> / <b>2.104</b> / 1.033</td>
+          </tr>
+          <tr class="surface-asphalt">
+            <td>CN</td>
+            <td>1.005 / 0.028 / 1.000</td>
+            <td>1.021 / 0.114 / 1.002</td>
+            <td class="coarse-better"><b>1.211</b> / <b>1.115</b> / 1.017</td>
+          </tr>
+
+          <tr class="surface-roof">
+            <td class="lbl" rowspan="3">Concrete roof</td>
+            <td>FTCS</td>
+            <td class="ref">1.000 / 0.000 / 1.000 &nbsp;(ref)</td>
+            <td class="blew">BLEW UP</td>
+            <td class="blew">BLEW UP</td>
+          </tr>
+          <tr class="surface-roof">
+            <td>BTCS</td>
+            <td>1.015 / 0.113 / 1.000</td>
+            <td>1.061 / 0.450 / 0.999</td>
+            <td class="coarse-bad"><b>1.409</b> / <b>3.686</b> / 0.958</td>
+          </tr>
+          <tr class="surface-roof">
+            <td>CN</td>
+            <td>1.008 / 0.057 / 1.000</td>
+            <td>1.032 / 0.229 / 1.000</td>
+            <td class="coarse-better"><b>1.265</b> / <b>2.102</b> / 0.991</td>
+          </tr>
+
+          <tr class="surface-soil">
+            <td class="lbl" rowspan="3">Bare soil</td>
+            <td>FTCS</td>
+            <td class="ref">1.000 / 0.000 / 1.000 &nbsp;(ref)</td>
+            <td>1.001 / 0.002 / 1.000</td>
+            <td>1.017 / 0.049 / 1.001</td>
+          </tr>
+          <tr class="surface-soil">
+            <td>BTCS</td>
+            <td>1.005 / 0.013 / 1.000</td>
+            <td>1.019 / 0.053 / 1.001</td>
+            <td class="coarse-bad"><b>1.195</b> / <b>0.529</b> / 1.007</td>
+          </tr>
+          <tr class="surface-soil">
+            <td>CN</td>
+            <td>1.002 / 0.006 / 1.000</td>
+            <td>1.010 / 0.027 / 1.000</td>
+            <td class="coarse-better"><b>1.102</b> / <b>0.279</b> / 1.004</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer-band">
+    <b>Three patterns to read off the table:</b> &nbsp;(1) at &Delta;t = 600 s the cross-substrate RMSE ordering is consistent &mdash; soil &lt; asphalt &lt; roof &mdash; matching the &kappa;<sub>top</sub> story; &nbsp;(2) in every single cell <em>CN errors are about half of BTCS</em>, exactly as 2<sup>nd</sup>-order versus 1<sup>st</sup>-order accuracy predicts; &nbsp;(3) every storage ratio is within &plusmn;5&nbsp;% of unity even where amplitude is inflated by 40&nbsp;% &mdash; the <em>daily mean is preserved</em>, only the diurnal range is biased.
+  </div>
+
+<script>
+window.addEventListener('keydown', function (e) {
+  if (e.key === 'm' || e.key === 'M') {
+    if (window.parent !== window) window.parent.postMessage({type:'deck-nav', dir:'next'}, '*');
+  } else if (e.key === 'k' || e.key === 'K') {
+    if (window.parent !== window) window.parent.postMessage({type:'deck-nav', dir:'prev'}, '*');
+  }
+});
+</script>
+</body>
+</html>

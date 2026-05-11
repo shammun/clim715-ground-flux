@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Table 3 — Δt-refinement ratios (smoking gun for operator splitting)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #eaf0f8; color: #2c3142;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .title-bar { padding: 20px 52px 6px; display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+  .badge { background: #c2492a; color: #fff; font-size: 10.5px; font-weight: 700; letter-spacing: 1.5px; padding: 4px 12px; border-radius: 4px; text-transform: uppercase; }
+  .slide-title { font-size: 22px; font-weight: 700; color: #2c3142; }
+  .headline { font-size: 14.5px; font-weight: 600; color: #ee845b; text-align: center; margin: 4px 52px 10px; flex-shrink: 0; line-height: 1.45; }
+
+  .body { flex: 1; padding: 4px 36px 8px; display: grid; grid-template-columns: 1.05fr 1fr; gap: 18px; min-height: 0; }
+  .card { background: #ffffff; border-radius: 12px; box-shadow: 0 2px 12px rgba(107, 92, 181, 0.12); border: 1px solid rgba(107, 92, 181, 0.08); padding: 14px 18px; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+  .card h3 { font-size: 12.5px; font-weight: 700; color: #6b5cb5; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 10px; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+  thead th {
+    background: rgba(107, 92, 181, 0.10);
+    color: #6b5cb5; font-weight: 700;
+    text-align: center; padding: 9px 8px;
+    border: 1px solid rgba(107, 92, 181, 0.20);
+    font-size: 11.5px; letter-spacing: 0.2px;
+  }
+  tbody td {
+    border: 1px solid rgba(107, 92, 181, 0.15);
+    padding: 9px 10px;
+    text-align: center;
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    font-size: 13px;
+  }
+  tbody td.lbl {
+    text-align: left;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    font-weight: 600;
+    color: #2c3142;
+    background: rgba(107, 92, 181, 0.04);
+  }
+  tbody tr.surface-asphalt td.lbl { color: #6b5cb5; }
+  tbody tr.surface-roof td.lbl { color: #c2492a; }
+  tbody tr.surface-soil td.lbl { color: #8b6f3a; }
+  tbody td.ratio-cell {
+    background: rgba(238, 132, 91, 0.10);
+    font-weight: 700;
+    color: #c2492a;
+    font-size: 14px;
+  }
+
+  .interpretation { font-size: 13px; line-height: 1.55; color: #2c3142; }
+  .interpretation p { margin-bottom: 8px; }
+  .interpretation b { color: #c2492a; font-weight: 700; }
+  .interpretation em { color: #6b5cb5; font-style: normal; font-weight: 700; }
+  .interpretation .ten-vs-hundred {
+    background: rgba(56, 178, 172, 0.10);
+    border-left: 3px solid #38b2ac;
+    padding: 9px 14px;
+    border-radius: 4px;
+    margin: 8px 0 6px;
+    font-size: 12.5px;
+  }
+  .interpretation .ten-vs-hundred b { color: #2c8a83; font-weight: 700; }
+  .interpretation .observed {
+    font-size: 12.5px;
+    color: #6b5cb5;
+    font-weight: 600;
+    margin-top: 6px;
+  }
+  .order-comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 10px 0 6px;
+  }
+  .order-comparison .col {
+    background: #fcfcfe;
+    border: 1px dashed rgba(107, 92, 181, 0.30);
+    padding: 8px 12px;
+    border-radius: 6px;
+    text-align: center;
+  }
+  .order-comparison .col.expected { border-color: rgba(56, 178, 172, 0.40); background: rgba(56, 178, 172, 0.05); }
+  .order-comparison .col.observed { border-color: rgba(238, 132, 91, 0.40); background: rgba(238, 132, 91, 0.05); }
+  .order-comparison .lbl-sm { font-size: 10.5px; color: #6b7186; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; }
+  .order-comparison .big { font-family: 'Cascadia Code', 'Consolas', monospace; font-size: 24px; font-weight: 700; color: #2c3142; line-height: 1; }
+  .order-comparison .small { font-size: 11px; color: #6b7186; margin-top: 4px; }
+
+  .punchline {
+    margin: 0 36px 14px;
+    background: rgba(238, 132, 91, 0.12);
+    border-left: 4px solid #ee845b;
+    padding: 10px 18px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    font-size: 12.5px;
+    color: #2c3142;
+    line-height: 1.5;
+  }
+  .punchline b { color: #c2492a; font-weight: 700; }
+  .punchline em { color: #6b5cb5; font-style: normal; font-weight: 700; }
+
+  @media (max-width: 760px) {
+    .title-bar { padding: 30px 14px 6px; flex-wrap: wrap; gap: 8px; }
+    .slide-title { font-size: 16px; line-height: 1.25; }
+    .headline { margin: 4px 14px 8px; font-size: 12px; }
+    .body { grid-template-columns: 1fr; padding: 4px 14px; gap: 10px; }
+    .punchline { margin: 0 14px 14px; font-size: 12px; }
+    tbody td { font-size: 11px; }
+    body { padding-bottom: 80px; }
+  }
+</style>
+</head>
+<body>
+  <div class="title-bar">
+    <span class="badge">Table 3</span>
+    <span class="slide-title">&Delta;t-refinement ratios &mdash; the smoking gun for operator splitting</span>
+  </div>
+  <div class="headline">When &Delta;t scales by 10, RMSE scales by ~10 &mdash; for <em>both</em> BTCS and CN. CN's intrinsic 2<sup>nd</sup>-order accuracy would have given ~100; observing ~10 means the splitting error dominates.</div>
+
+  <div class="body">
+
+    <div class="card">
+      <h3>Day-2 surface T<sub>s</sub> RMSE on the three substrates</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Substrate</th>
+            <th>Scheme</th>
+            <th>RMSE at &Delta;t = 60 s</th>
+            <th>RMSE at &Delta;t = 600 s</th>
+            <th>Ratio</th>
+          </tr>
+          <tr>
+            <th></th>
+            <th></th>
+            <th style="font-style:italic; font-weight:500; color:#6b7186; font-size:10.5px;">(K)</th>
+            <th style="font-style:italic; font-weight:500; color:#6b7186; font-size:10.5px;">(K)</th>
+            <th style="font-style:italic; font-weight:500; color:#6b7186; font-size:10.5px;">600 / 60</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="surface-asphalt"><td class="lbl" rowspan="2">Asphalt road</td><td>BTCS</td><td>0.225</td><td>2.104</td><td class="ratio-cell">9.4</td></tr>
+          <tr class="surface-asphalt"><td>CN</td><td>0.114</td><td>1.115</td><td class="ratio-cell">9.8</td></tr>
+          <tr class="surface-roof"><td class="lbl" rowspan="2">Concrete roof</td><td>BTCS</td><td>0.450</td><td>3.686</td><td class="ratio-cell">8.2</td></tr>
+          <tr class="surface-roof"><td>CN</td><td>0.229</td><td>2.102</td><td class="ratio-cell">9.2</td></tr>
+          <tr class="surface-soil"><td class="lbl" rowspan="2">Bare soil</td><td>BTCS</td><td>0.053</td><td>0.529</td><td class="ratio-cell">9.9</td></tr>
+          <tr class="surface-soil"><td>CN</td><td>0.027</td><td>0.279</td><td class="ratio-cell">10.2</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>What the ratio tells us</h3>
+      <div class="interpretation">
+        <p>If <b>error &prop; &Delta;t<sup>p</sup></b>, then changing &Delta;t by 10x scales the error by 10<sup>p</sup>.</p>
+
+        <div class="order-comparison">
+          <div class="col expected">
+            <div class="lbl-sm">If CN's own error dominated</div>
+            <div class="big">~100</div>
+            <div class="small">CN is intrinsically 2<sup>nd</sup>-order: 10<sup>2</sup>&nbsp;=&nbsp;100</div>
+          </div>
+          <div class="col observed">
+            <div class="lbl-sm">What we actually observe</div>
+            <div class="big">~10</div>
+            <div class="small">Range 8.2&ndash;10.2: a 1<sup>st</sup>-order error in &Delta;t</div>
+          </div>
+        </div>
+
+        <p class="observed">CN's own 2<sup>nd</sup>-order accuracy is being <em>masked</em> by a separate error of order &Delta;t<sup>1</sup>.</p>
+
+        <div class="ten-vs-hundred">
+          <b>That separate error is the column &harr; SEB <em>Lie operator splitting</em>.</b> Lie splitting is 1<sup>st</sup>-order regardless of what scheme runs inside each sub-step, so both BTCS and CN inherit a ratio near 10.
+        </div>
+
+        <p>BTCS and CN errors at the same &Delta;t differ by a factor of ~2 &mdash; that's CN's &alpha;&nbsp;=&nbsp;&frac12; weight cancelling half of BTCS's post-swing operator evaluation, the prefactor of the same 1<sup>st</sup>-order splitting term.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="punchline">
+    <b>This single table licenses the rest of the discussion:</b> the operator-splitting framing in &sect;5.2, the &kappa;<sub>top</sub> prefactor argument on the next slide, and the SHAP attribution that follows. CN's <em>wasted</em> 2<sup>nd</sup>-order accuracy is the empirical fingerprint of the splitting error being the dominant numerical error in the whole coarse-&Delta;t experiment.
+  </div>
+
+<script>
+window.addEventListener('keydown', function (e) {
+  if (e.key === 'm' || e.key === 'M') {
+    if (window.parent !== window) window.parent.postMessage({type:'deck-nav', dir:'next'}, '*');
+  } else if (e.key === 'k' || e.key === 'K') {
+    if (window.parent !== window) window.parent.postMessage({type:'deck-nav', dir:'prev'}, '*');
+  }
+});
+</script>
+</body>
+</html>
