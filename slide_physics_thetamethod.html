@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #eaf0f8; color: #2c3142;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .title-bar {
+    padding: 24px 52px 12px;
+    display: flex; align-items: center; gap: 14px;
+    flex-shrink: 0;
+  }
+  .badge {
+    background: #6b5cb5; color: #fff;
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 4px 12px; border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .slide-title { font-size: 26px; font-weight: 700; color: #2c3142; }
+  .content {
+    flex: 1;
+    padding: 6px 52px 26px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 26px;
+    min-height: 0;
+  }
+  .col {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(107, 92, 181, 0.10);
+    border: 1px solid rgba(107, 92, 181, 0.06);
+    padding: 16px 22px 14px;
+    display: flex; flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .col h3 {
+    font-size: 12.5px; font-weight: 600;
+    color: #6b5cb5; letter-spacing: 0.4px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .eq {
+    font-family: 'Cambria Math', Georgia, serif;
+    font-size: 18px;
+    text-align: center;
+    margin: 6px 0 8px;
+    color: #2c3142;
+    letter-spacing: 0.2px;
+  }
+  .eq-block {
+    background: rgba(56, 178, 172, 0.06);
+    border-left: 3px solid #38b2ac;
+    padding: 10px 14px;
+    border-radius: 4px;
+    margin: 4px 0 12px;
+  }
+  .note {
+    font-size: 13px; color: #4a5066; line-height: 1.5;
+    margin: 6px 0;
+  }
+  .note b { color: #2c8a83; }
+  .note em { color: #6b5cb5; font-style: normal; font-weight: 600; }
+  .pills {
+    display: flex; gap: 10px; margin-top: 10px;
+    justify-content: center;
+  }
+  .pill {
+    border: 1.5px solid; border-radius: 8px;
+    padding: 6px 12px;
+    text-align: center;
+    flex: 1;
+    background: #fff;
+  }
+  .pill .alpha {
+    display: block;
+    font-family: 'Cambria Math', Georgia, serif;
+    font-size: 16px; font-weight: 700;
+  }
+  .pill .name {
+    display: block;
+    font-size: 11.5px; font-weight: 600;
+    margin-top: 2px;
+    letter-spacing: 0.4px;
+  }
+  .pill.ftcs { border-color: #c2492a; color: #c2492a; }
+  .pill.cn   { border-color: #38b2ac; color: #2c8a83; }
+  .pill.btcs { border-color: #6b5cb5; color: #6b5cb5; }
+  .diagram-wrap {
+    flex: 1; min-height: 0;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 8px;
+  }
+  svg.col-diagram { width: 100%; height: 100%; max-width: 320px; }
+  .bc-table {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 4px 12px;
+    font-size: 12.5px;
+    color: #4a5066;
+  }
+  .bc-table .lbl { font-weight: 600; color: #6b5cb5; }
+</style>
+</head>
+<body>
+  <div class="title-bar">
+    <span class="badge">Setup</span>
+    <span class="slide-title">1-D heat equation on a stretched grid + the &theta;-method family</span>
+  </div>
+  <div class="content">
+
+    <div class="col">
+      <h3>Governing equation &amp; discretisation</h3>
+      <div class="eq-block">
+        <div class="eq">C<sub>s</sub>(z) &part;T<sub>s</sub>/&part;t = &part;/&part;z [&lambda;<sub>s</sub>(z) &part;T<sub>s</sub>/&part;z]</div>
+      </div>
+      <div class="note">
+        <b>Conductivity form</b> preserves discrete heat content across material discontinuities, where &lambda; and C jump by orders of magnitude.
+      </div>
+      <div class="note">
+        Cell centres on a stretched grid (<em>&Delta;z<sub>1</sub> = 0.5&ndash;1 cm</em> at the surface, 30 cm at z = 2 m). Conductivity at half-levels via harmonic mean &lambda;<sub>j+&frac12;</sub> = 2 &lambda;<sub>j</sub> &lambda;<sub>j+1</sub> / (&lambda;<sub>j</sub> + &lambda;<sub>j+1</sub>) &mdash; preserves the flux across a &lambda; jump.
+      </div>
+      <div class="diagram-wrap">
+        <svg class="col-diagram" viewBox="0 0 320 250" preserveAspectRatio="xMidYMid meet">
+          <!-- Column outline -->
+          <rect x="100" y="20" width="120" height="210" fill="rgba(107,92,181,0.04)" stroke="#6b5cb5" stroke-width="1"/>
+          <!-- 5 cells -->
+          <line x1="100" y1="62"  x2="220" y2="62"  stroke="#9aa3b8" stroke-dasharray="3 2"/>
+          <line x1="100" y1="104" x2="220" y2="104" stroke="#9aa3b8" stroke-dasharray="3 2"/>
+          <line x1="100" y1="146" x2="220" y2="146" stroke="#9aa3b8" stroke-dasharray="3 2"/>
+          <line x1="100" y1="188" x2="220" y2="188" stroke="#9aa3b8" stroke-dasharray="3 2"/>
+          <!-- Cell centres -->
+          <circle cx="160" cy="41"  r="3.5" fill="#6b5cb5"/>
+          <circle cx="160" cy="83"  r="3.5" fill="#6b5cb5"/>
+          <circle cx="160" cy="125" r="3.5" fill="#6b5cb5"/>
+          <circle cx="160" cy="167" r="3.5" fill="#6b5cb5"/>
+          <circle cx="160" cy="209" r="3.5" fill="#6b5cb5"/>
+          <!-- Centre labels -->
+          <text x="184" y="44"  font-size="11" fill="#2c3142" font-style="italic">T<tspan baseline-shift="sub" font-size="9">1</tspan></text>
+          <text x="184" y="86"  font-size="11" fill="#2c3142" font-style="italic">T<tspan baseline-shift="sub" font-size="9">2</tspan></text>
+          <text x="184" y="128" font-size="11" fill="#2c3142" font-style="italic">T<tspan baseline-shift="sub" font-size="9">j</tspan></text>
+          <!-- Surface plate -->
+          <line x1="92" y1="20" x2="228" y2="20" stroke="#ee845b" stroke-width="3"/>
+          <text x="160" y="13" font-size="11" fill="#ee845b" text-anchor="middle" font-weight="700">surface T<tspan baseline-shift="sub" font-size="9">s</tspan><tspan>&deg;</tspan> (SEB Newton)</text>
+          <!-- Bottom -->
+          <line x1="92" y1="230" x2="228" y2="230" stroke="#9aa3b8" stroke-width="2"/>
+          <text x="160" y="244" font-size="11" fill="#6b7186" text-anchor="middle" font-style="italic">zero-flux: &part;T/&part;z = 0</text>
+          <!-- Half-level flux arrow -->
+          <line x1="64" y1="83"  x2="92" y2="83"  stroke="#38b2ac" stroke-width="2"/>
+          <polygon points="92,80 100,83 92,86" fill="#38b2ac"/>
+          <text x="58" y="86" font-size="10" fill="#2c8a83" text-anchor="end" font-weight="600">G<tspan baseline-shift="sub" font-size="8">j-&frac12;</tspan></text>
+          <line x1="64" y1="125" x2="92" y2="125" stroke="#38b2ac" stroke-width="2"/>
+          <polygon points="92,122 100,125 92,128" fill="#38b2ac"/>
+          <text x="58" y="128" font-size="10" fill="#2c8a83" text-anchor="end" font-weight="600">G<tspan baseline-shift="sub" font-size="8">j+&frac12;</tspan></text>
+          <!-- &lambda; jump annotation -->
+          <line x1="100" y1="104" x2="220" y2="104" stroke="#c2492a" stroke-width="1.5"/>
+          <text x="232" y="107" font-size="10" fill="#c2492a" font-weight="600">&lambda; jump</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="col">
+      <h3>The &theta;-method update</h3>
+      <div class="eq-block">
+        <div class="eq">C<sub>j</sub>&Delta;z<sub>j</sub> (T<sub>j</sub><sup>n+1</sup> &minus; T<sub>j</sub><sup>n</sup>)/&Delta;t =</div>
+        <div class="eq">&alpha; [&minus;&part;G/&part;z]<sup>n+1</sup> + (1&minus;&alpha;) [&minus;&part;G/&part;z]<sup>n</sup></div>
+      </div>
+      <div class="note">
+        One equation, three schemes: choose &alpha;.
+      </div>
+      <div class="pills">
+        <div class="pill ftcs"><span class="alpha">&alpha; = 0</span><span class="name">FTCS</span></div>
+        <div class="pill cn"><span class="alpha">&alpha; = &frac12;</span><span class="name">Crank&ndash;Nicolson</span></div>
+        <div class="pill btcs"><span class="alpha">&alpha; = 1</span><span class="name">BTCS</span></div>
+      </div>
+      <div class="note" style="margin-top:14px">
+        Implicit cases (&alpha; &gt; 0) need a tridiagonal solve each step &mdash; <b>O(N) cost</b> with the SciPy banded solver.
+      </div>
+      <div class="bc-table">
+        <span class="lbl">Top BC:</span>
+        <span>SEB closure R<sub>n</sub> &minus; H &minus; LE &minus; G = 0, solved for T<sub>s</sub><sup>0</sup> by Newton iteration to |&Delta;T| &lt; 10<sup>&minus;4</sup> K.</span>
+        <span class="lbl">Bottom BC:</span>
+        <span>Zero-flux Neumann at z = 2 m.</span>
+        <span class="lbl">Forcing:</span>
+        <span>S&darr; sinusoidal (1000 W m<sup>&minus;2</sup> peak), T<sub>a</sub> mean 292.5 K + 7.5 K cosine, peak at 14:00.</span>
+        <span class="lbl">Order of ops:</span>
+        <span>advance soil column with current T<sub>s</sub><sup>0</sup> &rarr; update T<sub>s</sub><sup>0</sup> from SEB with new T<sub>1</sub>.</span>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #eaf0f8; color: #2c3142;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .title-bar {
+    padding: 24px 52px 6px;
+    display: flex; align-items: center; gap: 14px;
+    flex-shrink: 0;
+  }
+  .badge {
+    background: #6b5cb5; color: #fff;
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 4px 12px; border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .slide-title { font-size: 24px; font-weight: 700; color: #2c3142; }
+  .headline {
+    font-size: 16px; font-weight: 600; color: #ee845b;
+    text-align: center; margin: 4px 52px 12px;
+    flex-shrink: 0; line-height: 1.4;
+  }
+  .content {
+    flex: 1;
+    margin: 0 52px 8px;
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 22px;
+    min-height: 0;
+  }
+  .plot-card, .interp-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(107, 92, 181, 0.10);
+    border: 1px solid rgba(107, 92, 181, 0.06);
+    padding: 12px 18px 8px;
+    display: flex; flex-direction: column;
+    min-height: 0; overflow: hidden;
+  }
+  .card-h {
+    font-size: 12.5px; font-weight: 600;
+    color: #6b5cb5; letter-spacing: 0.4px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  svg.shap { width: 100%; flex: 1; min-height: 0; }
+  .cat-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+    font-size: 10.5px;
+    color: #4a5066;
+    margin: 4px 0 2px;
+    flex-shrink: 0;
+  }
+  .cat-legend .leg-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+  }
+  .cat-legend .dot {
+    display: inline-block;
+    width: 14px; height: 10px;
+    border-radius: 2px;
+  }
+  .interp-card p {
+    font-size: 13px; color: #2c3142;
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+  .interp-card p b  { color: #c2492a; font-weight: 700; }
+  .interp-card p em { color: #6b5cb5; font-style: normal; font-weight: 600; }
+  .interp-card .setup {
+    background: rgba(56, 178, 172, 0.06);
+    border-left: 3px solid #38b2ac;
+    padding: 8px 12px; border-radius: 4px;
+    font-size: 12px; color: #4a5066;
+    line-height: 1.45;
+    margin-bottom: 10px;
+  }
+  .interp-card .setup .lbl {
+    display: block; color: #2c8a83;
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.4px;
+    margin-bottom: 2px;
+  }
+  .interp-card .key {
+    background: rgba(194, 73, 42, 0.08);
+    border-left: 3px solid #c2492a;
+    padding: 8px 12px; border-radius: 4px;
+    font-size: 13px; color: #2c3142;
+    line-height: 1.5;
+    margin-top: auto;
+  }
+  .interp-card .key b { color: #c2492a; font-weight: 700; }
+  .interp-card .stat-row {
+    display: flex; gap: 12px;
+    font-size: 11px;
+    margin-top: 4px;
+  }
+  .interp-card .stat-row .stat {
+    flex: 1; text-align: center;
+    padding: 4px 6px;
+    background: rgba(107, 92, 181, 0.06);
+    border-radius: 4px;
+  }
+  .interp-card .stat-row .v {
+    display: block;
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    font-size: 14px; font-weight: 700;
+    color: #2c8a83;
+    font-variant-numeric: tabular-nums;
+  }
+  .interp-card .stat-row .l {
+    display: block;
+    font-size: 9.5px; color: #6b7186;
+    text-transform: uppercase; letter-spacing: 0.4px;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+  .punch {
+    margin: 0 52px 22px;
+    text-align: center;
+    background: rgba(238, 132, 91, 0.10);
+    border-left: 3px solid #ee845b;
+    padding: 10px 18px; border-radius: 4px;
+    font-size: 14.5px; color: #2c3142;
+    line-height: 1.45; font-weight: 500;
+    flex-shrink: 0;
+  }
+  .punch b { color: #c2492a; font-weight: 700; }
+  .punch em { color: #6b5cb5; font-style: normal; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="title-bar">
+    <span class="badge">Independent attribution</span>
+    <span class="slide-title">SHAP on a 150-column synthetic ensemble</span>
+  </div>
+  <div class="headline">&kappa;<sub>top</sub> alone explains <b style="color:#c2492a">R&sup2; = 0.92</b> of the variance in BTCS coarse-&Delta;t error.</div>
+  <div class="content">
+
+    <div class="plot-card">
+      <div class="card-h">SHAP feature importance &mdash; mean |SHAP| over 150 columns</div>
+      <div class="cat-legend">
+        <span class="leg-item"><span class="dot" style="background:#2c8a83"></span>top-cell diffusivity (FTCS bound)</span>
+        <span class="leg-item"><span class="dot" style="background:#1565C0"></span>bulk admittance</span>
+        <span class="leg-item"><span class="dot" style="background:#ee845b"></span>layer interface</span>
+        <span class="leg-item"><span class="dot" style="background:#999999"></span>thickness</span>
+      </div>
+      <svg class="shap" id="shap" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+
+    <div class="interp-card">
+      <div class="card-h">Setup &amp; finding</div>
+      <div class="setup">
+        <span class="lbl">Synthetic ensemble</span>
+        N = 150 three-layer substrate columns sampled from a wide prior (&lambda; &isin; [0.05, 2.50] W m<sup>&minus;1</sup> K<sup>&minus;1</sup>; C &isin; [0.1, 3.0] &times; 10<sup>6</sup>).
+        BTCS &Delta;t = 600 s vs BTCS &Delta;t = 15 s reference, day-2 RMSE T<sub>s</sub>.
+        GradientBoostingRegressor + SHAP TreeExplainer.
+      </div>
+      <div class="stat-row">
+        <div class="stat"><span class="v">0.96</span><span class="l">in-sample R&sup2;</span></div>
+        <div class="stat"><span class="v">0.61</span><span class="l">5-fold CV R&sup2;</span></div>
+        <div class="stat"><span class="v">0.92</span><span class="l">&kappa;<sub>top</sub> alone R&sup2;</span></div>
+      </div>
+      <p style="margin-top:10px;">
+        After <em>&kappa;<sub>top</sub> is partialled out</em>, the strongest residual feature is bulk admittance
+        &mu;<sub>eff</sub> (mean |SHAP| = 0.082 K), with layer-interface descriptors smaller still.
+      </p>
+      <div class="key">
+        The same parameter that sets the FTCS stability bound (&kappa;<sub>top</sub>) also sets the
+        <b>prefactor of the BTCS coarse-&Delta;t splitting error</b>. Higher &kappa;<sub>top</sub>
+        &rarr; faster top-cell diffusion &rarr; larger T<sub>s</sub><sup>0</sup> swing per step
+        &rarr; bigger splitting error.
+      </div>
+    </div>
+
+  </div>
+  <div class="punch">
+    Reconciles the three-substrate ordering: soil &kappa;<sub>top</sub> 2.3 &times; 10<sup>&minus;7</sup>, asphalt 3.8 &times; 10<sup>&minus;7</sup>, concrete 7.1 &times; 10<sup>&minus;7</sup> &mdash; <em>error ordering follows &kappa;<sub>top</sub> ordering</em>.
+  </div>
+
+<script>
+"use strict";
+
+// =============================================================
+// SHAP feature importance — values from shap_summary.csv.
+// =============================================================
+var FEATURES = [
+  // κ_top bar uses the same teal as its stat tile on the right panel
+  // (R² = 0.92 column) so the visual coupling is immediate.
+  { key: 'kappa_top',        label: 'κ_top',                 cat: 'dom',   shap: 0.7085, color: '#2c8a83' },
+  { key: 'mu_eff',           label: 'μ_eff (admittance)',    cat: 'adm',   shap: 0.1962, color: '#1565C0' },
+  { key: 'max_contrast',     label: 'max λ contrast',        cat: 'iface', shap: 0.1791, color: '#ee845b' },
+  { key: 'h_top',            label: 'h_top',                 cat: 'thk',   shap: 0.1430, color: '#999999' },
+  { key: 'first_iface_depth',label: '1st interface depth',   cat: 'iface', shap: 0.1380, color: '#ee845b' },
+  { key: 'n_interfaces',     label: '# interfaces',          cat: 'iface', shap: 0.0383, color: '#ee845b' }
+];
+
+// =============================================================
+// SVG — horizontal bar chart with annotations.
+// =============================================================
+var IS_MOBILE = (typeof window !== 'undefined' && window.matchMedia &&
+                 window.matchMedia('(max-width: 760px)').matches);
+var SVG_W = 720;
+var SVG_H = IS_MOBILE ? 600 : 380;
+// PAD.left bumped on mobile so feature labels like "1st interface depth"
+// (longest text in this chart) don't clip off the left edge after the
+// 2.5x font scale-up.
+var PAD = IS_MOBILE
+  ? { top: 30, right: 80, bottom: 70, left: 320 }
+  : { top: 14, right: 80, bottom: 50, left: 170 };
+var PLOT_W = SVG_W - PAD.left - PAD.right;
+var PLOT_H = SVG_H - PAD.top - PAD.bottom;
+var X_MAX = 0.80;
+var FS_MUL = IS_MOBILE ? 2.5 : 1.5;
+function fs(n)  { return String(Math.round(n * FS_MUL)); }
+function off(n) { return Math.round(n * FS_MUL); }
+
+var NS = 'http://www.w3.org/2000/svg';
+function svgEl(tag, attrs) {
+  var el = document.createElementNS(NS, tag);
+  if (attrs) for (var k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+}
+function xPx(v) { return PAD.left + (v / X_MAX) * PLOT_W; }
+
+var svg = document.getElementById('shap');
+svg.setAttribute('viewBox', '0 0 ' + SVG_W + ' ' + SVG_H);
+
+// X gridlines + ticks at 0, 0.2, 0.4, 0.6, 0.8.
+[0, 0.2, 0.4, 0.6, 0.8].forEach(function(v) {
+  svg.appendChild(svgEl('line', {
+    x1: xPx(v), x2: xPx(v),
+    y1: PAD.top, y2: PAD.top + PLOT_H,
+    stroke: 'rgba(107, 92, 181, 0.10)'
+  }));
+  var t = svgEl('text', {
+    x: xPx(v), y: PAD.top + PLOT_H + off(18),
+    'text-anchor': 'middle', 'font-size': fs(11), fill: '#6b7186',
+    'font-family': 'Cascadia Code, Consolas, monospace'
+  });
+  t.textContent = v.toFixed(1);
+  svg.appendChild(t);
+});
+svg.appendChild((function() {
+  var t = svgEl('text', {
+    x: PAD.left + PLOT_W / 2, y: PAD.top + PLOT_H + off(40),
+    'text-anchor': 'middle', 'font-size': fs(12), fill: '#4a5066',
+    'font-weight': '600'
+  });
+  t.textContent = 'mean |SHAP| (K)';
+  return t;
+})());
+
+// Bars (one per feature, with feature label at left and SHAP value at right).
+var rowH = PLOT_H / FEATURES.length;
+var barH = rowH * 0.62;
+FEATURES.forEach(function(f, i) {
+  var yC = PAD.top + (i + 0.5) * rowH;
+  var w = xPx(f.shap) - PAD.left;
+  // Bar
+  svg.appendChild(svgEl('rect', {
+    x: PAD.left, y: yC - barH / 2,
+    width: w, height: barH,
+    fill: f.color, opacity: f.cat === 'dom' ? '0.95' : '0.85',
+    rx: '3'
+  }));
+  // Feature label (left of axis)
+  var lbl = svgEl('text', {
+    x: PAD.left - off(12), y: yC + off(4),
+    'text-anchor': 'end', 'font-size': fs(13), fill: '#2c3142',
+    'font-weight': f.cat === 'dom' ? '700' : '500'
+  });
+  lbl.textContent = f.label;
+  svg.appendChild(lbl);
+  // Value (right of bar)
+  var val = svgEl('text', {
+    x: xPx(f.shap) + off(8), y: yC + off(4),
+    'text-anchor': 'start', 'font-size': fs(12.5), fill: f.color,
+    'font-weight': '700',
+    'font-family': 'Cascadia Code, Consolas, monospace'
+  });
+  val.textContent = f.shap.toFixed(2);
+  svg.appendChild(val);
+});
+
+// (Category legend is rendered as plain HTML above the SVG to avoid
+// pixel collisions with the κ_top bar — see .cat-legend in the style block.)
+
+// "R² = 0.92 alone" annotation pinned next to the dominant bar,
+// matching the bar colour for visual coupling.
+(function() {
+  var domY = PAD.top + 0.5 * rowH;
+  var annot = svgEl('text', {
+    x: xPx(0.71) + off(60), y: domY + off(4),
+    'text-anchor': 'start', 'font-size': fs(11), fill: '#2c8a83',
+    'font-weight': '700', 'font-style': 'italic'
+  });
+  annot.textContent = '← R² = 0.92 alone';
+  svg.appendChild(annot);
+})();
+</script>
+</body>
+</html>

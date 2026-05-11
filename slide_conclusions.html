@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #eaf0f8; color: #2c3142;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .title-bar {
+    padding: 26px 52px 8px;
+    display: flex; align-items: center; gap: 14px;
+    flex-shrink: 0;
+  }
+  .badge {
+    background: #6b5cb5; color: #fff;
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 4px 12px; border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .slide-title { font-size: 26px; font-weight: 700; color: #2c3142; }
+  .headline {
+    font-size: 17px; font-weight: 600; color: #ee845b;
+    text-align: center; margin: 4px 52px 14px;
+    flex-shrink: 0;
+  }
+  .findings {
+    padding: 0 52px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 12px;
+    flex: 1;
+    min-height: 0;
+  }
+  .finding {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(107, 92, 181, 0.10);
+    border: 1px solid rgba(107, 92, 181, 0.06);
+    padding: 16px 22px 14px;
+    display: flex; flex-direction: column;
+    min-height: 0;
+    position: relative;
+  }
+  .finding .num {
+    position: absolute;
+    top: 12px; right: 16px;
+    font-size: 36px; font-weight: 700;
+    color: rgba(107, 92, 181, 0.18);
+    line-height: 1;
+  }
+  .finding h3 {
+    font-size: 13.5px; font-weight: 700;
+    color: #6b5cb5;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 8px;
+    max-width: 220px;
+  }
+  .finding p {
+    font-size: 13.5px; color: #2c3142; line-height: 1.55;
+  }
+  .finding p b { color: #2c8a83; }
+  .finding p em { color: #ee845b; font-style: normal; font-weight: 600; }
+  .stat-row {
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px solid rgba(107, 92, 181, 0.10);
+    display: flex; gap: 14px;
+    font-size: 12px;
+  }
+  .stat-row .stat {
+    flex: 1; text-align: center;
+  }
+  .stat-row .stat .v {
+    display: block;
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    font-size: 16px; font-weight: 700;
+    color: #c2492a;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat-row .stat .l {
+    display: block;
+    font-size: 9.5px; color: #6b7186;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+  .footer-band {
+    padding: 16px 52px 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+    flex-shrink: 0;
+  }
+  .footer-card {
+    background: rgba(56, 178, 172, 0.06);
+    border-left: 3px solid #38b2ac;
+    padding: 10px 16px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    color: #4a5066; line-height: 1.5;
+  }
+  .footer-card.future { background: rgba(238, 132, 91, 0.08); border-left-color: #ee845b; }
+  .footer-card .lbl {
+    display: block;
+    color: #6b5cb5; font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+  <div class="title-bar">
+    <span class="badge">Conclusions</span>
+    <span class="slide-title">Four findings &mdash; and what they mean for urban climate models</span>
+  </div>
+  <div class="headline">Stability &middot; error structure &middot; mechanism &middot; UHI implication.</div>
+  <div class="findings">
+
+    <div class="finding">
+      <div class="num">1</div>
+      <h3>Stability is structural &nbsp;<span style="color:#9aa3b8; font-weight:500; font-size:11px;">[&sect;7 (i)]</span></h3>
+      <p>
+        FTCS bound is set by the <em>most thermally stiff layer</em> on a stretched grid:
+        <b>33 s</b> on the asphalt road, <b>17 s</b> on the concrete deck &mdash; below any operational mesoscale step.
+        Implicit treatment of vertical conduction is structurally required.
+      </p>
+    </div>
+
+    <div class="finding">
+      <div class="num">2</div>
+      <h3>Errors substrate-dependent &mdash; CN halves BTCS &nbsp;<span style="color:#9aa3b8; font-weight:500; font-size:11px;">[&sect;7 (ii)]</span></h3>
+      <p>
+        BTCS and CN are <em>unconditionally stable</em> on every run. At &Delta;t = 600 s, BTCS over-amplifies
+        the diurnal G amplitude by <b>40 / 41 / 19%</b> on asphalt / roof / soil; <b>CN halves these</b> to
+        21 / 26 / 10%. Peak T<sub>s</sub> RMSE: 3.7 K on the roof.
+      </p>
+      <div class="stat-row">
+        <div class="stat"><span class="v">40%</span><span class="l">asphalt A<sub>G</sub> &mdash; BTCS</span></div>
+        <div class="stat"><span class="v">41%</span><span class="l">roof &mdash; BTCS</span></div>
+        <div class="stat"><span class="v">19%</span><span class="l">soil &mdash; BTCS</span></div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="num">3</div>
+      <h3>Mechanism: operator splitting &middot; &kappa;<sub>top</sub> sets prefactor &nbsp;<span style="color:#9aa3b8; font-weight:500; font-size:11px;">[&sect;7 (iii)+(v)]</span></h3>
+      <p>
+        &Delta;t-refinement ratios <b>~10</b> for both BTCS and CN &mdash; first-order in &Delta;t regardless of scheme order.
+        The dominant error is <em>operator splitting</em> between the column and SEB updates.
+        SHAP on a 150-column synthetic ensemble: <b>&kappa;<sub>top</sub> alone explains R&sup2; = 0.92</b> of error variance;
+        admittance is the residual &mdash; consistent with the FTCS-bound parameter setting the BTCS coarse-&Delta;t prefactor.
+      </p>
+      <div class="stat-row">
+        <div class="stat"><span class="v">~10×</span><span class="l">&Delta;t-ratio (1st-order)</span></div>
+        <div class="stat"><span class="v">0.71 K</span><span class="l">mean |SHAP| &kappa;<sub>top</sub></span></div>
+        <div class="stat"><span class="v">0.92</span><span class="l">R&sup2; from &kappa;<sub>top</sub> alone</span></div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="num">4</div>
+      <h3>UHI implication: diurnal-range bias &nbsp;<span style="color:#9aa3b8; font-weight:500; font-size:11px;">[&sect;7 (iv)]</span></h3>
+      <p>
+        Daily-mean storage <b>&int; G dt</b> is preserved across schemes (within &plusmn;5%) &mdash; the bias is in the
+        <em>diurnal range</em> of the simulated nocturnal UHI, not its mean.
+        At &Delta;t = 60 s BTCS: ~6% nocturnal G inflation on urban surfaces; at &Delta;t = 600 s: <b>40%</b>.
+      </p>
+    </div>
+
+  </div>
+  <div class="footer-band">
+    <div class="footer-card">
+      <span class="lbl">Limitations</span>
+      Strict-impervious LE = 0 (realistic for new pavement, underestimates real urban latent flux);
+      symmetric synthetic forcing (real cities show asymmetric morning warming, slow evening cooling);
+      independent columns rather than facet-weighted urban canopy;
+      constant U = 3 m s<sup>&minus;1</sup> (Newton SEB Jacobian would need to be updated each step under time-varying wind).
+    </div>
+    <div class="footer-card future">
+      <span class="lbl">Future work</span>
+      Couple this diagnostic framework to an offline run of WRF-SLUCM or WRF-TEB urban canopy schemes
+      with real city substrate composition and flux-tower-derived forcing.
+    </div>
+  </div>
+</body>
+</html>

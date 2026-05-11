@@ -7,243 +7,53 @@
 <style>
 
 * { box-sizing: border-box; }
-body, html {
-  margin: 0; padding: 0;
-  font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
-  background: #eaf0f8;
-  color: #2c3142;
-  line-height: 1.65;
-}
-.layout {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  max-width: 1600px;
-  margin: 0 auto;
-}
-.toc {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  overflow-y: auto;
-  background: #ffffff;
-  border-right: 1px solid rgba(107, 92, 181, 0.15);
-  padding: 28px 18px 28px 24px;
-  box-shadow: 2px 0 8px rgba(107, 92, 181, 0.05);
-}
-.toc h2 {
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: #6b5cb5;
-  margin: 0 0 14px 0;
-  font-weight: 700;
-}
+body, html { margin: 0; padding: 0; font-family: 'Segoe UI', Calibri, Geneva, sans-serif; background: #eaf0f8; color: #2c3142; line-height: 1.65; }
+.layout { display: grid; grid-template-columns: 280px 1fr; max-width: 1600px; margin: 0 auto; }
+.toc { position: sticky; top: 0; height: 100vh; overflow-y: auto; background: #ffffff; border-right: 1px solid rgba(107, 92, 181, 0.15); padding: 28px 18px 28px 24px; box-shadow: 2px 0 8px rgba(107, 92, 181, 0.05); }
+.toc h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: #6b5cb5; margin: 0 0 14px 0; font-weight: 700; }
 .toc ul { list-style: none; padding: 0; margin: 0; }
 .toc li { margin-bottom: 4px; }
-.toc a {
-  color: #4a5066;
-  text-decoration: none;
-  font-size: 13px;
-  display: block;
-  padding: 4px 8px;
-  border-radius: 4px;
-  border-left: 2px solid transparent;
-  transition: all 0.15s;
-}
-.toc a:hover {
-  background: rgba(107, 92, 181, 0.06);
-  color: #6b5cb5;
-  border-left-color: #6b5cb5;
-}
-main {
-  padding: 40px 60px 80px 60px;
-  max-width: 1100px;
-}
-h1 {
-  color: #2c3142;
-  font-size: 32px;
-  margin-top: 0;
-  margin-bottom: 12px;
-  line-height: 1.25;
-}
-h2 {
-  color: #6b5cb5;
-  font-size: 24px;
-  margin-top: 40px;
-  margin-bottom: 12px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(107, 92, 181, 0.15);
-}
-h3 {
-  color: #4a5066;
-  font-size: 19px;
-  margin-top: 30px;
-  margin-bottom: 8px;
-}
-h4 {
-  color: #ee845b;
-  font-size: 15px;
-  font-weight: 700;
-  margin-top: 22px;
-  margin-bottom: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
+.toc a { color: #4a5066; text-decoration: none; font-size: 13px; display: block; padding: 4px 8px; border-radius: 4px; border-left: 2px solid transparent; transition: all 0.15s; }
+.toc a:hover { background: rgba(107, 92, 181, 0.06); color: #6b5cb5; border-left-color: #6b5cb5; }
+main { padding: 40px 60px 80px 60px; max-width: 1100px; }
+h1 { color: #2c3142; font-size: 32px; margin-top: 0; margin-bottom: 12px; line-height: 1.25; }
+h2 { color: #6b5cb5; font-size: 24px; margin-top: 40px; margin-bottom: 12px; padding-top: 14px; border-top: 1px solid rgba(107, 92, 181, 0.15); }
+h3 { color: #4a5066; font-size: 19px; margin-top: 30px; margin-bottom: 8px; }
+h4 { color: #ee845b; font-size: 15px; font-weight: 700; margin-top: 22px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
 p { margin: 10px 0 14px 0; font-size: 15px; }
 strong { color: #2c3142; }
 em { color: #4a5066; }
-code {
-  background: #f3f0fa;
-  color: #6b5cb5;
-  padding: 1px 6px;
-  border-radius: 3px;
-  font-family: 'Cascadia Code', 'Consolas', monospace;
-  font-size: 0.9em;
-}
-pre {
-  background: #1a1a2e;
-  color: #cfd8dc;
-  padding: 14px 18px;
-  border-radius: 6px;
-  overflow-x: auto;
-  font-size: 13px;
-}
+code { background: #f3f0fa; color: #6b5cb5; padding: 1px 6px; border-radius: 3px; font-family: 'Cascadia Code', 'Consolas', monospace; font-size: 0.9em; }
+pre { background: #1a1a2e; color: #cfd8dc; padding: 14px 18px; border-radius: 6px; overflow-x: auto; font-size: 13px; }
 pre code { background: transparent; color: inherit; padding: 0; }
-blockquote {
-  margin: 14px 0;
-  padding: 12px 18px;
-  background: rgba(56, 178, 172, 0.08);
-  border-left: 4px solid #38b2ac;
-  border-radius: 0 6px 6px 0;
-  color: #2c8a83;
-  font-style: italic;
-}
+blockquote { margin: 14px 0; padding: 12px 18px; background: rgba(56, 178, 172, 0.08); border-left: 4px solid #38b2ac; border-radius: 0 6px 6px 0; color: #2c8a83; font-style: italic; }
 blockquote strong { color: #2c8a83; }
-table {
-  border-collapse: collapse;
-  width: 100%;
-  margin: 16px 0;
-  background: #ffffff;
-  box-shadow: 0 2px 6px rgba(107, 92, 181, 0.08);
-  border-radius: 6px;
-  overflow: hidden;
-  font-size: 14px;
-}
-th {
-  background: #6b5cb5;
-  color: #ffffff;
-  font-weight: 700;
-  text-align: left;
-  padding: 10px 14px;
-  font-size: 13px;
-}
-td {
-  padding: 8px 14px;
-  border-top: 1px solid rgba(107, 92, 181, 0.1);
-}
+table { border-collapse: collapse; width: 100%; margin: 16px 0; background: #ffffff; box-shadow: 0 2px 6px rgba(107, 92, 181, 0.08); border-radius: 6px; overflow: hidden; font-size: 14px; }
+th { background: #6b5cb5; color: #ffffff; font-weight: 700; text-align: left; padding: 10px 14px; font-size: 13px; }
+td { padding: 8px 14px; border-top: 1px solid rgba(107, 92, 181, 0.1); }
 tr:nth-child(even) td { background: rgba(107, 92, 181, 0.03); }
 hr { border: none; border-top: 1px solid rgba(107, 92, 181, 0.2); margin: 32px 0; }
 ul, ol { margin: 10px 0 14px 24px; padding: 0; }
 li { margin-bottom: 4px; font-size: 15px; }
-
-mjx-container[display="true"] {
-  margin: 14px 0 !important;
-  overflow-x: auto;
-}
-
-/* Figure cards */
-.report-figure {
-  margin: 28px -20px;
-  background: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(107, 92, 181, 0.10);
-  padding: 18px 22px;
-  border-left: 4px solid #6b5cb5;
-}
-.report-figure img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 0 auto 12px;
-  border-radius: 4px;
-}
-.report-figure figcaption {
-  font-size: 13.5px;
-  color: #4a5066;
-  line-height: 1.6;
-  border-top: 1px solid rgba(107, 92, 181, 0.1);
-  padding-top: 12px;
-  margin-top: 8px;
-}
+mjx-container[display="true"] { margin: 14px 0 !important; overflow-x: auto; }
+.report-figure { margin: 28px -20px; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 10px rgba(107, 92, 181, 0.10); padding: 18px 22px; border-left: 4px solid #6b5cb5; }
+.report-figure img { max-width: 100%; height: auto; display: block; margin: 0 auto 12px; border-radius: 4px; }
+.report-figure figcaption { font-size: 13.5px; color: #4a5066; line-height: 1.6; border-top: 1px solid rgba(107, 92, 181, 0.1); padding-top: 12px; margin-top: 8px; }
 .report-figure figcaption strong { color: #6b5cb5; }
-
-/* Interactive widget cards — break out of main column for more width */
-.widget-card {
-  margin: 32px -60px;
-  background: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 6px 20px rgba(107, 92, 181, 0.15);
-  border: 2px solid rgba(238, 132, 91, 0.30);
-  overflow: hidden;
-}
-.widget-header {
-  background: linear-gradient(90deg, #ee845b 0%, #d97757 100%);
-  color: #ffffff;
-  padding: 14px 24px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.widget-badge {
-  background: rgba(255,255,255,0.25);
-  color: #ffffff;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1.2px;
-  padding: 3px 10px;
-  border-radius: 3px;
-  white-space: nowrap;
-}
+.widget-card { margin: 32px -60px; background: #ffffff; border-radius: 10px; box-shadow: 0 6px 20px rgba(107, 92, 181, 0.15); border: 2px solid rgba(238, 132, 91, 0.30); overflow: hidden; }
+.widget-header { background: linear-gradient(90deg, #ee845b 0%, #d97757 100%); color: #ffffff; padding: 14px 24px; display: flex; align-items: center; gap: 14px; }
+.widget-badge { background: rgba(255,255,255,0.25); color: #ffffff; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; padding: 3px 10px; border-radius: 3px; white-space: nowrap; }
 .widget-title { font-size: 16px; font-weight: 700; }
-.widget-frame-wrap {
-  position: relative;
-  width: 100%;
-  background: #fafafa;
-}
-.widget-frame {
-  width: 100%;
-  height: 100%;
-  border: none;
-  display: block;
-}
-.widget-caption {
-  padding: 14px 24px;
-  background: rgba(238, 132, 91, 0.05);
-  font-size: 13.5px;
-  color: #4a5066;
-  line-height: 1.6;
-  border-top: 1px solid rgba(238, 132, 91, 0.15);
-}
-
-.banner {
-  background: linear-gradient(135deg, #6b5cb5 0%, #8b6f3a 100%);
-  color: #ffffff;
-  padding: 40px 60px;
-  margin: 0 -60px 28px -60px;
-}
+.widget-frame-wrap { position: relative; width: 100%; background: #fafafa; }
+.widget-frame { width: 100%; height: 100%; border: none; display: block; }
+.widget-caption { padding: 14px 24px; background: rgba(238, 132, 91, 0.05); font-size: 13.5px; color: #4a5066; line-height: 1.6; border-top: 1px solid rgba(238, 132, 91, 0.15); }
+.banner { background: linear-gradient(135deg, #6b5cb5 0%, #8b6f3a 100%); color: #ffffff; padding: 40px 60px; margin: 0 -60px 28px -60px; }
 .banner h1 { color: #ffffff; margin: 0; font-size: 30px; }
 .banner .subtitle { font-size: 16px; opacity: 0.95; margin-top: 8px; }
 .banner .meta { font-size: 13px; opacity: 0.85; margin-top: 16px; font-family: 'Cascadia Code', 'Consolas', monospace; }
-
 @media (max-width: 1000px) {
   .layout { grid-template-columns: 1fr; }
-  .toc {
-    position: relative;
-    height: auto;
-    border-right: none;
-    border-bottom: 1px solid rgba(107, 92, 181, 0.15);
-  }
+  .toc { position: relative; height: auto; border-right: none; border-bottom: 1px solid rgba(107, 92, 181, 0.15); }
   main { padding: 24px 18px 60px 18px; }
   .banner { padding: 24px 18px; margin: 0 -18px 20px -18px; }
   .widget-card { margin: 24px -18px; }
@@ -257,19 +67,15 @@ window.MathJax = {
   tex: {
     inlineMath: [['$', '$'], ['\\(', '\\)']],
     displayMath: [['$$', '$$'], ['\\[', '\\]']],
-    processEscapes: true,
-    tags: 'none'
+    processEscapes: true, tags: 'none'
   },
-  options: {
-    skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-  }
+  options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
 };
 </script>
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
 <div class="layout">
-
 <aside class="toc">
   <h2>On this page</h2>
   <ul>
@@ -290,12 +96,11 @@ window.MathJax = {
 <li><a href="#part-14">Part 14. Common confusions</a></li>
   </ul>
 </aside>
-
 <main>
   <div class="banner">
     <h1>Clarify the CLIM-715 Project</h1>
     <div class="subtitle">A mastery-level walkthrough — every concept, every equation, every notation explained</div>
-    <div class="meta">Companion to modified_full_report_1.docx · Embedded figures and 5 live interactive widgets from the deck</div>
+    <div class="meta">Companion to modified_full_report_1.docx · 9 interactive widgets embedded from the deck (slides 3, 4, 5, 6, 9, 10, 11, 12, 13)</div>
   </div>
 
 
@@ -387,12 +192,12 @@ window.MathJax = {
 <div class="widget-card">
   <div class="widget-header">
     <span class="widget-badge">Interactive widget</span>
-    <span class="widget-title">The 17-second problem — FTCS stability bound across substrates</span>
+    <span class="widget-title">Slide 6 — The 17-second problem (FTCS bound across substrates)</span>
   </div>
   <div class="widget-frame-wrap" style="height:720px;">
     <iframe class="widget-frame" src="widget_17sec.html" loading="lazy"></iframe>
   </div>
-  <div class="widget-caption">Drag the $\Delta z$ slider to see how the FTCS maximum stable time step $\Delta t_{\max} = \frac{1}{2} \Delta z^2 / \kappa$ collapses as the grid gets finer. At $\Delta z = 5$ mm the concrete-deck bound is about 17 seconds. Vertical reference lines mark $\Delta t = 17$ s, 60 s, and 600 s.</div>
+  <div class="widget-caption">Drag the $\Delta z$ slider to see the FTCS maximum stable time step $\Delta t_{\max} = \frac{1}{2} \Delta z^2 / \kappa$ collapse. At $\Delta z = 5$ mm on the concrete deck, $\Delta t_{\max} \approx 17$ s — far below any operational mesoscale step.</div>
 </div>
 
 
@@ -616,6 +421,19 @@ window.MathJax = {
 </blockquote>
 <hr />
 <h2 id="part-6">Part 6. Walking through Section 2 — Governing equation and numerical discretization</h2>
+
+<div class="widget-card">
+  <div class="widget-header">
+    <span class="widget-badge">Interactive widget</span>
+    <span class="widget-title">Slide 4 — 1-D heat equation on a stretched grid + the θ-method family</span>
+  </div>
+  <div class="widget-frame-wrap" style="height:720px;">
+    <iframe class="widget-frame" src="slide_physics_thetamethod.html" loading="lazy"></iframe>
+  </div>
+  <div class="widget-caption">The governing physics summarised on one slide: the conductivity-form heat equation, the stretched-grid column diagram with cell centres and half-level fluxes, the harmonic-mean rule for $\lambda$ at faces, the θ-method update with three pills marking α = 0, 1/2, 1, and the boundary-conditions table.</div>
+</div>
+
+
 <h3>6.1 Section 2.1 — Where the heat conduction equation comes from</h3>
 <p>The report writes the heat conduction equation in <strong>conductivity form</strong>:</p>
 <p>$$C_s(z) \frac{\partial T_s}{\partial t} = \frac{\partial}{\partial z}\left[\lambda_s(z) \frac{\partial T_s}{\partial z}\right].$$</p>
@@ -820,8 +638,8 @@ window.MathJax = {
 <h3>6.6 Reading Figure 1 panel by panel</h3>
 
 <figure class="report-figure">
-  <img src="report_images/figure_1.png" alt="Von Neumann amplification factors for FTCS, BTCS, and Crank-Nicolson" loading="lazy">
-  <figcaption><strong>Figure 1.</strong> Magnitude of the von Neumann amplification factor $|A_k(\nu, k\Delta z)|$ for the FTCS (left), BTCS (centre), and Crank–Nicolson (right) schemes applied to the heat conduction equation, plotted against $k\Delta z$ across the resolved wavenumber range $[0, \pi]$. The dashed horizontal line marks the stability bound $|A| = 1$. FTCS at $\nu = 5$ is off-scale at the $2\Delta z$ wave ($|A| \approx 19$).</figcaption>
+  <img src="report_images/figure_1.png" alt="Von Neumann amplification factors" loading="lazy">
+  <figcaption><strong>Figure 1.</strong> Magnitude of the von Neumann amplification factor $|A_k(\nu, k\Delta z)|$ for FTCS (left), BTCS (centre), and Crank–Nicolson (right). The dashed line marks the stability bound $|A| = 1$. FTCS at $\nu = 5$ is off-scale at the $2\Delta z$ wave ($|A| \approx 19$).</figcaption>
 </figure>
 
 
@@ -829,12 +647,12 @@ window.MathJax = {
 <div class="widget-card">
   <div class="widget-header">
     <span class="widget-badge">Interactive widget</span>
-    <span class="widget-title">Von Neumann amplification factors — live</span>
+    <span class="widget-title">Slide 5 — Von Neumann amplification factors (live)</span>
   </div>
   <div class="widget-frame-wrap" style="height:820px;">
     <iframe class="widget-frame" src="window_von_neuman.html" loading="lazy"></iframe>
   </div>
-  <div class="widget-caption">Drag the $\nu$ slider in each panel to see how the amplification factor magnitude $|A_k|$ for FTCS, BTCS, and CN responds to the diffusion number. FTCS becomes unstable above $\nu = 1/2$ at the $2\Delta z$ wave; BTCS and CN remain bounded for any $\nu$.</div>
+  <div class="widget-caption">Drag the $\nu$ slider in each panel to see how $|A_k|$ for FTCS, BTCS, and CN responds. FTCS becomes unstable above $\nu = 1/2$ at the $2\Delta z$ wave; BTCS and CN remain bounded for any $\nu$.</div>
 </div>
 
 
@@ -874,12 +692,12 @@ window.MathJax = {
 <div class="widget-card">
   <div class="widget-header">
     <span class="widget-badge">Interactive widget</span>
-    <span class="widget-title">3D visualisation of the three substrate columns</span>
+    <span class="widget-title">Slide 3 — 3D visualisation of the three substrate columns</span>
   </div>
   <div class="widget-frame-wrap" style="height:800px;">
     <iframe class="widget-frame" src="CLIM715_Substrate_3D_Visualization_v3.html" loading="lazy"></iframe>
   </div>
-  <div class="widget-caption">The three substrate columns visualised in 3D — asphalt road (4 layers), concrete roof with mineral-wool insulation (3 layers), bare sandy loam (uniform). Each column is 2 m deep. Drag to rotate, scroll to zoom; the diurnal sun cycle illuminates the surface.</div>
+  <div class="widget-caption">Asphalt road (4 layers), concrete roof with mineral-wool insulation (3 layers), bare sandy loam (uniform). Each column is 2 m deep. Drag to rotate; scroll to zoom; the diurnal sun cycle illuminates the surface.</div>
 </div>
 
 
@@ -1052,7 +870,7 @@ window.MathJax = {
 
 <figure class="report-figure">
   <img src="report_images/figure_2.png" alt="Damping-depth verification panels" loading="lazy">
-  <figcaption><strong>Figure 2.</strong> Damping-depth verification on a uniform sandy-loam column. (a) Vertical profile of $T_s$ at the time of peak surface forcing on day 5. (b) Surface temperature over the 24-hour cycle of day 5. (c) Surface ground heat flux $G(t)$ on day 5. The numerical curves match the analytical $\pi/4$ phase lead and amplitude to within $\sim 3$ W/m² RMS.</figcaption>
+  <figcaption><strong>Figure 2.</strong> Damping-depth verification on a uniform sandy-loam column. (a) Profile of $T_s$ at peak forcing on day 5. (b) Surface temperature over day 5. (c) Surface ground heat flux $G(t)$. Numerical curves match the analytical $\pi/4$ phase lead to within $\sim 3$ W/m² RMS.</figcaption>
 </figure>
 
 
@@ -1122,8 +940,8 @@ window.MathJax = {
 <h4>Reading Figure 3 — schemes agree at $\Delta t = 15$ s</h4>
 
 <figure class="report-figure">
-  <img src="report_images/figure_3.png" alt="Day-2 surface temperature on three substrates at Delta-t = 15 s" loading="lazy">
-  <figcaption><strong>Figure 3.</strong> Day-2 surface temperature for the three substrates at $\Delta t = 15$ s, all three schemes. Air temperature $T_a$ is shown as a grey dotted reference. The three numerical schemes are visually indistinguishable on every substrate at this time step.</figcaption>
+  <img src="report_images/figure_3.png" alt="Day-2 surface temperature on three substrates at Δt=15s" loading="lazy">
+  <figcaption><strong>Figure 3.</strong> Day-2 surface temperature for the three substrates at $\Delta t = 15$ s, all three schemes. The schemes are visually indistinguishable at this time step.</figcaption>
 </figure>
 
 
@@ -1158,8 +976,8 @@ window.MathJax = {
 <h4>Reading Figure 4 — schemes diverge at $\Delta t = 600$ s</h4>
 
 <figure class="report-figure">
-  <img src="report_images/figure_4.png" alt="Day-2 ground heat flux at Delta-t = 600 s" loading="lazy">
-  <figcaption><strong>Figure 4.</strong> Day-2 ground heat flux $G(t)$ for the three substrates at $\Delta t = 600$ s, compared against the FTCS reference at $\Delta t = 15$ s. BTCS at $\Delta t = 600$ s overshoots the daytime peak by 40% on asphalt and concrete; CN is intermediate; soil errors are smallest. FTCS at $\Delta t = 600$ s is unstable on asphalt and roof.</figcaption>
+  <img src="report_images/figure_4.png" alt="Day-2 ground heat flux at Δt=600s" loading="lazy">
+  <figcaption><strong>Figure 4.</strong> Day-2 ground heat flux $G(t)$ for the three substrates at $\Delta t = 600$ s vs the FTCS reference at $\Delta t = 15$ s. BTCS overshoots the peak by 40% on asphalt and concrete; CN by half that. FTCS is unstable on asphalt and roof.</figcaption>
 </figure>
 
 
@@ -1167,12 +985,12 @@ window.MathJax = {
 <div class="widget-card">
   <div class="widget-header">
     <span class="widget-badge">Interactive widget</span>
-    <span class="widget-title">Live $\Delta t$-refinement on three substrates</span>
+    <span class="widget-title">Slide 9 — Live $\Delta t$-refinement on three substrates</span>
   </div>
   <div class="widget-frame-wrap" style="height:820px;">
     <iframe class="widget-frame" src="window_delta_t.html" loading="lazy"></iframe>
   </div>
-  <div class="widget-caption">Drag the $\Delta t$ slider through 15, 60, and 600 seconds to watch the simulated diurnal $G$ cycle on each substrate. At small $\Delta t$ the schemes agree; at large $\Delta t$ BTCS over-amplifies, CN halves the error. The bottom-right panel plots the RMSE-vs-$\Delta t$ log-log convergence curves.</div>
+  <div class="widget-caption">Drag the $\Delta t$ slider through 15, 60, and 600 seconds to watch the simulated diurnal $G$ cycle on each substrate. At small $\Delta t$ the schemes agree; at large $\Delta t$ BTCS over-amplifies, CN halves the error.</div>
 </div>
 
 
@@ -1184,8 +1002,8 @@ window.MathJax = {
 <h4>Reading Figure 5 — vertical profiles in the asphalt column</h4>
 
 <figure class="report-figure">
-  <img src="report_images/figure_5.png" alt="Vertical profiles in the asphalt column at three local times" loading="lazy">
-  <figcaption><strong>Figure 5.</strong> Vertical temperature profile in the asphalt road column at three local times on day 2 — top 50 cm only. Reference is FTCS at $\Delta t = 15$ s. The schemes agree at 06:00. At 12:00 BTCS and CN are slightly warmer than the reference near the surface. At 18:00, immediately after sunset, the schemes diverge: BTCS at $\Delta t = 600$ s holds the surface $\sim 2$ K above the reference.</figcaption>
+  <img src="report_images/figure_5.png" alt="Vertical profiles in the asphalt column" loading="lazy">
+  <figcaption><strong>Figure 5.</strong> Vertical temperature profile in the asphalt road column at 06:00, 12:00, and 18:00 on day 2 — top 50 cm only. Reference is FTCS at $\Delta t = 15$ s. At 18:00 BTCS at $\Delta t = 600$ s holds the surface $\sim 2$ K above the reference.</figcaption>
 </figure>
 
 
@@ -1193,12 +1011,12 @@ window.MathJax = {
 <div class="widget-card">
   <div class="widget-header">
     <span class="widget-badge">Interactive widget</span>
-    <span class="widget-title">BTCS smears the post-swing gradient at the $\lambda$ jump</span>
+    <span class="widget-title">Slide 10 — BTCS smears the post-swing gradient at the $\lambda$ jump</span>
   </div>
   <div class="widget-frame-wrap" style="height:760px;">
     <iframe class="widget-frame" src="widget_curvature.html" loading="lazy"></iframe>
   </div>
-  <div class="widget-caption">Drag the time-of-day slider to watch the vertical temperature profile evolve through the concrete-roof column. The conductivity jump at $z = 10$ cm concentrates the gradient at the insulation interface; at coarse $\Delta t$, BTCS visibly smears the gradient where the conductivity jumps.</div>
+  <div class="widget-caption">Drag the time-of-day slider through the diurnal cycle in the concrete-roof column. The conductivity jump at $z = 10$ cm concentrates the gradient at the insulation interface; at coarse $\Delta t$, BTCS visibly smears it.</div>
 </div>
 
 
@@ -1264,6 +1082,19 @@ window.MathJax = {
 <h4>Why both BTCS and CN show first-order scaling</h4>
 <p>Splitting error is first-order in $\Delta t$ regardless of per-substep scheme.</p>
 <h4>Reading Table 3</h4>
+
+<div class="widget-card">
+  <div class="widget-header">
+    <span class="widget-badge">Interactive widget</span>
+    <span class="widget-title">Slide 11 — Δt-refinement ratios identify the dominant error</span>
+  </div>
+  <div class="widget-frame-wrap" style="height:760px;">
+    <iframe class="widget-frame" src="slide_dt_ratios.html" loading="lazy"></iframe>
+  </div>
+  <div class="widget-caption">Empirical $\Delta t$-refinement ratios $\mathrm{RMSE}_{T_s}(600\,\mathrm{s}) / \mathrm{RMSE}_{T_s}(60\,\mathrm{s})$ for both BTCS and CN across the three substrates. All six ratios fall in $[8.2, 10.2]$ — first-order in $\Delta t$. CN (intrinsically second-order) showing ratio near 10 (not 100) is the smoking-gun evidence that operator splitting between the column and SEB updates is the dominant error.</div>
+</div>
+
+
 <table>
 <thead>
 <tr>
@@ -1389,9 +1220,22 @@ window.MathJax = {
 <h3>10.4 Section 6.3 — The findings</h3>
 
 <figure class="report-figure">
-  <img src="report_images/figure_6.png" alt="SHAP attribution four-panel figure" loading="lazy">
-  <figcaption><strong>Figure 6.</strong> Independent attribution analysis of BTCS coarse-$\Delta t$ error. (a) SHAP feature importance; $\kappa_{\rm top}$ dominates. (b) SHAP dependence on $\kappa_{\rm top}$, coloured by $\mu_{\rm eff}$. (c) Residual SHAP importance after $\kappa_{\rm top}$ is partialled out; admittance becomes dominant. (d) Model fit, points coloured by max $\lambda$ contrast.</figcaption>
+  <img src="report_images/figure_6.png" alt="SHAP attribution four-panel" loading="lazy">
+  <figcaption><strong>Figure 6.</strong> Independent attribution analysis of BTCS coarse-$\Delta t$ error. (a) SHAP feature importance; $\kappa_{\rm top}$ dominates. (b) SHAP dependence on $\kappa_{\rm top}$, coloured by $\mu_{\rm eff}$. (c) Residual SHAP after $\kappa_{\rm top}$ partialled out; admittance dominates. (d) Predicted vs observed RMSE, tight 1:1.</figcaption>
 </figure>
+
+
+
+<div class="widget-card">
+  <div class="widget-header">
+    <span class="widget-badge">Interactive widget</span>
+    <span class="widget-title">Slide 12 — SHAP attribution on a 150-column synthetic ensemble</span>
+  </div>
+  <div class="widget-frame-wrap" style="height:760px;">
+    <iframe class="widget-frame" src="slide_shap_attribution.html" loading="lazy"></iframe>
+  </div>
+  <div class="widget-caption">Presentation view of Figure 6. Mean $|\mathrm{SHAP}|$ for the six substrate descriptors: $\kappa_{\mathrm{top}}$ dominant at 0.71 K (red bar); admittance $\mu_{\mathrm{eff}}$ and max $\lambda$-contrast tied near 0.19 K. $\kappa_{\mathrm{top}}$ alone explains $R^2 = 0.92$ of BTCS coarse-$\Delta t$ error variance.</div>
+</div>
 
 
 <p>Figure 6 has four panels. (a) $\kappa_{\text{top}}$ tallest at 0.71 K. (b) SHAP dependence on $\kappa_{\text{top}}$ monotone positive. (c) Residual SHAP after $\kappa_{\text{top}}$ partialled out — $\mu_{\text{eff}}$ dominates. (d) Predicted vs observed RMSE 1:1.</p>
@@ -1404,6 +1248,19 @@ window.MathJax = {
 </ul>
 <hr />
 <h2 id="part-11">Part 11. Walking through Section 7 — Conclusions</h2>
+
+<div class="widget-card">
+  <div class="widget-header">
+    <span class="widget-badge">Interactive widget</span>
+    <span class="widget-title">Slide 13 — Four findings and what they mean for urban climate models</span>
+  </div>
+  <div class="widget-frame-wrap" style="height:820px;">
+    <iframe class="widget-frame" src="slide_conclusions.html" loading="lazy"></iframe>
+  </div>
+  <div class="widget-caption">The four-card conclusion summary that closes the deck. (1) Stability is structural: FTCS bound 33 s on asphalt, 17 s on concrete. (2) Errors are substrate-dependent; CN halves BTCS at $\Delta t = 600$ s. (3) Operator splitting is the dominant mechanism; $\kappa_{\mathrm{top}}$ explains $R^2 = 0.92$. (4) UHI implication: diurnal-range bias, not mean bias.</div>
+</div>
+
+
 <p>The conclusions section is a five-bullet recap.</p>
 <p><strong>(i) FTCS conditional stability</strong>, $\nu \le 1/2$.</p>
 <p><strong>(ii) BTCS and CN unconditionally stable.</strong> At $\Delta t = 600$ s, BTCS over-amplifies by 40%/41%/19%; CN halves these.</p>
@@ -1606,11 +1463,9 @@ window.MathJax = {
 
   <hr>
   <p style="font-size: 13px; color: #6b7186; text-align: center;">
-    <em>End of document. Companion files: modified_full_report_1.docx,
-    equations.md, CLIM715_Final_Presentation.html, clarify_project.md.</em>
+    <em>End of document.</em>
   </p>
 </main>
-
 </div>
 </body>
 </html>

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #eaf0f8; color: #2c3142;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .title-bar {
+    padding: 24px 52px 6px;
+    display: flex; align-items: center; gap: 14px;
+    flex-shrink: 0;
+  }
+  .badge {
+    background: #ee845b; color: #fff;
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 4px 12px; border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .slide-title { font-size: 24px; font-weight: 700; color: #2c3142; }
+  .headline {
+    font-size: 16px; font-weight: 600; color: #ee845b;
+    text-align: center; margin: 4px 52px 12px;
+    flex-shrink: 0; line-height: 1.4;
+  }
+  .content {
+    flex: 1;
+    margin: 0 52px 8px;
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 22px;
+    min-height: 0;
+  }
+  .plot-card, .reasoning-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(107, 92, 181, 0.10);
+    border: 1px solid rgba(107, 92, 181, 0.06);
+    padding: 12px 18px 8px;
+    display: flex; flex-direction: column;
+    min-height: 0; overflow: hidden;
+  }
+  .card-h {
+    font-size: 12.5px; font-weight: 600;
+    color: #6b5cb5; letter-spacing: 0.4px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  svg.ratios { width: 100%; flex: 1; min-height: 0; }
+  .reasoning-card p {
+    font-size: 13.5px; color: #2c3142;
+    line-height: 1.55;
+    margin-bottom: 10px;
+  }
+  .reasoning-card p b   { color: #2c8a83; font-weight: 700; }
+  .reasoning-card p em  { color: #ee845b; font-style: normal; font-weight: 600; }
+  .reasoning-card .key  {
+    background: rgba(238, 132, 91, 0.10);
+    border-left: 3px solid #ee845b;
+    padding: 8px 12px; border-radius: 4px;
+    font-size: 13.5px; color: #2c3142;
+    line-height: 1.5;
+    margin-top: auto;
+  }
+  .reasoning-card .key b { color: #c2492a; font-weight: 700; }
+  .reasoning-card .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 14px;
+    font-size: 12px;
+    margin: 6px 0 10px;
+  }
+  .reasoning-card .stat-grid .lbl {
+    color: #6b7186; font-weight: 600;
+    font-size: 10.5px;
+    text-transform: uppercase; letter-spacing: 0.4px;
+  }
+  .reasoning-card .stat-grid .v {
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    color: #6b5cb5; font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .punch {
+    margin: 0 52px 22px;
+    text-align: center;
+    background: rgba(56, 178, 172, 0.08);
+    border-left: 3px solid #38b2ac;
+    padding: 10px 18px; border-radius: 4px;
+    font-size: 14.5px; color: #2c3142;
+    line-height: 1.45; font-weight: 500;
+    flex-shrink: 0;
+  }
+  .punch b { color: #2c8a83; font-weight: 700; }
+  .punch em { color: #6b5cb5; font-style: normal; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="title-bar">
+    <span class="badge">Step back</span>
+    <span class="slide-title">What is the error, exactly?</span>
+  </div>
+  <div class="headline">&Delta;t-refinement ratios identify the dominant error as a <b style="color:#c2492a">first-order operator splitting</b> &mdash; not the schemes' own temporal accuracy.</div>
+  <div class="content">
+
+    <div class="plot-card">
+      <div class="card-h">RMSE T<sub>s</sub> ratio &mdash; &Delta;t = 600 s &divide; &Delta;t = 60 s</div>
+      <svg class="ratios" id="ratios" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+
+    <div class="reasoning-card">
+      <div class="card-h">Why this is decisive</div>
+      <p>
+        If the <em>per-substep</em> truncation error of each scheme dominated, the &Delta;t-refinement ratio
+        between &Delta;t = 600 s and &Delta;t = 60 s would be:
+      </p>
+      <div class="stat-grid">
+        <span class="lbl">BTCS (1st-order)</span><span class="v">~10</span>
+        <span class="lbl">CN (2nd-order)</span><span class="v">~100</span>
+      </div>
+      <p>
+        Empirically, <b>both schemes</b> show ratios in the range
+        <span style="font-family:'Cascadia Code',monospace; font-weight:700; color:#6b5cb5;">8.2&ndash;10.2</span>
+        across all three substrates &mdash; CN is <em>not</em> behaving like a second-order scheme.
+      </p>
+      <div class="key">
+        <b>Conclusion:</b> the dominant error is the first-order <b>operator splitting</b> between the
+        column update and the SEB update (run column then update T<sub>s</sub><sup>0</sup>).
+        CN's &alpha; = &frac12; weighting only halves its prefactor &mdash; it cannot remove the splitting.
+        Course Notes #10 &sect;8 warned about this exact failure mode.
+      </div>
+    </div>
+
+  </div>
+  <div class="punch">
+    The next slide attributes the <em>prefactor</em> of this splitting error to a single substrate parameter &mdash; using SHAP on a 150-column synthetic ensemble.
+  </div>
+
+<script>
+"use strict";
+
+// =============================================================
+// Δt-refinement ratios computed at full precision from
+// test2_extended_metrics.csv (rmse_Ts column):
+//   ratio = RMSE_Ts(Δt = 600 s) / RMSE_Ts(Δt = 60 s)
+// All six fall in the range 8.20–10.15, which matches the
+// long report §5.2's stated "8.2 to 10.2" to one decimal.
+// =============================================================
+var ROWS = [
+  // 2.10438172 / 0.22507864 = 9.34954 ;  1.11461817 / 0.11405043 = 9.77304
+  { sub: 'Asphalt road',   color: '#6b5cb5', btcs: 9.349, cn: 9.773 },
+  // 3.68557141 / 0.44961513 = 8.19717 ;  2.10215034 / 0.22932476 = 9.16668
+  { sub: 'Concrete roof',  color: '#d97757', btcs: 8.197, cn: 9.167 },
+  // 0.52888265 / 0.05323872 = 9.93418 ;  0.27879233 / 0.02746546 = 10.15062
+  { sub: 'Bare soil',      color: '#8b6f3a', btcs: 9.934, cn: 10.151 }
+];
+
+// =============================================================
+// SVG layout
+// =============================================================
+var IS_MOBILE = (typeof window !== 'undefined' && window.matchMedia &&
+                 window.matchMedia('(max-width: 760px)').matches);
+var SVG_W = 720;
+var SVG_H = IS_MOBILE ? 600 : 380;
+var PAD = IS_MOBILE
+  ? { top: 60, right: 30, bottom: 110, left: 90 }
+  : { top: 24, right: 30, bottom: 56,  left: 56 };
+var PLOT_W = SVG_W - PAD.left - PAD.right;
+var PLOT_H = SVG_H - PAD.top - PAD.bottom;
+var Y_MAX = 12;
+// Font scaling: mobile SVG is rendered at scale ~0.5 (360 px / 720 user),
+// desktop ~0.85. Multiply user-unit font-sizes by these inverses to land
+// at readable rendered px sizes.
+var FS_MUL = IS_MOBILE ? 2.5 : 1.5;
+function fs(n)  { return String(Math.round(n * FS_MUL)); }
+function off(n) { return Math.round(n * FS_MUL); }
+
+var NS = 'http://www.w3.org/2000/svg';
+function svgEl(tag, attrs) {
+  var el = document.createElementNS(NS, tag);
+  if (attrs) for (var k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+}
+function yPx(v) { return PAD.top + (1 - v / Y_MAX) * PLOT_H; }
+
+var svg = document.getElementById('ratios');
+svg.setAttribute('viewBox', '0 0 ' + SVG_W + ' ' + SVG_H);
+
+// Y gridlines + ticks at 0, 2, 4, 6, 8, 10, 12.
+for (var v = 0; v <= Y_MAX; v += 2) {
+  svg.appendChild(svgEl('line', {
+    x1: PAD.left, x2: PAD.left + PLOT_W,
+    y1: yPx(v), y2: yPx(v),
+    stroke: 'rgba(107, 92, 181, 0.10)'
+  }));
+  var tl = svgEl('text', {
+    x: PAD.left - off(8), y: yPx(v) + off(4),
+    'text-anchor': 'end', 'font-size': fs(11), fill: '#6b7186',
+    'font-family': 'Cascadia Code, Consolas, monospace'
+  });
+  tl.textContent = v.toFixed(0);
+  svg.appendChild(tl);
+}
+// Y axis label
+svg.appendChild((function() {
+  var yLabX = off(16);
+  var t = svgEl('text', {
+    x: yLabX, y: PAD.top + PLOT_H / 2,
+    'text-anchor': 'middle', 'font-size': fs(12), fill: '#4a5066',
+    'font-weight': '600',
+    transform: 'rotate(-90 ' + yLabX + ' ' + (PAD.top + PLOT_H / 2) + ')'
+  });
+  t.textContent = 'RMSE ratio (×)';
+  return t;
+})());
+
+// Reference line at y = 10 (first-order signature).
+svg.appendChild(svgEl('line', {
+  x1: PAD.left, x2: PAD.left + PLOT_W,
+  y1: yPx(10), y2: yPx(10),
+  stroke: '#c2492a', 'stroke-width': '1.6', 'stroke-dasharray': '5 4'
+}));
+svg.appendChild((function() {
+  // Floated near the top of the plot, well above the highest bar (soil CN
+  // at 10.15×) so it never collides with the bar tops in the soil group.
+  var t = svgEl('text', {
+    x: PAD.left + PLOT_W - off(8), y: yPx(11.5),
+    'text-anchor': 'end', 'font-size': fs(11), fill: '#c2492a',
+    'font-style': 'italic', 'font-weight': '700'
+  });
+  t.textContent = 'first-order in Δt → ratio ≈ 10';
+  return t;
+})());
+
+// Bars: 3 substrates × 2 schemes = 6 bars in 3 groups.
+var groupW = PLOT_W / ROWS.length;
+var barW = groupW * 0.32;
+var gap = groupW * 0.08;
+ROWS.forEach(function(row, i) {
+  var x0 = PAD.left + i * groupW + (groupW - 2 * barW - gap) / 2;
+  // BTCS bar (solid in substrate colour)
+  svg.appendChild(svgEl('rect', {
+    x: x0, y: yPx(row.btcs),
+    width: barW, height: PAD.top + PLOT_H - yPx(row.btcs),
+    fill: row.color, opacity: '0.92', rx: '3'
+  }));
+  // CN bar (hatched/lighter via stripe pattern → simulate with lower opacity)
+  svg.appendChild(svgEl('rect', {
+    x: x0 + barW + gap, y: yPx(row.cn),
+    width: barW, height: PAD.top + PLOT_H - yPx(row.cn),
+    fill: row.color, opacity: '0.55', rx: '3',
+    stroke: row.color, 'stroke-width': '1.4', 'stroke-dasharray': '4 3'
+  }));
+  // Numerical labels above each bar
+  var lblB = svgEl('text', {
+    x: x0 + barW / 2, y: yPx(row.btcs) - off(6),
+    'text-anchor': 'middle', 'font-size': fs(12), fill: row.color,
+    'font-weight': '700',
+    'font-family': 'Cascadia Code, Consolas, monospace'
+  });
+  lblB.textContent = row.btcs.toFixed(1) + '×';
+  svg.appendChild(lblB);
+  var lblC = svgEl('text', {
+    x: x0 + 1.5 * barW + gap, y: yPx(row.cn) - off(6),
+    'text-anchor': 'middle', 'font-size': fs(12), fill: row.color,
+    'font-weight': '700',
+    'font-family': 'Cascadia Code, Consolas, monospace'
+  });
+  lblC.textContent = row.cn.toFixed(1) + '×';
+  svg.appendChild(lblC);
+  // Substrate label below the group. fs(11) instead of fs(13) so the
+  // three labels — "Asphalt road" / "Concrete roof" / "Bare soil" —
+  // don't touch their neighbours on desktop where group width is
+  // narrow relative to the bumped font.
+  var lbl = svgEl('text', {
+    x: PAD.left + i * groupW + groupW / 2, y: PAD.top + PLOT_H + off(22),
+    'text-anchor': 'middle', 'font-size': fs(11), fill: row.color,
+    'font-weight': '700'
+  });
+  lbl.textContent = row.sub;
+  svg.appendChild(lbl);
+  // BTCS / CN sub-labels
+  var subB = svgEl('text', {
+    x: x0 + barW / 2, y: PAD.top + PLOT_H + off(40),
+    'text-anchor': 'middle', 'font-size': fs(10.5), fill: '#6b7186'
+  });
+  subB.textContent = 'BTCS';
+  svg.appendChild(subB);
+  var subC = svgEl('text', {
+    x: x0 + 1.5 * barW + gap, y: PAD.top + PLOT_H + off(40),
+    'text-anchor': 'middle', 'font-size': fs(10.5), fill: '#6b7186'
+  });
+  subC.textContent = 'CN';
+  svg.appendChild(subC);
+});
+</script>
+</body>
+</html>
