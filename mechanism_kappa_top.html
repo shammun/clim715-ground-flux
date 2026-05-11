@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why &kappa;<sub>top</sub> should dominate &mdash; the mechanism</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #eaf0f8; color: #2c3142;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .title-bar { padding: 20px 52px 6px; display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+  .badge { background: #6b5cb5; color: #fff; font-size: 10.5px; font-weight: 700; letter-spacing: 1.5px; padding: 4px 12px; border-radius: 4px; text-transform: uppercase; }
+  .slide-title { font-size: 23px; font-weight: 700; color: #2c3142; }
+  .headline {
+    font-size: 14.5px; font-weight: 600; color: #ee845b;
+    text-align: center; margin: 4px 52px 8px;
+    flex-shrink: 0; line-height: 1.4;
+  }
+  .content {
+    flex: 1; padding: 4px 36px 8px;
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px;
+    min-height: 0;
+  }
+  .card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(107, 92, 181, 0.10);
+    border: 1px solid rgba(107, 92, 181, 0.06);
+    padding: 0;
+    display: flex; flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .card-head {
+    padding: 10px 18px 8px;
+    display: flex; align-items: center; gap: 10px;
+    color: #fff;
+  }
+  .card-head .step-num {
+    font-size: 22px; font-weight: 700;
+    opacity: 0.45;
+    min-width: 28px; text-align: center;
+  }
+  .card-head h3 { font-size: 14px; font-weight: 700; margin: 0; line-height: 1.25; }
+  .card-head.c1 { background: linear-gradient(135deg, #6b5cb5 0%, #564893 100%); }
+  .card-head.c2 { background: linear-gradient(135deg, #ee845b 0%, #c2492a 100%); }
+  .card-head.c3 { background: linear-gradient(135deg, #38b2ac 0%, #2c8a83 100%); }
+  .card-body {
+    padding: 11px 16px 12px;
+    flex: 1; min-height: 0;
+    overflow: auto;
+    font-size: 12.5px; line-height: 1.5; color: #2c3142;
+  }
+  .card-body p { margin: 5px 0 7px; }
+  .card-body b { color: #c2492a; font-weight: 700; }
+  .card-body em { color: #6b5cb5; font-style: normal; font-weight: 600; }
+  .card-body code {
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    background: rgba(107, 92, 181, 0.07);
+    padding: 1px 5px; border-radius: 3px;
+    font-size: 11.5px; color: #6b5cb5;
+  }
+  .ratio-table {
+    margin: 6px 0 4px;
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 11.5px;
+  }
+  .ratio-table th, .ratio-table td {
+    border: 1px solid rgba(107, 92, 181, 0.18);
+    padding: 3px 6px;
+    text-align: center;
+  }
+  .ratio-table th {
+    background: rgba(107, 92, 181, 0.08);
+    color: #6b5cb5; font-weight: 700;
+    font-size: 11px;
+  }
+  .ratio-table td.label {
+    text-align: left;
+    font-weight: 600;
+    color: #2c3142;
+  }
+  .punchout {
+    background: rgba(56, 178, 172, 0.10);
+    border-left: 3px solid #38b2ac;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 11.5px;
+    color: #2c3142;
+    line-height: 1.4;
+    margin-top: 6px;
+  }
+  .punchout b { color: #2c8a83; font-weight: 700; }
+  .prediction-band {
+    margin: 0 36px 14px;
+    background: rgba(238, 132, 91, 0.12);
+    border-left: 4px solid #ee845b;
+    padding: 11px 22px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    font-size: 13px;
+    color: #2c3142;
+    line-height: 1.5;
+  }
+  .prediction-band b { color: #c2492a; font-weight: 700; }
+  .prediction-band em { color: #6b5cb5; font-style: normal; font-weight: 700; }
+  .prediction-band .arrow { color: #6b5cb5; font-weight: 700; }
+
+  @media (max-width: 760px) {
+    .title-bar { padding: 30px 14px 6px; flex-wrap: wrap; gap: 8px; }
+    .slide-title { font-size: 17px; line-height: 1.25; }
+    .headline { margin: 4px 14px 8px; font-size: 12px; }
+    .content { grid-template-columns: 1fr; padding: 4px 14px; gap: 10px; }
+    .prediction-band { margin: 0 14px 14px; font-size: 12px; }
+    body { padding-bottom: 80px; }
+  }
+</style>
+</head>
+<body>
+  <div class="title-bar">
+    <span class="badge">Mechanism</span>
+    <span class="slide-title">Why &kappa;<sub>top</sub> should dominate &mdash; an a-priori prediction</span>
+  </div>
+  <div class="headline">
+    The error has the signature of operator splitting; the splitting prefactor scales with the top-cell relaxation time; &tau;<sub>top</sub> &asymp; &Delta;z<sup>2</sup>/&kappa;<sub>top</sub> &rArr; <em>&kappa;<sub>top</sub> sets the per-substrate error magnitude</em>.
+  </div>
+
+  <div class="content">
+
+    <!-- Card 1 — Splitting is the dominant error -->
+    <div class="card">
+      <div class="card-head c1">
+        <div class="step-num">1</div>
+        <h3>The error is operator splitting, not the per-substep scheme</h3>
+      </div>
+      <div class="card-body">
+        <p>Each &Delta;t step: column relaxes toward equilibrium with the <em>old</em> <code>Ts&#8304;</code>, then SEB jumps <code>Ts&#8304;</code> from the new <code>T&#8321;</code>. The split introduces a <b>first-order error in &Delta;t</b>, independent of the sub-step scheme.</p>
+        <p>Quantitative test &mdash; <em>&Delta;t-refinement ratios</em> RMSE(600&nbsp;s) / RMSE(60&nbsp;s):</p>
+        <table class="ratio-table">
+          <thead>
+            <tr><th>Substrate</th><th>BTCS</th><th>CN</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="label">Asphalt</td><td>9.4</td><td>9.8</td></tr>
+            <tr><td class="label">Concrete roof</td><td>8.2</td><td>9.2</td></tr>
+            <tr><td class="label">Bare soil</td><td>9.9</td><td>10.2</td></tr>
+          </tbody>
+        </table>
+        <div class="punchout">
+          <b>Smoking gun:</b> CN is intrinsically <em>second-order</em>, so on its own its refinement ratio would be ~100, not ~10. The observed ~10 ratio means CN's truncation error is being <em>dominated</em> by a separate first-order error &mdash; the splitting.
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2 — The prefactor scales with κ_top -->
+    <div class="card">
+      <div class="card-head c2">
+        <div class="step-num">2</div>
+        <h3>The splitting error scales with &tau;<sub>top</sub> = &Delta;z<sup>2</sup>/&kappa;<sub>top</sub></h3>
+      </div>
+      <div class="card-body">
+        <p>Within one &Delta;t step, the size of the column&hairsp;&harr;&hairsp;SEB equilibrium gap depends on <b>how fast the top cell can equilibrate</b> compared to &Delta;t.</p>
+        <p>Top-cell thermal response time: &nbsp;<code>&tau;<sub>top</sub> = &Delta;z<sup>2</sup> / &kappa;<sub>top</sub></code></p>
+        <p>When &Delta;t &gt;&gt; &tau;<sub>top</sub>, the column <em>cannot track</em> the SEB temperature swing within one step &rarr; steep half-level gradient at the surface &rarr; large G error.</p>
+        <p>For the urban substrates at &Delta;t&nbsp;=&nbsp;600&nbsp;s:</p>
+        <table class="ratio-table">
+          <thead>
+            <tr><th>Substrate</th><th>&kappa;<sub>top</sub> (m<sup>2</sup>/s)</th><th>&tau;<sub>top</sub> (s)</th><th>&Delta;t/&tau;</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="label">Roof</td><td>7.1&times;10<sup>-7</sup></td><td>35</td><td>17&times;</td></tr>
+            <tr><td class="label">Asphalt</td><td>3.8&times;10<sup>-7</sup></td><td>66</td><td>9&times;</td></tr>
+            <tr><td class="label">Soil</td><td>2.3&times;10<sup>-7</sup></td><td>434</td><td>1.4&times;</td></tr>
+          </tbody>
+        </table>
+        <div class="punchout">
+          <b>Higher &kappa;<sub>top</sub></b> &rarr; <b>shorter &tau;<sub>top</sub></b> &rarr; <b>larger &Delta;t/&tau; at fixed &Delta;t</b> &rarr; <b>bigger splitting error</b>. Soil's slow response time keeps it nearly within one-step equilibrium even at &Delta;t&nbsp;=&nbsp;600&nbsp;s.
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3 — Same κ_top sets the FTCS bound: a unifying statement -->
+    <div class="card">
+      <div class="card-head c3">
+        <div class="step-num">3</div>
+        <h3>The same &kappa;<sub>top</sub> sets the FTCS stability bound</h3>
+      </div>
+      <div class="card-body">
+        <p>FTCS stability bound from von Neumann:</p>
+        <p style="text-align:center; font-size:13.5px;"><code>&Delta;t<sub>crit</sub> = &Delta;z<sup>2</sup> / (2&kappa;<sub>top</sub>) = &frac12;&hairsp;&tau;<sub>top</sub></code></p>
+        <p>Same parameter combination governs both failure modes:</p>
+        <ul style="margin: 4px 0 8px 20px; font-size: 12.5px;">
+          <li><b>FTCS:</b> &Delta;t &gt; &frac12;&tau; &rArr; <em>explodes</em></li>
+          <li><b>BTCS / CN:</b> &Delta;t &gt; &tau; &rArr; <em>biased G</em>, with bias &prop; &kappa;<sub>top</sub></li>
+        </ul>
+        <div class="punchout">
+          <b>Unifying statement:</b> &kappa;<sub>top</sub> is the single substrate parameter that governs both the explicit-scheme instability and the implicit-scheme inaccuracy.
+        </div>
+        <p style="margin-top: 10px;">Bulk admittance &mu;<sub>eff</sub>&nbsp;=&nbsp;&radic;(&lambda;<sub>eff</sub>C<sub>eff</sub>) modulates the <em>amplitude</em> of the surface temperature swing but not the column's response time &mdash; expect it as a <b>secondary</b> control. Layer-interface descriptors should be third-tier.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="prediction-band">
+    <b>Testable a-priori prediction (the bridge to the next slide):</b> if this mechanism is right, then in any ensemble of urban substrates the top predictor of BTCS coarse-&Delta;t RMSE should be <em>&kappa;<sub>top</sub></em>, with <em>&mu;<sub>eff</sub></em> as a clear second and layer-structure descriptors as a distant third. <span class="arrow">&rarr;</span> Figure 6 puts this prediction to the test on a 150-column synthetic ensemble.
+  </div>
+
+<script>
+window.addEventListener('keydown', function (e) {
+  if (e.key === 'm' || e.key === 'M') {
+    if (window.parent !== window) window.parent.postMessage({type:'deck-nav', dir:'next'}, '*');
+  } else if (e.key === 'k' || e.key === 'K') {
+    if (window.parent !== window) window.parent.postMessage({type:'deck-nav', dir:'prev'}, '*');
+  }
+});
+</script>
+</body>
+</html>
