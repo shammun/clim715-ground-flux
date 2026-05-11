@@ -1546,6 +1546,54 @@ cell: 0 &nbsp;&nbsp;&nbsp; 1 &nbsp;&nbsp;&nbsp; 2 &nbsp;&nbsp;&nbsp; 3 &nbsp;&nb
 </blockquote>
 <p><strong>Lower boundary: zero-flux Neumann.</strong> At $z = z_{\text{top}} = 2$ m we impose $\partial T/\partial z = 0$. Discretely: $T_{N-1} = T_{N-2}$. <strong>Reading this</strong>: deepest cell ($j = N-1$) has the same temperature as the cell above ($j = N-2$), forcing the discrete gradient between them to zero, hence zero flux.</p>
 <p><strong>Upper boundary: Dirichlet on $T_s^0$.</strong> At cell 0 we set $T_0 = T_s^0$. The "0" superscript in $T_s^0$ is a label (depth zero), not an exponent.</p>
+
+<div class="interp-box"><h4>What does "zero-flux Neumann" actually mean? — The boundary condition explained</h4>
+
+<p>The phrase "zero-flux Neumann" packs three ideas into three words. Let me unpack each one.</p>
+
+<p><strong>"Neumann" — prescribes the slope, not the value.</strong> When you solve a PDE, you have to tell it what happens at the edges of the domain. There are two basic ways:</p>
+
+<table>
+<thead>
+<tr><th>Type</th><th>What is prescribed at the boundary</th><th>Example</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Dirichlet</strong></td><td>The <em>value</em> of the function</td><td>$T(z=0, t) = 25\,°\mathrm{C}$ — "the surface is at 25 °C"</td></tr>
+<tr><td><strong>Neumann</strong></td><td>The <em>spatial derivative</em> (slope) of the function</td><td>$\partial T/\partial z\big|_{z=L} = 0$ — "the slope is zero at $z = L$"</td></tr>
+</tbody>
+</table>
+
+<p>Both names come from 19th-century mathematicians: Peter Gustav Lejeune <strong>Dirichlet</strong> (1805–1859) and Carl Gottfried <strong>Neumann</strong> (1832–1925), who classified boundary-value problems for PDEs.</p>
+
+<p><strong>"Zero-flux" — using Fourier's law to translate "zero slope" into "no heat flow".</strong> Fourier's law (Section 6.1) says heat flux is proportional to the temperature gradient: $q = -\lambda\,\partial T/\partial z$. If the gradient is zero, the flux is zero — <em>no heat moves across the boundary</em>. The phrase "zero-flux Neumann" is just two words saying the same thing:</p>
+
+<p>$$\boxed{\;\frac{\partial T_s}{\partial z}\bigg|_{z = 2\,\mathrm{m}} \;=\; 0 \quad\Longleftrightarrow\quad G\big|_{z = 2\,\mathrm{m}} \;=\; 0.\;}$$</p>
+
+<p><strong>Discrete implementation — one line of code.</strong> The deepest cell is forced to have the same temperature as the cell just above it: $T_{N-1} = T_{N-2}$. With identical neighbours, the gradient between them is zero, the flux at the deepest face is zero, and the BC is satisfied. In Python: <code>T[N-1] = T[N-2]</code> at every time step.</p>
+
+<p><strong>Why this is physically justified.</strong> You might worry that "no heat leaks out the bottom" is a fiction that costs us energy. It would matter <em>if</em> the diurnal signal reached $z = 2$ m. But it doesn't:</p>
+
+<ul>
+<li>The damping depth $d$ is 8–14 cm for our substrates.</li>
+<li>At $z = 2$ m = 200 cm, we are 14–25 damping depths down.</li>
+<li>The diurnal amplitude at $z = 2$ m is $A\,e^{-200/d}$, ranging from $e^{-14}$ to $e^{-25}$ — about $10^{-6}$ to $10^{-11}$ of the surface amplitude.</li>
+<li>So <em>physically</em> the heat flux at $z = 2$ m is microscopic — already essentially zero. Setting it to exactly zero is a harmless approximation.</li>
+</ul>
+
+<p><strong>The four common BC types in PDE textbooks</strong> (for completeness):</p>
+<ul>
+<li><strong>Dirichlet</strong>: prescribe value $T = T_{\rm bc}$.</li>
+<li><strong>Neumann</strong>: prescribe slope $\partial T/\partial z = q_{\rm bc}/(-\lambda)$. "Zero-flux Neumann" is the special case $q_{\rm bc} = 0$.</li>
+<li><strong>Robin (or "mixed")</strong>: prescribe a linear combination, e.g., $\alpha T + \beta\,\partial T/\partial z = c$. The surface energy balance in this project (with its dependence on $T_s^0$ through $R_n$, $H$, and $G$) is a nonlinear Robin BC, dressed up as a Newton iteration.</li>
+<li><strong>Periodic</strong>: $T(0) = T(L)$. Used in von Neumann stability analysis (Section 6.5) but not in our solver.</li>
+</ul>
+
+<p><strong>Why we picked Neumann-zero, not Dirichlet, at the bottom.</strong> A Dirichlet BC at $z = 2$ m would say "the temperature at 2 m depth is fixed at some specified value, say the annual mean of 19.4 °C". That would also work, but it requires us to <em>know</em> the deep-soil temperature — information we do not have in a synthetic-forcing experiment. Zero-flux Neumann is the standard "I do not know what is below, just assume it does not exchange heat on the timescale of interest" closure. It is also the natural choice for an insulated bottom or for a column much deeper than the damping depth — exactly our situation.</p>
+
+<p><strong>Connection back to the top BC.</strong> At the top of the column we use a <em>Dirichlet</em> BC on $T_s^0$ — but $T_s^0$ itself is determined by the SEB closure rather than prescribed externally. So the top BC is Dirichlet-style in <em>form</em> (a value is set at $z = 0$), but the value is solved for prognostically rather than imposed by hand. The bottom BC is Neumann-style in form (a derivative is set at $z = 2$ m), and the derivative is fixed at zero by assumption. Together they make the discrete system uniquely solvable.</p>
+
+<p><strong>The single intuition to take away.</strong> Neumann = "I am specifying the slope at the boundary". Zero-flux Neumann = "I am specifying the slope to be zero, which by Fourier's law means no heat crosses this boundary". In our project, this lets us close the bottom of the column without having to know what's happening deeper than 2 m — justified because by 2 m the diurnal signal is essentially gone.</p>
+</div>
 <p><strong>Wrapping up Section 6.4.</strong> System closed: two BCs and the $\theta$-method update give a complete linear-algebra problem we can hand to SciPy at every time step. But "the simulation can be advanced step by step" does not yet mean "the simulation will remain finite as we advance it" — that question is the subject of stability analysis in Section 6.5.</p>
 <h3>6.5 Section 2.5 — Von Neumann stability analysis from scratch</h3>
 <p><strong>What we are doing in this subsection.</strong> We answer the question "for which time steps does the scheme remain bounded?" The technique is von Neumann's: assume errors look like sinusoidal Fourier modes, plug each mode into the update equation, and compute the per-step multiplier $A$. If $|A| \le 1$ for every resolvable wavenumber, the scheme is stable; otherwise some mode grows exponentially and the simulation blows up. The result will be exactly the inequality $\nu \le 1/2$ for FTCS and "unconditional stability" for BTCS and CN — the punchline of the entire project's methodology.</p>
