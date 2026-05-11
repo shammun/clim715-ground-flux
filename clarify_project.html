@@ -247,9 +247,26 @@ window.MathJax = {
 
 <p><em>Why this matters numerically.</em> The thing the project most cares about — the ground heat flux $G$ — is the temperature gradient at the surface, $G = -\lambda \, \partial T/\partial z |_{z=0}$. The discrete version of that gradient is $(T_{\rm surface} - T_{\rm first\ cell})/\Delta z$. If the first cell is 5 cm thick and stores a single temperature that already misses 27 percentage points of amplitude (54% gap from 100%), the discrete gradient is wildly wrong. The very signal the project is trying to measure (the diurnal $G$ cycle) is destroyed before any time-stepping scheme is even chosen.</p>
 
-<p><em>The fix.</em> Make the top cell <strong>much thinner than $d$</strong>. For bare soil's $d = 7.97$ cm, a top cell of $\Delta z = 0.5$ cm covers only $0.5/7.97 = 6.3\%$ of one damping depth. Within that cell, the amplitude varies from $e^{0} = 1.000$ at the top to $e^{-0.0627} = 0.939$ at the bottom — a difference of 6 percentage points. Now the single stored amplitude is a faithful average of the wave. The signal survives.</p>
+<p><em>The fix.</em> Make the top cell <strong>much thinner than $d$</strong>. The project does this with a <strong>stretched (geometric) grid</strong>: the top cell is 0.5–1 cm, and each cell below it is 1.18–1.25× thicker than the one above. The cell sizes the project actually uses in <code>run_experiments.py</code> are:</p>
 
-<p><strong>Rule of thumb.</strong> The top grid cell must be at least 10× thinner than the damping depth. For our three substrates (8–14 cm), a top cell of 0.5–1 cm is what that rule produces.</p>
+<table>
+<thead>
+<tr><th>Substrate</th><th>Top-cell $\Delta z_0$</th><th>Stretch ratio</th><th>Bottom cell at $z = 2$ m</th><th>$\Delta z_0 / d$</th><th>Amplitude variation across the top cell</th></tr>
+</thead>
+<tbody>
+<tr><td>Bare soil</td><td><strong>1.0 cm</strong></td><td>1.25</td><td>≈ 30 cm</td><td>12.6%</td><td>100% → 88.2% (12 pp drop)</td></tr>
+<tr><td>Asphalt road</td><td><strong>0.5 cm</strong></td><td>1.20</td><td>≈ 30 cm</td><td>4.9%</td><td>100% → 95.2% (5 pp drop)</td></tr>
+<tr><td>Concrete roof</td><td><strong>0.5 cm</strong></td><td>1.18</td><td>≈ 30 cm</td><td>3.6%</td><td>100% → 96.5% (4 pp drop)</td></tr>
+</tbody>
+</table>
+
+<p>The top cell is at most about 12% of a damping depth, so the amplitude varies by at most 12 percentage points across that cell — manageable averaging error. Recall that 5 cm soil cells would have been a 47-point drop, which would have destroyed the discrete gradient.</p>
+
+<p><em>Why stretched, not uniform.</em> A uniform 0.5 cm grid would need 400 cells to reach $z = 2$ m. The stretched grid uses only 24–30 cells while keeping a fine top and a coarse bottom — where the signal is small and a coarse cell is fine. This is standard practice in land-surface schemes (Best et al. 2011; Masson 2000).</p>
+
+<p><em>Note: Test 1 (verification) is different.</em> The verification test in §4.1 of the report uses a <strong>uniform 1 cm grid</strong> on a uniform sandy-loam column. That choice was made so the comparison with the analytical damping-depth solution is clean — no stretching, no layer jumps, just the time-stepping schemes being compared.</p>
+
+<p><strong>Rule of thumb.</strong> The top grid cell must be at least ~8–10× thinner than the damping depth. For our three substrates (8–14 cm), this rule produces top cells of 0.5–1 cm, exactly the project's choice.</p>
 
 <p><strong>Step 3 — The FTCS stability bound, and where it comes from.</strong></p>
 
