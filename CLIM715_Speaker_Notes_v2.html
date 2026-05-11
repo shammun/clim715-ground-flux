@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speaker Notes v2 &mdash; CLIM-715 Final Presentation (19-slide deck)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html {
+            width: 100vw; height: 100vh;
+            overflow: hidden;
+            font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+            background: #1a1a2e; color: #e0e0e0;
+        }
+        .top-bar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 32px; background: #16213e;
+            border-bottom: 2px solid #0f3460; flex-shrink: 0;
+        }
+        .slide-indicator { font-size: 22px; font-weight: 700; color: #4fc3f7; }
+        .slide-title { font-size: 18px; font-weight: 600; color: #b0bec5; flex: 1; margin-left: 24px; }
+        .timer {
+            font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums;
+            color: #78909c; min-width: 90px; text-align: right;
+        }
+        .timer.running { color: #4fc3f7; }
+        .nav-hint {
+            display: flex; align-items: center; gap: 18px;
+            padding: 8px 32px; background: #16213e;
+            border-bottom: 1px solid #0f3460;
+            font-size: 12px; color: #546e7a; flex-shrink: 0;
+        }
+        .nav-hint kbd {
+            background: #263238; color: #80cbc4;
+            padding: 2px 8px; border-radius: 3px;
+            font-family: monospace; font-size: 12px; border: 1px solid #37474f;
+        }
+        .notes-container {
+            flex: 1; overflow-y: auto; padding: 28px 40px 40px 40px;
+        }
+        .note-paragraph {
+            font-size: 18px; line-height: 1.75; color: #e0e0e0;
+            margin-bottom: 16px; padding-left: 20px; position: relative;
+        }
+        .note-paragraph::before {
+            content: '\25B8'; position: absolute; left: 0; color: #4fc3f7;
+        }
+        .note-paragraph b { color: #ffb74d; font-weight: 700; }
+        .bottom-bar {
+            display: flex; align-items: center; justify-content: center;
+            padding: 10px 18px; background: #16213e;
+            border-top: 2px solid #0f3460; gap: 5px; flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+        .dot {
+            width: 22px; height: 22px; border-radius: 50%;
+            background: #263238; border: 2px solid #37474f;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; color: #546e7a; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .dot.active  { background: #0f3460; border-color: #4fc3f7; color: #4fc3f7; font-weight: 700; }
+        .dot.visited { border-color: #1a5276; color: #4fc3f7; }
+        .sync-status {
+            position: fixed; bottom: 50px; right: 20px;
+            font-size: 11px; padding: 4px 10px; border-radius: 3px; pointer-events: none;
+        }
+        .sync-status.connected    { background: rgba(76,175,80,0.15);  color: #66bb6a; }
+        .sync-status.disconnected { background: rgba(244,67,54,0.15);  color: #ef5350; }
+    </style>
+</head>
+<body style="display:flex; flex-direction:column;">
+    <div class="top-bar">
+        <div class="slide-indicator" id="slideIndicator">Slide 1</div>
+        <div class="slide-title" id="slideTitle">Title</div>
+        <div class="timer" id="timer">0:00</div>
+    </div>
+    <div class="nav-hint">
+        <span><kbd>M</kbd> Next slide</span>
+        <span><kbd>K</kbd> Prev slide</span>
+        <span><kbd>T</kbd> Toggle timer</span>
+        <span><kbd>R</kbd> Reset timer</span>
+        <span style="margin-left:auto;color:#80cbc4;">Synced to the v2 deck via BroadcastChannel &mdash; advances both windows together.</span>
+    </div>
+    <div class="notes-container" id="notesContainer"></div>
+    <div class="bottom-bar" id="dotsBar"></div>
+    <div class="sync-status" id="syncStatus"></div>
+
+    <script>
+        // 19 entries — one per slot in the v2 deck SLIDE_ORDER.
+        // Slots 1-9: intro + setup framing slides — brief presenter notes.
+        // Slots 10-19: full presenter scripts from CLIM715_Presenter_Scripts_v2.docx.
+        // Plain-language wording; Δt = 600 s framed as a coarse stress-test
+        // value (Option B), matching the report's revised text.
+        var slides = [
+            {
+                title: "Title",
+                paragraphs: [
+                    "Good morning. I'm Shammunul Islam, and today I'm presenting my CLIM-715 course project on the numerical treatment of the one-dimensional ground heat conduction equation, applied to three urban substrate columns: an asphalt road, a concrete roof, and a bare soil reference.",
+                    "The project compares three classical time-stepping schemes — explicit forward Euler, implicit backward Euler, and Crank–Nicolson — coupled to a prognostic surface energy balance, and uses both a mechanistic argument and an independent SHAP attribution to identify which substrate parameter sets the error magnitude."
+                ]
+            },
+            {
+                title: "Why ground heat flux deserves numerical care",
+                paragraphs: [
+                    "Of the four components of the surface energy budget — net radiation, sensible heat, latent heat, and conductive ground flux — the ground flux G is the smallest by daily mean, but it is the single largest control on the diurnal range of surface temperature. During the day pavements and roofs store heat in the substrate; at night they release it. That nocturnal release is what sustains the urban heat island for hours after sunset.",
+                    "The diurnal damping depth — where the daily T wave decays to about 37 percent of its surface amplitude — is roughly 8 cm in dry soil, 10 in asphalt, 14 in concrete. That length scale is small, which is why operational urban canopy schemes use centimetre-scale near-surface layers. And once cells are centimetre-scale, the FTCS stability bound becomes about 17 seconds on the concrete deck — far below the Δt of any model. So numerical errors in G propagate directly into the simulated nocturnal UHI."
+                ]
+            },
+            {
+                title: "1-D column anatomy — one column, one surface, four fluxes",
+                paragraphs: [
+                    "Each substrate is modelled as a 2-metre-deep vertical column with depth-dependent thermal conductivity λ and heat capacity C. At the top surface, four fluxes balance: net radiation R_n, sensible heat H to the air, latent heat LE — which we set to zero by the strict-impervious assumption — and ground heat flux G into the substrate.",
+                    "Forcing comes from above as a synthetic diurnal cycle in shortwave-down, longwave-down, and air temperature. The output we diagnose is G at z = 0. The bottom boundary at z = 2 m is zero-flux Neumann — at 14 to 25 damping depths down, the daily wave is negligibly small."
+                ]
+            },
+            {
+                title: "Governing equation + four material numbers",
+                paragraphs: [
+                    "The physics is the 1-D heat conduction equation in conductivity form: C times dT/dt equals the spatial divergence of the conductive flux. I use the conductivity form rather than the diffusivity form because the layered substrates have λ and C that jump by an order of magnitude across interfaces, and the conductivity form preserves the discrete heat content exactly across those jumps.",
+                    "Spatial discretisation is on a stretched grid — 0.5 cm at the surface, growing geometrically to about 30 cm at depth — to resolve the centimetre-scale damping zone while keeping the column thermally complete. Conductivity at half-levels uses the harmonic mean, which preserves the heat flux exactly across a discontinuity in λ. The arithmetic mean would over-estimate the flux across the concrete-to-insulation interface by roughly a factor of nineteen."
+                ]
+            },
+            {
+                title: "Surface energy balance — four fluxes balanced, Tₛ⁰ by Newton",
+                paragraphs: [
+                    "The top boundary is closed by the surface energy balance: net radiation equals the sum of sensible heat, latent heat, and ground heat flux. The surface temperature Tₛ⁰ is the unknown that makes this equation balance. We don't prescribe it; we solve for it.",
+                    "Each time step, we run Newton iteration on the SEB residual F of Tₛ⁰ equals R_n minus H minus LE minus G. Three to four Newton iterations converge to within ten-to-the-minus-four kelvin per step. The Jacobian is analytical, no finite differences. This is the prognostic SEB that distinguishes Test 2 from Test 1's prescribed sinusoid."
+                ]
+            },
+            {
+                title: "Three substrates spanning the urban-physics range",
+                paragraphs: [
+                    "Three idealised substrates were chosen to span a wide range of behaviours. The asphalt road has four layers — asphalt slab, aggregate base, dry soil, subsoil — with a moderately high top-layer diffusivity. The concrete roof has three layers — concrete deck on rigid insulation on a drywall-and-wood interior — with the highest top-layer diffusivity and the most extreme internal contrast. The bare soil reference is a single uniform sandy loam.",
+                    "These are not real city geometries. They are 1-D columns chosen to span asphalt's moderate stiffness, concrete's extreme stiffness with an insulator below, and a low-conductivity reference. The mix lets us see whether scheme errors correlate with κ_top, with bulk admittance, with layer structure, or with all three."
+                ]
+            },
+            {
+                title: "Boundary conditions — top by SEB, bottom by zero flux",
+                paragraphs: [
+                    "A second-order PDE needs two boundary conditions, one at each end of the column. At the top, the boundary condition is the surface energy balance — Tₛ⁰ is the root of F equals zero, solved by Newton each step. At the bottom, z equals 2 metres, we impose a zero-flux Neumann condition.",
+                    "Two metres is 14 to 25 diurnal damping depths down, depending on substrate. At that depth the daily wave has decayed to less than one part in a million of its surface amplitude. So we can stop the column there without affecting the diagnostics at the surface."
+                ]
+            },
+            {
+                title: "Initial condition — damping-depth profile, skip the spin-up",
+                paragraphs: [
+                    "Cold-starting from a uniform Tₛ would need several days of spin-up before the column reached diurnal quasi-equilibrium. We skip that by initialising each column at midnight with the analytical damping-depth solution: T̄ plus A times exp of minus z over d times cos of minus z over d, using the top layer's effective κ.",
+                    "Then we refine Tₛ⁰ with one Newton SEB step to close the surface budget at t equals zero. This places the column close to its true diurnal quasi-equilibrium, so we only need to run two days. Day 1 absorbs the phase mismatch between the damping-depth IC and the SEB-driven cycle; day 2 is what we diagnose."
+                ]
+            },
+            {
+                title: "θ-method family — three schemes, one implementation",
+                paragraphs: [
+                    "All three schemes are unified under a single α-weighted θ-method. α equals zero is FTCS — fully explicit. α equals one is BTCS — fully implicit. α equals one half is Crank–Nicolson — half-explicit, half-implicit.",
+                    "One implementation, three schemes — which means a bug in the spatial discretisation cannot make any one scheme look better than another in the comparison. FTCS is a single vectorised pass; BTCS and CN use a tridiagonal solver from scipy. All three are O of N per step."
+                ]
+            },
+            {
+                title: "Figure 1 — Von Neumann amplification",
+                paragraphs: [
+                    "This figure is the von Neumann stability analysis — we drop one sine wave into the column and ask what each scheme does to it in a single time step. The x-axis is the wavelength of that wave measured in grid cells, with the right edge being the shortest wave the grid can resolve, two cells across. The y-axis is the amplification factor — anything above the dashed line at 1 means the wave grows each step, which is instability.",
+                    "The four coloured curves are values of ν, the diffusion number — a single dial that combines the time step, the grid spacing, and the substrate's diffusivity. Look at FTCS on the left — at ν equals 0.5 the worst wave sits right on the bound, and at ν equals 5 it explodes to magnitude of A equals about 19, the textbook explicit-scheme instability. BTCS in the middle stays below 1 for every ν — that's unconditional stability — but at large ν it damps too aggressively, which is the source of its over-amplification bias on coarse Δt.",
+                    "Crank–Nicolson on the right also stays at or below 1, but at ν equals 5 it barely damps the shortest wave, dropping only to about 0.82 — the noise mode is preserved, not killed. So three panels, three different failure modes — FTCS blows up, BTCS over-damps, CN can't damp the noise mode at large ν — and everything we see in the rest of the deck is a downstream consequence of these three trade-offs."
+                ]
+            },
+            {
+                title: "Figure 2 — Damping-depth verification (Test 1)",
+                paragraphs: [
+                    "This is the verification test — Test 1 — where we run all three schemes against a problem that has a known analytical answer. The setup is a uniform sandy-loam column with a prescribed sinusoidal temperature at the top, and the Carslaw–Jaeger analytical solution gives us the closed-form benchmark, shown as the black line in every panel.",
+                    "Panel (a) is the vertical temperature profile at peak surface forcing — you see the daily wave decaying exponentially with depth and dying out by about 50 centimetres, and all three numerical schemes lie on top of the analytical curve. Panel (b) is the surface temperature over 24 hours — a clean sinusoid that the schemes reproduce to within fractions of a kelvin. Panel (c) is the surface ground heat flux, and the key feature is that G peaks about three hours before T does — that is the π over 4 phase lead from the analytical solution, and all schemes capture it correctly.",
+                    "So before we touch the urban substrates or the prognostic energy balance, this slide confirms the heat-conduction kernel itself is implemented correctly — any differences we see between schemes from here on are real numerical effects, not bugs."
+                ]
+            },
+            {
+                title: "Figure 3 — Tₛ at Δt = 15 s, schemes agree",
+                paragraphs: [
+                    "We're now in Test 2, the prognostic experiment — the surface temperature is no longer prescribed, it emerges from balancing radiation, sensible heat, and ground flux. Three panels, three substrates: asphalt road, concrete roof, bare soil.",
+                    "Δt is 15 seconds in every panel, which is below the FTCS stability bound on all three substrates, so the three schemes overlap to plotting precision — at small Δt the time-stepping choice doesn't matter. What does matter is the substrate: asphalt peaks at 50 degrees Celsius, concrete at 45, and — slightly surprisingly — bare soil at 51, the hottest of the three. The soil is hottest because its low thermal diffusivity traps absorbed heat near the surface, and we've assumed LE equals zero so there is no evaporative cooling to take that heat away.",
+                    "These curves are the high-resolution reference: every Δt equals 600 second run on the next slide will be measured against this truth."
+                ]
+            },
+            {
+                title: "Figure 4 — G at Δt = 600 s, schemes diverge",
+                paragraphs: [
+                    "This is the headline result of the whole project — we've cranked Δt up from 15 seconds to 600 seconds, a coarse stress-test value approaching the time steps used in climate-model land-surface coupling, and the question is which scheme can survive it. The thick black line in every panel is the FTCS-at-15-seconds reference from the previous slide — that's our truth.",
+                    "On asphalt and concrete, FTCS blows up immediately — you can see the BLEW UP labels — because ν exceeds the stability bound by 18 and 35 times respectively. BTCS doesn't blow up, but it systematically overshoots the daytime G peak by 40 percent on both stiff substrates — stable, but quantitatively very wrong. Crank–Nicolson is the only scheme that tracks the reference within a few watts per square metre on every substrate — the practical winner at coarse Δt on urban substrates.",
+                    "On bare soil, even FTCS barely survives because the low diffusivity keeps ν close to the bound — that is why traditional rural land-surface schemes have gotten away with explicit time stepping, and why urban substrates are the harder problem."
+                ]
+            },
+            {
+                title: "Figure 5 — Where the error lives (asphalt profile)",
+                paragraphs: [
+                    "Figure 4 showed BTCS overshooting the asphalt's daytime G peak by 40 percent — this figure zooms into the column to see where in the depth that error actually lives. We plot vertical T profiles in the asphalt road, top 50 centimetres only, at three times on day 2 — 6 AM, noon, and 6 PM — with the FTCS-at-15-seconds reference in thick black.",
+                    "At 6 AM during the slow nighttime cooling, the schemes overlap to plotting precision — nothing fast is happening, BTCS handles it fine. At noon, peak forcing, BTCS and CN sit about half a kelvin warmer than the reference in the top centimetre — the first sign of error. At 6 PM right after sunset, when the surface is cooling fast, BTCS holds the top of the column 2 kelvin above the truth, and the deviation is entirely concentrated in the top 5 centimetres — exactly the asphalt layer.",
+                    "So the 40 percent G error from the previous slide isn't a column-wide problem — it's a thin near-surface problem in a single material layer, and CN with its second-order accuracy follows the rapid cooling far better than BTCS can."
+                ]
+            },
+            {
+                title: "Table 2 — 27-cell cross-substrate quantitative summary",
+                paragraphs: [
+                    "This table is the entire Test 2 experiment condensed into one place — 27 cells, three substrates by three schemes by three time steps. Each cell has three numbers separated by slashes: the diurnal G amplitude relative to the truth, the surface-temperature RMSE in kelvins, and the daily storage ratio. The cells marked BLEW UP are FTCS at 60 s on the concrete roof and FTCS at 600 s on every impervious substrate — those runs literally cannot finish.",
+                    "Three patterns to take home. First, at the 600-second column the cross-substrate ordering of RMSE is consistent: soil errors are about a third of asphalt, which are about two thirds of roof — exactly the κ_top story we'll see on the mechanism slide. Second, in every single cell, CN errors are about half of BTCS — that's second-order versus first-order temporal accuracy showing up directly. Third, look at the rightmost number in every cell: every storage ratio is within five percent of unity, even where the amplitude is inflated by 40 percent — the error is symmetric day-and-night, so the daily mean is preserved.",
+                    "The bottom line: BTCS and CN both get the daily energy budget right at any time step, but only CN delivers a usable diurnal amplitude at coarse Δt on urban substrates."
+                ]
+            },
+            {
+                title: "Table 3 — Δt-refinement ratios (smoking gun)",
+                paragraphs: [
+                    "Table 3 is the most important diagnostic in the whole project — it tells us what kind of error we're actually dealing with. The two RMSE columns are the temperature errors at Δt equals 60 seconds and 600 seconds; the rightmost column is just the ratio of the two. When you change Δt by a factor of 10 and the error changes by a factor of 10, that is the textbook signature of a first-order error in Δt.",
+                    "Look down that column: every single value is close to 10 — between 8.2 and 10.2 — for both BTCS and CN, on every substrate. For BTCS that is expected: BTCS is intrinsically a first-order scheme. But Crank–Nicolson is intrinsically second-order — its own truncation error would have given a ratio of 100, not 10. So CN showing a ratio of 10 means CN's second-order accuracy is being masked by a separate first-order error that both schemes see — and that error is the operator splitting between the column update and the surface energy balance update.",
+                    "This is the empirical evidence that licenses the next slide's κ_top argument and the SHAP confirmation that follows."
+                ]
+            },
+            {
+                title: "Mechanism — why κ_top should dominate",
+                paragraphs: [
+                    "We've seen what the BTCS error looks like; this slide argues from the mechanism that the error should scale with one specific substrate parameter, κ_top, so the SHAP attribution on the next slide is a test of a physically motivated prediction, not an after-the-fact data exercise.",
+                    "Card 1 has the smoking gun from the previous slide: refinement ratios near 10 for both BTCS and CN. A ratio of 10 when Δt scales by 10 is a first-order error — expected for BTCS, but CN is intrinsically second-order, so CN by itself would have given 100. Observing 10 means CN's own truncation is being masked by a separate first-order error, the column-first-then-SEB Lie operator splitting.",
+                    "Card 2 gives the prefactor: the per-step equilibrium gap depends on how fast the top cell re-equilibrates within one Δt, with timescale τ_top equals Δz squared over κ_top. High κ_top means short τ_top, larger gap per step, larger error. Card 3 is the unifying statement: the same κ_top that sets the FTCS stability bound also sets the BTCS splitting prefactor — a single substrate parameter governs both failure modes. The testable prediction at the bottom: κ_top first, admittance second, layer structure a distant third."
+                ]
+            },
+            {
+                title: "Figure 6 — SHAP attribution result",
+                paragraphs: [
+                    "The previous slide made a prediction — that κ_top should be the main thing controlling BTCS error. This slide is the test of that prediction using a completely different method. We made up 150 random urban substrates on the computer, with three layers each spanning realistic conductivity, heat capacity, and thickness ranges. For each substrate we ran BTCS at 600 seconds and BTCS at 15 seconds, recorded the RMSE between them as the score, and used SHAP to ask which of six substrate properties best predicts the score.",
+                    "Panel (a) on the top-left is the headline — κ_top is the longest bar by a wide margin, three to four times longer than anything else, exactly what the previous slide predicted from physics. Panel (b) shows the dependence is monotone and near log-linear with admittance modulating the slope. Panel (c) removes κ_top and re-ranks the remaining five features — admittance jumps to the top, confirming it as the genuine second-place control just as the mechanism slide predicted. Panel (d) is the model-fit diagnostic.",
+                    "The punchline: the previous slide picked κ_top using physics, this slide picks κ_top using machine learning on 150 random substrates — two completely different methods with nothing in common, and they give the same answer. Convergent evidence is the strongest evidence."
+                ]
+            },
+            {
+                title: "Conclusions — four findings + practical takeaway",
+                paragraphs: [
+                    "Let me close by pulling the four findings together. First, FTCS is structurally out — the stability bound is 17 seconds on the concrete deck and 33 seconds on asphalt, both below any time step a real model uses, so explicit time-stepping is ruled out by physics, not by tuning.",
+                    "Second, the implicit schemes survive every run but they're not equally accurate — at coarse Δt, BTCS over-amplifies the daytime G by 40 percent on asphalt and concrete, while Crank–Nicolson cuts that to about 21 percent. Third, the error isn't BTCS's own truncation — refinement ratios near 10 for both BTCS and CN tell us the dominant error is the operator splitting, and the SHAP attribution identifies κ_top as the substrate parameter that sets its magnitude. Fourth, the daily-mean ground heat storage is preserved across schemes within plus-or-minus five percent — the bias isn't in the daily mean of the UHI, it's in the diurnal range, with simulated nights too warm and mornings too sharp.",
+                    "The practical takeaway is simple: at coarse Δt on urban substrates, use Crank–Nicolson over BTCS — it cuts the error in half — and if you can afford it, replace the column-then-SEB splitting with a fully coupled solve, which removes the splitting error entirely. We're aware of the limitations: strict-impervious LE equals zero, symmetric synthetic forcing, isolated columns rather than facet-weighted urban canopies — and the natural next step is to couple this diagnostic framework to a real urban canopy scheme like WRF-SLUCM. The one-sentence summary: the time-integration scheme matters as much as the substrate physics, and once you control for it, κ_top alone tells you most of what you need to know about how badly each scheme will fail."
+                ]
+            }
+        ];
+
+        // Map slot index (0-based) to entry in slides[]. 1-to-1 in this layout.
+        var NOTE_ORDER = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18];
+        var totalSlides = NOTE_ORDER.length;
+
+        var currentSlide = 0;
+        var timerRunning = false;
+        var timerSeconds = 0;
+        var timerInterval = null;
+
+        // BroadcastChannel name matches the v2 deck's: 'clim715-deck-sync'
+        // (line ~4227 of CLIM715_Final_Presentation_v2.html). When this notes
+        // window navigates, the deck advances; when the deck advances, this
+        // window follows.
+        var channel = null;
+        var broadcasting = false;
+        try { channel = new BroadcastChannel('clim715-deck-sync'); } catch(e) {}
+
+        function broadcastSlide(n) {
+            if (channel && !broadcasting) {
+                channel.postMessage({ type: 'slide-change', slide: n });
+            }
+        }
+
+        if (channel) {
+            channel.onmessage = function(e) {
+                if (e.data && e.data.type === 'slide-change' && typeof e.data.slide === 'number') {
+                    broadcasting = true;
+                    showSlide(e.data.slide);
+                    broadcasting = false;
+                }
+            };
+            document.getElementById('syncStatus').textContent = 'Sync: connected';
+            document.getElementById('syncStatus').className = 'sync-status connected';
+        } else {
+            document.getElementById('syncStatus').textContent = 'Sync: unavailable';
+            document.getElementById('syncStatus').className = 'sync-status disconnected';
+        }
+
+        function renderDots() {
+            var bar = document.getElementById('dotsBar');
+            bar.innerHTML = '';
+            for (var i = 0; i < totalSlides; i++) {
+                var dot = document.createElement('div');
+                dot.className = 'dot' + (i === currentSlide ? ' active' : (i < currentSlide ? ' visited' : ''));
+                dot.textContent = i + 1;
+                dot.onclick = (function(idx) { return function() { showSlide(idx); }; })(i);
+                bar.appendChild(dot);
+            }
+        }
+
+        function renderNotes() {
+            var data = slides[NOTE_ORDER[currentSlide]];
+            document.getElementById('slideIndicator').textContent = 'Slide ' + (currentSlide + 1) + ' / ' + totalSlides;
+            document.getElementById('slideTitle').textContent = data.title;
+            var container = document.getElementById('notesContainer');
+            container.innerHTML = '';
+            container.scrollTop = 0;
+            data.paragraphs.forEach(function(text) {
+                var p = document.createElement('div');
+                p.className = 'note-paragraph';
+                p.textContent = text;
+                container.appendChild(p);
+            });
+        }
+
+        function showSlide(n) {
+            if (n < 0 || n >= totalSlides) return;
+            currentSlide = n;
+            renderNotes();
+            renderDots();
+            broadcastSlide(n);
+        }
+
+        function nextSlide() { if (currentSlide < totalSlides - 1) showSlide(currentSlide + 1); }
+        function prevSlide() { if (currentSlide > 0) showSlide(currentSlide - 1); }
+
+        function updateTimerDisplay() {
+            var m = Math.floor(timerSeconds / 60);
+            var s = timerSeconds % 60;
+            document.getElementById('timer').textContent = m + ':' + (s < 10 ? '0' : '') + s;
+        }
+
+        function toggleTimer() {
+            if (timerRunning) {
+                clearInterval(timerInterval); timerRunning = false;
+                document.getElementById('timer').classList.remove('running');
+            } else {
+                timerInterval = setInterval(function() { timerSeconds++; updateTimerDisplay(); }, 1000);
+                timerRunning = true;
+                document.getElementById('timer').classList.add('running');
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval); timerRunning = false;
+            timerSeconds = 0; updateTimerDisplay();
+            document.getElementById('timer').classList.remove('running');
+        }
+
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'm' || e.key === 'M') { e.preventDefault(); nextSlide(); }
+            else if (e.key === 'k' || e.key === 'K') { e.preventDefault(); prevSlide(); }
+            else if (e.key === 't' || e.key === 'T') { e.preventDefault(); toggleTimer(); }
+            else if (e.key === 'r' || e.key === 'R') { e.preventDefault(); resetTimer(); }
+        });
+
+        renderNotes();
+        renderDots();
+        updateTimerDisplay();
+    </script>
+</body>
+</html>
