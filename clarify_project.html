@@ -61,6 +61,27 @@ mjx-container[display="true"] { margin: 14px 0 !important; overflow-x: auto; }
   .report-figure { margin: 24px 0; }
 }
 
+
+.interp-box {
+  margin: 18px -20px 28px -20px;
+  background: linear-gradient(135deg, #f6f1ff 0%, #eaf6f5 100%);
+  border-left: 4px solid #38b2ac;
+  border-radius: 6px;
+  padding: 18px 24px;
+}
+.interp-box h4 {
+  color: #2c8a83;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 8px 0;
+  font-weight: 700;
+}
+.interp-box p { margin: 8px 0; font-size: 14.5px; color: #2c3142; }
+.interp-box p:first-of-type { margin-top: 4px; }
+.interp-box ul { margin: 8px 0 8px 20px; font-size: 14.5px; }
+.interp-box li { margin-bottom: 4px; font-size: 14.5px; }
+.interp-box strong { color: #6b5cb5; }
 </style>
 <script>
 window.MathJax = {
@@ -199,6 +220,17 @@ window.MathJax = {
     <iframe class="widget-frame" src="widget_17sec.html" loading="lazy"></iframe>
   </div>
   <div class="widget-caption">Drag the $\Delta z$ slider to see the FTCS maximum stable time step $\Delta t_{\max} = \frac{1}{2} \Delta z^2 / \kappa$ collapse. At $\Delta z = 5$ mm on the concrete deck, $\Delta t_{\max} \approx 17$ s — far below any operational mesoscale step.</div>
+</div>
+<div class="interp-box"><h4>Slide 6 — How to read this widget</h4>
+<p><strong>What it shows.</strong> Three horizontal bars, one per substrate (asphalt road, concrete roof, bare soil). Each bar marks the maximum stable time step FTCS can take, $\Delta t_{\max} = \tfrac{1}{2}\Delta z^2 / \kappa$, on a logarithmic time axis from 0.1 s to 100,000 s. Three vertical reference lines mark <strong>17 s</strong> (the FTCS bound at a 5 mm concrete cell), <strong>60 s</strong> (a typical mesoscale model time step), and <strong>600 s</strong> (a typical regional climate model time step).</p>
+<p><strong>Drag the $\Delta z$ slider to see what happens.</strong> As you move the slider from coarser (right) to finer (left) grid spacing, every bar slides leftward on the log axis. The reason: $\Delta t_{\max}$ scales with $\Delta z^{2}$, so halving $\Delta z$ quarters the maximum stable step. The bars also re-order themselves — at any given $\Delta z$, the most-diffusive substrate (concrete deck) has the smallest stable step, because higher $\kappa$ tightens the bound.</p>
+<p><strong>Try these positions:</strong></p>
+<ul>
+<li>$\Delta z = 50$ mm (5 cm): all three bars are to the right of the 600 s reference line — FTCS works fine even for climate-scale time steps. But 5 cm is too coarse to resolve the 8–14 cm diurnal damping depth, so the simulation would miss the physics.</li>
+<li>$\Delta z = 10$ mm (1 cm): the concrete bar is around 70 s, the asphalt bar around 130 s, the soil bar around 220 s. Concrete already needs sub-60-second steps. Marginal.</li>
+<li>$\Delta z = 5$ mm: the concrete bar lands exactly at <strong>17 s</strong>. Asphalt is at 33 s, soil at about 100 s. Now even the mesoscale-typical 60 s step is unsafe on concrete and asphalt.</li>
+</ul>
+<p><strong>How this connects to what came before.</strong> Section 1.3 established the 8–14 cm damping depths, which forced us to pick a 5 mm top cell to resolve them. This widget shows the consequence visually: at that resolution, FTCS becomes structurally unusable, and we are forced into BTCS or Crank–Nicolson. The whole project rests on this trade-off.</p>
 </div>
 
 
@@ -433,6 +465,17 @@ window.MathJax = {
   </div>
   <div class="widget-caption">The governing physics summarised on one slide: the conductivity-form heat equation, the stretched-grid column diagram with cell centres and half-level fluxes, the harmonic-mean rule for $\lambda$ at faces, the θ-method update with three pills marking α = 0, 1/2, 1, and the boundary-conditions table.</div>
 </div>
+<div class="interp-box"><h4>Slide 4 — How to read this slide</h4>
+<p><strong>What it shows.</strong> A one-page summary of every piece of physics and numerics introduced so far, in two columns. Left column: the governing equation in conductivity form, plus a small diagram of the stretched-grid column with cell centres (purple dots) and half-level fluxes (teal arrows), and a $\lambda$-jump annotation across the layer interface. Right column: the θ-method update equation, three coloured pills marking the three schemes by their $\alpha$ value (FTCS purple, CN orange, BTCS teal), and a boundary-conditions / forcing summary table.</p>
+<p><strong>How to read each element.</strong></p>
+<ul>
+<li><strong>Heat equation</strong>: $C_s(z) \partial T_s/\partial t = \partial/\partial z [\lambda_s(z) \partial T_s/\partial z]$. Reading left to right — heat content accumulates locally at a rate equal to the divergence of the conductive flux.</li>
+<li><strong>Column diagram</strong>: each purple dot is a cell-centre where we store $T_j$; each teal arrow is a half-level face where we evaluate $G_{j+1/2}$. The red horizontal line shows where $\lambda$ jumps across a layer interface — that is exactly where the harmonic mean matters.</li>
+<li><strong>θ-method pills</strong>: choose one value of $\alpha$ and you get one scheme. $\alpha = 0$ (FTCS) is cheap and explicit but conditionally stable; $\alpha = 1$ (BTCS) is implicit, always stable, but only first-order; $\alpha = 1/2$ (CN) is implicit, always stable, AND second-order — the gold standard.</li>
+<li><strong>BC table</strong>: top BC is the SEB residual solved for $T_s^0$ by Newton iteration; bottom BC is zero-flux Neumann at $z = 2$ m.</li>
+</ul>
+<p><strong>How this connects to the rest of the document.</strong> Everything in Part 6 (Sections 6.1 through 6.6) is an unpacking of this single slide. By the time you finish reading Part 6, every element on this slide will have been derived, every symbol named, every consequence (especially the FTCS stability bound) explained. Think of this slide as the destination and Part 6 as the road.</p>
+</div>
 
 
 <h3>6.1 Section 2.1 — Where the heat conduction equation comes from</h3>
@@ -642,6 +685,16 @@ window.MathJax = {
   <img src="report_images/figure_1.png" alt="Von Neumann amplification factors" loading="lazy">
   <figcaption><strong>Figure 1.</strong> Magnitude of the von Neumann amplification factor $|A_k(\nu, k\Delta z)|$ for FTCS (left), BTCS (centre), and Crank–Nicolson (right). The dashed line marks the stability bound $|A| = 1$. FTCS at $\nu = 5$ is off-scale at the $2\Delta z$ wave ($|A| \approx 19$).</figcaption>
 </figure>
+<div class="interp-box"><h4>Figure 1 — How to read this figure</h4>
+<p><strong>What the three panels show.</strong> Each panel is the per-step amplification factor magnitude $|A_k|$ as a function of the dimensionless wavenumber $k\Delta z$ (from 0 at long wavelengths to $\pi$ at the 2-$\Delta z$ wave), for one of the three schemes. Four curves are overlaid in each panel, one per value of the diffusion number $\nu = 0.25, 0.5, 1.0, 5.0$. The horizontal dashed line at $|A| = 1$ is the stability bound — anything above it grows, anything below decays.</p>
+<p><strong>Panel-by-panel reading.</strong></p>
+<ul>
+<li><strong>FTCS (left)</strong>: at $\nu = 0.25$ all wavenumbers stay below 1 — stable. At $\nu = 0.5$ the curve exactly touches $|A| = 1$ at $k\Delta z = \pi$ — the marginal case. At $\nu = 1.0$ and $\nu = 5.0$, $|A|$ exceeds 1 across a wide range — the 2-$\Delta z$ wave is amplified by 3 and 19 per step, respectively, so the solution blows up within a few steps.</li>
+<li><strong>BTCS (centre)</strong>: every curve is monotonically decreasing in $k\Delta z$, and every curve stays well below 1. Short waves are damped strongly; long waves are barely touched. BTCS is unconditionally stable AND strongly damping at small scales — exactly what you want for "make the model survive any time step, at the cost of suppressing fine structure".</li>
+<li><strong>Crank–Nicolson (right)</strong>: every curve stays $\le 1$, so CN is also unconditionally stable. But notice the $\nu = 5$ curve actually <em>rises</em> back toward $|A| \approx 0.82$ near $k\Delta z = \pi$. That is the over-damping pathology: at large $\nu$, CN <em>fails to damp</em> the 2-$\Delta z$ wave even though it remains stable. The mode oscillates with a sign flip each step but its amplitude is preserved. This is harmless if there is no 2-$\Delta z$ noise to begin with, but it means CN should be paired with smooth initial conditions and forcing.</li>
+</ul>
+<p><strong>The single most important reading.</strong> Compare the three panels at $\nu = 0.5$. FTCS sits on the bound (margin of failure). BTCS is at $|A| \approx 0.33$ at $k\Delta z = \pi$ — strongly damping. CN is at $|A| = 0$ at $k\Delta z = \pi$ — CN actually <em>annihilates</em> the worst wave in a single step at $\nu = 1/2$. So at the FTCS marginal-stability point, CN is far more accurate AND damps short waves well. This is why CN is the project's preferred scheme.</p>
+</div>
 
 
 
@@ -654,6 +707,16 @@ window.MathJax = {
     <iframe class="widget-frame" src="window_von_neuman.html" loading="lazy"></iframe>
   </div>
   <div class="widget-caption">Drag the $\nu$ slider in each panel to see how $|A_k|$ for FTCS, BTCS, and CN responds. FTCS becomes unstable above $\nu = 1/2$ at the $2\Delta z$ wave; BTCS and CN remain bounded for any $\nu$.</div>
+</div>
+<div class="interp-box"><h4>Slide 5 — How to interact with this widget</h4>
+<p><strong>What it shows.</strong> The same three panels as Figure 1 (FTCS, BTCS, CN), but with a $\nu$ slider you can drag in real time. As you change $\nu$, all three curves redraw, and a small badge at the top of each panel updates to "STABLE" or "UNSTABLE" with the corresponding $|A_{\max}|$ value.</p>
+<p><strong>What to try.</strong></p>
+<ul>
+<li>Slide $\nu$ from 0 to 0.5: watch the FTCS curve climb. At exactly $\nu = 0.5$ it touches the dashed bound. The FTCS panel says "STABLE, max |A| = 1.00". One nudge higher and it switches to "UNSTABLE".</li>
+<li>Push $\nu$ past 1: FTCS panel's max |A| value rockets past 3, 5, 19. BTCS and CN panels show the curves changing shape but they never cross the bound.</li>
+<li>Set $\nu = 100$ (drag all the way to the right): BTCS damps the worst wave to near-zero in one step. CN's $|A|$ at $k\Delta z = \pi$ approaches 1 (the over-damping pathology made vivid) — CN is stable but the 2-$\Delta z$ wave is barely damped.</li>
+</ul>
+<p><strong>How this connects to what came before.</strong> Section 6.5 derived the three amplification-factor formulas $A_{\mathrm{FTCS}}, A_{\mathrm{BTCS}}, A_{\mathrm{CN}}$ algebraically. This widget lets you <em>watch</em> the curves move as $\nu$ changes. After playing with the slider for a minute, the algebra is no longer abstract — you can see why FTCS dies at $\nu = 0.5$, why BTCS damps aggressively, and why CN ends up the best compromise for smooth problems.</p>
 </div>
 
 
@@ -873,6 +936,15 @@ window.MathJax = {
   <img src="report_images/figure_2.png" alt="Damping-depth verification panels" loading="lazy">
   <figcaption><strong>Figure 2.</strong> Damping-depth verification on a uniform sandy-loam column. (a) Profile of $T_s$ at peak forcing on day 5. (b) Surface temperature over day 5. (c) Surface ground heat flux $G(t)$. Numerical curves match the analytical $\pi/4$ phase lead to within $\sim 3$ W/m² RMS.</figcaption>
 </figure>
+<div class="interp-box"><h4>Figure 2 — How to read this figure</h4>
+<p><strong>What the three panels show.</strong> Test 1 verifies that our solver actually reproduces the analytical damping-depth solution on a uniform sandy-loam column.</p>
+<ul>
+<li><strong>Panel (a) — vertical profile at peak forcing</strong>: shows $T_s(z)$ from $z = 0$ to $z = 1$ m at the moment of peak surface temperature on day 5. The analytical solution (black) and the numerical solutions (overlaid coloured curves for each stable scheme) coincide. Two visual checks: amplitude decay (the temperature swing at $z = 0$ is much larger than at depth) and depth-dependent phase lag (at any given moment, deeper layers are "behind" the surface in the diurnal cycle).</li>
+<li><strong>Panel (b) — surface temperature over 24 hours</strong>: $T_s(0, t)$ as a clean sinusoid. All stable numerical schemes overlay the analytical curve. This is the boundary-driven sinusoid — by design it is captured exactly because it is the prescribed Dirichlet input.</li>
+<li><strong>Panel (c) — surface ground heat flux $G(0, t)$ over 24 hours</strong>: also sinusoidal, but it peaks $\pi/4$ (3 hours) <em>before</em> $T_s(0, t)$ does. This $\pi/4$ phase lead is the textbook fingerprint of the damping-depth solution — recovered by all stable numerical schemes. If a scheme cannot reproduce the $\pi/4$ lead, it is wrong.</li>
+</ul>
+<p><strong>The single most important reading.</strong> All five stable schemes lie on top of the analytical curve at the visual scale of this plot. This is the verification step: it tells us "the solver is mathematically correct before we trust it on the harder Test 2." If this plot did not show overlay, every result downstream would be suspect.</p>
+</div>
 
 
 <p>Six configurations on uniform sandy loam, day-5 errors at $z = 10$ cm:</p>
@@ -931,6 +1003,18 @@ window.MathJax = {
 </tr>
 </tbody>
 </table>
+<div class="interp-box"><h4>Table 1 — What the day-5 errors actually mean</h4>
+<p><strong>What the columns show.</strong> Configuration is the scheme name + setting; $\Delta t$ is the time step; $\nu = \kappa \Delta t / \Delta z^{2}$ is the dimensionless diffusion number; RMSE $T$ is the root-mean-squared error in temperature at $z = 10$ cm depth over the day-5 cycle (in Kelvin); RMSE $G$ is the same for the surface ground heat flux (in W/m²). All errors are measured against the closed-form analytical solution.</p>
+<p><strong>Row-by-row reading.</strong></p>
+<ul>
+<li><strong>FTCS at $\nu = 0.4$ (safely below the bound)</strong>: RMSE = 0.007 K. Essentially exact. This is the baseline — explicit Euler done correctly.</li>
+<li><strong>FTCS at $\nu = 0.6$ (20% above the bound)</strong>: blows up at step 53. That is exactly what von Neumann analysis predicts: the 2-$\Delta z$ mode grows by $|1 - 4(0.6)| = 1.4$ per step. After 53 steps, $1.4^{53} \approx 5.5 \times 10^{7}$ — overflow. The fact that the simulation blows up <em>at the predicted moment</em> is a strong sanity check on the theory.</li>
+<li><strong>BTCS at $\Delta t = 300$ vs $\Delta t = 900$</strong>: errors are 0.024 → 0.062 K, a factor of 2.6× for a 3× larger $\Delta t$. First-order behaviour, as theory predicts.</li>
+<li><strong>CN at $\Delta t = 300$ vs $\Delta t = 900$</strong>: errors are 0.005 → 0.006 K, a factor of 1.2×. The error is nearly flat — this is CN's <em>second-order accuracy</em> showing through. Doubling $\Delta t$ should multiply the error by 4 if second-order, but at this $\Delta t$ range the time-stepping error has dropped below the spatial-discretisation error (the residual 3 W/m² in RMSE $G$), so CN looks even better than second-order.</li>
+<li><strong>RMSE $G \approx 3$ W/m² for every stable scheme</strong>: this is a spatial-discretisation residual, not a time-stepping error. The analytical $G$ uses the exact $\partial T/\partial z|_0$; the numerical version uses $(T_0 - T_1)/\Delta z$, which has $O(\Delta z^{2})$ truncation error. No time scheme can reduce this; only a finer spatial grid would.</li>
+</ul>
+<p><strong>The single most important reading.</strong> CN at $\nu = 2.08$ (Δt = 900 s) gives a smaller error than FTCS at $\nu = 0.4$ (Δt = 173 s), while using <em>five times fewer time steps</em>. This is the case for choosing implicit time stepping despite the linear-solve cost.</p>
+</div>
 <ul>
 <li>FTCS at $\nu = 0.6$: blew up at step 53. Predicted $|A| = 1.4$ per step → $1.4^{53} \approx 5.5\times 10^7$.</li>
 <li>BTCS error grows linearly with $\Delta t$ — first-order.</li>
@@ -944,6 +1028,18 @@ window.MathJax = {
   <img src="report_images/figure_3.png" alt="Day-2 surface temperature on three substrates at Δt=15s" loading="lazy">
   <figcaption><strong>Figure 3.</strong> Day-2 surface temperature for the three substrates at $\Delta t = 15$ s, all three schemes. The schemes are visually indistinguishable at this time step.</figcaption>
 </figure>
+<div class="interp-box"><h4>Figure 3 — How to read this figure</h4>
+<p><strong>What the three panels show.</strong> Day-2 surface temperature evolution for the three substrate columns, all run at the small time step $\Delta t = 15$ s, with all three schemes overlaid. The grey dotted line in each panel is the prescribed 2-metre air temperature $T_a(t)$, peaking at 14:00 LT around 27 °C. Each panel also shows the daytime peak $T_s^0$ and the time it occurs.</p>
+<p><strong>The first thing to notice.</strong> The three coloured curves (FTCS purple, BTCS teal, CN orange) are visually indistinguishable on every panel. Each scheme gives the same answer at this fine time step. <strong>This is the project's "control" condition</strong>: it establishes that at small enough $\Delta t$, the choice of scheme does not matter. Any divergences we see later (at coarser $\Delta t$) are due to the scheme, not to a programming bug.</p>
+<p><strong>The second thing to notice — peak temperatures.</strong></p>
+<ul>
+<li><strong>Asphalt road: 50 °C at 13:00 LT</strong> — peaks an hour before the air, very hot.</li>
+<li><strong>Concrete roof: 45 °C at 13:45 LT</strong> — coolest of the three, despite identical forcing, because its higher albedo (0.30) reflects more incoming sunlight.</li>
+<li><strong>Bare soil: 51 °C at 12:45 LT</strong> — hottest of the three. Counter-intuitive at first: bare soil has only a moderate albedo (0.20), darker than concrete but lighter than asphalt. Why is it the hottest?</li>
+</ul>
+<p><strong>Why bare soil is the hottest.</strong> Two factors compete. First is absorption: lower albedo means more absorbed shortwave. Second is conduction away from the surface: higher $\kappa$ moves absorbed heat downward, away from the surface, lowering $T_s^0$. Bare soil has the lowest $\kappa$ of the three substrates ($2.3 \times 10^{-7}$ m²/s), so absorbed energy <em>concentrates at the surface</em> instead of diffusing away. Combined with the strict-impervious assumption $LE = 0$ (no evaporative cooling), bare soil ends up with the hottest surface.</p>
+<p><strong>The third thing — peak timing.</strong> Low-$\kappa$ substrates respond quickly at the surface (heat does not spread away), so they lock onto the peak forcing time. High-$\kappa$ substrates lag because they have to fill a deeper reservoir before the surface itself gets hot. Bare soil therefore peaks earliest (12:45), concrete deck (highest $\kappa$) peaks latest (13:45).</p>
+</div>
 
 
 <p>Day-2 surface temperature evolution at $\Delta t = 15$ s. Three curves overlay.</p>
@@ -973,6 +1069,10 @@ window.MathJax = {
 </tr>
 </tbody>
 </table>
+<div class="interp-box"><h4>Peak-temperature table — at a glance</h4>
+<p><strong>How to use this table.</strong> The 3 × 2 layout lets you compare substrates at peak conditions on day 2 at $\Delta t = 15$ s. The ordering by peak temperature (soil > asphalt > roof) is the inverse of the albedo ordering (soil 0.20, asphalt 0.10, roof 0.30) — confirming that albedo alone does not control the peak. The ordering by peak <em>time</em> (soil earliest, roof latest) tracks $\kappa$ (the smaller, the earlier the peak), since low-$\kappa$ surfaces equilibrate quickly with the forcing.</p>
+<p>This table is the empirical anchor for the claim "substrate physics dominates at small $\Delta t$, not the time-stepping scheme." Every row was computed three times (once per scheme), and the values matched to within line thickness on the plot.</p>
+</div>
 <p><strong>Why bare soil is hottest.</strong> Lowest $\kappa$ — heat cannot diffuse downward fast enough. Combined with $LE = 0$, energy concentrates at surface.</p>
 <h4>Reading Figure 4 — schemes diverge at $\Delta t = 600$ s</h4>
 
@@ -980,6 +1080,17 @@ window.MathJax = {
   <img src="report_images/figure_4.png" alt="Day-2 ground heat flux at Δt=600s" loading="lazy">
   <figcaption><strong>Figure 4.</strong> Day-2 ground heat flux $G(t)$ for the three substrates at $\Delta t = 600$ s vs the FTCS reference at $\Delta t = 15$ s. BTCS overshoots the peak by 40% on asphalt and concrete; CN by half that. FTCS is unstable on asphalt and roof.</figcaption>
 </figure>
+<div class="interp-box"><h4>Figure 4 — How to read this figure</h4>
+<p><strong>What the three panels show.</strong> Day-2 ground heat flux $G(t)$ at the surface, for the three substrate columns, run at the large time step $\Delta t = 600$ s, with three schemes overlaid against the FTCS reference at $\Delta t = 15$ s (black). Positive $G$ is into the ground (daytime); negative is out of the ground (nighttime).</p>
+<p><strong>Panel-by-panel.</strong></p>
+<ul>
+<li><strong>Asphalt road</strong>: FTCS at $\Delta t = 600$ s has blown up (its trace is missing or off-scale). BTCS at $\Delta t = 600$ s (teal) overshoots the daytime peak — about 40% too high — and the nighttime minimum is correspondingly too negative. CN (orange) is the same shape but with the overshoot halved (~21%).</li>
+<li><strong>Concrete roof</strong>: same pattern — FTCS blown up, BTCS 41% over-amplified, CN 26% over-amplified. The roof shows the largest absolute error of all three substrates.</li>
+<li><strong>Bare soil</strong>: FTCS at $\Delta t = 600$ s survives (its curve is visible, though noisy) because soil's $\kappa$ is small enough that $\nu \approx 1.4$ — over the bound but not catastrophically. BTCS over-amplifies by only 19%; CN by 10%. Bare soil is the most forgiving substrate.</li>
+</ul>
+<p><strong>What this tells us.</strong> At a coarse time step, all three substrates show <em>symmetric over-amplification</em>: the daytime peak is too high AND the nighttime minimum is too low (more negative), so the cycle is exaggerated but the daily mean is preserved. The over-amplification is largest on the most diffusive substrate (concrete), smallest on the least diffusive (soil) — opposite of what naive intuition would predict.</p>
+<p><strong>The big puzzle this figure raises.</strong> BTCS at large $\Delta t$ is supposed to <em>damp</em> short waves, not amplify them. So why is the diurnal cycle <em>over-amplified</em>? The answer is the operator-splitting error — Section 9.2 explains it in detail. This figure motivates that explanation.</p>
+</div>
 
 
 
@@ -992,6 +1103,18 @@ window.MathJax = {
     <iframe class="widget-frame" src="window_delta_t.html" loading="lazy"></iframe>
   </div>
   <div class="widget-caption">Drag the $\Delta t$ slider through 15, 60, and 600 seconds to watch the simulated diurnal $G$ cycle on each substrate. At small $\Delta t$ the schemes agree; at large $\Delta t$ BTCS over-amplifies, CN halves the error.</div>
+</div>
+<div class="interp-box"><h4>Slide 9 — How to interact with this widget</h4>
+<p><strong>What it shows.</strong> A 2 × 2 grid of plots: three panels show $T_s^0(t)$ on day 2 for each substrate (asphalt, roof, soil), overlaying BTCS and CN at the selected $\Delta t$ against the FTCS $\Delta t = 15$ s reference. The fourth panel (bottom-right) shows RMSE vs $\Delta t$ on a log-log plot, with both BTCS and CN trajectories, plus a slope-1 reference line.</p>
+<p><strong>What to do.</strong> Drag the $\Delta t$ slider at the top through 15, 60, 300, and 600 seconds. Watch each panel respond.</p>
+<ul>
+<li>At $\Delta t = 15$ s: every curve overlays the reference. RMSE for both schemes is near zero in the bottom-right panel.</li>
+<li>At $\Delta t = 60$ s: small but visible BTCS error, CN nearly perfect. RMSE points start moving up.</li>
+<li>At $\Delta t = 300$ s: clear divergence between BTCS and reference. CN tracks much better. RMSE points climb the log-log plot.</li>
+<li>At $\Delta t = 600$ s: BTCS over-amplifies dramatically, CN errors are roughly half of BTCS. RMSE points sit on the slope-1 reference line — confirming first-order behaviour.</li>
+</ul>
+<p><strong>The slope-1 line is the punchline.</strong> If a scheme is first-order in $\Delta t$, its RMSE on log-log plots vs $\Delta t$ falls on a line with slope 1. Both BTCS and CN points lie close to that line. CN <em>should</em> show slope 2 (it is intrinsically second-order), but it shows slope 1 — that is direct visual evidence that some other, first-order error is dominating. The next section identifies it as the operator-splitting error.</p>
+<p><strong>How this connects to what came before.</strong> Figure 4 showed one $\Delta t$ value (600 s). This widget lets you see the <em>convergence behaviour</em> across the whole range. By the time you have dragged the slider through all four values, the "first-order in $\Delta t$, for both schemes" claim is no longer a sentence — it is a pattern you have just watched unfold.</p>
 </div>
 
 
@@ -1006,6 +1129,17 @@ window.MathJax = {
   <img src="report_images/figure_5.png" alt="Vertical profiles in the asphalt column" loading="lazy">
   <figcaption><strong>Figure 5.</strong> Vertical temperature profile in the asphalt road column at 06:00, 12:00, and 18:00 on day 2 — top 50 cm only. Reference is FTCS at $\Delta t = 15$ s. At 18:00 BTCS at $\Delta t = 600$ s holds the surface $\sim 2$ K above the reference.</figcaption>
 </figure>
+<div class="interp-box"><h4>Figure 5 — How to read this figure</h4>
+<p><strong>What the three panels show.</strong> The vertical temperature profile $T(z)$ in the asphalt-road column, from $z = 0$ (surface, at top of plot) down to $z = 50$ cm, at three moments on day 2: 06:00 (just before sunrise), 12:00 (noon — peak heating), and 18:00 (just after sunset). The black curve is FTCS at $\Delta t = 15$ s (the trustworthy reference). The two coloured curves are BTCS and CN at $\Delta t = 600$ s.</p>
+<p><strong>Panel-by-panel.</strong></p>
+<ul>
+<li><strong>06:00 (steady cooling phase)</strong>: all three curves on top of each other. The column has been slowly losing heat all night, and there is no fast swing in $T_s^0$. The operator-splitting error has nothing to act on — when $T_s^0$ changes slowly between time steps, the column has time to keep up. Schemes agree.</li>
+<li><strong>12:00 (peak heating)</strong>: BTCS and CN are slightly warmer than the reference within the top 5 cm. $T_s^0$ is increasing fast across the morning — the column lags slightly behind the surface, but the error is modest.</li>
+<li><strong>18:00 (immediately after sunset)</strong>: the schemes diverge sharply. BTCS at $\Delta t = 600$ s holds the surface roughly 2 K above the reference. The deviation is concentrated entirely in the top 5 cm (the asphalt layer). Below 5 cm, all three curves coincide again.</li>
+</ul>
+<p><strong>Why the 18:00 panel is the smoking gun.</strong> Sunset is when $T_s^0$ is dropping <em>fastest</em>. The operator-splitting picture says: sub-step A advances the column with the start-of-step $T_s^0$ held fixed, then sub-step B updates $T_s^0$ to its new value. But the column has not yet responded to the new $T_s^0$ during sub-step A. At sunset, when $T_s^0$ has just dropped by perhaps 5 K in one $\Delta t$, the column thinks $T_s^0$ is still 5 K warmer than it really is. The gradient at the top half-level is correspondingly steeper than the true coupled solution would have, and $G$ is over-amplified.</p>
+<p><strong>How this connects to what comes next.</strong> This figure is the visual evidence for the operator-splitting mechanism described in Section 9.2. By the time you have absorbed this figure, the "wrong-equilibrium" pathology will not be an abstract concept — it will be a concrete sub-surface kink in the temperature profile at sunset.</p>
+</div>
 
 
 
@@ -1018,6 +1152,19 @@ window.MathJax = {
     <iframe class="widget-frame" src="widget_curvature.html" loading="lazy"></iframe>
   </div>
   <div class="widget-caption">Drag the time-of-day slider through the diurnal cycle in the concrete-roof column. The conductivity jump at $z = 10$ cm concentrates the gradient at the insulation interface; at coarse $\Delta t$, BTCS visibly smears it.</div>
+</div>
+<div class="interp-box"><h4>Slide 10 — How to interact with this widget</h4>
+<p><strong>What it shows.</strong> The vertical temperature profile through the concrete-roof column (3 layers: concrete deck 0–10 cm, mineral-wool insulation 10–20 cm, drywall 20+ cm). The horizontal axis is temperature, the vertical axis is depth from 0 to 30 cm. The conductivity jump at $z = 10$ cm is dramatic (factor of 37×), so the gradient at the interface is very steep.</p>
+<p><strong>Drag the time-of-day slider.</strong> Watch the profile evolve from midnight (00:00) through noon, sunset (18:00), and back to midnight.</p>
+<ul>
+<li>Around 00:00: profile is nearly flat — the column has equilibrated overnight.</li>
+<li>Around 06:00: the surface starts to warm. A small bump appears at the top.</li>
+<li>Around 12:00 (noon): peak heating. The top of the column is much hotter than below; the kink at the concrete/insulation interface is visible.</li>
+<li><strong>Around 14:00–16:00 (peak afternoon)</strong>: the gradient at the interface is maximal. The deck is hot; the insulation barely warms. The kink in the profile shows what the harmonic mean is doing physically.</li>
+<li><strong>Around 18:00 (sunset)</strong>: the surface cools rapidly. The top centimetre drops faster than the deck below. BTCS at $\Delta t = 600$ s visibly <em>rounds off</em> the sharp kink — this is the splitting-error pathology showing up structurally.</li>
+<li>22:00: the column is relaxing back toward equilibrium.</li>
+</ul>
+<p><strong>What the widget is teaching.</strong> Two things: (1) the harmonic-mean conductivity (Section 6.2) is not just an algebra choice — it produces a visible, physically correct kink in the temperature profile at every conductivity discontinuity; (2) the operator-splitting error (Section 9.2) is largest exactly when $T_s^0$ swings fastest, and the worst damage is concentrated in the topmost few cells.</p>
 </div>
 
 
@@ -1069,6 +1216,12 @@ window.MathJax = {
 </tr>
 </tbody>
 </table>
+<div class="interp-box"><h4>FTCS critical-Δt table — what these numbers mean</h4>
+<p><strong>What the columns show.</strong> Substrate, the cell that sets the FTCS bound (always the topmost cell because $\Delta z$ is smallest there), its $\Delta z$, its thermal diffusivity $\kappa = \lambda / C$, and the resulting critical time step $\Delta t_{\mathrm{crit}} = \tfrac{1}{2}\Delta z^{2} / \kappa$.</p>
+<p><strong>The ordering is counter-intuitive.</strong> The most diffusive substrate (concrete deck, $\kappa = 7.14 \times 10^{-7}$) is the <em>most</em> restrictive — $\Delta t_{\mathrm{crit}} = 17$ s. The least diffusive (bare soil, $\kappa = 2.31 \times 10^{-7}$) is the <em>least</em> restrictive — $\Delta t_{\mathrm{crit}} = 217$ s. This is the opposite of what naive intuition would predict — you might think "soil holds heat longer, so the time step should be tighter". But the FTCS bound depends only on how fast a thermal disturbance can propagate <em>relative to the grid</em>, and that is the diffusivity $\kappa$.</p>
+<p><strong>"Stiff" in plain English.</strong> An equation is "stiff" when the time-step constraint is set by the fastest-evolving component, regardless of how small that component is in size. The top 5 mm of concrete deck has $\kappa = 7 \times 10^{-7}$ m²/s — it responds quickly to surface forcing. That single thin cell sets the bound for the whole column. Adding 200 cm of slow-responding drywall below does not help.</p>
+<p><strong>Why operational models cannot use FTCS at all.</strong> Mesoscale weather models use $\Delta t = 60$ s. Regional climate models use $\Delta t = 600$ s. Both exceed every substrate's FTCS bound by factors of 3 to 35. So unless you give up on resolving the 8–14 cm diurnal damping depth (which requires $\Delta z \sim 0.5$ cm), FTCS is out. This forces the entire field toward BTCS or Crank–Nicolson — and the rest of this document is about what errors those implicit schemes introduce in exchange.</p>
+</div>
 <p>Most diffusive substrate (concrete) is most restrictive. "Stiff" = time-step constraint set by fastest-evolving component.</p>
 <h3>9.2 Section 5.2 — The operator-splitting error</h3>
 <h4>How the splitting works</h4>
@@ -1093,6 +1246,12 @@ window.MathJax = {
     <iframe class="widget-frame" src="slide_dt_ratios.html" loading="lazy"></iframe>
   </div>
   <div class="widget-caption">Empirical $\Delta t$-refinement ratios $\mathrm{RMSE}_{T_s}(600\,\mathrm{s}) / \mathrm{RMSE}_{T_s}(60\,\mathrm{s})$ for both BTCS and CN across the three substrates. All six ratios fall in $[8.2, 10.2]$ — first-order in $\Delta t$. CN (intrinsically second-order) showing ratio near 10 (not 100) is the smoking-gun evidence that operator splitting between the column and SEB updates is the dominant error.</div>
+</div>
+<div class="interp-box"><h4>Slide 11 — How to read this slide</h4>
+<p><strong>What the chart shows.</strong> Six bars: BTCS-asphalt, CN-asphalt, BTCS-roof, CN-roof, BTCS-soil, CN-soil. Each bar's height is the $\Delta t$-refinement ratio $\mathrm{RMSE}_{T_{s}}(\Delta t = 600 \, \mathrm{s}) / \mathrm{RMSE}_{T_{s}}(\Delta t = 60 \, \mathrm{s})$. Horizontal reference lines are at 10 (first-order) and 100 (second-order).</p>
+<p><strong>The pattern.</strong> All six bars cluster near 10, ranging from 8.2 (roof, BTCS) to 10.2 (soil, CN). None of them get anywhere near 100.</p>
+<p><strong>Why this is the project's central diagnostic.</strong> BTCS is intrinsically first-order in $\Delta t$, so a ratio near 10 is expected. CN, however, is intrinsically <em>second-order</em> — its ratio should be near 100. The fact that CN also shows ratio ~10 (not 100) tells us the <em>dominant error is not</em> CN's per-substep truncation error. Some other first-order error mechanism is dominating both schemes. The next slides identify it as operator splitting.</p>
+<p><strong>How to convince yourself.</strong> Look at the smallest-error case in Table 3 (CN on soil, RMSE = 0.027 K at 60 s, 0.279 K at 600 s). If CN were really second-order here, doubling $\Delta t$ would multiply the error by 4, so 10× would multiply by 100. We'd expect RMSE at 600 s to be $0.027 \times 100 = 2.7$ K. Instead it is 0.28 K — about ten times the 60 s value, not 100 times. Same story on every other row.</p>
 </div>
 
 
@@ -1151,6 +1310,17 @@ window.MathJax = {
 </tr>
 </tbody>
 </table>
+<div class="interp-box"><h4>Table 3 — The numbers behind the slide</h4>
+<p><strong>The six ratios in tabular form.</strong> Asphalt BTCS 9.4, CN 9.8; roof BTCS 8.2, CN 9.2; soil BTCS 9.9, CN 10.2. Every ratio lies in the band $[8.2, 10.2]$ — within 20% of the perfect first-order value of 10.</p>
+<p><strong>What this means quantitatively for each scheme on each substrate.</strong></p>
+<ul>
+<li><strong>Asphalt BTCS</strong>: doubling-and-a-bit $\Delta t$ × 10 multiplies error by 9.4. First-order.</li>
+<li><strong>Asphalt CN</strong>: same $\Delta t$ increase multiplies error by 9.8. <em>Also</em> first-order — despite CN being intrinsically second-order. CN's expected ratio would be ~100; the observed 9.8 says the per-substep CN truncation error is not what is dominating.</li>
+<li><strong>Roof BTCS / CN</strong>: 8.2 and 9.2. Slightly lower ratios because at $\Delta t = 60$ s the error is already noticeably affected by the splitting mechanism — the 600 s error is "only" 8× the 60 s error, not the full factor of 10.</li>
+<li><strong>Soil BTCS / CN</strong>: 9.9 and 10.2. Slightly higher than 10. The fact that CN's ratio (10.2) is <em>above</em> 10 is the strongest possible visual confirmation that CN is no longer enjoying its second-order advantage — the dominant error has become first-order, and on bare soil it is even slightly steeper than first-order in this range.</li>
+</ul>
+<p><strong>The single most important takeaway.</strong> If CN were behaving second-order, the bottom row would read 100, not 10.2. The factor of 10 between observed and expected is the gap that the operator-splitting story is going to close.</p>
+</div>
 <p>All ratios in $[8.2, 10.2]$ — first-order. Smoking gun.</p>
 <h3>9.3 Section 5.3 — Why $\kappa_{\text{top}}$ dominates substrate dependence</h3>
 <p>Admittance $\mu = \sqrt{\lambda C}$ alone doesn't explain ordering. SHAP attribution: $\kappa_{\text{top}}$ dominant predictor, 92% of variance.</p>
@@ -1237,6 +1407,19 @@ window.MathJax = {
   </div>
   <div class="widget-caption">Presentation view of Figure 6. Mean $|\mathrm{SHAP}|$ for the six substrate descriptors: $\kappa_{\mathrm{top}}$ dominant at 0.71 K (red bar); admittance $\mu_{\mathrm{eff}}$ and max $\lambda$-contrast tied near 0.19 K. $\kappa_{\mathrm{top}}$ alone explains $R^2 = 0.92$ of BTCS coarse-$\Delta t$ error variance.</div>
 </div>
+<div class="interp-box"><h4>Slide 12 — How to read this slide</h4>
+<p><strong>What the bar chart shows.</strong> Six horizontal bars, one per substrate descriptor used in the ML model. Each bar's length is the mean of $|\mathrm{SHAP}|$ over all 150 columns — the average magnitude by which that feature contributes to a prediction.</p>
+<p><strong>The ranking.</strong></p>
+<ul>
+<li><strong>$\kappa_{\mathrm{top}}$ (top-cell diffusivity)</strong>: 0.71 K — by far the longest bar.</li>
+<li><strong>$\mu_{\mathrm{eff}}$ (bulk admittance)</strong>: 0.20 K — about a quarter of $\kappa_{\mathrm{top}}$'s contribution.</li>
+<li><strong>max $\lambda$ contrast at internal interfaces</strong>: 0.18 K — basically tied with admittance.</li>
+<li><strong>Number of interfaces, first-interface depth, top-layer thickness</strong>: each below 0.07 K — negligible.</li>
+</ul>
+<p><strong>Why $\kappa_{\mathrm{top}}$ dominates.</strong> The operator-splitting error scales with how fast the top cell relaxes to the new $T_{s}^{0}$ within sub-step A — and that relaxation rate is $\kappa_{\mathrm{top}}$. Substrates with high $\kappa_{\mathrm{top}}$ relax quickly, so the gradient swing between sub-step A and sub-step B is large, so the splitting error is large. This is the mechanistic prediction of Section 9.2 made quantitative across 150 random substrates.</p>
+<p><strong>Why $\mu_{\mathrm{eff}}$ is secondary.</strong> Bulk admittance $\mu = \sqrt{\lambda C}$ governs how much heat the column can store — its "thermal mass". The splitting error depends on rate (how fast top cell responds), not capacity (how much can be stored). So admittance matters, but only as a second-order modifier.</p>
+<p><strong>The most important reading.</strong> The same parameter $\kappa_{\mathrm{top}}$ that sets the FTCS stability bound (Section 9.1) also sets the prefactor of the BTCS coarse-$\Delta t$ operator-splitting error. Stability and accuracy in this problem are governed by the same number. The FTCS-bound story and the BTCS-error story are two views of the same physics.</p>
+</div>
 
 
 <p>Figure 6 has four panels. (a) $\kappa_{\text{top}}$ tallest at 0.71 K. (b) SHAP dependence on $\kappa_{\text{top}}$ monotone positive. (c) Residual SHAP after $\kappa_{\text{top}}$ partialled out — $\mu_{\text{eff}}$ dominates. (d) Predicted vs observed RMSE 1:1.</p>
@@ -1259,6 +1442,16 @@ window.MathJax = {
     <iframe class="widget-frame" src="slide_conclusions.html" loading="lazy"></iframe>
   </div>
   <div class="widget-caption">The four-card conclusion summary that closes the deck. (1) Stability is structural: FTCS bound 33 s on asphalt, 17 s on concrete. (2) Errors are substrate-dependent; CN halves BTCS at $\Delta t = 600$ s. (3) Operator splitting is the dominant mechanism; $\kappa_{\mathrm{top}}$ explains $R^2 = 0.92$. (4) UHI implication: diurnal-range bias, not mean bias.</div>
+</div>
+<div class="interp-box"><h4>Slide 13 — How to read this slide</h4>
+<p><strong>What the four cards show.</strong> Each card summarises one of the project's four headline findings, numbered (i)–(iv), with key numerical results highlighted.</p>
+<ul>
+<li><strong>Card 1: Stability is structural</strong>. FTCS bound 33 s on asphalt, 17 s on concrete deck — well below operational mesoscale time steps. Implication: implicit treatment of vertical conduction is not optional, it is structural.</li>
+<li><strong>Card 2: Errors are substrate-dependent and CN halves BTCS</strong>. At $\Delta t = 600$ s, BTCS over-amplifies diurnal $G$ amplitude by 40% on asphalt, 41% on roof, 19% on soil; CN halves all three to 21%, 26%, 10%. Surface temperature RMSE up to 3.7 K on the roof for BTCS at coarse $\Delta t$.</li>
+<li><strong>Card 3: Operator splitting is the dominant error</strong>. Both BTCS and CN show $\Delta t$-refinement ratios near 10 (first-order, not 100 = second-order). SHAP identifies $\kappa_{\mathrm{top}}$ as the dominant predictor — $R^{2} = 0.92$ from $\kappa_{\mathrm{top}}$ alone.</li>
+<li><strong>Card 4: UHI implication is diurnal-range bias</strong>. Daily storage integral $\int G \, dt$ is preserved across schemes within ±5%. So the over-amplified G cycle does not bias the daily-mean urban heat island, but it inflates the diurnal range — the simulated nocturnal warming is larger than reality, and dawn-time cooling is sharper.</li>
+</ul>
+<p><strong>How to use this slide.</strong> If you had to defend the project in 90 seconds, walk through these four cards in order. They form a logical chain: (i) tells you why we cannot use explicit schemes, (ii) tells you what error remains when we use implicit ones, (iii) tells you which mechanism produces that error, (iv) tells you what the error means for the simulation of urban climate.</p>
 </div>
 
 
