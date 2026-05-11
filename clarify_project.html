@@ -1547,6 +1547,64 @@ cell: 0 &nbsp;&nbsp;&nbsp; 1 &nbsp;&nbsp;&nbsp; 2 &nbsp;&nbsp;&nbsp; 3 &nbsp;&nb
 <p><strong>Lower boundary: zero-flux Neumann.</strong> At $z = z_{\text{top}} = 2$ m we impose $\partial T/\partial z = 0$. Discretely: $T_{N-1} = T_{N-2}$. <strong>Reading this</strong>: deepest cell ($j = N-1$) has the same temperature as the cell above ($j = N-2$), forcing the discrete gradient between them to zero, hence zero flux.</p>
 <p><strong>Upper boundary: Dirichlet on $T_s^0$.</strong> At cell 0 we set $T_0 = T_s^0$. The "0" superscript in $T_s^0$ is a label (depth zero), not an exponent.</p>
 
+<div class="interp-box"><h4>What does "$T_0 = T_s^{\,0}$" mean? — Two symbols, one physical quantity, label vs. exponent</h4>
+
+<p>This one-line BC is dense. There are two issues to unpack: (1) why we have two different symbols ($T_0$ and $T_s^{\,0}$) for what looks like the same thing, and (2) what "the 0 is a label, not an exponent" means.</p>
+
+<p><strong>Two symbols, one physical quantity.</strong> Both $T_0$ and $T_s^{\,0}$ refer to <em>the temperature at the top of the substrate column</em>. They live in two different worlds, which is why they have different notations:</p>
+
+<table>
+<thead>
+<tr><th>Symbol</th><th>Lives in...</th><th>Meaning of the indices</th></tr>
+</thead>
+<tbody>
+<tr><td>$T_s^{\,0}$</td><td>The <strong>continuous PDE</strong> world</td><td>Subscript $s$ = substrate; superscript $0$ = depth $z = 0$ (a label, not a power)</td></tr>
+<tr><td>$T_0$</td><td>The <strong>discrete computer-grid</strong> world</td><td>Subscript $0$ = cell index (the topmost cell of the discrete grid)</td></tr>
+</tbody>
+</table>
+
+<p>The boundary condition $T_0 = T_s^{\,0}$ is the <strong>handshake</strong> between these two worlds — "whatever the surface temperature is in the continuous physics, copy it into the topmost cell of the discrete code." In code:</p>
+
+<p style="font-family: 'Cascadia Code', 'Consolas', monospace; background: #f3f0fa; padding: 8px 14px; border-radius: 4px; color: #2c3142;">T[0] = T_s0</p>
+
+<p>where <code>T[0]</code> is the array entry in our solver (i.e., $T_0$) and <code>T_s0</code> is whatever surface temperature we have computed (externally specified in Test 1, or from Newton iteration on the SEB in Test 2).</p>
+
+<p><strong>Why the "0" is a label, not an exponent — the math superscript ambiguity.</strong></p>
+
+<p>Superscripts in math can mean two different things. You have to figure out which one from context:</p>
+
+<table>
+<thead>
+<tr><th>Type</th><th>Example</th><th>Meaning</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Exponent</strong> (power)</td><td>$T_s^{\,4}$ in Stefan–Boltzmann $\sigma T_s^{\,4}$</td><td>"$T_s$ raised to the 4th power" — actual arithmetic</td></tr>
+<tr><td><strong>Label</strong> (index)</td><td>$T_s^{\,0}$</td><td>"$T_s$ at depth $z = 0$" — surface temperature</td></tr>
+<tr><td><strong>Label</strong> (index)</td><td>$T_j^{\,n}$</td><td>"$T$ at cell $j$, time level $n$" — both indices are labels</td></tr>
+</tbody>
+</table>
+
+<p>The 0 in $T_s^{\,0}$ is a <strong>label</strong>, not an exponent. Sanity check: if you read it as an exponent, $T_s^{\,0} = 1$ (any nonzero number raised to the 0th power equals 1), which would be meaningless. The label interpretation is the only one that makes physical sense.</p>
+
+<p><strong>How to tell which is which.</strong> Context.</p>
+<ul>
+<li>If the symbol appears as an argument to an algebraic power-law (radiation, kinetic energy, etc.), the superscript is an <em>exponent</em>. Example: $T_s^{\,4}$ in $\sigma T_s^{\,4}$ — Stefan–Boltzmann really does involve $T_s$ raised to the fourth power (temperature, in Kelvin, raised to 4 — about $292^{4} \approx 7.3 \times 10^{9}$ for our $T_s \approx 292$ K).</li>
+<li>If the symbol appears in a context where the value 0, 1, 2, ... <em>identifies</em> a position (depth zero, time level $n$, cell number), the superscript is a <em>label</em>. Example: $T_s^{\,0}$ in the SEB and the BCs — the 0 identifies depth zero.</li>
+</ul>
+
+<p><strong>Other places this notation choice appears in the project.</strong></p>
+<ul>
+<li>$T_j^{\,n}$ — temperature at cell $j$, time level $n$. <em>Both</em> indices are labels. Cell $j$ at the new time step would be $T_j^{\,n+1}$ — the $n+1$ is also a label.</li>
+<li>$\phi^{\,n}$ in the $\theta$-method derivation — same convention, $n$ is the time-level label.</li>
+<li>$G_{j+1/2}^{\,n}$ — flux at the half-level $j+1/2$ (subscript label), at time $n$ (superscript label). Both labels.</li>
+<li>$(T_s^{\,0})^{4}$ — when the surface temperature appears INSIDE a Stefan–Boltzmann context, we sometimes need parentheses to make clear that the <em>outer</em> 4 is a power but the <em>inner</em> 0 is a depth label. So $(T_s^{\,0})^{4}$ reads as "surface temperature, raised to the 4th power".</li>
+</ul>
+
+<p><strong>Why physicists put up with this ambiguity.</strong> In every other branch of math, exponents are unambiguous. Why do PDE textbooks use superscripts as labels too? Because we run out of subscript-positions to put everything. A typical heat-equation symbol has at least three identifying pieces of information: <em>which variable</em>, <em>at which cell</em>, <em>at which time</em>, <em>at which depth</em>. Three subscripts get crowded. So time levels go to the superscript, and we accept the small risk of confusion with exponents. The convention is universal; every numerical-PDE textbook uses it.</p>
+
+<p><strong>The single intuition to take away.</strong> $T_s^{\,0}$ and $T_0$ refer to the same physical quantity (surface temperature) — one in PDE language, the other in code-array language. The "0" in $T_s^{\,0}$ is a depth label (meaning "$z = 0$"), <em>not</em> the exponent zero. When you see a superscript in this project, decide from context: if it makes physical sense as a power (like $T^4$ in radiation), it's an exponent; if it identifies a position (like $T^{n}$ at time level $n$, or $T^{0}$ at depth zero), it's a label.</p>
+</div>
+
 <div class="interp-box"><h4>What does "zero-flux Neumann" actually mean? — The boundary condition explained</h4>
 
 <p>The phrase "zero-flux Neumann" packs three ideas into three words. Let me unpack each one.</p>
