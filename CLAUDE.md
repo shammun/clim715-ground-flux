@@ -93,6 +93,28 @@ The user views these from mobile while changes are made on the desktop. Workflow
 
 **Always include the deck URL in every reply** so the user can tap it from their phone. The canonical URL is `https://shammun.github.io/clim715-ground-flux/CLIM715_Final_Presentation.html`.
 
+**Always include the full live-page link list at the end of every reply that touches any HTML in this repo.** The user has asked, across sessions, to see all live URLs without having to ask. Whenever you modify, create, rebuild, or even just discuss any `.html` file in this directory, end your reply with the link block below. The canonical README.md in this repo carries the full table; the block below is the abbreviated form to drop into chat replies.
+
+```
+Live pages (https://shammun.github.io/clim715-ground-flux/):
+• Final Presentation: …/CLIM715_Final_Presentation.html
+• Study Guide:        …/Lecture_Master_Guide.html
+• Project Walkthrough:…/clarify_project.html
+• Speaker Notes:      …/CLIM715_speaker_notes.html
+• Q&A Guide:          …/CLIM715_QA_guide.html
+• Substrate 3D (v3):  …/CLIM715_Substrate_3D_Visualization_v3.html
+• Von Neumann widget: …/window_von_neuman.html
+• Δt widget:          …/window_delta_t.html
+• Lecture 3 dash:     …/lecture3_dashboard_Claude_Code.html
+• Lecture 4 dash:     …/lecture4_dashboard_Claude_Code.html
+• Lecture 5 dash:     …/lecture5_dashboard_Claude_Code.html
+• Lecture 6 dash:     …/lecture6_dashboard_Claude_Code.html
+• Qualifier deck:     …/qualifier_final_presentation_3.html
+• Full list:          README.md on GitHub
+```
+
+When the user's most-recent request was specifically about *one* page (e.g., "fix slide 8 of the deck"), bold or callout the relevant URL at the top of that block so it is the first thing they see; still include the rest so they have one-touch access to everything.
+
 **Auto-push is the default** — do not ask the user for permission to commit or push. Every user-requested change ends in `git commit` + `git push`. Don't push speculative WIP; push after each change has landed and is internally consistent (i.e., what would be a clean commit). Don't commit `.claude/settings.local.json`; it's already in `.gitignore`.
 
 ## Multi-pass verification when the user asks "verify slide N"
