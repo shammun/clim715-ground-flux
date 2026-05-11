@@ -34,63 +34,19 @@
     letter-spacing: 0.3px;
   }
 
-  /* Touch-friendly nav arrows — fixed on every slide.
-     Bottom-left and bottom-right corners (far apart by viewport width)
-     so accidental taps are unlikely. Visible on every device; on
-     desktop they're a soft hint, on mobile they're the primary nav. */
-  .nav-arrow {
-    position: fixed;
-    bottom: 14px;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    border: none;
-    background: rgba(107, 92, 181, 0.78);
-    color: #ffffff;
-    font-size: 30px;
-    font-weight: 700;
-    line-height: 1;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
-    z-index: 100000;
-    transition: background 0.15s ease, transform 0.1s ease;
-    padding: 0;
-    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
-  }
-  .nav-arrow:hover { background: rgba(107, 92, 181, 0.95); }
-  .nav-arrow:active { background: #6b5cb5; transform: scale(0.92); }
-  .nav-arrow:disabled { opacity: 0.30; cursor: default; }
-  .nav-arrow-prev { left: 14px; }
-  .nav-arrow-next { right: 14px; }
-
   /* Mobile portrait: shrink slide-number so it doesn't crash with the
-     top of the iframe content. Buttons stay 56 px since fingers are big. */
+     top of the iframe content. */
   @media (max-width: 600px) {
     #slide-number {
       font-size: 11px;
       padding: 2px 8px;
       top: 6px; right: 8px;
     }
-    .nav-arrow {
-      width: 52px;
-      height: 52px;
-      font-size: 28px;
-      bottom: 10px;
-    }
-    .nav-arrow-prev { left: 10px; }
-    .nav-arrow-next { right: 10px; }
   }
 </style>
 </head>
 <body>
 <div id="slide-number">Slide 1</div>
-<button class="nav-arrow nav-arrow-prev" id="nav-arrow-prev" aria-label="Previous slide" type="button">&#x2039;</button>
-<button class="nav-arrow nav-arrow-next" id="nav-arrow-next" aria-label="Next slide" type="button">&#x203A;</button>
 <div id="frames-container"></div>
 
 <!-- ============================================================
@@ -4243,13 +4199,6 @@ if (channel) {
 function nextSlide() { if (currentSlide < totalSlides - 1) showSlide(currentSlide + 1); }
 function prevSlide() { if (currentSlide > 0) showSlide(currentSlide - 1); }
 
-function updateNavArrows() {
-    var prevBtn = document.getElementById('nav-arrow-prev');
-    var nextBtn = document.getElementById('nav-arrow-next');
-    if (prevBtn) prevBtn.disabled = (currentSlide === 0);
-    if (nextBtn) nextBtn.disabled = (currentSlide === totalSlides - 1);
-}
-
 function showSlide(n) {
     if (n < 0 || n >= totalSlides) return;
     iframes[currentSlide].classList.remove('active');
@@ -4258,7 +4207,6 @@ function showSlide(n) {
     document.getElementById('slide-number').textContent = 'Slide ' + (currentSlide + 1) + ' / ' + totalSlides;
     try { iframes[currentSlide].focus(); } catch (e) {}
     try { iframes[currentSlide].contentWindow.focus(); } catch (e) {}
-    updateNavArrows();
     broadcastSlide(n);
 }
 
@@ -4431,18 +4379,6 @@ window.addEventListener('message', function (e) {
 document.getElementById('slide-number').textContent = 'Slide 1 / ' + totalSlides;
 if (iframes[0]) iframes[0].addEventListener('load', function () { iframes[0].focus(); });
 
-// Touch/click nav arrows. Click for desktop; touchstart for mobile (avoids
-// the ~300 ms click delay and the iOS "double-tap to zoom" trap).
-(function () {
-    var prevBtn = document.getElementById('nav-arrow-prev');
-    var nextBtn = document.getElementById('nav-arrow-next');
-    if (!prevBtn || !nextBtn) return;
-    prevBtn.addEventListener('click', function (e) { e.preventDefault(); prevSlide(); });
-    nextBtn.addEventListener('click', function (e) { e.preventDefault(); nextSlide(); });
-    prevBtn.addEventListener('touchstart', function (e) { e.preventDefault(); prevSlide(); }, { passive: false });
-    nextBtn.addEventListener('touchstart', function (e) { e.preventDefault(); nextSlide(); }, { passive: false });
-    updateNavArrows();
-})();
 </script>
 </body>
 </html>
