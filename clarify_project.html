@@ -418,7 +418,52 @@ window.MathJax = {
 
 <p>$$\Delta z_0 \;\lesssim\; \frac{d}{10} \;=\; \frac{14.02\text{ cm}}{10} \;\approx\; 1.4\text{ cm}.$$</p>
 
-<p>So <em>any</em> $\Delta z_0 \le 1.4$ cm satisfies this constraint. With $\Delta z_0 = 0.5$ cm, we have $d/\Delta z_0 = 28$ — a generous safety margin. The amplitude variation across the cell drops to just 3.6% (100% at the top → 96.5% at the bottom), so the cell's single stored temperature is a faithful average. Constraint 1 alone would allow 1 cm too.</p>
+<p>So <em>any</em> $\Delta z_0 \le 1.4$ cm satisfies this constraint. With $\Delta z_0 = 0.5$ cm, we have $d/\Delta z_0 = 28$ — a generous safety margin (explained immediately below). The amplitude variation across the cell drops to just 3.6% (100% at the top → 96.5% at the bottom), so the cell's single stored temperature is a faithful average. Constraint 1 alone would allow 1 cm too.</p>
+
+<div class="interp-box"><h4>What does $d/\Delta z_0$ actually measure, and why call it a "safety margin"?</h4>
+
+<p>The ratio $d/\Delta z_0$ is one of the most useful diagnostic numbers in numerical grid design. It deserves its own explanation.</p>
+
+<p><strong>What it physically means.</strong> The ratio $d/\Delta z_0$ tells you <strong>how many top-cell-widths fit inside one damping depth</strong>. Equivalently, it tells you how many grid cells the model devotes to representing one "characteristic length" of the diurnal wave (the depth at which the wave drops to 37% of surface amplitude). For concrete roof:</p>
+
+<p>$$\frac{d}{\Delta z_0} \;=\; \frac{14.02 \text{ cm}}{0.50 \text{ cm}} \;=\; 28.$$</p>
+
+<p>So the model has <strong>28 top-cell-widths of resolution per damping depth</strong> on the concrete roof. Whether 28 is "a lot" or "barely enough" depends on the rule of thumb you compare against — that is exactly where the "safety margin" framing comes from.</p>
+
+<p><strong>Why call this a "margin".</strong> Numerical-PDE textbooks (and the wave-sampling analogue from signal processing) say: <em>to faithfully resolve an exponentially-decaying or oscillating field with characteristic length $d$, you need at least 8–10 grid cells per $d$</em>. This is the discrete-grid cousin of the Nyquist sampling rule (need at least two samples per wavelength). So the <strong>minimum acceptable</strong> value of $d/\Delta z_0$ is roughly 8–10.</p>
+
+<p>Our concrete-roof value is 28. The gap between "minimum acceptable" (~10) and "what we actually use" (28) is the <em>margin</em>. We are sampling the wave roughly 3× more finely than the rule of thumb prescribes. If anything goes slightly wrong (a sharper conductivity jump than expected, slightly more diffusive substrate, an unexpected vertical structure), we have headroom before the resolution becomes inadequate.</p>
+
+<p><strong>Why this metric is useful in practice.</strong></p>
+
+<ul>
+<li><strong>It directly predicts the amplitude variation across the top cell.</strong> If $d/\Delta z_0 = R$, then within a top cell of width $\Delta z_0$, the amplitude factor varies by approximately $1 - e^{-1/R}$. For $R = 28$: $1 - e^{-1/28} = 1 - 0.965 = 3.5\%$. That is exactly the "100% → 96.5%" number we have been quoting for concrete roof. For $R = 8$ (the rule-of-thumb minimum), the variation would be $1 - e^{-1/8} = 11.8\%$ — borderline OK. For $R = 2$ (badly under-resolved), it would be $1 - e^{-1/2} = 39\%$ — disaster.</li>
+<li><strong>It is dimensionless</strong>, so it works across substrates with different $\kappa$. You can compare resolution across asphalt, concrete, and soil with a single number.</li>
+<li><strong>Diminishing returns past ~15–20.</strong> Doubling $d/\Delta z_0$ from 8 to 16 cuts the across-cell amplitude variation from 11.8% to 6%. Doubling again from 16 to 32 cuts it only from 6% to 3%. Past about 15–20 you are paying compute cost for marginal accuracy gains. So the "right" range is roughly 10–20; we sit at 28 for concrete, which is on the generous side but not wasteful.</li>
+</ul>
+
+<p><strong>How the three substrates compare.</strong></p>
+
+<table>
+<thead>
+<tr><th>Substrate</th><th>$d$ (cm)</th><th>$\Delta z_0$ (cm)</th><th>$d/\Delta z_0$</th><th>Margin vs. 10× rule</th><th>Across-top-cell variation</th></tr>
+</thead>
+<tbody>
+<tr><td>Bare soil</td><td>7.97</td><td>1.0</td><td><strong>8.0</strong></td><td>At the threshold</td><td>11.8%</td></tr>
+<tr><td>Asphalt road</td><td>10.16</td><td>0.5</td><td><strong>20.3</strong></td><td>2× margin</td><td>4.9%</td></tr>
+<tr><td>Concrete roof</td><td>14.02</td><td>0.5</td><td><strong>28.0</strong></td><td>2.8× margin</td><td>3.5%</td></tr>
+</tbody>
+</table>
+
+<p><strong>Reading the table.</strong></p>
+<ul>
+<li><strong>Soil sits right at the rule-of-thumb threshold</strong> ($d/\Delta z_0 = 8$). Acceptable, but no headroom. Since soil has no layered structure and no $\lambda$ jumps to worry about, this thin margin is fine.</li>
+<li><strong>Asphalt has 2× headroom.</strong> Driven by the need to resolve the 5 cm asphalt top layer (Constraint 2), not by the damping depth.</li>
+<li><strong>Concrete roof has 2.8× headroom.</strong> Driven by the need to resolve the deck/insulation $\lambda$ jump (Constraint 3), not by the damping depth.</li>
+</ul>
+
+<p><strong>The single intuition to take away.</strong> The ratio $d/\Delta z_0$ is "cells per damping depth at the surface" — a dimensionless resolution measure. The rule-of-thumb minimum is 8–10; below that, the model under-resolves the wave; above ~15–20, returns diminish. <em>Calling it a "safety margin" means: how much resolution we have in reserve beyond the minimum the physics demands.</em> The concrete-roof value of 28 is generous; the bare-soil value of 8 is acceptable; anything below ~5 would be a problem.</p>
+</div>
 
 <p><strong>Constraint 2 — Resolve the topmost <em>layer</em> (the concrete deck itself).</strong> The concrete roof column has a 10 cm thick concrete deck on top, then a sharp jump to mineral-wool insulation. To compute the temperature gradient <em>inside</em> the deck accurately, we need at least 5–10 grid cells <em>within</em> that 10 cm layer. With $\Delta z_0 = 0.5$ cm and stretch ratio $r = 1.18$, the first ten cells have total thickness:</p>
 
