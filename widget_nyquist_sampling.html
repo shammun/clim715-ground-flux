@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Nyquist Sampling & Aliasing Explorer</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #eaf0f8; color: #2c3142;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    padding: 12px 18px 18px 18px;
+  }
+  .title-bar {
+    display: flex; align-items: center; gap: 12px;
+    flex-shrink: 0;
+    margin-bottom: 6px;
+  }
+  .badge {
+    background: #6b5cb5; color: #fff;
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: 1.4px;
+    padding: 4px 12px; border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .title { font-size: 18px; font-weight: 700; color: #2c3142; }
+  .subtitle { font-size: 12px; color: #6b7186; margin-left: 4px; }
+  .container {
+    flex: 1;
+    display: flex; flex-direction: column;
+    background: #fff;
+    border-radius: 12px;
+    padding: 12px 18px;
+    box-shadow: 0 2px 10px rgba(107, 92, 181, 0.10);
+    border: 1px solid rgba(107, 92, 181, 0.06);
+    min-height: 0;
+  }
+  .controls {
+    display: flex; gap: 16px; align-items: center;
+    flex-wrap: wrap;
+    padding: 4px 0 10px;
+    flex-shrink: 0;
+  }
+  .slider-wrap {
+    flex: 1; min-width: 240px; max-width: 380px;
+    display: flex; flex-direction: column;
+    gap: 4px;
+  }
+  .slider-wrap label {
+    font-size: 12.5px; color: #4a5066;
+    font-weight: 600;
+  }
+  .slider-wrap label .val { color: #ee845b; font-weight: 700; }
+  input[type="range"] {
+    -webkit-appearance: none; appearance: none;
+    background: linear-gradient(to right,
+      #38b2ac 0%, #38b2ac 40%,
+      #ee845b 40%, #ee845b 60%,
+      #c2492a 60%, #c2492a 100%);
+    height: 6px; border-radius: 3px;
+    outline: none;
+    width: 100%;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: #ee845b;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: #ee845b;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+  }
+  .preset-row {
+    display: flex; gap: 6px;
+  }
+  .preset {
+    background: white; border: 1.5px solid rgba(107,92,181,0.25);
+    padding: 5px 9px; border-radius: 5px;
+    font-size: 11px; color: #4a5066;
+    cursor: pointer; font-weight: 600;
+    transition: all 0.15s;
+  }
+  .preset:hover { background: rgba(107,92,181,0.08); border-color: #6b5cb5; color: #6b5cb5; }
+  .preset.alias { border-color: rgba(194,73,42,0.35); color: #c2492a; }
+  .preset.alias:hover { background: rgba(194,73,42,0.08); border-color: #c2492a; }
+  .readout {
+    background: rgba(56, 178, 172, 0.08);
+    border-radius: 6px;
+    padding: 7px 12px;
+    font-size: 12.5px;
+    color: #2c8a83;
+    text-align: center;
+    font-weight: 600;
+  }
+  .readout .v { color: #1a6b65; font-weight: 700; }
+  .status {
+    padding: 8px 14px; border-radius: 6px;
+    font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    transition: all 0.2s;
+    min-width: 200px; text-align: center;
+  }
+  .status.ok { background: rgba(56, 178, 172, 0.15); color: #2c8a83; }
+  .status.coarse { background: rgba(238, 132, 91, 0.20); color: #c2492a; }
+  .status.aliased { background: #fbe0d6; color: #a03d24; border: 2px solid #c2492a; }
+  .plot-wrap {
+    flex: 1; min-height: 0;
+  }
+  svg.plot {
+    width: 100%; height: 100%;
+    background: #fafbfd;
+    border-radius: 6px;
+    border: 1px solid rgba(107, 92, 181, 0.10);
+  }
+  .legend {
+    display: flex; gap: 16px; align-items: center;
+    padding: 6px 0 0;
+    font-size: 11.5px; color: #4a5066;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-swatch { width: 22px; height: 3px; }
+  .legend-swatch.dashed {
+    height: 0; border-top: 2.5px dashed #c2492a;
+  }
+  .legend-dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    border: 1.5px solid white;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
+  }
+  .interpretation {
+    padding: 9px 14px;
+    background: rgba(107, 92, 181, 0.06);
+    border-left: 3px solid #6b5cb5;
+    border-radius: 4px;
+    font-size: 12.5px; line-height: 1.45;
+    color: #2c3142;
+    margin-top: 7px;
+    flex-shrink: 0;
+  }
+  .interpretation b { color: #6b5cb5; }
+  .interpretation.aliased { background: rgba(194,73,42,0.07); border-left-color: #c2492a; }
+  .interpretation.aliased b { color: #c2492a; }
+</style>
+</head>
+<body>
+  <div class="title-bar">
+    <span class="badge">Interactive</span>
+    <span class="title">Nyquist Sampling &amp; Aliasing Explorer</span>
+    <span class="subtitle">Drag the slider — see when the grid loses the wave</span>
+  </div>
+  <div class="container">
+    <div class="controls">
+      <div class="slider-wrap">
+        <label>Wavelength <span class="val" id="lambda-display">10.0 cm</span> &nbsp; <span style="color:#6b7186;font-weight:500">(grid Δz = 1 cm fixed)</span></label>
+        <input type="range" id="lambda-slider" min="0.5" max="20" step="0.05" value="10">
+        <div class="preset-row">
+          <button class="preset" data-l="10">λ=10 cm (well resolved)</button>
+          <button class="preset" data-l="4">λ=4 cm (coarse)</button>
+          <button class="preset" data-l="2">λ=2 cm (Nyquist)</button>
+          <button class="preset alias" data-l="1.5">λ=1.5 cm (aliased)</button>
+          <button class="preset alias" data-l="1">λ=1 cm (aliases to constant)</button>
+        </div>
+      </div>
+      <div class="readout">Cells per λ: <span class="v" id="cells-per-lambda">10.0</span></div>
+      <div class="readout">k·Δz: <span class="v" id="kdz">0.20π</span></div>
+      <div class="status ok" id="status">Well resolved</div>
+    </div>
+    <div class="plot-wrap">
+      <svg class="plot" id="plot" viewBox="0 0 1000 280" preserveAspectRatio="none"></svg>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-swatch" style="background: #c8c8d0;"></div>True continuous wave (the physics)</div>
+      <div class="legend-item"><div class="legend-dot" style="background: #ee845b;"></div>Cell-centre samples (what the grid stores)</div>
+      <div class="legend-item"><div class="legend-swatch" style="background: #38b2ac;"></div>Grid's reconstruction (linking samples)</div>
+      <div class="legend-item" id="aliased-legend" style="display:none;"><div class="legend-swatch dashed"></div>Aliased "fake" wave the grid mistakes it for</div>
+    </div>
+    <div class="interpretation" id="interpretation">
+      <b>Well resolved.</b> The wavelength is much longer than 2Δz, so each cycle has many samples in it. The grid faithfully captures the wave shape.
+    </div>
+  </div>
+
+<script>
+const DZ = 1.0;
+const Z_MIN = 0;
+const Z_MAX = 20;
+const CELL_COUNT = 20;
+
+const slider = document.getElementById('lambda-slider');
+const lambdaDisplay = document.getElementById('lambda-display');
+const cellsPerLambdaDisplay = document.getElementById('cells-per-lambda');
+const kdzDisplay = document.getElementById('kdz');
+const statusDiv = document.getElementById('status');
+const aliasedLegend = document.getElementById('aliased-legend');
+const interpretationDiv = document.getElementById('interpretation');
+const plot = document.getElementById('plot');
+
+const W = 1000, H = 280;
+const PLOT_X0 = 55, PLOT_X1 = 980;
+const PLOT_Y0 = 20, PLOT_Y1 = 230;
+const PLOT_W = PLOT_X1 - PLOT_X0;
+const PLOT_H = PLOT_Y1 - PLOT_Y0;
+const YMID = (PLOT_Y0 + PLOT_Y1) / 2;
+const Y_AMP = PLOT_H * 0.42;
+
+function zToX(z) { return PLOT_X0 + (z - Z_MIN) / (Z_MAX - Z_MIN) * PLOT_W; }
+function tToY(t) { return YMID - t * Y_AMP; }
+
+function aliasedSignedFreq(lambda_real, dz) {
+  const f_real = 1 / lambda_real;
+  const fs = 1 / dz;
+  const nyquist = fs / 2;
+  if (f_real <= nyquist + 1e-9) return null;
+  const n = Math.round(f_real / fs);
+  const f_signed = f_real - n * fs;
+  return f_signed;
+}
+
+function aliasedWavelength(lambda_real, dz) {
+  const f = aliasedSignedFreq(lambda_real, dz);
+  if (f === null) return null;
+  if (Math.abs(f) < 1e-9) return Infinity;
+  return 1 / Math.abs(f);
+}
+
+function render(lambda) {
+  const k = 2 * Math.PI / lambda;
+  const cellsPerLambda = lambda / DZ;
+  const kdz = k * DZ;
+
+  lambdaDisplay.textContent = lambda.toFixed(2) + " cm";
+  cellsPerLambdaDisplay.textContent = cellsPerLambda.toFixed(2);
+  kdzDisplay.textContent = (kdz / Math.PI).toFixed(2) + "π";
+
+  const lambdaAliased = aliasedWavelength(lambda, DZ);
+  const aliasFsigned = aliasedSignedFreq(lambda, DZ);
+  const isAliased = lambdaAliased !== null;
+
+  let statusText, statusClass, interpText, interpClass = "";
+
+  if (lambda >= 4 * DZ - 1e-9) {
+    statusText = "Well resolved";
+    statusClass = "ok";
+    interpText = `<b>Well resolved.</b> The wavelength is <b>${(cellsPerLambda).toFixed(1)} cells</b> long — many samples per cycle, so the grid faithfully captures the wave shape. The teal "reconstructed" line sits right on the true grey curve.`;
+  } else if (lambda > 2 * DZ + 0.04) {
+    statusText = "Coarse but representable";
+    statusClass = "coarse";
+    interpText = `<b>Coarse but representable.</b> Only <b>${cellsPerLambda.toFixed(1)} cells per wavelength</b> — above the Nyquist minimum of 2, so the wave can still be reconstructed, but with visible blockiness. The teal line still tracks the grey curve, just less smoothly.`;
+  } else if (Math.abs(lambda - 2 * DZ) <= 0.04) {
+    statusText = "Nyquist limit — checkerboard";
+    statusClass = "coarse";
+    interpText = `<b>At the Nyquist limit (λ = 2Δz exactly).</b> Adjacent cells flip sign — the famous "checkerboard" pattern (+1, −1, +1, −1, ...). This is the <strong>shortest wave the grid can see</strong>. Drag the slider any further left and aliasing begins.`;
+  } else {
+    statusText = "ALIASED — fake longer wave";
+    statusClass = "aliased";
+    interpClass = " aliased";
+    if (lambdaAliased === Infinity) {
+      interpText = `<b>ALIASED to a constant!</b> The true wavelength is <b>λ = ${lambda.toFixed(2)} cm = Δz</b>. Every sample lands at the exact same phase of the cycle, so the grid sees identical values everywhere — a flat signal. The real wave is <em>completely invisible</em> to the grid.`;
+    } else {
+      interpText = `<b>ALIASED!</b> The true wave (grey) has λ = ${lambda.toFixed(2)} cm, shorter than 2Δz = ${(2*DZ).toFixed(1)} cm. The grid <em>cannot</em> see it as such. The orange dots can equally well be explained by a longer <b>aliased wave at λ_apparent = ${lambdaAliased.toFixed(2)} cm</b> (red dashed). Both curves pass through the same orange dots — the grid has no way to tell them apart. The short wave's identity is destroyed.`;
+    }
+  }
+
+  statusDiv.textContent = statusText;
+  statusDiv.className = "status " + statusClass;
+  interpretationDiv.innerHTML = interpText;
+  interpretationDiv.className = "interpretation" + interpClass;
+  aliasedLegend.style.display = (isAliased && lambdaAliased !== Infinity) ? "flex" : "none";
+
+  let svg = '';
+
+  // Background gridlines (horizontal at y = ±0.5)
+  svg += `<line x1="${PLOT_X0}" y1="${tToY(0.5)}" x2="${PLOT_X1}" y2="${tToY(0.5)}" stroke="#e8ebf2" stroke-width="1"/>`;
+  svg += `<line x1="${PLOT_X0}" y1="${tToY(-0.5)}" x2="${PLOT_X1}" y2="${tToY(-0.5)}" stroke="#e8ebf2" stroke-width="1"/>`;
+
+  // Axis (centre line)
+  svg += `<line x1="${PLOT_X0}" y1="${YMID}" x2="${PLOT_X1}" y2="${YMID}" stroke="#aab0bf" stroke-width="1.2"/>`;
+
+  // Vertical cell-boundary marks (lighter)
+  for (let j = 0; j <= CELL_COUNT; j++) {
+    const z = j * DZ;
+    const x = zToX(z);
+    svg += `<line x1="${x}" y1="${PLOT_Y0}" x2="${x}" y2="${PLOT_Y1}" stroke="#eef0f5" stroke-width="1"/>`;
+  }
+
+  // Plot box border
+  svg += `<rect x="${PLOT_X0}" y="${PLOT_Y0}" width="${PLOT_W}" height="${PLOT_H}" fill="none" stroke="#aab0bf" stroke-width="1"/>`;
+
+  // Y-axis labels
+  svg += `<text x="${PLOT_X0 - 8}" y="${tToY(1) + 4}" font-size="11" fill="#6b7186" text-anchor="end">+1</text>`;
+  svg += `<text x="${PLOT_X0 - 8}" y="${YMID + 4}" font-size="11" fill="#6b7186" text-anchor="end">0</text>`;
+  svg += `<text x="${PLOT_X0 - 8}" y="${tToY(-1) + 4}" font-size="11" fill="#6b7186" text-anchor="end">−1</text>`;
+  svg += `<text x="${PLOT_X0 - 35}" y="${YMID + 4}" font-size="11" fill="#4a5066" text-anchor="end" font-weight="600" transform="rotate(-90 ${PLOT_X0 - 35} ${YMID})">T(z)</text>`;
+
+  // X-axis labels
+  for (let j = 0; j < CELL_COUNT; j += 2) {
+    const z = (j + 0.5) * DZ;
+    const x = zToX(z);
+    svg += `<text x="${x}" y="${PLOT_Y1 + 16}" font-size="10" fill="#6b7186" text-anchor="middle">${z.toFixed(1)}</text>`;
+  }
+  svg += `<text x="${(PLOT_X0+PLOT_X1)/2}" y="${PLOT_Y1 + 33}" font-size="11" fill="#4a5066" text-anchor="middle" font-weight="600">depth z (cm) — orange dots at cell centres</text>`;
+
+  // True continuous wave
+  const truePoints = [];
+  const N_PLOT = 1000;
+  for (let i = 0; i <= N_PLOT; i++) {
+    const z = Z_MIN + (Z_MAX - Z_MIN) * i / N_PLOT;
+    const t = Math.cos(2 * Math.PI * z / lambda);
+    truePoints.push(`${zToX(z).toFixed(2)},${tToY(t).toFixed(2)}`);
+  }
+  svg += `<polyline points="${truePoints.join(' ')}" fill="none" stroke="#bbbcc7" stroke-width="2"/>`;
+
+  // Aliased wave (if any)
+  if (isAliased && lambdaAliased !== Infinity) {
+    const aliasedPoints = [];
+    for (let i = 0; i <= N_PLOT; i++) {
+      const z = Z_MIN + (Z_MAX - Z_MIN) * i / N_PLOT;
+      const t = Math.cos(2 * Math.PI * aliasFsigned * z);
+      aliasedPoints.push(`${zToX(z).toFixed(2)},${tToY(t).toFixed(2)}`);
+    }
+    svg += `<polyline points="${aliasedPoints.join(' ')}" fill="none" stroke="#c2492a" stroke-width="2.5" stroke-dasharray="7 5" opacity="0.9"/>`;
+  } else if (isAliased && lambdaAliased === Infinity) {
+    // Aliased to constant — show the constant the grid sees
+    // For lambda = Δz, cos(2π * j * Δz / Δz) = cos(2π j) = 1; for shifted samples may be different.
+    // Actually for samples at (j+0.5)*Δz with λ=Δz: cos(2π(j+0.5)) = cos(π(2j+1)) = -1. Always -1.
+    // For λ = Δz/2 = 0.5cm, samples = cos(2π(j+0.5)/0.5) = cos(4π(j+0.5)) = cos((4j+2)π) = 1. Always +1.
+    // In general for lambda such that f_apparent = 0, samples are at a single phase.
+    const constVal = Math.cos(2 * Math.PI * 0.5 * DZ / lambda); // sample at z = 0.5 (first cell)
+    svg += `<line x1="${PLOT_X0}" y1="${tToY(constVal)}" x2="${PLOT_X1}" y2="${tToY(constVal)}" stroke="#c2492a" stroke-width="2.5" stroke-dasharray="7 5" opacity="0.9"/>`;
+  }
+
+  // Sample dots
+  const sampledPoints = [];
+  for (let j = 0; j < CELL_COUNT; j++) {
+    const z = (j + 0.5) * DZ;
+    const t = Math.cos(2 * Math.PI * z / lambda);
+    sampledPoints.push({z, t, x: zToX(z), y: tToY(t)});
+  }
+
+  // Reconstruction line (teal — what the grid sees as it reconstructs by interpolation)
+  const linePoints = sampledPoints.map(p => `${p.x},${p.y}`).join(' ');
+  svg += `<polyline points="${linePoints}" fill="none" stroke="#38b2ac" stroke-width="2" opacity="0.7"/>`;
+
+  // Sample dots on top
+  for (const p of sampledPoints) {
+    svg += `<circle cx="${p.x}" cy="${p.y}" r="5.5" fill="#ee845b" stroke="white" stroke-width="2"/>`;
+  }
+
+  // Annotation panel (top-right)
+  const panX = PLOT_X1 - 200, panY = PLOT_Y0 + 6;
+  svg += `<rect x="${panX}" y="${panY}" width="194" height="${isAliased ? 60 : 42}" fill="rgba(255,255,255,0.92)" stroke="rgba(107,92,181,0.20)" stroke-width="1" rx="4"/>`;
+  svg += `<text x="${panX + 8}" y="${panY + 16}" font-size="11.5" fill="#4a5066" font-weight="600">λ_w = ${lambda.toFixed(2)} cm</text>`;
+  svg += `<text x="${panX + 8}" y="${panY + 32}" font-size="10.5" fill="#6b7186">${cellsPerLambda.toFixed(1)} cells / wavelength</text>`;
+  if (isAliased) {
+    if (lambdaAliased === Infinity) {
+      svg += `<text x="${panX + 8}" y="${panY + 50}" font-size="10.5" fill="#c2492a" font-weight="600">→ grid sees constant!</text>`;
+    } else {
+      svg += `<text x="${panX + 8}" y="${panY + 50}" font-size="10.5" fill="#c2492a" font-weight="600">→ aliased to ${lambdaAliased.toFixed(2)} cm</text>`;
+    }
+  }
+
+  plot.innerHTML = svg;
+}
+
+slider.addEventListener('input', e => render(parseFloat(e.target.value)));
+document.querySelectorAll('.preset').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const l = parseFloat(btn.getAttribute('data-l'));
+    slider.value = l;
+    render(l);
+  });
+});
+render(parseFloat(slider.value));
+</script>
+</body>
+</html>

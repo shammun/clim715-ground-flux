@@ -1268,6 +1268,38 @@ cell: 0 &nbsp;&nbsp;&nbsp; 1 &nbsp;&nbsp;&nbsp; 2 &nbsp;&nbsp;&nbsp; 3 &nbsp;&nb
 
 <p><strong>The single intuition to take away.</strong> A grid with spacing $\Delta z$ can see only wavelengths $\ge 2\Delta z$ — anything shorter is aliased onto longer waves. The boundary case $\lambda_{w} = 2\Delta z$ is the "checkerboard mode": adjacent cells flip sign each step. This is always the worst-case wave for stability, which is why von Neumann analysis evaluates $|A|$ at exactly $k\Delta z = \pi$ when deriving the FTCS bound.</p>
 </div>
+
+<p><strong>What we are about to show in this widget.</strong> Words and tables only get you so far for this concept. The widget below lets you <em>drag a slider for the wavelength</em> and watch in real time what the grid sees. Start at a long wavelength — the grid captures the wave perfectly. Drag toward shorter wavelengths and watch the reconstruction become coarser. Hit $\lambda_w = 2\Delta z$ and see the checkerboard pattern emerge. Drag below $2\Delta z$ and a red dashed "fake wave" appears — the longer wave that the grid <em>mistakenly</em> interprets the sample points as. That is aliasing in action.</p>
+
+<div class="widget-card">
+  <div class="widget-header">
+    <span class="widget-badge">Interactive widget</span>
+    <span class="widget-title">Nyquist sampling &amp; aliasing — drag the wavelength slider</span>
+  </div>
+  <div class="widget-frame-wrap" style="height:560px;">
+    <iframe class="widget-frame" src="widget_nyquist_sampling.html" loading="lazy"></iframe>
+  </div>
+  <div class="widget-caption">Grey curve = the true continuous wave. Orange dots = what the grid stores at cell centres ($\Delta z = 1$ cm fixed). Teal line = what the grid reconstructs. <strong>Drag the slider</strong> from $\lambda_w = 20$ cm down to $\lambda_w = 0.5$ cm and watch the reconstruction lose the wave. When $\lambda_w < 2\Delta z$, a red dashed curve appears — the "fake wave" the grid mistakes the samples for.</div>
+</div>
+
+<div class="interp-box"><h4>What to try with the widget — five recommended slider positions</h4>
+
+<ol>
+<li><strong>$\lambda_w = 10$ cm (well resolved).</strong> 10 cells per wavelength. The teal reconstruction sits right on top of the grey true wave. Many samples per cycle — the grid sees the wave faithfully.</li>
+<li><strong>$\lambda_w = 4$ cm (coarse but representable).</strong> 4 cells per wavelength. The reconstruction is visibly more "blocky", but still recognisably the same wave. This is well above the Nyquist floor of 2 cells, so no aliasing.</li>
+<li><strong>$\lambda_w = 2$ cm (Nyquist limit — checkerboard).</strong> Exactly 2 cells per wavelength. Every other cell is at +1, the rest at −1 — the classic "checkerboard" pattern that von Neumann analysis treats as the worst case. This is the <em>shortest</em> wave the grid can see.</li>
+<li><strong>$\lambda_w = 1.5$ cm (aliased!).</strong> Below the Nyquist floor. The status badge goes red. A red dashed curve appears showing the <em>longer</em> wave (about 3 cm) that passes through the same orange dots. The grid <em>cannot tell the difference</em> between the real 1.5 cm wave and this fake 3 cm wave. The short wave's identity is lost — that is aliasing.</li>
+<li><strong>$\lambda_w = 1$ cm (aliased to a constant).</strong> When the wavelength equals one $\Delta z$, every sample point lands at the same phase of the cycle. The grid stores the same value at every cell → looks like a constant signal. The real wave is <em>completely invisible</em>.</li>
+</ol>
+
+<p><strong>What the widget is trying to convince you of.</strong> Two things, both visual rather than algebraic:</p>
+<ul>
+<li><strong>"Wavelengths shorter than $2\Delta z$ cannot be captured"</strong> is not an arbitrary rule — it is the geometric fact that you need at least 2 sample points per cycle to distinguish "up" from "down". The widget makes this concrete: drag below 2 cm and watch the sample dots become indistinguishable from a longer wave's samples.</li>
+<li><strong>"Aliasing"</strong> is not magic. The red dashed wave you see when $\lambda_w < 2\Delta z$ is literally the wave that passes through the orange dots <em>and</em> has the lowest frequency consistent with them. There are infinitely many waves that pass through those dots (one for each integer "fold" of the spectrum); the grid implicitly picks the lowest-frequency one because that is what its reconstruction (the teal interpolation) draws.</li>
+</ul>
+
+<p><strong>Connection back to the project.</strong> Our diurnal wave has vertical scale $\sim d = 8$–$14$ cm, with $\Delta z = 0.5$–$1$ cm. That puts us at $\lambda_w / \Delta z = 14$–$28$ cells per wavelength — far on the "well-resolved" side of this widget. Physically we will never see aliasing of the diurnal signal in this project. But von Neumann stability analysis still has to <em>protect</em> the checkerboard mode at $k\Delta z = \pi$, because any round-off-level noise at that wavelength would grow exponentially under FTCS if $\nu > 1/2$ — even though the physics never excites it. <em>Stability is about controlling noise modes, not physical modes.</em></p>
+</div>
 <blockquote>
 <p><strong>[HW2]</strong> asked you to verify amplitude conservation on a sine-wave initial condition. <strong>[HW4]</strong> plotted $|A_k|$ vs $k\Delta x$.</p>
 </blockquote>
