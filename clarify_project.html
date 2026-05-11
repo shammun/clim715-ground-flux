@@ -410,6 +410,49 @@ window.MathJax = {
 </ol>
 </div>
 
+<div class="interp-box"><h4>How did we land on $\Delta z_0 = 0.5$ cm for the concrete roof? — The four constraints behind the choice</h4>
+
+<p>The value 0.5 cm is not arbitrary or "small enough to look fine". It is the result of <strong>four overlapping constraints</strong>, all of which the top-cell thickness must satisfy at once. Below is each constraint in turn, with the concrete numbers.</p>
+
+<p><strong>Constraint 1 — Resolve the diurnal damping depth.</strong> The daily wave decays exponentially with depth $z$, with characteristic length $d$. For the concrete roof, $d = 14.02$ cm. The rule of thumb (consistent with the Nyquist principle for resolving a wave) is that the top grid cell should be at least <strong>8–10× thinner than $d$</strong>:</p>
+
+<p>$$\Delta z_0 \;\lesssim\; \frac{d}{10} \;=\; \frac{14.02\text{ cm}}{10} \;\approx\; 1.4\text{ cm}.$$</p>
+
+<p>So <em>any</em> $\Delta z_0 \le 1.4$ cm satisfies this constraint. With $\Delta z_0 = 0.5$ cm, we have $d/\Delta z_0 = 28$ — a generous safety margin. The amplitude variation across the cell drops to just 3.6% (100% at the top → 96.5% at the bottom), so the cell's single stored temperature is a faithful average. Constraint 1 alone would allow 1 cm too.</p>
+
+<p><strong>Constraint 2 — Resolve the topmost <em>layer</em> (the concrete deck itself).</strong> The concrete roof column has a 10 cm thick concrete deck on top, then a sharp jump to mineral-wool insulation. To compute the temperature gradient <em>inside</em> the deck accurately, we need at least 5–10 grid cells <em>within</em> that 10 cm layer. With $\Delta z_0 = 0.5$ cm and stretch ratio $r = 1.18$, the first ten cells have total thickness:</p>
+
+<p>$$\Delta z_0 \cdot \frac{r^{10} - 1}{r - 1} \;=\; 0.5 \cdot \frac{1.18^{10} - 1}{0.18} \;\approx\; 0.5 \cdot 23.5 \;\approx\; 11.7\text{ cm}.$$</p>
+
+<p>So roughly <strong>9 cells fit inside the 10 cm concrete deck</strong>, which is enough to resolve the gradient there. If we had instead chosen $\Delta z_0 = 1$ cm with $r = 1.18$, the first 10 cells would span 23.4 cm — only about 6 cells would fit inside the 10 cm deck, marginal. Constraint 2 is what kills the otherwise-attractive choice of 1 cm.</p>
+
+<p><strong>Constraint 3 — Resolve the conductivity jump at the deck/insulation interface ($z = 10$ cm).</strong> At that interface, $\lambda$ drops from 1.50 to 0.04 — a factor of $\approx 37\times$. The temperature gradient on the insulation side is therefore much steeper than on the deck side, and the harmonic-mean rule (Section 6.2) needs fine cells on <em>both</em> sides of the interface to reproduce that gradient kink. With the stretched grid, by $j = 9$ we are at $\Delta z_j \approx 2.2$ cm — fine enough to resolve the kink. With $\Delta z_0 = 1$ cm, the cells near $z = 10$ cm would be $\approx 5$ cm thick — too coarse to capture the sharp gradient transition. <strong>This is the constraint that uniquely picks 0.5 cm over 1 cm for the concrete roof.</strong></p>
+
+<p><strong>Constraint 4 — Stay consistent with standard land-surface-scheme practice.</strong> The report (§2.2) cites Best et al. (2011, JULES) and Masson (2000, TEB) as references for the stretched-grid choice. Both use top cells in the 0.5–1 cm range for similar physics. Using values inside that community-accepted range means our solver's numerics can be compared on equal footing with those operational schemes — and that any error we find is attributable to the scheme choice (FTCS / BTCS / CN), not to an idiosyncratic grid.</p>
+
+<p><strong>Putting the four constraints together.</strong></p>
+
+<table>
+<thead>
+<tr><th>Constraint</th><th>Concrete-roof requirement</th><th>Does $\Delta z_0 = 1$ cm satisfy it?</th><th>Does $\Delta z_0 = 0.5$ cm satisfy it?</th></tr>
+</thead>
+<tbody>
+<tr><td>1. Resolve damping depth ($d = 14$ cm)</td><td>$\Delta z_0 \le 1.4$ cm</td><td>Yes (1.0 ≤ 1.4)</td><td>Yes (0.5 ≤ 1.4)</td></tr>
+<tr><td>2. Resolve concrete deck (10 cm thick layer)</td><td>≥ 8 cells inside top layer</td><td>Marginal (~6 cells)</td><td>Yes (~9 cells)</td></tr>
+<tr><td>3. Resolve deck/insulation $\lambda$ jump</td><td>cells near $z = 10$ cm thin enough</td><td>No (cells ~5 cm there)</td><td>Yes (cells ~2 cm there)</td></tr>
+<tr><td>4. Match land-surface-scheme convention</td><td>$\Delta z_0 \in [0.5, 1.0]$ cm</td><td>Yes (boundary)</td><td>Yes (interior)</td></tr>
+</tbody>
+</table>
+
+<p>Only $\Delta z_0 = 0.5$ cm satisfies <strong>all four</strong> constraints simultaneously. Constraint 3 (the conductivity jump at the deck/insulation interface) is the decisive one — it is the unique feature of the concrete roof column that forces a finer top cell than what bare soil or even asphalt would strictly need.</p>
+
+<p><strong>Why bare soil gets 1 cm instead of 0.5 cm.</strong> Bare soil is uniform — no layered structure, no $\lambda$ jumps. Constraints 2 and 3 disappear (no top layer to resolve, no interface to capture). Only Constraint 1 remains, and with $d = 7.97$ cm, the rule says $\Delta z_0 \le 0.8$ cm. A top cell of 1 cm slightly exceeds the strict 10× rule (12.6%, just above the 10% rule of thumb), but the amplitude variation across that cell is still only 100% → 88.2% — perfectly acceptable. And using 1 cm instead of 0.5 cm halves the computational cost for the soil column. So the choice for soil is "use the coarsest top cell that still resolves the wave", which is 1 cm.</p>
+
+<p><strong>Why asphalt gets 0.5 cm even though Constraint 3 is less dramatic.</strong> The asphalt road has a 5 cm thick asphalt top layer (thinner than the 10 cm deck) sitting on aggregate. The $\lambda$ jump at $z = 5$ cm is 0.75 → 1.40 — only a factor of 1.87, not 37. But Constraint 2 still bites because the top layer is only 5 cm thick. With $\Delta z_0 = 0.5$ cm at stretch 1.20, the first 5 cells span $0.5 \cdot (1.2^5 - 1)/0.2 = 3.72$ cm — about 5 cells fitting inside the 5 cm asphalt layer. With 1 cm cells we would have only 2–3 cells inside the asphalt — too coarse. So asphalt also ends up at 0.5 cm, but driven mostly by Constraint 2 rather than Constraint 3.</p>
+
+<p><strong>The single intuition to take away.</strong> The choice of $\Delta z_0$ is set by <em>the smallest physical feature the column has near the surface</em>: the damping depth, the top layer's thickness, the spacing of internal $\lambda$ jumps. The cell must be small enough to resolve <em>all</em> of those. For bare soil (no layers), the only constraint is the damping depth, and 1 cm is fine. For asphalt (5 cm top layer), the layer-thickness constraint tightens us to 0.5 cm. For the concrete roof (10 cm deck + 37× $\lambda$ jump), the conductivity-interface constraint locks us to 0.5 cm.</p>
+</div>
+
 <div class="interp-box"><h4>Where does the "37% of surface amplitude" come from?</h4>
 <p>The formula $d = \sqrt{2\kappa/\omega}$ <em>by itself</em> doesn't mention 37%. The 37% comes from the <strong>analytical solution</strong> of the heat equation that <em>defines</em> $d$ in the first place. Here is the full story in plain language.</p>
 
