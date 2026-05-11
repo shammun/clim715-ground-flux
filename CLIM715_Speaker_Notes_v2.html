@@ -88,72 +88,84 @@
 
     <script>
         // 19 entries — one per slot in the v2 deck SLIDE_ORDER.
-        // Slots 1-9: intro + setup framing slides — brief presenter notes.
-        // Slots 10-19: full presenter scripts from CLIM715_Presenter_Scripts_v2.docx.
+        // Every slot carries a substantive presenter script (2-3 paragraphs,
+        // ~45-90s spoken delivery). Slots 1-9 describe the intro + setup
+        // framing slides (Title, UHI hook, column anatomy, governing equation,
+        // SEB, three substrates, BCs, IC, θ-method). Slots 10-19 cover the
+        // results arc — fig1-fig5, table2-3, mechanism, fig6 SHAP, conclusions.
         // Plain-language wording; Δt = 600 s framed as a coarse stress-test
         // value (Option B), matching the report's revised text.
         var slides = [
             {
                 title: "Title",
                 paragraphs: [
-                    "Good morning. I'm Shammunul Islam, and today I'm presenting my CLIM-715 course project on the numerical treatment of the one-dimensional ground heat conduction equation, applied to three urban substrate columns: an asphalt road, a concrete roof, and a bare soil reference.",
-                    "The project compares three classical time-stepping schemes — explicit forward Euler, implicit backward Euler, and Crank–Nicolson — coupled to a prognostic surface energy balance, and uses both a mechanistic argument and an independent SHAP attribution to identify which substrate parameter sets the error magnitude."
+                    "Good morning. I'm Shammunul Islam from the Department of Atmospheric, Oceanic and Earth Sciences, and today I'm presenting my CLIM-715 course project on the numerical treatment of the one-dimensional ground heat conduction equation as it applies to urban land surfaces.",
+                    "The project compares three classical time-stepping schemes — explicit forward Euler, implicit backward Euler, and Crank–Nicolson — running on three idealised urban substrate columns: an asphalt road, a concrete roof, and a bare soil reference. Each scheme is coupled to a fully prognostic surface energy balance, solved by Newton iteration at every time step.",
+                    "The two questions I'll answer in this talk are: which scheme can survive a coarse time step on stiff urban substrates, and which substrate property best predicts how badly each scheme fails. I'll walk through the von Neumann analysis, the verification test, five results figures, two summary tables, the mechanism slide, the SHAP attribution, and finish with four findings — about twenty minutes total."
                 ]
             },
             {
                 title: "Why ground heat flux deserves numerical care",
                 paragraphs: [
-                    "Of the four components of the surface energy budget — net radiation, sensible heat, latent heat, and conductive ground flux — the ground flux G is the smallest by daily mean, but it is the single largest control on the diurnal range of surface temperature. During the day pavements and roofs store heat in the substrate; at night they release it. That nocturnal release is what sustains the urban heat island for hours after sunset.",
-                    "The diurnal damping depth — where the daily T wave decays to about 37 percent of its surface amplitude — is roughly 8 cm in dry soil, 10 in asphalt, 14 in concrete. That length scale is small, which is why operational urban canopy schemes use centimetre-scale near-surface layers. And once cells are centimetre-scale, the FTCS stability bound becomes about 17 seconds on the concrete deck — far below the Δt of any model. So numerical errors in G propagate directly into the simulated nocturnal UHI."
+                    "Let me motivate the project. Of the four components of the surface energy budget — net radiation, sensible heat, latent heat, and conductive ground flux — the ground flux G is the smallest by daily mean, often near zero over a 24-hour average. But it is the single largest control on the diurnal range of surface temperature. During the day, pavements and roofs absorb solar radiation and store heat in the substrate; at night, that stored heat is released back to the surface and into the air. That nocturnal release is exactly what sustains the urban heat island for hours after sunset.",
+                    "The physical length scale that matters here is the diurnal damping depth — the depth at which the daily temperature wave decays to about 37 percent of its surface amplitude. For the substrates I simulate, that's roughly 8 centimetres in dry soil, 10 in asphalt, and 14 in dense concrete. That length scale is small, which is why operational urban canopy schemes — like SLUCM and TEB — use centimetre-scale near-surface layers to resolve it.",
+                    "And here is the consequence the rest of the talk is about: once you have centimetre-scale grid cells, the FTCS explicit stability bound on the concrete deck's top cell becomes about 17 seconds — far below the time step any operational model uses. So errors in the numerical treatment of G propagate directly into the simulated nocturnal urban heat island, and the choice of time-integration scheme becomes a structural problem, not a tuning issue."
                 ]
             },
             {
                 title: "1-D column anatomy — one column, one surface, four fluxes",
                 paragraphs: [
-                    "Each substrate is modelled as a 2-metre-deep vertical column with depth-dependent thermal conductivity λ and heat capacity C. At the top surface, four fluxes balance: net radiation R_n, sensible heat H to the air, latent heat LE — which we set to zero by the strict-impervious assumption — and ground heat flux G into the substrate.",
-                    "Forcing comes from above as a synthetic diurnal cycle in shortwave-down, longwave-down, and air temperature. The output we diagnose is G at z = 0. The bottom boundary at z = 2 m is zero-flux Neumann — at 14 to 25 damping depths down, the daily wave is negligibly small."
+                    "Here is the physical picture in one slide. Each urban substrate is modelled as a 2-metre-deep one-dimensional vertical column with depth-dependent thermal conductivity λ and heat capacity C — the layers you can see in the diagram. There is no horizontal transport: this is a vertical-only model, what an urban canopy scheme uses as a single tile.",
+                    "At the top surface, four fluxes meet and have to balance. Net radiation R_n is the driver — shortwave absorbed plus longwave absorbed minus longwave emitted. Sensible heat H carries heat from the surface to the air. Latent heat LE we set to zero, by the strict-impervious assumption for asphalt and concrete. And the ground heat flux G is what carries heat into or out of the substrate — that is the variable we're trying to compute, and the variable whose numerical treatment matters.",
+                    "Forcing comes from above as a synthetic diurnal cycle in shortwave-down, longwave-down, and air temperature, with a constant 3 metre-per-second wind. The output we diagnose is G at z equals zero, sampled through the second day of a two-day integration. The bottom boundary at z equals 2 metres is zero-flux Neumann — that's 14 to 25 damping depths down, where the daily wave is essentially gone."
                 ]
             },
             {
                 title: "Governing equation + four material numbers",
                 paragraphs: [
-                    "The physics is the 1-D heat conduction equation in conductivity form: C times dT/dt equals the spatial divergence of the conductive flux. I use the conductivity form rather than the diffusivity form because the layered substrates have λ and C that jump by an order of magnitude across interfaces, and the conductivity form preserves the discrete heat content exactly across those jumps.",
-                    "Spatial discretisation is on a stretched grid — 0.5 cm at the surface, growing geometrically to about 30 cm at depth — to resolve the centimetre-scale damping zone while keeping the column thermally complete. Conductivity at half-levels uses the harmonic mean, which preserves the heat flux exactly across a discontinuity in λ. The arithmetic mean would over-estimate the flux across the concrete-to-insulation interface by roughly a factor of nineteen."
+                    "The governing equation is the one-dimensional vertical heat conduction equation in conductivity form: volumetric heat capacity C times the rate of change of temperature equals the spatial divergence of the conductive flux. I write it in conductivity form rather than diffusivity form on purpose. The layered urban substrates have λ and C that jump by an order of magnitude across interfaces, and only the conductivity form preserves the discrete heat content exactly across those jumps. The diffusivity form would lose energy at every layer boundary every step.",
+                    "Four material numbers describe each substrate: thermal conductivity λ in watts per metre per kelvin, volumetric heat capacity C in joules per cubic metre per kelvin, thermal diffusivity κ which is λ over C, and thermal admittance μ which is the square root of λ times C. Diffusivity κ tells you how fast the temperature wave moves into the substrate. Admittance μ tells you how much heat the surface can absorb per kelvin of temperature swing. These two numbers will both turn up later as candidate predictors of scheme error.",
+                    "Spatial discretisation is on a stretched grid — 0.5 centimetres at the surface, growing geometrically to about 30 centimetres at depth — to resolve the centimetre-scale damping zone while keeping the column thermally complete. Conductivity at half-levels uses the harmonic mean, which preserves the heat flux exactly across a discontinuity in λ. The arithmetic mean would over-estimate the flux across the concrete-to-insulation interface by roughly a factor of nineteen."
                 ]
             },
             {
                 title: "Surface energy balance — four fluxes balanced, Tₛ⁰ by Newton",
                 paragraphs: [
-                    "The top boundary is closed by the surface energy balance: net radiation equals the sum of sensible heat, latent heat, and ground heat flux. The surface temperature Tₛ⁰ is the unknown that makes this equation balance. We don't prescribe it; we solve for it.",
-                    "Each time step, we run Newton iteration on the SEB residual F of Tₛ⁰ equals R_n minus H minus LE minus G. Three to four Newton iterations converge to within ten-to-the-minus-four kelvin per step. The Jacobian is analytical, no finite differences. This is the prognostic SEB that distinguishes Test 2 from Test 1's prescribed sinusoid."
+                    "The top boundary is closed by the surface energy balance: net radiation equals the sum of sensible heat plus latent heat plus ground heat flux. Each of those four flux terms depends on the surface temperature Tₛ⁰. So Tₛ⁰ is not something we prescribe — it is the unknown that makes this equation balance. The whole point of the prognostic experiment is to let Tₛ⁰ emerge from this balance every step, the way it does in any modern land-surface scheme.",
+                    "We solve it by Newton iteration on the residual F of Tₛ⁰, which equals R_n minus H minus LE minus G. We compute F and its analytical derivative at the current guess, take a Newton step, and repeat. Three to four iterations are enough to converge to within ten-to-the-minus-four kelvin per step. No finite-difference Jacobian — the Jacobian is hand-derived and exact, which makes each iteration fast and the convergence quadratic.",
+                    "This is the prognostic SEB that distinguishes Test 2 from Test 1. In Test 1 we prescribed the surface temperature as a sinusoid for verification against an analytical solution. In Test 2 we let the SEB run prognostically, which is what generates the operator-splitting error we'll see in the results."
                 ]
             },
             {
                 title: "Three substrates spanning the urban-physics range",
                 paragraphs: [
-                    "Three idealised substrates were chosen to span a wide range of behaviours. The asphalt road has four layers — asphalt slab, aggregate base, dry soil, subsoil — with a moderately high top-layer diffusivity. The concrete roof has three layers — concrete deck on rigid insulation on a drywall-and-wood interior — with the highest top-layer diffusivity and the most extreme internal contrast. The bare soil reference is a single uniform sandy loam.",
-                    "These are not real city geometries. They are 1-D columns chosen to span asphalt's moderate stiffness, concrete's extreme stiffness with an insulator below, and a low-conductivity reference. The mix lets us see whether scheme errors correlate with κ_top, with bulk admittance, with layer structure, or with all three."
+                    "Three idealised substrates were chosen on purpose to span the urban-physics range. The asphalt road has four layers — 5 centimetres of asphalt, 20 of aggregate base, 75 of dry soil, and a deep subsoil to 2 metres — with a moderately high top-layer diffusivity around 3.8 times 10 to the minus 7 metres squared per second. The concrete roof has three layers — about 10 centimetres of concrete deck, rigid mineral-wool insulation, and a drywall-and-wood interior — with the highest top-layer diffusivity around 7.1 times 10 to the minus 7, and the most extreme internal contrast where the concrete meets the insulation.",
+                    "The bare soil reference is a single uniform sandy loam — no layering, lowest diffusivity around 2.3 times 10 to the minus 7. Albedos are 0.10 for asphalt, 0.30 for concrete, 0.25 for soil. The three substrates differ in top-layer diffusivity by a factor of about three, in bulk admittance by a factor of about three, and in layer structure by every conceivable measure.",
+                    "These are not real city geometries — no buildings, no canyons, no facets. They are idealised 1-D columns chosen to span asphalt's moderate stiffness, concrete's extreme stiffness over an insulator, and a low-conductivity uniform reference. The mix lets us see whether scheme errors track κ_top, bulk admittance, layer structure, or all three — a question we'll close out with SHAP attribution."
                 ]
             },
             {
                 title: "Boundary conditions — top by SEB, bottom by zero flux",
                 paragraphs: [
-                    "A second-order PDE needs two boundary conditions, one at each end of the column. At the top, the boundary condition is the surface energy balance — Tₛ⁰ is the root of F equals zero, solved by Newton each step. At the bottom, z equals 2 metres, we impose a zero-flux Neumann condition.",
-                    "Two metres is 14 to 25 diurnal damping depths down, depending on substrate. At that depth the daily wave has decayed to less than one part in a million of its surface amplitude. So we can stop the column there without affecting the diagnostics at the surface."
+                    "The heat conduction equation is a second-order PDE in space, so it needs two boundary conditions — one at each end of the column. At the top, z equals zero, the boundary condition is the surface energy balance from the previous slide: Tₛ⁰ is the root of F equals zero, found by Newton each step. This is a Dirichlet-type condition, but with the surface temperature treated as an unknown rather than prescribed.",
+                    "At the bottom, z equals 2 metres, we impose a zero-flux Neumann condition: the temperature gradient is zero. Physically this says no heat enters or leaves the column from below. Two metres is 14 damping depths down for concrete and 25 for soil. At that depth the daily temperature wave has decayed to less than one part in a million of its surface amplitude — essentially zero. So we can truncate the column there without affecting the diagnostics at the surface.",
+                    "One small but important note: in the Test 1 verification experiment, the top BC is a prescribed sinusoid in Tₛ⁰ — that lets us check against the Carslaw–Jaeger analytical solution. In the Test 2 prognostic experiment, Tₛ⁰ is the SEB-balanced unknown. The bottom BC is the same in both — zero-flux at 2 metres."
                 ]
             },
             {
                 title: "Initial condition — damping-depth profile, skip the spin-up",
                 paragraphs: [
-                    "Cold-starting from a uniform Tₛ would need several days of spin-up before the column reached diurnal quasi-equilibrium. We skip that by initialising each column at midnight with the analytical damping-depth solution: T̄ plus A times exp of minus z over d times cos of minus z over d, using the top layer's effective κ.",
-                    "Then we refine Tₛ⁰ with one Newton SEB step to close the surface budget at t equals zero. This places the column close to its true diurnal quasi-equilibrium, so we only need to run two days. Day 1 absorbs the phase mismatch between the damping-depth IC and the SEB-driven cycle; day 2 is what we diagnose."
+                    "We need an initial vertical temperature profile to start each column at t equals zero. The naive choice — a uniform Tₛ throughout the column — would need several days of spin-up before the column reached its true diurnal quasi-equilibrium, because the deep layers would have to slowly absorb the diurnal cycle from the surface. That's expensive.",
+                    "Instead, we initialise each column at midnight with the analytical damping-depth solution: T at depth z equals the daily mean T̄ plus the diurnal amplitude A times exp of minus z over d times cosine of minus z over d, where d equals the square root of 2 kappa over omega — the damping depth — using the topmost layer's effective diffusivity. Then we refine Tₛ⁰ with one Newton SEB step to close the surface energy budget at t equals zero.",
+                    "This puts the column close enough to its true diurnal quasi-equilibrium that we only need to integrate two days. Day 1 absorbs the small phase mismatch between the simple damping-depth IC and the more complex SEB-driven actual cycle. Day 2 is the day we diagnose — that's where the figures and tables get their numbers."
                 ]
             },
             {
                 title: "θ-method family — three schemes, one implementation",
                 paragraphs: [
-                    "All three schemes are unified under a single α-weighted θ-method. α equals zero is FTCS — fully explicit. α equals one is BTCS — fully implicit. α equals one half is Crank–Nicolson — half-explicit, half-implicit.",
-                    "One implementation, three schemes — which means a bug in the spatial discretisation cannot make any one scheme look better than another in the comparison. FTCS is a single vectorised pass; BTCS and CN use a tridiagonal solver from scipy. All three are O of N per step."
+                    "All three time-integration schemes are unified under a single α-weighted θ-method. The update equation evaluates the spatial Laplacian as a weighted combination of the old and new time levels: an α-fraction at the new time and a 1-minus-α fraction at the old time. α equals zero gives FTCS — fully explicit, fastest, but with the stability constraint. α equals one gives BTCS — fully implicit, unconditionally stable, but first-order accurate in time. α equals one half gives Crank–Nicolson — centred in time, unconditionally stable, and second-order accurate.",
+                    "One implementation, three schemes — the same code path with a single parameter α decides which scheme is running. That matters because any bug in the spatial discretisation would affect all three identically; it cannot make one scheme look better or worse than another. So when we see scheme differences in the results, they are real consequences of the α value, not coding artifacts.",
+                    "Computationally, FTCS is a single vectorised pass — O of N per step. BTCS and CN both produce a tridiagonal linear system at each step, solved by scipy's banded solver — also O of N per step but with a constant factor that's a few times larger than FTCS. So implicit is not much more expensive per step than explicit, which makes the speed advantage of taking a larger Δt very real in practice."
                 ]
             },
             {
