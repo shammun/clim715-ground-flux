@@ -171,6 +171,33 @@ window.MathJax = {
 <p><strong>Status: [Established theoretical formula]</strong>, derived from solving the heat equation in a semi-infinite medium with sinusoidal Dirichlet forcing (Carslaw &amp; Jaeger 1959 Section 2.6; Hillel 2003). Re-derived in Part 8.1.</p>
 </blockquote>
 <p><strong>Reading this equation.</strong> Left side: $d$, a length (metres). Right side: $\sqrt{ }$ is the square-root symbol; $2$ is the constant 2; $\kappa$ is thermal diffusivity; $\omega$ (Greek "omega") is the angular frequency of the daily cycle. Because one full cycle is $2\pi$ radians and one day is $86 400$ seconds, $\omega = 2\pi / 86 400 \approx 7.27 \times 10^{-5}$ radians per second. The square-root structure says: faster-diffusing materials (larger $\kappa$) feel the surface signal deeper; faster cycles (larger $\omega$) decay closer to the surface.</p>
+
+<div class="interp-box"><h4>Where does the "37% of surface amplitude" come from?</h4>
+<p>The formula $d = \sqrt{2\kappa/\omega}$ <em>by itself</em> doesn't mention 37%. The 37% comes from the <strong>analytical solution</strong> of the heat equation that <em>defines</em> $d$ in the first place. Here is the full story in plain language.</p>
+
+<p><strong>Step 1 — The analytical solution.</strong> If the surface temperature is a clean sinusoid $T_s(0, t) = \bar{T} + A\cos(\omega t)$ and the substrate is uniform and infinitely deep, the heat equation has a known closed-form solution (we derive it from scratch in Part 8.1):</p>
+<p>$$T_s(z, t) \;=\; \bar{T} \;+\; \underbrace{A \, e^{-z/d}}_{\text{amplitude envelope}} \, \cos\!\bigl(\omega t - z/d\bigr).$$</p>
+<p>Two depth-dependent factors are at play: an exponential envelope $A \, e^{-z/d}$ that <em>shrinks</em> the amplitude as you go down, and a phase shift $-z/d$ inside the cosine that <em>delays</em> the wave with depth. The 37% rule is entirely about the first factor — the exponential envelope.</p>
+
+<p><strong>Step 2 — Plug in $z = d$.</strong> What is the amplitude when we go down by exactly $z = d$ (one damping-depth)? Substitute into the envelope:</p>
+<p>$$A \cdot e^{-d/d} \;=\; A \cdot e^{-1} \;=\; A \cdot \frac{1}{e} \;\approx\; A \cdot 0.3679.$$</p>
+<p>So at depth $z = d$, the daily temperature swing is about <strong>37% of the swing at the surface</strong> — 0.3679 to be more precise. That number 0.3679 is just $1/e$, where $e \approx 2.718$ is Euler's number. The constant 0.3679 has nothing to do with this project; it is a mathematical property of the exponential function. The reason $1/e$ shows up here is that <em>this</em> is how $d$ was <em>defined</em>: $d$ is the length scale where the exponent equals $-1$.</p>
+
+<p><strong>Step 3 — Why this particular length scale?</strong> Look at the algebra in Step 1 again. The complex wavenumber that comes out of plugging $A \, e^{i(\omega t - K z)}$ into the heat equation works out to $K = (1 - i)/d$ with $d = \sqrt{2\kappa/\omega}$. The $1$ part of $(1 - i)$ gives the cosine; the $-i$ part gives the decay. The grouping of $\kappa$ and $\omega$ inside the square root is forced by the PDE — no other combination has the right units of length. So $d$ is not a free choice; it is the <em>only</em> length scale the heat equation gives you for sinusoidal forcing at frequency $\omega$.</p>
+
+<p><strong>What "amplitude" means in the 37% statement.</strong> The amplitude of a sinusoid is half the peak-to-trough swing. If the surface temperature swings between 18 °C and 32 °C (peak-to-trough = 14 K), its amplitude is 7 K. At depth $z = d$, the swing is $0.37 \times 14 = 5.2$ K peak-to-trough, or amplitude $\approx 2.6$ K. So a top surface that varies 25 °C → 47 °C → 25 °C over a day might, at depth $d$, vary only 33 °C → 41 °C → 33 °C. Same average, much narrower swing.</p>
+
+<p><strong>What happens at deeper $z$?</strong> The envelope keeps falling exponentially:</p>
+<ul>
+<li>At $z = 2d$ (two damping-depths): amplitude $= A \cdot e^{-2} \approx 0.135 A$ — about <strong>13.5%</strong> of the surface swing.</li>
+<li>At $z = 3d$: amplitude $= A \cdot e^{-3} \approx 0.050 A$ — about <strong>5%</strong>.</li>
+<li>At $z = 4d$: amplitude $= A \cdot e^{-4} \approx 0.018 A$ — under <strong>2%</strong>, essentially zero.</li>
+</ul>
+<p>This is why we say "the diurnal signal does not reach 2 m". With our substrates having $d$ in the 8–14 cm range, by 2 m depth we are at $z/d \approx 14$–$25$, where $e^{-14}$ is microscopic. The deep-bottom Neumann zero-flux boundary condition is justified by exactly this calculation.</p>
+
+<p><strong>The single intuition to take away.</strong> $d$ is the natural length yardstick of the heat equation for daily-cycle forcing — and what makes it natural is that the amplitude falls by exactly a factor of $1/e \approx 37\%$ for each unit of $z$ measured in $d$'s. The 37% is a definition, not a measurement; the formula $d = \sqrt{2\kappa/\omega}$ tells you <em>how big</em> that yardstick is for each substrate, not <em>what fraction</em> the wave is at depth $d$. Those are two separate pieces of information bolted together in the phrase "the depth at which the daily temperature wave decays to 37%".</p>
+</div>
+
 <blockquote>
 <p><strong>[Notes #2 — 2nd-Order PDEs]</strong> classifies the heat equation as <strong>parabolic</strong> ($B^2 - 4AC = 0$) and notes: "Amplitude decreases; the initial 'pile' of material does not propagate but spreads horizontally."</p>
 </blockquote>
