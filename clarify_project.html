@@ -747,6 +747,71 @@ window.MathJax = {
 <p><strong>The single intuition to take away.</strong> $d/\Delta z_0$ tells you whether the grid is fine enough <em>in space</em> to capture the wave. $\nu$ tells you whether the time step is small enough <em>in time</em> for an explicit scheme to remain bounded. They are the two faces of the same numerical-resolution coin. Both must be in the "safe" zone for FTCS to work; the project's data shows that on concrete and asphalt at operational $\Delta t$, $\nu$ is hopelessly over its bound, which is why we must move to BTCS or CN.</p>
 </div>
 
+<div class="interp-box"><h4>What is the corresponding $\Delta t$ bound for BTCS and Crank–Nicolson?</h4>
+
+<p>FTCS has a hard ceiling: $\Delta t_{\max}^{\rm FTCS} = \tfrac{1}{2}\Delta z^2/\kappa$ — giving 216 s on bare soil, 33 s on asphalt road, 17 s on concrete roof. Natural next question: what are the corresponding bounds for BTCS and CN?</p>
+
+<p><strong>Short answer: there is no upper bound. BTCS and CN are <em>unconditionally stable</em>.</strong> The simulation will not blow up regardless of how large you make $\Delta t$. You could run $\Delta t = 1$ second, $\Delta t = 1000$ seconds, or even $\Delta t = 100{,}000$ seconds, and the temperatures would remain bounded. This is the defining property of these schemes, and it is the entire reason the project uses them.</p>
+
+<p><strong>Where this comes from algebraically.</strong> The amplification factors derived in §6.5 are:</p>
+
+<table>
+<thead>
+<tr><th>Scheme</th><th>$A$ at worst wave ($k\Delta z = \pi$)</th><th>$|A|$ for any $\nu > 0$</th><th>Stability verdict</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>FTCS</strong></td><td>$A = 1 - 4\nu$</td><td>Exceeds 1 once $\nu > 1/2$</td><td>Conditionally stable, $\nu \le 1/2$ (hard ceiling)</td></tr>
+<tr><td><strong>BTCS</strong></td><td>$A = \dfrac{1}{1 + 4\nu}$</td><td>Always in $(0, 1]$</td><td><strong>Unconditionally stable</strong> — strictly damping</td></tr>
+<tr><td><strong>CN</strong></td><td>$A = \dfrac{1 - 2\nu}{1 + 2\nu}$</td><td>Always in $[-1, 1]$</td><td><strong>Unconditionally stable</strong> — but $|A| \to 1$ as $\nu \to \infty$ (over-damping pathology)</td></tr>
+</tbody>
+</table>
+
+<p>BTCS's amplification factor $1/(1 + 4\nu)$ is a positive number ≤ 1 for any $\nu > 0$. It cannot exceed 1 no matter how large $\nu$ is. CN's $(1 - 2\nu)/(1 + 2\nu)$ stays in the interval $[-1, 1]$ for all $\nu$ — same conclusion. <em>Stability is built into the algebra of these schemes.</em></p>
+
+<p><strong>So how large $\Delta t$ does the project actually use?</strong> The 27-cell experimental matrix tests $\Delta t \in \{15, 60, 600\}$ s on each substrate × scheme combination. At $\Delta t = 600$ s on the concrete roof, the diffusion number is $\nu = 17.14$ — that is 34× over the FTCS bound, yet BTCS and CN both run to completion without blowing up. The values at $\Delta t = 600$ s:</p>
+
+<table>
+<thead>
+<tr><th>Substrate</th><th>$\nu$ at Δt = 600 s</th><th>FTCS $|A|$ at worst wave</th><th>BTCS $|A|$ at worst wave</th><th>CN $|A|$ at worst wave</th></tr>
+</thead>
+<tbody>
+<tr><td>Bare soil</td><td>1.39</td><td>4.55 (❌ unstable)</td><td>0.152 (strongly damped)</td><td>0.585 (mild damping)</td></tr>
+<tr><td>Asphalt road</td><td>9.00</td><td>35 (❌ catastrophic)</td><td>0.027 (heavy damping)</td><td>0.895 (over-damping)</td></tr>
+<tr><td>Concrete roof</td><td>17.14</td><td>67.6 (❌ instant overflow)</td><td>0.0144 (heavy damping)</td><td>0.945 (over-damping)</td></tr>
+</tbody>
+</table>
+
+<p><strong>Reading this table.</strong></p>
+<ul>
+<li><strong>FTCS column:</strong> $|A|$ is 4.55, 35, 67.6 at the worst wave — all far above 1 → blow-up. FTCS simply cannot run at $\Delta t = 600$ s on asphalt or concrete.</li>
+<li><strong>BTCS column:</strong> $|A|$ is 0.15, 0.027, 0.014 — well below 1 → simulation survives. The cost is that BTCS aggressively damps short wavelengths even when they should not be damped, contributing to its 40% over-amplification of the diurnal cycle.</li>
+<li><strong>CN column:</strong> $|A|$ is 0.585, 0.895, 0.945 — also below 1 → simulation survives. But notice $|A|$ is approaching 1 as $\nu$ grows: this is the famous <strong>CN over-damping pathology</strong>. CN remains stable but loses its damping power for the 2-$\Delta z$ mode at large $\nu$. The mode flips sign each step but its amplitude is preserved — leading to a "1-cell oscillation" that does not actually damp away. This is harmless if the initial conditions and forcing are smooth (no 2-$\Delta z$ noise to begin with), and our project's smooth diurnal forcing satisfies that requirement.</li>
+</ul>
+
+<p><strong>Practical limits on $\Delta t$ for BTCS and CN.</strong> Even though stability does not bound $\Delta t$ from above, three other considerations do:</p>
+
+<ol>
+<li><strong>Resolve the diurnal cycle.</strong> The forcing has period 86,400 s. To sample it well, you need at least 10–100 steps per day → $\Delta t \lesssim 8{,}000$ s. The project's 600 s gives 144 steps per day — plenty.</li>
+<li><strong>Operational time-step norms.</strong> Mesoscale weather models use $\Delta t = 60$ s. Regional climate models use $\Delta t = 600$–$1800$ s. The project tests exactly the 60 s and 600 s values to expose the operational error.</li>
+<li><strong>Accuracy.</strong> BTCS error scales linearly with $\Delta t$; CN error scales as $\Delta t^2$ (per-substep). But because the operator-splitting error between the column and SEB updates is first-order in $\Delta t$ regardless of scheme (§9.2 of this walkthrough), in practice both schemes show first-order error in $\Delta t$ in this project. So doubling $\Delta t$ roughly doubles the error in both. The "40% over-amplification" headline numbers are for $\Delta t = 600$ s; at $\Delta t = 60$ s the error is roughly one-tenth of that.</li>
+</ol>
+
+<p><strong>Putting it all together: $\Delta t$ ceiling comparison.</strong></p>
+
+<table>
+<thead>
+<tr><th>Scheme</th><th>$\Delta t$ stability ceiling on bare soil</th><th>on asphalt road</th><th>on concrete roof</th></tr>
+</thead>
+<tbody>
+<tr><td>FTCS</td><td>216 s</td><td>33 s</td><td>17 s</td></tr>
+<tr><td><strong>BTCS</strong></td><td><strong>∞</strong> (no stability ceiling)</td><td><strong>∞</strong></td><td><strong>∞</strong></td></tr>
+<tr><td><strong>CN</strong></td><td><strong>∞</strong> (no stability ceiling)</td><td><strong>∞</strong></td><td><strong>∞</strong></td></tr>
+</tbody>
+</table>
+
+<p><strong>The single intuition to take away.</strong> FTCS's $\Delta t$ is bounded above by stability; BTCS and CN's $\Delta t$ is bounded above only by <em>accuracy and physical-resolution requirements</em>, not by stability. The shift from "explicit + bounded" to "implicit + unbounded $\Delta t$" is what makes long-time-step climate simulations possible. The remaining error at large $\Delta t$ is what this project measures — and what Part 9 explains as operator splitting.</p>
+</div>
+
 <h3>1.5 The four-component surface energy balance</h3>
 <p>Surface temperature $T_s^0$ is determined by an energy balance at the surface. Four fluxes meet there:</p>
 <ul>
