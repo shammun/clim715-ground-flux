@@ -83,6 +83,7 @@ window.MathJax = {
 <li><a href="#test1-when">When Each Constraint Is Applied</a></li>
 <li><a href="#test1-step">Test 1 — One Concrete Δt = 60 s Step, with Numbers</a></li>
 <li><a href="#test1-why">Why This Matters for Verification</a></li>
+<li><a href="#test2-vs-test1">Test 2 vs Test 1 — Computation, Content, BCs, Algorithm</a></li>
 <li><a href="#test2-setup">Test 2 — The Setup, in One Place</a></li>
 <li><a href="#test2-ic">Test 2 — Initial Conditions per Substrate</a></li>
 <li><a href="#test2-seb">The SEB Surface Closure — How $T_s^0$ Gets Solved Each Step</a></li>
@@ -456,7 +457,134 @@ if t &lt; t_end: goto Step 1</pre>
 <div class="part-banner">PART III — Test 2 Deep Dive
 <span class="sub">Step-by-step walkthrough of the production experiment. Where harmonic mean matters, the SEB Newton iteration appears, and operator splitting creates the headline error.</span></div>
 
-<h2 id="test2-setup">18. Test 2 — The Setup, in One Place</h2>
+<h2 id="test2-vs-test1">18. Test 2 vs Test 1 — Computation, Content, BCs, and Algorithm</h2>
+<p>Before diving into the Test 2 setup, here is a clean side-by-side comparison of exactly what changes from Test 1 to Test 2. Use this section to anchor every later detail.</p>
+
+<h3>18a. The big picture in four bullets</h3>
+<ul>
+<li>Test 1 is the simplest possible setup; Test 2 adds <strong>three new pieces of physics + complexity</strong>.</li>
+<li>The biggest new thing is the <strong>prognostic SEB closure</strong> — surface $T$ is <em>solved</em>, not prescribed.</li>
+<li>The grid moves from <strong>uniform to stretched</strong>, and substrates go from <strong>1 layer to 1–4 layers</strong>.</li>
+<li>The algorithm gains a <strong>second sub-step</strong> (SEB Newton iteration) — and with it, the <strong>operator-splitting error</strong> that dominates the headline 40% over-amplification.</li>
+</ul>
+
+<h3>18b. The 17 differences, side by side</h3>
+<table>
+<thead><tr><th>#</th><th>Aspect</th><th>Test 1</th><th>Test 2</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><strong>Purpose</strong></td><td>Verification — is the solver correct?</td><td>Production — how do the schemes compare?</td></tr>
+<tr><td>2</td><td><strong>Substrates</strong></td><td>1 (uniform sandy loam)</td><td>3 (asphalt road, concrete roof, bare soil)</td></tr>
+<tr><td>3</td><td><strong>Layers per column</strong></td><td>1 (uniform)</td><td>4 / 3 / 1 (asphalt / concrete / soil)</td></tr>
+<tr><td>4</td><td><strong>Grid type</strong></td><td>Uniform $\Delta z = 1$ cm everywhere</td><td>Stretched: $\Delta z_0$ = 0.5–1 cm; ratio 1.18–1.25</td></tr>
+<tr><td>5</td><td><strong>Cell count</strong></td><td>201</td><td>24–30 per substrate</td></tr>
+<tr><td>6</td><td><strong>Material properties per cell</strong></td><td>$\lambda$ = 0.30, $C$ = 1.3×10⁶ at every cell</td><td>Varies — <code>assign_layered_props()</code> sets $\lambda$, $C$ based on each cell's centre depth</td></tr>
+<tr><td>7</td><td><strong>Harmonic-mean $\lambda$ at faces</strong></td><td>Trivial — all $\lambda_{j+1/2}$ = 0.30</td><td>Real — jumps at every layer interface (e.g., 0.078 at concrete deck/insulation)</td></tr>
+<tr><td>8</td><td><strong>Initial condition</strong></td><td>Damping-depth profile using sandy loam's $\kappa$</td><td>Same formula, but $d$ uses each substrate's <em>top-layer</em> $\kappa$ → different IC for each substrate</td></tr>
+<tr><td>9</td><td><strong>Top BC — formula</strong></td><td>$T_s^0(t) = 292.5 + 7.5\cos(\omega t)$ &nbsp;[PRESCRIBED]</td><td>$R_n - H - LE - G = 0$ &nbsp;[SOLVE for $T_s^0$]</td></tr>
+<tr><td>10</td><td><strong>Top BC — how applied</strong></td><td>Plug in formula every step → 1 arithmetic operation</td><td>Newton iteration every step → 3–4 iterations × 7 ops each ≈ 20–30 ops</td></tr>
+<tr><td>11</td><td><strong>Atmospheric forcing</strong></td><td>NONE needed (surface is prescribed)</td><td>FOUR functions: $S_\downarrow(t)$, $L_\downarrow(t)$, $T_a(t)$, $U(t)$</td></tr>
+<tr><td>12</td><td><strong>Sub-steps per Δt</strong></td><td><strong>ONE</strong> — just the column update</td><td><strong>TWO</strong> — column (A), then SEB Newton (B)</td></tr>
+<tr><td>13</td><td><strong>Operator splitting?</strong></td><td>NO — only one operator</td><td>YES — between column op A and SEB op B (dominant error source!)</td></tr>
+<tr><td>14</td><td><strong>Reference for error</strong></td><td>Closed-form analytical damping-depth solution</td><td>FTCS at $\Delta t = 15$ s on the same substrate</td></tr>
+<tr><td>15</td><td><strong>Configurations tested</strong></td><td>6 (different $\nu$ values)</td><td>27 (3 substrates × 3 schemes × 3 Δt)</td></tr>
+<tr><td>16</td><td><strong>Integration period</strong></td><td>5 diurnal cycles; day-5 diagnostics</td><td>2 diurnal cycles; day-2 diagnostics</td></tr>
+<tr><td>17</td><td><strong>Diagnostic outputs</strong></td><td>RMSE of $T$ at $z = 10$ cm vs analytical; FTCS blow-up step</td><td>Peak $G$ amplitude ratio; RMSE of $T_s^0$; daily-storage ratio $S/S_{\rm ref}$</td></tr>
+</tbody></table>
+
+<h3>18c. What is COMPUTATIONALLY new in Test 2 (didn't exist in Test 1)</h3>
+<ol>
+<li><strong>A second sub-step at every time step (SEB Newton iteration).</strong> Test 1 had one routine: advance the column. Test 2 has two: advance the column, then solve the SEB. The whole "operator splitting" concept exists only because of this second sub-step.</li>
+<li><strong>Newton's method.</strong> Test 1 had zero iterative solvers — everything was either a direct vectorised update (FTCS) or a single tridiagonal solve (BTCS/CN). Test 2 wraps a Newton iteration around the tridiagonal solve. Each step now does: (a) tridiagonal solve, (b) 3–4 Newton iterations each requiring one residual + one Jacobian evaluation.</li>
+<li><strong>Analytical Jacobian of $F(T_s^0)$.</strong> A new function $\mathrm{seb\_dresidual\_dT}()$ that computes $F'(T_s^0) = -4\varepsilon_s\sigma(T_s^0)^3 - \rho c_p/r_a - \lambda_{1/2}/\Delta z$. This is computed analytically (not by finite differences) for speed and accuracy.</li>
+<li><strong>Atmospheric forcing functions.</strong> Four new functions called at every step: $S_\downarrow(t)$, $L_\downarrow(t)$, $T_a(t)$, $U(t)$. Test 1 used only one — the prescribed surface temperature formula.</li>
+<li><strong>Stefan–Boltzmann nonlinear term.</strong> $\sigma(T_s^0)^4$. The reason the SEB needs Newton iteration (cannot be solved algebraically in one shot).</li>
+<li><strong>Per-substrate substrate-property arrays.</strong> Test 1 had two scalar constants ($\lambda = 0.30$, $C = 1.3\times 10^6$). Test 2 has two arrays of length $N$ (one $\lambda$, one $C$, with values that differ per cell). Built by <code>assign_layered_props()</code> at the start.</li>
+<li><strong>Per-substrate damping-depth $d$ for the IC.</strong> Each substrate uses its top layer's $\kappa$ to set $d$ — so the IC formula returns different profiles for the three substrates. Test 1 had only one $d$.</li>
+<li><strong>Stretched-grid bookkeeping.</strong> Test 1 had one constant $\Delta z = 0.01$ m. Test 2 has an array $\Delta z_j$ (cell thicknesses) and an array $\Delta z_{j+1/2}$ (centre-to-centre spacings). The θ-method update equation must reference the cell-specific values.</li>
+</ol>
+
+<h3>18d. What is REMOVED in Test 1 (i.e., things that exist in Test 2 but not in Test 1)</h3>
+<ul>
+<li>No atmospheric forcing — there is no $T_a$, $S_\downarrow$, $L_\downarrow$, or $U$ in Test 1. Just a prescribed surface sinusoid.</li>
+<li>No SEB closure — the four flux terms are not computed.</li>
+<li>No Newton iteration — top BC is one line of arithmetic.</li>
+<li>No operator splitting — only one update operator (the column), so no splitting.</li>
+<li>No layered material properties — $\lambda$ and $C$ are scalars, not arrays.</li>
+<li>No non-trivial harmonic mean — all faces have the same $\lambda$.</li>
+</ul>
+
+<h3>18e. Algorithm comparison — Test 1 vs Test 2 at one time step</h3>
+<p>Here is the same one-time-step loop, side by side. Notice how Test 2 wraps a whole second block around the column update:</p>
+
+<table>
+<thead><tr><th>Test 1 (one sub-step)</th><th>Test 2 (two sub-steps)</th></tr></thead>
+<tbody>
+<tr style="vertical-align: top;">
+<td><pre style="margin: 0;"># ONE PASS:
+
+# 1. Top BC (prescribed)
+T_s_0 = 292.5 + 7.5 * cos(omega * t_new)
+T_old[0] = T_s_0
+
+# 2. theta-method
+T_new = solve_column(T_old, alpha, dt,
+                     lam_uniform, C_uniform, dz_uniform)
+
+# 3. Bottom BC
+T_new[N-1] = T_new[N-2]
+
+# 4. Advance
+T = T_new
+t = t_new</pre></td>
+<td><pre style="margin: 0;"># SUB-STEP A: column
+
+T_old[0] = T_s_0_old  # held fixed
+
+T_new = solve_column(T_old, alpha, dt,
+                     lam_array, C_array, dz_array)
+
+T_new[N-1] = T_new[N-2]  # bottom BC
+
+# SUB-STEP B: SEB Newton
+
+T_s = T_new[0]
+for k in range(MAX_ITER):
+    F  = R_n - H - LE - G   # using T_s
+    dF = dR_n/dT - dH/dT - dG/dT
+    dT = -F / dF
+    T_s += dT
+    if abs(dT) &lt; 1e-4: break
+
+T_new[0] = T_s   # update top cell
+T = T_new
+t = t_new</pre></td>
+</tr>
+</tbody></table>
+
+<div class="callout">Notice three things in the right-hand code: (i) the SEB Newton block is entirely new — Test 1 has nothing like it; (ii) the call to <code>solve_column</code> now takes arrays (<code>lam_array</code>, <code>C_array</code>, <code>dz_array</code>) instead of scalars — the same routine runs, but it now handles per-cell properties; (iii) the top cell is updated TWICE per step — once at the start of sub-step A (held fixed at OLD value) and once at the end of sub-step B (new Newton-converged value).</div>
+
+<h3>18f. Computational cost per time step — how expensive is Test 2 compared to Test 1?</h3>
+<table>
+<thead><tr><th>Cost component</th><th>Test 1 (per step)</th><th>Test 2 (per step)</th><th>Ratio</th></tr></thead>
+<tbody>
+<tr><td>θ-method column solve</td><td>1× tridiagonal (or FTCS direct)</td><td>1× tridiagonal (or FTCS direct)</td><td>1× (same)</td></tr>
+<tr><td>Top BC evaluation</td><td>1× <code>cos()</code> evaluation</td><td>3–4× SEB residual + Jacobian</td><td>~ 20×</td></tr>
+<tr><td>Atmospheric forcing evaluations</td><td>0</td><td>4 functions × ≈ 4 iterations = 16 calls</td><td>(was 0)</td></tr>
+<tr><td>Harmonic-mean computation</td><td>Trivially $\lambda$ everywhere</td><td>Precomputed once at start (free during run)</td><td>1× (same, after warmup)</td></tr>
+<tr><td>Bottom BC</td><td>1 assignment</td><td>1 assignment</td><td>1× (same)</td></tr>
+<tr><td><strong>Approximate total per step</strong></td><td><strong>~ $N$ flops (FTCS) or $5N$ (BTCS/CN)</strong></td><td><strong>~ $N$ + 30 (FTCS) or $5N$ + 30 (BTCS/CN)</strong></td><td><strong>~ 1.1–1.3× slower (small overhead)</strong></td></tr>
+</tbody></table>
+<p>The Newton iteration adds ~ 30 flops per step — completely negligible compared to even the smallest BTCS solve ($5N \approx 150$ flops for $N = 30$). So <strong>Test 2 is not noticeably slower than Test 1</strong> on the same grid. The runtime difference comes entirely from the number of steps (Test 1 uses $\Delta t$ = 300 or 900 s; Test 2 uses 15, 60, or 600 s) and the number of substrates (Test 2 runs 3× more columns).</p>
+
+<h3>18g. The key conceptual transition: from "boundary value" to "free-evolving surface"</h3>
+<p>The biggest conceptual leap from Test 1 to Test 2 is in <em>what determines the surface temperature</em>:</p>
+<ul>
+<li><strong>Test 1:</strong> the surface temperature is the <em>independent variable</em> driving the simulation. We say what it is at every moment; the column responds. The system is one-way: forcing → column.</li>
+<li><strong>Test 2:</strong> the surface temperature is a <em>dependent variable</em> — it is determined by the balance of four energy fluxes, three of which depend on $T_s^0$ itself. The system is fully coupled: atmosphere ↔ surface ↔ column. The surface temperature now <em>emerges</em> from the physics rather than being imposed.</li>
+</ul>
+<p>This conceptual shift is what makes Test 2 realistic. It is also what introduces the operator-splitting error: in a fully coupled system, the column and the SEB should be solved together; we approximate by solving them sequentially.</p>
+
+<h2 id="test2-setup">19. Test 2 — The Setup, in One Place</h2>
 <p>Test 2 is the project's <em>production</em> experiment: realistic urban substrates, operational time steps, no closed-form reference. Every result in §4–§5 of the long report comes from here.</p>
 
 <table>
@@ -474,7 +602,7 @@ if t &lt; t_end: goto Step 1</pre>
 <tr><td>Question answered</td><td>How do FTCS / BTCS / CN compare at operational $\Delta t$ on real urban substrates?</td><td>The scientific contribution</td></tr>
 </tbody></table>
 
-<h2 id="test2-ic">19. Test 2 — Initial Conditions Per Substrate</h2>
+<h2 id="test2-ic">20. Test 2 — Initial Conditions Per Substrate</h2>
 <p>The IC formula is the SAME as Test 1, but the damping depth $d$ differs per substrate because each one has a different top-layer $\kappa$:</p>
 <div class="eq">$$T(z, 0) \;=\; T_{\rm mean} + A_0 \cdot e^{-z/d_{\rm sub}} \cdot \cos(-z/d_{\rm sub})$$</div>
 <p>where $d_{\rm sub} = \sqrt{2\kappa_{\rm top}/\omega}$ uses the top-layer diffusivity. The three values:</p>
@@ -501,7 +629,7 @@ if t &lt; t_end: goto Step 1</pre>
 
 <div class="callout">Notice that the IC formula uses only ONE substrate's $\kappa$ (the top layer's) even though the column has multiple layers. The formula is an approximation — strictly it is valid for a uniform semi-infinite medium. Below the top layer, the analytical profile is a small mismatch, but any error decays by day 2 because of the daily forcing. Good enough as a spin-up shortcut.</div>
 
-<h2 id="test2-seb">20. The Surface Energy Balance Closure — How $T_s^0$ Gets Solved Each Step</h2>
+<h2 id="test2-seb">21. The Surface Energy Balance Closure — How $T_s^0$ Gets Solved Each Step</h2>
 <p>This is the biggest conceptual difference between Test 1 and Test 2. In Test 1 we PRESCRIBED $T_s^0$; in Test 2 we SOLVE for it at every step.</p>
 
 <h3>20a. The equation we are solving</h3>
@@ -547,7 +675,7 @@ if t &lt; t_end: goto Step 1</pre>
 
 <div class="callout">Newton's method converges <em>quadratically</em>: the error roughly squares each iteration. In practice on the SEB, 3–4 iterations are enough. The tolerance $|\Delta T| < 10^{-4}$ K is far tighter than any other error in the simulation.</div>
 
-<h2 id="test2-harmonic">21. Harmonic Mean at Layer Interfaces — Where It Actually Matters</h2>
+<h2 id="test2-harmonic">22. Harmonic Mean at Layer Interfaces — Where It Actually Matters</h2>
 <p>In Test 1, the harmonic mean was trivial because all cells had $\lambda = 0.30$. In Test 2, the harmonic mean does real work at every face that straddles a material interface. Below are the actual values for each substrate's interfaces.</p>
 
 <h3>21a. Asphalt road — 3 interfaces inside the column</h3>
@@ -572,7 +700,7 @@ if t &lt; t_end: goto Step 1</pre>
 <h3>21c. Bare soil — uniform, harmonic mean trivial</h3>
 <p>One layer ($\lambda = 0.30$ everywhere), so $\lambda_{j+1/2} = 0.30$ at every face. Same as Test 1.</p>
 
-<h2 id="test2-algorithm">22. Test 2 — The Algorithm at Every Time Step (Two Sub-Steps)</h2>
+<h2 id="test2-algorithm">23. Test 2 — The Algorithm at Every Time Step (Two Sub-Steps)</h2>
 <p>Each Δt step is split into <strong>two sub-steps</strong> executed in this order:</p>
 
 <h3>Sub-step A — column update (holding $T_s^0$ FIXED at its OLD value)</h3>
@@ -637,7 +765,7 @@ if t &lt; t_end: goto Sub-step A</pre>
 
 <div class="callout"><strong>The order matters.</strong> The column is advanced first, THEN the SEB updates the surface. This sequence is the "operator splitting" between the column-update operator A and the SEB-update operator B. The two operators do not commute, and approximating $e^{(A+B)\Delta t}$ as $e^{A\Delta t}\,e^{B\Delta t}$ introduces a first-order error in $\Delta t$ — regardless of how accurate each individual sub-step is. This is the dominant error at large $\Delta t$ in this project.</div>
 
-<h2 id="test2-when">23. When Each Constraint Is Applied (Test 2 version)</h2>
+<h2 id="test2-when">24. When Each Constraint Is Applied (Test 2 version)</h2>
 <table>
 <thead><tr><th>Constraint</th><th>When applied?</th><th>What it does</th></tr></thead>
 <tbody>
@@ -649,7 +777,7 @@ if t &lt; t_end: goto Sub-step A</pre>
 <tr><td>θ-method update</td><td>AT EVERY STEP, sub-step A</td><td>Advances cells 1..N-2 from time $n$ to $n+1$</td></tr>
 </tbody></table>
 
-<h2 id="test2-step">24. Test 2 — One Concrete Δt = 600 s Step (BTCS on Asphalt Road)</h2>
+<h2 id="test2-step">25. Test 2 — One Concrete Δt = 600 s Step (BTCS on Asphalt Road)</h2>
 <p>To make Test 2 absolutely concrete, here is one BTCS step on the asphalt road at Δt = 600 s, starting from a quasi-equilibrium state just after sunset.</p>
 
 <h3>Before the step ($t = 64\,800$ s = 18:00 LT on day 2)</h3>
@@ -704,7 +832,7 @@ if t &lt; t_end: goto Sub-step A</pre>
 
 <div class="callout"><strong>The over-amplification on display.</strong> A true coupled solver (no splitting) would have advanced the column AND surface together, ending with $T[0] \approx 303.4$ and $T[1]$ closer to 306 K (smaller gradient). Our split solver ends with $T[0] = 303.4$ but $T[1] = 305.2$ — a steeper gradient at the top face. So $G$ is over-amplified at sunset. Over a full day this asymmetric over-amplification produces the 40% diurnal-amplitude inflation in $G$ that the report's Figure 4 shows on asphalt and concrete.</div>
 
-<h2 id="test2-why">25. Why This Matters — The Operator-Splitting Error</h2>
+<h2 id="test2-why">26. Why This Matters — The Operator-Splitting Error</h2>
 <p>The whole point of Test 2 is to measure how the schemes compare at operational Δt. The headline finding is:</p>
 
 <ul>
