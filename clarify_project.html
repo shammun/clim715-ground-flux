@@ -209,7 +209,85 @@ window.MathJax = {
 
 <p><strong>An intuitive metaphor — ripples on a pond.</strong> Drop a pebble at the centre of a pond. The ripples have a clear amplitude at the centre and weaken as they travel outward. If you measured the wave height every metre, you would find the ripples have lost a fixed fraction of their height per metre travelled. The diurnal wave in the ground is doing the same thing in depth — losing the same fraction per damping-depth $d$ travelled. The difference is that in the ground, $d$ depends on the material: faster-diffusing materials (high $\kappa$) let the wave travel deeper before fading.</p>
 
-<p><strong>How this connects to the rest of the project.</strong> The damping-depth values ($d \approx 8$ cm for soil, $\approx 10$ cm for asphalt, $\approx 14$ cm for concrete) are why the project's top grid cells must be 0.5–1 cm thick. If a grid cell were 5 cm thick, it would average over half the diurnal wave's amplitude — losing the very signal we are trying to simulate. And once we pick a 0.5 cm top cell, the FTCS bound $\Delta t \le \frac{1}{2}\Delta z^{2}/\kappa$ collapses to 17 seconds on the concrete deck. So this single, harmless-looking phrase — "37% of the surface amplitude" — is the upstream physical reason for every numerical struggle in the rest of the report.</p>
+<p><strong>How this connects to the rest of the project — the short version.</strong> Each substrate's damping depth fixes the size of the top grid cell. That cell size, in turn, fixes the largest stable FTCS time step. The very small $d$ values (8–14 cm) force very small cells (0.5–1 cm), which force unusably small explicit time steps (17 seconds). This is why the project must use implicit schemes. The detailed walkthrough is in the next box.</p>
+</div>
+
+<div class="interp-box"><h4>The full chain, step by step — how "37% at depth $d$" forces every numerical choice in the project</h4>
+
+<p>The summary paragraph above said "the 37% rule is the upstream reason for every numerical struggle in the report". That probably sounded like a leap. Below is the complete chain of reasoning, broken into five steps, with concrete numbers at each step.</p>
+
+<p><strong>Step 1 — Each substrate has its own damping depth.</strong> The formula $d = \sqrt{2\kappa/\omega}$ gives a different number for each material, because each material has a different $\kappa$. For this project we computed:</p>
+
+<table>
+<thead>
+<tr><th>Substrate</th><th>Top-layer $\kappa$ (m²/s)</th><th>Damping depth $d$</th></tr>
+</thead>
+<tbody>
+<tr><td>Bare sandy soil</td><td>$2.31 \times 10^{-7}$</td><td><strong>7.97 cm</strong></td></tr>
+<tr><td>Asphalt road (top layer)</td><td>$3.75 \times 10^{-7}$</td><td><strong>10.16 cm</strong></td></tr>
+<tr><td>Concrete roof (top deck)</td><td>$7.14 \times 10^{-7}$</td><td><strong>14.02 cm</strong></td></tr>
+</tbody>
+</table>
+
+<p>So the concrete roof has the deepest reach (14 cm) because the concrete deck's $\kappa$ is the largest — heat diffuses fastest through concrete, so the daily wave is felt deeper. Bare soil has the shallowest reach (8 cm) because $\kappa$ is smallest — soil holds the wave near the surface. Asphalt sits in between at 10 cm.</p>
+
+<p><strong>Step 2 — Why grid cells must be much thinner than $d$ — the "averaging" argument, explained.</strong></p>
+
+<p>To simulate the substrate on a computer, we chop the depth axis into cells. Each cell is one row of the computer's array, and it stores <em>one number</em> — the temperature at the centre of that cell. The cell is treated as if it had that single temperature uniformly throughout its thickness.</p>
+
+<p>Imagine choosing 5 cm cells in the bare-soil column. The top cell would run from $z = 0$ (the surface) down to $z = 5$ cm. Within that single cell, the amplitude factor $e^{-z/d}$ changes a lot:</p>
+
+<ul>
+<li>At $z = 0$ (top of cell): amplitude factor = $e^{0} = 1.000$ — full 100% of surface amplitude.</li>
+<li>At $z = 2.5$ cm (centre of cell): amplitude factor = $e^{-2.5/7.97} = 0.731$ — 73% of surface amplitude.</li>
+<li>At $z = 5$ cm (bottom of cell): amplitude factor = $e^{-5/7.97} = 0.535$ — only 54% of surface amplitude.</li>
+</ul>
+
+<p>The cell forces a <em>single</em> amplitude (the value at the cell centre, 73%) to stand in for a real physical wave that varies from 100% to 54% across the same 5 cm. That is the "averaging" the summary paragraph mentioned — the cell averages out the variation it cannot resolve.</p>
+
+<p><em>Why this matters numerically.</em> The thing the project most cares about — the ground heat flux $G$ — is the temperature gradient at the surface, $G = -\lambda \, \partial T/\partial z |_{z=0}$. The discrete version of that gradient is $(T_{\rm surface} - T_{\rm first\ cell})/\Delta z$. If the first cell is 5 cm thick and stores a single temperature that already misses 27 percentage points of amplitude (54% gap from 100%), the discrete gradient is wildly wrong. The very signal the project is trying to measure (the diurnal $G$ cycle) is destroyed before any time-stepping scheme is even chosen.</p>
+
+<p><em>The fix.</em> Make the top cell <strong>much thinner than $d$</strong>. For bare soil's $d = 7.97$ cm, a top cell of $\Delta z = 0.5$ cm covers only $0.5/7.97 = 6.3\%$ of one damping depth. Within that cell, the amplitude varies from $e^{0} = 1.000$ at the top to $e^{-0.0627} = 0.939$ at the bottom — a difference of 6 percentage points. Now the single stored amplitude is a faithful average of the wave. The signal survives.</p>
+
+<p><strong>Rule of thumb.</strong> The top grid cell must be at least 10× thinner than the damping depth. For our three substrates (8–14 cm), a top cell of 0.5–1 cm is what that rule produces.</p>
+
+<p><strong>Step 3 — The FTCS stability bound, and where it comes from.</strong></p>
+
+<p>Now we know $\Delta z_{\rm top} = 0.5$ cm. The next question is: <em>given that cell size, how large a time step $\Delta t$ can the FTCS scheme take without blowing up?</em> The answer is fixed by a formula:</p>
+
+<p>$$\boxed{\;\Delta t_{\max} \;=\; \frac{1}{2}\frac{\Delta z^{2}}{\kappa}\;}$$</p>
+
+<p><em>Status of this formula.</em> It is <strong>derived</strong> — but the derivation uses a <strong>theoretically established technique</strong> called <strong>von Neumann stability analysis</strong> (John von Neumann, 1947). The technique itself is the textbook-standard method for analysing finite-difference schemes; every numerical-PDE course teaches it, and Section 6.5 of this walkthrough does the derivation from scratch. The output of that derivation is the inequality</p>
+
+<p>$$\nu \;=\; \frac{\kappa\,\Delta t}{\Delta z^{2}} \;\le\; \frac{1}{2}.$$</p>
+
+<p><em>Where the $1/2$ on the right side comes from.</em> Von Neumann analysis substitutes a Fourier mode $A^{n} e^{ikj\Delta z}$ into the FTCS update equation and demands $|A| \le 1$ for every wavelength the grid can resolve. The worst-case wavelength is the shortest one — exactly $2\Delta z$, the wave that oscillates between adjacent cells. At that wavelength the amplification factor is $A_{\rm FTCS} = 1 - 4\nu$. Demanding $|1 - 4\nu| \le 1$ gives $0 \le \nu \le 1/2$. So the $1/2$ is not arbitrary — it is forced by the algebra of the worst-case Fourier mode in a centred-space, forward-time discretisation of the diffusion equation. The full derivation is in Section 6.5 of this walkthrough.</p>
+
+<p><em>Summary.</em> The formula $\Delta t_{\max} = \tfrac{1}{2}\Delta z^{2}/\kappa$ is a <strong>derived result</strong> from a <strong>theoretically established analysis technique</strong>. It is not empirical, not fitted to data, not a rule of thumb. It is an algebraic consequence of the FTCS update equation and the diffusion PDE.</p>
+
+<p><strong>Step 4 — Plugging in the numbers for the concrete deck.</strong></p>
+
+<p>With $\Delta z = 0.5$ cm $= 0.005$ m and $\kappa_{\rm concrete} = 7.14 \times 10^{-7}$ m²/s:</p>
+
+<p>$$\Delta t_{\max} \;=\; \frac{1}{2} \cdot \frac{(0.005)^{2}}{7.14 \times 10^{-7}} \;=\; \frac{1}{2} \cdot \frac{2.5 \times 10^{-5}}{7.14 \times 10^{-7}} \;=\; \frac{1}{2} \cdot 35.0 \;\approx\; 17.5 \text{ s}.$$</p>
+
+<p>That is the "17 seconds" the summary mentions. It is the largest time step FTCS can take on a 0.5 cm concrete-deck cell without the simulation blowing up. Take a step of 18 s and the worst-case $2\Delta z$ wave grows by factor $|1 - 4 \cdot (1.029)| = 3.11$ per step — within 30 steps the simulation overflows.</p>
+
+<p>The same calculation for the other substrates' top cells:</p>
+
+<ul>
+<li><strong>Bare soil</strong>, $\Delta z = 1.0$ cm, $\kappa = 2.31 \times 10^{-7}$: $\Delta t_{\max} = \tfrac{1}{2}(0.01)^{2}/2.31\!\times\!10^{-7} \approx 216$ s.</li>
+<li><strong>Asphalt road top</strong>, $\Delta z = 0.5$ cm, $\kappa = 3.75 \times 10^{-7}$: $\Delta t_{\max} = \tfrac{1}{2}(0.005)^{2}/3.75\!\times\!10^{-7} \approx 33$ s.</li>
+<li><strong>Concrete deck top</strong>, $\Delta z = 0.5$ cm, $\kappa = 7.14 \times 10^{-7}$: $\Delta t_{\max} \approx 17$ s — the tightest of the three.</li>
+</ul>
+
+<p><strong>Step 5 — The whole chain in one line.</strong></p>
+
+<p>$$\underbrace{\text{small } d}_{\text{physics}} \;\Rightarrow\; \underbrace{\text{small } \Delta z}_{\text{grid choice}} \;\Rightarrow\; \underbrace{\text{small } \Delta t_{\max}}_{\text{FTCS stability}} \;\Rightarrow\; \underbrace{\text{FTCS unusable}}_{\text{conclusion}}.$$</p>
+
+<p>Operational mesoscale models use $\Delta t = 60$ s. Regional climate models use $\Delta t = 600$ s. Both exceed the FTCS bound on every substrate's top cell. So FTCS is structurally ruled out at operational time steps — not because of a "tuning issue", but because the physics ($d$ is 8–14 cm) forces a chain of constraints that ends at "FTCS cannot keep up". This is the same chain that motivates the whole project: it is why we must compare BTCS and CN, both of which are unconditionally stable and therefore not bound by $\Delta t \le 17$ s.</p>
+
+<p><strong>So when the previous paragraph said "the 37% rule is the upstream physical reason for every numerical struggle in the rest of the report", this is what it meant.</strong> The 37% defines $d$; $d$ defines $\Delta z$; $\Delta z$ defines $\Delta t_{\max}$ for FTCS; $\Delta t_{\max}$ for FTCS is too small for operational use; therefore we must study BTCS and CN — which is the project.</p>
 </div>
 
 <div class="interp-box"><h4>Where does the "37% of surface amplitude" come from?</h4>
