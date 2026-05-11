@@ -1179,6 +1179,39 @@ window.MathJax = {
 <p><strong>What we are doing in this subsection.</strong> The introduction uses the phrase "wavenumber-dependent damping" without unpacking it. We unpack it here so that when the von Neumann analysis arrives in Part 6.5, you already know what it is about to compute.</p>
 <p>Every numerical scheme can be characterised by how it changes the amplitude of each Fourier component (each wavelength) per time step. We will derive these <em>amplification factors</em> explicitly in Part 6.5.</p>
 <p><strong>The single intuition to take away.</strong> Imagine the substrate's temperature profile as a stack of sinusoidal waves at different vertical wavelengths. Each scheme treats each wavelength differently — some are damped (smoothed away), some are preserved, and bad schemes amplify some of them. The amplification factor $A(k\Delta z)$ is just the number "how much is this wavelength multiplied by per step". If $|A| > 1$ for any wavelength the grid can resolve, that wavelength grows exponentially and the simulation blows up. Part 6.5 turns this picture into algebra and Part 8.1 confirms the algebra by blowing up a simulation at exactly the predicted step.</p>
+
+<div class="interp-box"><h4>What is $k$ in $A(k\Delta z)$? — The wavenumber, explained</h4>
+
+<p>$k$ is the <strong>wavenumber</strong> — the dimensional partner of the wavelength. It is a measure of "how wavy" a profile is in space. Two equivalent ways to read $k$:</p>
+
+<ol>
+<li><strong>As an inverse length.</strong> $k = 2\pi/\lambda_{w}$, where $\lambda_{w}$ is the wavelength (the spatial distance between two crests of a sinusoid). Big $\lambda_{w}$ (long, smooth wave) ↔ small $k$. Small $\lambda_{w}$ (short, choppy wave) ↔ large $k$. Units: <strong>radians per metre</strong> (rad/m).</li>
+<li><strong>As "radians of phase per metre".</strong> One full cycle of a sinusoid is $2\pi$ radians of phase. If you walk a distance equal to one wavelength, you advance by $2\pi$ radians. So $k$ literally counts how many radians of phase you accumulate per metre of depth. For a wavelength of 10 cm = 0.1 m, $k = 2\pi/0.1 = 62.8$ rad/m.</li>
+</ol>
+
+<p><strong>Why we use $k$ instead of $\lambda_{w}$.</strong> Pure algebraic convenience. The Fourier basis functions are $\sin(kz)$ and $\cos(kz)$, or more compactly $e^{ikz}$. Writing them in terms of $k$ keeps the formulas clean. If we wrote them in terms of $\lambda_{w}$, every formula would have an awkward $2\pi$ in it.</p>
+
+<p><strong>What "different wavelengths" means physically in our substrate column.</strong> Any vertical temperature profile $T(z)$ can be decomposed into a sum of sinusoids, each with its own wavelength. Long-wavelength components describe smooth, large-scale features (like the slow temperature decrease from a warm surface to a cool deep ground). Short-wavelength components describe rapid wiggles (like cell-to-cell oscillations). The Fourier decomposition lets us study the simulator's behaviour on each wavelength independently. We then ask: for a given scheme, what does <em>each</em> wavelength do per time step? The answer is the amplification factor $A(k)$.</p>
+
+<p><strong>What "the grid can resolve" specifically means — the role of $k\Delta z$.</strong> A grid with cell spacing $\Delta z$ can represent only wavelengths longer than $2\Delta z$ (the Nyquist limit). At wavelength exactly $2\Delta z$, alternating cells have opposite-sign deviations — the shortest wave the grid can "see". For this shortest wave, $\lambda_{w} = 2\Delta z$, so $k = 2\pi/(2\Delta z) = \pi/\Delta z$. Therefore $k\Delta z$ — the dimensionless product — ranges from 0 to $\pi$ for resolvable wavelengths:</p>
+
+<ul>
+<li>$k\Delta z = 0$ — the constant mode (infinite wavelength, no spatial variation).</li>
+<li>$k\Delta z = \pi/2$ — wavelength = $4\Delta z$, a slowly varying mode (4 cells per wavelength).</li>
+<li><strong>$k\Delta z = \pi$ — the "2-$\Delta z$ wave", the shortest resolvable mode</strong> (2 cells per wavelength = 1 cell per half-wavelength = adjacent cells with opposite signs). This is always the worst case for von Neumann stability.</li>
+</ul>
+
+<p><strong>$k\Delta z$ is dimensionless — same as $\nu$ or $d/\Delta z_0$.</strong> Because $k$ has units of rad/m and $\Delta z$ has units of m, their product is just radians (pure number). This is what makes amplification-factor plots universal — the x-axis $k\Delta z$ goes from 0 to $\pi$ for every numerical scheme, every grid, every substrate. Figure 1 and Slide 5 of the project both plot $|A|$ on this universal x-axis.</p>
+
+<p><strong>Connecting back to the project.</strong></p>
+<ul>
+<li>Smooth temperature variations (like the daily forcing, with vertical scale $\sim d \approx 8$–$14$ cm) sit at small $k\Delta z$ on the amplification-factor plot. For $\Delta z_0 = 0.5$ cm and a 14 cm wave, $k\Delta z = 2\pi(0.005)/0.14 = 0.225$ rad — well to the left of the plot.</li>
+<li>Short, choppy noise (numerical artefacts at the cell-to-cell scale) sit at large $k\Delta z$, near $\pi$. These are the modes von Neumann analysis tests for stability.</li>
+<li>The FTCS bound $\nu \le 1/2$ comes from demanding $|A| \le 1$ at the worst-case $k\Delta z = \pi$.</li>
+</ul>
+
+<p><strong>The single intuition to take away.</strong> $k$ is "how wavy" (radians of phase per metre); $k\Delta z$ is "how wavy per grid cell" (radians of phase per cell). The grid can resolve $k\Delta z$ from 0 (constant) to $\pi$ (the 2-cell wave). The amplification factor $A(k\Delta z, \nu)$ tells you what each wave's amplitude does per time step — that is exactly the information needed to decide stability.</p>
+</div>
 <blockquote>
 <p><strong>[HW2]</strong> asked you to verify amplitude conservation on a sine-wave initial condition. <strong>[HW4]</strong> plotted $|A_k|$ vs $k\Delta x$.</p>
 </blockquote>
