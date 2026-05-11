@@ -1848,6 +1848,61 @@ cell: 0 &nbsp;&nbsp;&nbsp; 1 &nbsp;&nbsp;&nbsp; 2 &nbsp;&nbsp;&nbsp; 3 &nbsp;&nb
 <p><strong>What we are doing in this subsection.</strong> The project runs two complementary experimental designs. Test 1 has a known analytical answer and is used to verify that the solver is mathematically correct. Test 2 has no closed-form answer; it asks the scientific question "how do FTCS, BTCS, and CN compare at realistic operational time steps on layered urban substrates?" Test 1 builds trust before Test 2 stretches the schemes.</p>
 <p><strong>Test 1 (verification):</strong> uniform sandy-loam column, 1 cm grid, $T_s^0(t) = T_{\text{mean}} + A_0\cos(\omega t)$ prescribed.</p>
 <p><strong>Test 2 (prognostic SEB):</strong> three substrates × three schemes × three time steps $\Delta t \in \{15, 60, 600\}$ s = 27 cells.</p>
+
+<div class="interp-box"><h4>Yes — two distinct experiments, and they differ in <em>two</em> ways (not just one)</h4>
+
+<p>It is tempting to summarise the two experiments as "Test 1 is uniform $\Delta z$, Test 2 is stretched $\Delta z$". That captures one difference, but it misses the more important one: the <strong>surface boundary condition</strong>. The two experiments differ in two independent ways simultaneously.</p>
+
+<table>
+<thead>
+<tr><th>Feature</th><th>Test 1 — Verification (§4.1)</th><th>Test 2 — Prognostic SEB (§4.2)</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Substrate</strong></td><td>Uniform sandy loam (one material, 2 m column)</td><td>Three substrates: asphalt road (4 layers), concrete roof (3 layers), bare soil (1 layer)</td></tr>
+<tr><td><strong>Grid</strong></td><td><strong>Uniform</strong> $\Delta z = 1$ cm throughout the 2 m column</td><td><strong>Stretched</strong> — top cell 0.5–1 cm, geometric ratio 1.18–1.25, bottom cell ≈ 30 cm at $z = 2$ m</td></tr>
+<tr><td><strong>Surface BC</strong></td><td>$T_s^0(t) = \bar{T} + A_0\cos(\omega t)$ <strong>prescribed</strong> (Dirichlet)</td><td><strong>Prognostic</strong>: Newton iteration on the SEB $R_n - H - LE - G = 0$ at every step</td></tr>
+<tr><td><strong>Reference</strong></td><td>Closed-form analytical damping-depth solution (§8.1)</td><td>FTCS at $\Delta t = 15$ s (the smallest stable step that survives all three substrates)</td></tr>
+<tr><td><strong># of cells</strong></td><td>~200 (uniform 1 cm × 2 m)</td><td>24–30 per substrate (stretched)</td></tr>
+<tr><td><strong># of runs</strong></td><td>6 configurations (different $\nu$ values)</td><td><strong>27</strong> configurations (3 substrates × 3 schemes × 3 $\Delta t$)</td></tr>
+<tr><td><strong>Question it answers</strong></td><td>Is the solver mathematically correct?</td><td>How do FTCS / BTCS / CN compare at operational $\Delta t$ on real urban substrates?</td></tr>
+</tbody>
+</table>
+
+<p><strong>Why the two differences go together (and were not split into four separate experiments).</strong></p>
+
+<p>You might wonder: shouldn't we run the four combinations — uniform-Dirichlet, uniform-SEB, stretched-Dirichlet, stretched-SEB? The answer is no, because only two of the four corners are scientifically useful:</p>
+
+<table>
+<thead>
+<tr><th></th><th>Dirichlet surface BC</th><th>Prognostic SEB surface BC</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Uniform grid</strong></td><td><strong>Test 1</strong> — clean analytical verification ✓</td><td>Wastes compute on 200 cells; no analytical reference; not the production setup</td></tr>
+<tr><td><strong>Stretched grid</strong></td><td>Analytical formula doesn't apply with layered substrates; no real urban physics</td><td><strong>Test 2</strong> — realistic urban physics ✓</td></tr>
+</tbody>
+</table>
+
+<p>So the two corners we picked are the verification corner and the production corner. The two off-diagonal corners would be uninformative.</p>
+
+<p><strong>Why the two differences happen to align.</strong> The reasons for each design choice in Test 1 vs Test 2 are linked:</p>
+<ul>
+<li><strong>Test 1 needs Dirichlet</strong> because the analytical damping-depth solution is derived assuming prescribed sinusoidal surface temperature. Without that BC, there is no closed-form reference to verify against.</li>
+<li><strong>Test 1 needs uniform grid</strong> because the analytical formula is for a uniform semi-infinite medium. A stretched grid introduces grid-truncation artefacts that have no analytical match.</li>
+<li><strong>Test 2 needs prognostic SEB</strong> because that is what real urban physics looks like — the surface temperature is determined by an energy balance, not prescribed externally.</li>
+<li><strong>Test 2 needs stretched grid</strong> because the layered substrates have thin top layers (5 cm asphalt, 10 cm concrete deck) and we need to resolve them without blowing up the cell count.</li>
+</ul>
+
+<p><strong>What stays the same between Test 1 and Test 2.</strong></p>
+<ul>
+<li><strong>Same solver code</strong> (<code>run_experiments.py</code>). The $\theta$-method, harmonic mean, tridiagonal solve, von Neumann analysis — all identical. The same Python function processes both tests.</li>
+<li><strong>Same time-stepping schemes</strong>: FTCS, BTCS, CN (the three special cases of the $\theta$-method).</li>
+<li><strong>Same atmospheric forcing functions</strong>: $S_\downarrow(t)$, $L_\downarrow(t)$, $T_a(t)$, $U(t)$ — the synthetic diurnal cycle (§7.4).</li>
+<li><strong>Same physical period</strong>: integration over multiple diurnal cycles; day-2 (Test 2) or day-5 (Test 1) used for diagnostics.</li>
+</ul>
+
+<p><strong>The single intuition to take away.</strong> Two experiments: one to <em>verify</em> the solver (clean analytical comparison), one to <em>use</em> the solver (realistic urban physics). They differ in two ways simultaneously — grid (uniform vs stretched) and surface BC (Dirichlet vs prognostic SEB) — and those two differences are not independent design choices; they are forced by the purposes of each experiment.</p>
+</div>
+
 <p><strong>Wrapping up Part 7.</strong> The experimental design is now fully specified. We have three substrates, three schemes, three time steps, two test setups, four forcing functions, one Newton iteration, and one initial condition. Part 8 runs the experiments and reads the results.</p>
 <hr />
 <h2 id="part-8">Part 8. Walking through Section 4 — Results</h2>
