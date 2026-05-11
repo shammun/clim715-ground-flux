@@ -366,8 +366,8 @@
     <div class="layer-key"><div class="swatch" style="background: #2a2a2a;"></div>Asphalt</div>
     <div class="layer-key"><div class="swatch" style="background: #6e6e6e;"></div>Aggregate</div>
     <div class="layer-key"><div class="swatch" style="background: #9a9a9a;"></div>Concrete deck</div>
-    <div class="layer-key"><div class="swatch" style="background: #e8d8a8;"></div>Rigid insulation</div>
-    <div class="layer-key"><div class="swatch" style="background: #c8b48a;"></div>Interior structure</div>
+    <div class="layer-key"><div class="swatch" style="background: #e8d8a8;"></div>Mineral-wool insulation</div>
+    <div class="layer-key"><div class="swatch" style="background: #c8b48a;"></div>Interior (drywall/wood)</div>
     <div class="layer-key"><div class="swatch" style="background: #8b6f3a;"></div>Soil (sandy loam)</div>
   </div>
 
@@ -454,8 +454,8 @@ const SUBSTRATES = {
     label: "Concrete roof",
     layers: [
       { top: 0,   bot: 10,  color: 0x9a9a9a, name: "Concrete deck"  },
-      { top: 10,  bot: 20,  color: 0xe8d8a8, name: "Rigid insulation"},
-      { top: 20,  bot: 100, color: 0xc8b48a, name: "Interior structure" },
+      { top: 10,  bot: 20,  color: 0xe8d8a8, name: "Mineral-wool insulation"},
+      { top: 20,  bot: 100, color: 0xc8b48a, name: "Interior (drywall/wood)" },
     ],
   },
   soil: {
@@ -626,15 +626,22 @@ const thermalMaterial = new THREE.MeshBasicMaterial({
   visible: false, // hidden by default
 });
 
-// Non-uniform Δz grid: tight at the surface, sparse at depth (geometric stretch)
+// Non-uniform Δz grid: tight at the surface, sparse at depth (geometric stretch).
+// This is a single REPRESENTATIVE grid drawn over all three columns. The actual
+// per-substrate grids in run_experiments.py differ slightly:
+//   - concrete roof:  dz0 = 0.5 cm, stretch = 1.18, 30 cells (200 cm column)
+//   - asphalt road:   dz0 = 0.5 cm, stretch = 1.20, 28 cells (200 cm column)
+//   - bare soil:      dz0 = 1.0 cm, stretch = 1.25, 24 cells (200 cm column)
+// Here we use dz0 = 0.5 cm and stretch = 1.18 (matching the concrete roof case,
+// the tightest top cell) as a visually representative stretched grid.
 function generateGridDepths(maxDepthCm) {
   const depths = [];
   let currentDepth = 0;
-  let dz = 0.5; // start with 0.5 cm spacing at the top
+  let dz = 0.5; // start with 0.5 cm spacing at the top (concrete-roof value)
   while (currentDepth <= maxDepthCm) {
     depths.push(currentDepth);
     currentDepth += dz;
-    dz *= 1.15; // stretch
+    dz *= 1.18; // stretch (concrete-roof ratio; asphalt and soil use 1.20/1.25)
   }
   return depths;
 }
@@ -842,11 +849,20 @@ const TS_DATA = {
 
 // Damping-depth scale per substrate (m) — used for both the marker rings
 // and the analytic T(z, t) profile drawn on the thermal cross-section.
-const T_MEAN = 20;
+//
+// Values computed from each substrate's TOP-layer thermal properties as
+// defined in run_experiments.py:
+//   d = sqrt(2 * kappa / omega),  omega = 2*pi/86400
+//   - asphalt top: lambda=0.75, C=2.0e6  -> kappa=3.75e-7  -> d=0.1016 m = 10.2 cm
+//   - concrete deck: lambda=1.50, C=2.1e6 -> kappa=7.14e-7 -> d=0.1402 m = 14.0 cm
+//   - sandy loam:  lambda=0.30, C=1.3e6  -> kappa=2.31e-7  -> d=0.0797 m =  8.0 cm
+// (Earlier versions of this file had asphalt/roof swapped and soil at 10 cm;
+// those values are corrected to match the report.)
+const T_MEAN = 19.4;   // 292.5 K = 19.35 degC; matches run_experiments.py T_air mean
 const DAMPING_DEPTHS = {
-  asphalt: 0.15,
-  roof:    0.05,
-  soil:    0.10,
+  asphalt: 0.1016,    // top asphalt layer: d ~ 10.2 cm
+  roof:    0.1402,    // concrete deck:    d ~ 14.0 cm
+  soil:    0.0797,    // sandy loam:       d ~  8.0 cm
 };
 
 const N_FRAMES = 97;
