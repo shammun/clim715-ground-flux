@@ -410,6 +410,64 @@ window.MathJax = {
 </ol>
 </div>
 
+<div class="interp-box"><h4>Important clarification — does the stretched grid restart at each layer boundary in the asphalt road (or any layered substrate)?</h4>
+
+<p><strong>The short answer: NO.</strong> The stretched grid is built <em>once</em> for the whole 2-m column, with one $\Delta z_0$ and one stretch ratio. It does not restart at layer interfaces, it does not pause at them, and it does not even <em>know</em> where the layer interfaces are. The layers are mapped onto the already-built grid afterwards.</p>
+
+<p><strong>What the code actually does</strong> (from <code>run_experiments.py</code>, lines 89–104 and 126–146):</p>
+
+<ol>
+<li><strong>Step 1 — build the grid.</strong> Call <code>make_grid(z_top=2.0, n_levels=28, stretch=1.20, dz1=0.005)</code>. This produces 28 cell thicknesses $\Delta z_j = 0.005 \cdot 1.20^{j}$ metres, growing geometrically from the top of the column to the bottom. The function knows nothing about asphalt, aggregate, soil, or subsoil — it only knows the column is 2 m deep.</li>
+<li><strong>Step 2 — assign material properties cell-by-cell.</strong> For each cell $j$, look at where its centre $z_j$ sits in depth. Find the layer whose depth range contains $z_j$. Assign that layer's $\lambda$ and $C$ to cell $j$. So a cell whose centre is at 4.34 cm depth gets $\lambda = 0.75$ (asphalt); the next cell, whose centre is at 5.71 cm, gets $\lambda = 1.40$ (aggregate). The layer change is registered as a property change at adjacent cells, <em>not</em> as a grid-thickness change.</li>
+<li><strong>Step 3 — at faces between cells of different materials, apply the harmonic-mean rule.</strong> When two adjacent cells have different $\lambda$, the face conductivity is computed by the harmonic-mean (or its unequal-cell version $\lambda_{\rm eff} = (\Delta z_1 + \Delta z_2)/(\Delta z_1/\lambda_1 + \Delta z_2/\lambda_2)$). This is what makes the discrete heat flux exactly conserved across the layer jump.</li>
+</ol>
+
+<p><strong>Concrete numbers — where the asphalt road's grid lands.</strong></p>
+
+<p>Asphalt road has 4 layers at depths 0–5 cm (asphalt), 5–25 cm (aggregate), 25–100 cm (dry soil), 100–200 cm (subsoil). The grid uses $\Delta z_0 = 0.5$ cm, stretch ratio $r = 1.20$, applied uniformly. Cells fall at:</p>
+
+<table>
+<thead>
+<tr><th>Cell $j$</th><th>$\Delta z_j$ (cm)</th><th>Cell centre (cm)</th><th>Layer (assigned from centre depth)</th></tr>
+</thead>
+<tbody>
+<tr><td>0</td><td>0.50</td><td>0.25</td><td>Asphalt (0–5 cm) ✓</td></tr>
+<tr><td>1</td><td>0.60</td><td>0.80</td><td>Asphalt ✓</td></tr>
+<tr><td>2</td><td>0.72</td><td>1.46</td><td>Asphalt ✓</td></tr>
+<tr><td>3</td><td>0.86</td><td>2.25</td><td>Asphalt ✓</td></tr>
+<tr><td>4</td><td>1.04</td><td>3.20</td><td>Asphalt ✓</td></tr>
+<tr><td>5</td><td>1.24</td><td>4.34</td><td>Asphalt ✓ (last cell with centre < 5 cm)</td></tr>
+<tr><td>6</td><td>1.49</td><td>5.71</td><td><strong>Aggregate</strong> (5–25 cm) — material switches here</td></tr>
+<tr><td>7</td><td>1.79</td><td>7.36</td><td>Aggregate</td></tr>
+<tr><td>8</td><td>2.15</td><td>9.32</td><td>Aggregate</td></tr>
+<tr><td>...</td><td>...</td><td>...</td><td>Aggregate</td></tr>
+<tr><td>12</td><td>4.46</td><td>22.02</td><td>Aggregate ✓ (last centre < 25 cm)</td></tr>
+<tr><td>13</td><td>5.35</td><td>26.93</td><td><strong>Dry soil</strong> (25–100 cm) — second material switch</td></tr>
+<tr><td>...</td><td>...</td><td>...</td><td>Dry soil</td></tr>
+</tbody>
+</table>
+
+<p><strong>What to notice.</strong></p>
+<ul>
+<li><strong>The grid does not "restart"</strong> at the asphalt/aggregate boundary at 5 cm. The cell thickness goes 0.50, 0.60, 0.72, 0.86, 1.04, 1.24, then 1.49, 1.79… — it just keeps growing geometrically. If the grid restarted at each layer, you would expect to see cell 6 thickness drop back to a small value, but it does not.</li>
+<li><strong>The 5 cm asphalt layer ends up containing 6 cells</strong> (j = 0 through 5). The aggregate layer (20 cm thick) contains 7 cells (j = 6 through 12). The dry-soil layer (75 cm thick) contains progressively fewer-but-thicker cells, and the subsoil (100 cm thick) has just a handful of very thick cells.</li>
+<li><strong>The asphalt/aggregate <em>interface</em> (at exactly z = 5 cm) does not coincide with any cell face.</strong> The face between cells 5 and 6 is at z = 4.97 cm; the next face is at z = 6.46 cm. The actual material change at 5 cm falls between these faces, inside cell 6. But the code treats cell 6 entirely as aggregate (because its centre at 5.71 cm is below the 5 cm interface), and the harmonic-mean kicks in across the face between cells 5 and 6 to handle the jump.</li>
+</ul>
+
+<p><strong>Why this design is OK (and even good).</strong></p>
+<ol>
+<li><strong>The grid is layer-agnostic, so the same solver works for any substrate.</strong> Bare soil has one "layer" filling the whole column; concrete roof has three; asphalt road has four. The grid-building code does not need to be rewritten for each substrate — it just stretches geometrically. The layer information is data, not code.</li>
+<li><strong>Layer interfaces are handled at faces by the harmonic mean, not by re-meshing.</strong> If you re-meshed at each interface, you would have a different number of cells per layer to debug, and the interface position would be sensitive to the chosen $\Delta z_0$ and stretch ratio. The harmonic-mean approach is robust to this.</li>
+<li><strong>Small misalignment between the true 5 cm interface and the cell face at ~5 cm is acceptable.</strong> The mismatch is at most $\sim 1$ cm (the cell thickness near that depth), and the harmonic mean correctly handles the conductivity jump even when the geometry is approximate. The flux across the face is exactly conserved by construction.</li>
+</ol>
+
+<p><strong>What would happen if we DID restart the grid at each layer?</strong> You would get a "nested" stretched-grid look — fine cells at the top of every layer, growing within that layer, then resetting at the next layer. This is sometimes done in 1-D land-surface schemes (especially when each layer is several damping-depths thick), but for our project the top layer is only 5 cm and the damping depth is 10 cm, so a re-mesh at each interface would actually be wasteful — we already have enough resolution from the single column-wide stretched grid.</p>
+
+<p><strong>Same logic applies to the concrete roof.</strong> The concrete roof has 3 layers (deck 0–10 cm, mineral-wool 10–20 cm, interior 20–200 cm). The stretched grid uses one $\Delta z_0 = 0.5$ cm and stretch $r = 1.18$ over the whole 2 m, irrespective of the layer boundaries at 10 cm and 20 cm. The first 9 cells span the deck (centres at 0.25, 0.795, 1.43, 2.18, 3.06, 4.10, 5.32, 6.78, 8.49 cm); cell 10 (centre at ~10.5 cm) crosses into the insulation; and so on. The harmonic-mean rule handles the dramatic $\lambda$ drop at 10 cm.</p>
+
+<p><strong>The single intuition to take away.</strong> The grid is one stretched ruler covering the whole 2-m column, applied once and identically for all layers of that substrate. The layered structure is overlaid on the grid by tagging each cell with its material, not by changing the cell sizes. Material discontinuities at layer interfaces are handled at faces by the harmonic-mean conductivity rule — not by re-meshing.</p>
+</div>
+
 <div class="interp-box"><h4>How did we land on $\Delta z_0 = 0.5$ cm for the concrete roof? — The four constraints behind the choice</h4>
 
 <p>The value 0.5 cm is not arbitrary or "small enough to look fine". It is the result of <strong>four overlapping constraints</strong>, all of which the top-cell thickness must satisfy at once. Below is each constraint in turn, with the concrete numbers.</p>
