@@ -1193,7 +1193,7 @@ window.MathJax = {
 
 <p><strong>What "different wavelengths" means physically in our substrate column.</strong> Any vertical temperature profile $T(z)$ can be decomposed into a sum of sinusoids, each with its own wavelength. Long-wavelength components describe smooth, large-scale features (like the slow temperature decrease from a warm surface to a cool deep ground). Short-wavelength components describe rapid wiggles (like cell-to-cell oscillations). The Fourier decomposition lets us study the simulator's behaviour on each wavelength independently. We then ask: for a given scheme, what does <em>each</em> wavelength do per time step? The answer is the amplification factor $A(k)$.</p>
 
-<p><strong>What "the grid can resolve" specifically means — the role of $k\Delta z$.</strong> A grid with cell spacing $\Delta z$ can represent only wavelengths longer than $2\Delta z$ (the Nyquist limit). At wavelength exactly $2\Delta z$, alternating cells have opposite-sign deviations — the shortest wave the grid can "see". For this shortest wave, $\lambda_{w} = 2\Delta z$, so $k = 2\pi/(2\Delta z) = \pi/\Delta z$. Therefore $k\Delta z$ — the dimensionless product — ranges from 0 to $\pi$ for resolvable wavelengths:</p>
+<p><strong>What "the grid can resolve" specifically means — the role of $k\Delta z$.</strong> A grid with cell spacing $\Delta z$ can represent only wavelengths $\lambda_{w} \ge 2\Delta z$ (the Nyquist limit, explained in the next box). The boundary case $\lambda_{w} = 2\Delta z$ is the <em>shortest</em> wave the grid can see — adjacent cells have opposite-sign deviations, the "checkerboard" pattern. For this shortest wave, $k = 2\pi/(2\Delta z) = \pi/\Delta z$. Therefore $k\Delta z$ — the dimensionless product — ranges from 0 to $\pi$ for resolvable wavelengths:</p>
 
 <ul>
 <li>$k\Delta z = 0$ — the constant mode (infinite wavelength, no spatial variation).</li>
@@ -1211,6 +1211,62 @@ window.MathJax = {
 </ul>
 
 <p><strong>The single intuition to take away.</strong> $k$ is "how wavy" (radians of phase per metre); $k\Delta z$ is "how wavy per grid cell" (radians of phase per cell). The grid can resolve $k\Delta z$ from 0 (constant) to $\pi$ (the 2-cell wave). The amplification factor $A(k\Delta z, \nu)$ tells you what each wave's amplitude does per time step — that is exactly the information needed to decide stability.</p>
+</div>
+
+<div class="interp-box"><h4>Why $\lambda_{w} \ge 2\Delta z$, and why $\lambda_{w} = 2\Delta z$ produces a "checkerboard"</h4>
+
+<p>Two follow-up questions deserve their own answers: (1) why is $2\Delta z$ the <em>floor</em> on representable wavelengths (and not less)? (2) why does a wave at exactly $\lambda_{w} = 2\Delta z$ produce alternating-sign cells?</p>
+
+<p><strong>Why the floor is $2\Delta z$ — the Nyquist sampling limit.</strong></p>
+
+<p>A grid stores <em>one number per cell</em> — the temperature at the cell centre. It can never see what is happening <em>between</em> cell centres. To capture even one full oscillation of a sinusoidal wave, you need <strong>at least two sample points per wavelength</strong>: one near the peak and one near the trough. With cells spaced $\Delta z$ apart, two adjacent cells span a distance of $2\Delta z$ — so the <em>shortest representable wavelength</em> is exactly $\lambda_{w} = 2\Delta z$. Anything shorter slips between the cell centres and the grid loses track of it.</p>
+
+<p>Concrete example with $\Delta z = 0.5$ cm:</p>
+
+<table>
+<thead>
+<tr><th>Wavelength $\lambda_{w}$</th><th>Cells per wavelength ($\lambda_{w}/\Delta z$)</th><th>$k\Delta z$</th><th>Representable?</th></tr>
+</thead>
+<tbody>
+<tr><td>4 cm</td><td>8</td><td>0.78 rad</td><td>Yes — well resolved (smooth)</td></tr>
+<tr><td>2 cm</td><td>4</td><td>1.57 rad ($\pi/2$)</td><td>Yes — coarse</td></tr>
+<tr><td>1 cm ($= 2\Delta z$)</td><td>2</td><td>3.14 rad ($\pi$)</td><td><strong>Bare minimum</strong> — checkerboard</td></tr>
+<tr><td>0.7 cm ($< 2\Delta z$)</td><td>1.4</td><td>4.49 rad — past the bound</td><td>❌ <strong>Cannot be represented (aliasing)</strong></td></tr>
+<tr><td>0.5 cm ($= \Delta z$)</td><td>1</td><td>$2\pi$</td><td>❌ Aliases to a constant (worst case)</td></tr>
+</tbody>
+</table>
+
+<p><strong>What "aliasing" means.</strong> If you try to sample a 0.7 cm wave on a 0.5 cm grid, the wave oscillates more than once between adjacent cell centres. But the grid only records the wave's value <em>at</em> the cell centres — it has no way to tell whether the wave went up-and-down once, twice, or twenty times in between. The short wave therefore appears, to the grid, as some <em>longer</em> wave that happens to pass through the same cell-centre values. The short wave's identity is destroyed; it is "aliased" onto a longer wave.</p>
+
+<p><strong>Real-world analogue.</strong> The same phenomenon makes a car's spoked wheel appear to spin backwards in a film. The camera samples 24 frames per second; if the wheel rotates faster than the camera can track, each frame catches the wheel in a position that <em>looks</em> like a slower (or even reversed) rotation. Aliasing on a numerical grid is the same idea, applied to spatial sampling instead of temporal.</p>
+
+<p><strong>Why the boundary case $\lambda_{w} = 2\Delta z$ produces alternating-sign cells — the "checkerboard" pattern.</strong></p>
+
+<p>A sinusoid $T(z) = A\cos(kz)$ has phase that advances by $k\,\Delta z$ radians per cell. When the wavelength equals $2\Delta z$:</p>
+
+<p>$$k \;=\; \frac{2\pi}{\lambda_{w}} \;=\; \frac{2\pi}{2\Delta z} \;=\; \frac{\pi}{\Delta z} \quad\Rightarrow\quad k\Delta z \;=\; \pi.$$</p>
+
+<p>So phase advances by exactly $\pi$ radians (180°) per cell. That is <em>half</em> a full cycle per cell. A peak becomes a trough in the next cell; positive becomes negative; the wave flips sign across every cell boundary.</p>
+
+<p>Sampling the wave at cell centres gives:</p>
+
+<p>$$T_j \;=\; A\cos(k\,j\,\Delta z) \;=\; A\cos(\pi j) \;=\; A\,(-1)^{j} \;=\; +A, -A, +A, -A, +A, -A, \ldots$$</p>
+
+<p>This alternating-sign pattern is the famous <strong>"checkerboard mode"</strong> or <strong>"2-$\Delta z$ wave"</strong>. Drawn out:</p>
+
+<p style="font-family: 'Cascadia Code', 'Consolas', monospace; text-align: center; font-size: 16px;">
+&nbsp;&nbsp;&nbsp; ↑+A &nbsp; ↓−A &nbsp; ↑+A &nbsp; ↓−A &nbsp; ↑+A &nbsp; ↓−A<br>
+&nbsp;&nbsp;&nbsp;&nbsp; ●&nbsp;&nbsp;&nbsp;&nbsp; ●&nbsp;&nbsp;&nbsp;&nbsp; ●&nbsp;&nbsp;&nbsp;&nbsp; ●&nbsp;&nbsp;&nbsp;&nbsp; ●&nbsp;&nbsp;&nbsp;&nbsp; ●<br>
+cell: 0 &nbsp;&nbsp;&nbsp; 1 &nbsp;&nbsp;&nbsp; 2 &nbsp;&nbsp;&nbsp; 3 &nbsp;&nbsp;&nbsp; 4 &nbsp;&nbsp;&nbsp; 5
+</p>
+
+<p>This is the shortest pattern the grid can possibly see, and it is conventionally drawn or named "checkerboard" because of its alternating-sign visual signature.</p>
+
+<p><strong>Why this is the worst case for stability.</strong> The amplification factor for FTCS at $k\Delta z = \pi$ is $A = 1 - 4\nu$. As $\nu$ grows past $1/2$, $|A|$ exceeds 1, and the checkerboard mode grows by factor $|A| > 1$ each step. Within a few steps, a tiny initial checkerboard noise (from round-off, from initial conditions, from anywhere) becomes large enough to dominate the solution — the simulation "blows up". Every numerical scheme has a "favourite hated wave"; for FTCS-on-diffusion, it is the checkerboard at $\lambda_{w} = 2\Delta z$.</p>
+
+<p><strong>Why this is <em>not</em> a worry for our physical problem.</strong> Real diurnal heating produces smooth temperature profiles with vertical scale ~ damping depth $d \sim 8$–$14$ cm — wavelengths much longer than $2\Delta z \sim 1$ cm. The smooth waves sit at small $k\Delta z$ on the amplification-factor plot, where all schemes treat them benignly. The checkerboard mode is purely a <em>numerical noise</em> mode — it has no physical analogue in our problem. But every numerical scheme must still ensure $|A| \le 1$ at $k\Delta z = \pi$, because any round-off-level checkerboard noise will otherwise grow exponentially and swamp the smooth physics. Stability analysis is about making sure the noise modes don't run away, not about the physical modes.</p>
+
+<p><strong>The single intuition to take away.</strong> A grid with spacing $\Delta z$ can see only wavelengths $\ge 2\Delta z$ — anything shorter is aliased onto longer waves. The boundary case $\lambda_{w} = 2\Delta z$ is the "checkerboard mode": adjacent cells flip sign each step. This is always the worst-case wave for stability, which is why von Neumann analysis evaluates $|A|$ at exactly $k\Delta z = \pi$ when deriving the FTCS bound.</p>
 </div>
 <blockquote>
 <p><strong>[HW2]</strong> asked you to verify amplitude conservation on a sine-wave initial condition. <strong>[HW4]</strong> plotted $|A_k|$ vs $k\Delta x$.</p>
