@@ -609,6 +609,86 @@ window.MathJax = {
 <blockquote>
 <p><strong>Connecting to your work.</strong> In <strong>[HW1]</strong> your FTCS tracer integration <em>blew up at step 113</em> — the same kind of geometric instability the project's FTCS exhibits at $\Delta t = 600$ s on the asphalt road.</p>
 </blockquote>
+
+<div class="interp-box"><h4>What does $\nu = \kappa \Delta t / \Delta z^{2}$ actually measure, and what is the "safety margin" for it?</h4>
+
+<p>Just as $d/\Delta z_0$ is the dimensionless measure of <em>spatial</em> resolution (§1.2), the diffusion number $\nu$ is the dimensionless measure of <em>temporal</em> resolution. It pulls together $\kappa$ (substrate property), $\Delta t$ (time step), and $\Delta z$ (cell thickness) into a single number that decides whether FTCS lives or dies. It deserves its own explanation, parallel to the $d/\Delta z_0$ one.</p>
+
+<p><strong>What it physically means.</strong> $\nu$ is the <strong>ratio of two times</strong>: one model time step $\Delta t$, divided by the diffusion time across one grid cell, $\Delta z^{2}/\kappa$. Read it as:</p>
+<p>$$\nu \;=\; \frac{\Delta t}{\Delta z^{2}/\kappa} \;=\; \frac{\text{one numerical time step}}{\text{diffusion time across one cell}}.$$</p>
+<p>Concrete interpretation:</p>
+<ul>
+<li>$\nu = 1$ → in one $\Delta t$, heat diffuses across exactly one $\Delta z$ cell. The model's time step matches the cell's natural diffusion time.</li>
+<li>$\nu = 0.5$ → in one $\Delta t$, heat diffuses across half a cell. The discrete update is asking diffusion to do something halfway across a cell.</li>
+<li>$\nu = 10$ → the model is asking heat to "leap" ten cells in one step. Unphysical for an explicit scheme; FTCS cannot represent this jump and instead amplifies the shortest waves catastrophically.</li>
+</ul>
+
+<p><strong>Why $\nu \le 1/2$ for FTCS specifically.</strong> The von Neumann analysis of Section 6.5 shows that the worst-case wave (the $2\Delta z$ wave) has per-step amplification factor $A = 1 - 4\nu$. Demanding $|A| \le 1$ forces $0 \le \nu \le 1/2$. The "$1/2$" is not a soft suggestion — it is an algebraic theorem about how the FTCS update propagates the $2\Delta z$ Fourier mode.</p>
+
+<p><strong>Stability zones for $\nu$ at the worst wave ($k\Delta z = \pi$).</strong></p>
+
+<table>
+<thead>
+<tr><th>$\nu$</th><th>Amplification factor $A = 1 - 4\nu$</th><th>$|A|$</th><th>Status</th><th>What happens over 100 steps</th></tr>
+</thead>
+<tbody>
+<tr><td>0.0</td><td>1.0</td><td>1.0</td><td>No diffusion at all</td><td>Mode held exactly (boring)</td></tr>
+<tr><td>0.1</td><td>0.60</td><td>0.60</td><td><strong>Comfortably stable</strong></td><td>$|A|^{100} \approx 10^{-22}$ — strongly damped</td></tr>
+<tr><td>0.25</td><td>0.0</td><td>0.0</td><td><strong>Optimal damping</strong></td><td>Worst wave killed in 1 step</td></tr>
+<tr><td>0.4</td><td>−0.60</td><td>0.60</td><td>Stable but sign-flipping</td><td>$0.60^{100} \approx 10^{-22}$</td></tr>
+<tr><td>0.5</td><td>−1.0</td><td>1.0</td><td><strong>Marginal — the bound</strong></td><td>Mode preserved exactly with sign-flip; "1-cell oscillation"</td></tr>
+<tr><td>0.6</td><td>−1.4</td><td>1.4</td><td>❌ Unstable</td><td>$1.4^{100} \approx 1.7 \times 10^{14}$ — blow up</td></tr>
+<tr><td>1.0</td><td>−3.0</td><td>3.0</td><td>❌ Strongly unstable</td><td>$3.0^{100} \approx 10^{47}$ — instant overflow</td></tr>
+<tr><td>5.0</td><td>−19.0</td><td>19.0</td><td>❌ Catastrophic</td><td>Overflow within ~8 steps</td></tr>
+</tbody>
+</table>
+
+<p><strong>Why this is the "safety margin" question.</strong> Just as $d/\Delta z_0$ has a rule-of-thumb floor (8–10), $\nu$ has a hard ceiling (0.5). The "safe FTCS" zone is roughly $\nu \in [0.05, 0.4]$ — comfortably stable, with the optimal damping at $\nu = 0.25$. Above $\nu = 0.4$ you are in the marginal zone (technically stable but the worst wave is preserved with a sign-flip each step — pre-pathological). Above $\nu = 0.5$ FTCS is dead. So the "FTCS safety margin" at a given setting is: <em>how far below 0.5 are you?</em></p>
+
+<p><strong>The 27-cell FTCS picture for this project.</strong> For each substrate, $\nu$ is computed at its <em>top cell</em> (the smallest $\Delta z$ on the column — that's the cell that sets the stability bound for the whole column). The three substrates at the three project $\Delta t$ values produce a 3 × 3 grid:</p>
+
+<table>
+<thead>
+<tr><th>Substrate</th><th>Δz₀</th><th>κ (top)</th><th>$\nu$ at Δt = 15 s</th><th>$\nu$ at Δt = 60 s</th><th>$\nu$ at Δt = 600 s</th></tr>
+</thead>
+<tbody>
+<tr><td>Bare soil</td><td>1.0 cm</td><td>$2.31\times10^{-7}$</td><td><strong>0.035</strong> ✓ (very safe)</td><td><strong>0.139</strong> ✓ (safe)</td><td><strong>1.39</strong> ❌ (mildly unstable)</td></tr>
+<tr><td>Asphalt road</td><td>0.5 cm</td><td>$3.75\times10^{-7}$</td><td><strong>0.225</strong> ✓ (safe)</td><td><strong>0.900</strong> ❌ (unstable)</td><td><strong>9.00</strong> ❌ (catastrophic)</td></tr>
+<tr><td>Concrete roof</td><td>0.5 cm</td><td>$7.14\times10^{-7}$</td><td><strong>0.428</strong> ⚠ (marginal)</td><td><strong>1.71</strong> ❌ (unstable)</td><td><strong>17.14</strong> ❌ (catastrophic)</td></tr>
+</tbody>
+</table>
+
+<p><strong>Reading this table — the project's headline FTCS findings, in one glance.</strong></p>
+<ul>
+<li><strong>$\Delta t = 15$ s column</strong>: all three substrates have $\nu \le 0.428 < 0.5$ — FTCS is stable everywhere. Concrete roof is uncomfortably close to the bound (0.428 vs 0.5 ceiling — only 14% margin), but it works.</li>
+<li><strong>$\Delta t = 60$ s column</strong>: only bare soil survives ($\nu = 0.139$, generous margin). Asphalt ($\nu = 0.90$) and concrete ($\nu = 1.71$) are both unstable — they blow up. This is the "FTCS blows up at Δt = 60 s on the concrete roof" claim of the abstract, made quantitative.</li>
+<li><strong>$\Delta t = 600$ s column</strong>: asphalt ($\nu = 9$) and concrete ($\nu = 17$) are catastrophically unstable — overflow within a few time steps. Bare soil ($\nu = 1.39$) is "only" mildly over the bound and the simulation completes but with substantial error — exactly what the report says.</li>
+</ul>
+
+<p><strong>Why $\nu$ is useful as a metric (parallel to the $d/\Delta z_0$ explanation).</strong></p>
+
+<ul>
+<li><strong>It directly predicts FTCS stability</strong> via the rule $\nu \le 1/2$. No need to run the simulation to know whether it will blow up — just compute $\nu$.</li>
+<li><strong>It directly predicts the per-step amplification factor</strong> at the worst wave: $A_{\rm FTCS}(\nu, \pi) = 1 - 4\nu$. So $\nu = 0.1$ gives $|A| = 0.6$ (60% retention per step), $\nu = 0.25$ gives $|A| = 0$ (complete annihilation in one step — the "sweet spot" for explicit diffusion), $\nu = 1$ gives $|A| = 3$ (200% growth per step → instant blow-up).</li>
+<li><strong>It is dimensionless</strong> — compare across substrates with different $\kappa$, different cell sizes, different time steps with one number.</li>
+<li><strong>It is the single Latin letter that holds the entire FTCS chapter together</strong>: stability, accuracy, and per-step amplification are all functions of $\nu$ alone (plus $k\Delta z$).</li>
+</ul>
+
+<p><strong>The unified picture: $d/\Delta z_0$ and $\nu$ as the two dimensionless project numbers.</strong></p>
+
+<table>
+<thead>
+<tr><th>Quantity</th><th>Dimensionless measure of...</th><th>Rule of thumb / bound</th><th>Margin direction</th></tr>
+</thead>
+<tbody>
+<tr><td>$d/\Delta z_0$</td><td>Spatial resolution (cells per damping depth)</td><td>$\ge 10$ ("safe baseline")</td><td>Higher is safer — diminishing returns past ~15–20</td></tr>
+<tr><td>$\nu = \kappa\Delta t/\Delta z^{2}$</td><td>Temporal resolution (steps per cell diffusion time)</td><td>$\le 1/2$ for FTCS (hard bound)</td><td>Lower is safer — optimal damping at $\nu = 0.25$</td></tr>
+</tbody>
+</table>
+
+<p><strong>The single intuition to take away.</strong> $d/\Delta z_0$ tells you whether the grid is fine enough <em>in space</em> to capture the wave. $\nu$ tells you whether the time step is small enough <em>in time</em> for an explicit scheme to remain bounded. They are the two faces of the same numerical-resolution coin. Both must be in the "safe" zone for FTCS to work; the project's data shows that on concrete and asphalt at operational $\Delta t$, $\nu$ is hopelessly over its bound, which is why we must move to BTCS or CN.</p>
+</div>
+
 <h3>1.5 The four-component surface energy balance</h3>
 <p>Surface temperature $T_s^0$ is determined by an energy balance at the surface. Four fluxes meet there:</p>
 <ul>
