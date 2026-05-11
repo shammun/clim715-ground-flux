@@ -59,7 +59,7 @@ window.MathJax = {
 
 <div class="banner">
   <h1>CLIM-715 Ground Flux — Experiment Cheat-Sheet</h1>
-  <div class="subtitle">Everything you need to explain the experiment in one sitting. Test 1 deep-dive included.</div>
+  <div class="subtitle">Everything you need to explain the experiment in one sitting. Test 1 AND Test 2 deep-dives included.</div>
   <div class="meta">Source: run_experiments.py + modified_full_report_1.docx. Built 2026-05-11.</div>
 </div>
 
@@ -83,6 +83,14 @@ window.MathJax = {
 <li><a href="#test1-when">When Each Constraint Is Applied</a></li>
 <li><a href="#test1-step">Test 1 — One Concrete Δt = 60 s Step, with Numbers</a></li>
 <li><a href="#test1-why">Why This Matters for Verification</a></li>
+<li><a href="#test2-setup">Test 2 — The Setup, in One Place</a></li>
+<li><a href="#test2-ic">Test 2 — Initial Conditions per Substrate</a></li>
+<li><a href="#test2-seb">The SEB Surface Closure — How $T_s^0$ Gets Solved Each Step</a></li>
+<li><a href="#test2-harmonic">Harmonic Mean at Layer Interfaces — Where It Actually Matters</a></li>
+<li><a href="#test2-algorithm">Test 2 — The Algorithm at Every Time Step (Two Sub-Steps)</a></li>
+<li><a href="#test2-when">When Each Constraint Is Applied (Test 2 version)</a></li>
+<li><a href="#test2-step">Test 2 — One Concrete Δt = 600 s Step (BTCS on Asphalt Road)</a></li>
+<li><a href="#test2-why">Why This Matters — The Operator-Splitting Error</a></li>
 </ol>
 </div>
 
@@ -443,6 +451,282 @@ if t &lt; t_end: goto Step 1</pre>
 <li>The chosen $\nu$ (for FTCS) is below 1/2 → no exponential noise growth.</li>
 </ul>
 <div class="callout">If any of these is broken, Test 1 fails. The whole point of Test 1 is to catch implementation bugs before we move on to Test 2 (whose results have no closed-form to check against).</div>
+
+<!-- ============================================== -->
+<div class="part-banner">PART III — Test 2 Deep Dive
+<span class="sub">Step-by-step walkthrough of the production experiment. Where harmonic mean matters, the SEB Newton iteration appears, and operator splitting creates the headline error.</span></div>
+
+<h2 id="test2-setup">18. Test 2 — The Setup, in One Place</h2>
+<p>Test 2 is the project's <em>production</em> experiment: realistic urban substrates, operational time steps, no closed-form reference. Every result in §4–§5 of the long report comes from here.</p>
+
+<table>
+<thead><tr><th>Setting</th><th>Value</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td>Substrates</td><td>Three: asphalt road (4 layers), concrete roof (3 layers), bare soil (1 layer)</td><td>Span the urban-physics range</td></tr>
+<tr><td>Grid</td><td>Stretched per-substrate: $\Delta z_0$ = 0.5 cm (asphalt, concrete) or 1.0 cm (bare soil); stretch ratio $r$ = 1.18–1.25; bottom cell ≈ 30 cm at $z = 2$ m</td><td>Resolves the fine surface physics without 400 uniform cells</td></tr>
+<tr><td><strong>Top BC</strong></td><td><strong>PROGNOSTIC:</strong> $T_s^0$ solved by Newton iteration on the surface energy balance $R_n - H - LE - G = 0$</td><td>Real urban physics: surface temperature chooses itself based on the four energy fluxes</td></tr>
+<tr><td><strong>Bottom BC</strong></td><td>$T[N-1] = T[N-2]$ [zero-flux Neumann at $z = 2$ m]</td><td>Same as Test 1 — damped signal already negligible</td></tr>
+<tr><td>Initial condition</td><td>Analytical damping-depth profile at $t = 0$, using each substrate's top-layer $\kappa$</td><td>Skip spin-up</td></tr>
+<tr><td>Atmospheric forcing</td><td>$S\!\downarrow(t)$, $L\!\downarrow(t)$, $T_a(t)$, $U(t)$ — synthetic sinusoidal (see appendix)</td><td>Reproducible; matches analytical damping-depth idealisation</td></tr>
+<tr><td>Reference</td><td>FTCS at $\Delta t = 15$ s on the SAME substrate</td><td>Smallest time step that survives all three substrates</td></tr>
+<tr><td>Integration</td><td>2 diurnal cycles; day-2 used for diagnostics</td><td>Any spin-up transient has decayed</td></tr>
+<tr><td>Configurations</td><td><strong>27</strong>: 3 substrates × 3 schemes (FTCS / BTCS / CN) × 3 $\Delta t$ (15 / 60 / 600 s)</td><td>Full factorial — clean comparison</td></tr>
+<tr><td>Question answered</td><td>How do FTCS / BTCS / CN compare at operational $\Delta t$ on real urban substrates?</td><td>The scientific contribution</td></tr>
+</tbody></table>
+
+<h2 id="test2-ic">19. Test 2 — Initial Conditions Per Substrate</h2>
+<p>The IC formula is the SAME as Test 1, but the damping depth $d$ differs per substrate because each one has a different top-layer $\kappa$:</p>
+<div class="eq">$$T(z, 0) \;=\; T_{\rm mean} + A_0 \cdot e^{-z/d_{\rm sub}} \cdot \cos(-z/d_{\rm sub})$$</div>
+<p>where $d_{\rm sub} = \sqrt{2\kappa_{\rm top}/\omega}$ uses the top-layer diffusivity. The three values:</p>
+
+<table>
+<thead><tr><th>Substrate</th><th>Top-layer $\lambda$ (W/m/K)</th><th>Top-layer $C$ ($\times 10^6$)</th><th>$\kappa_{\rm top}$ (m²/s)</th><th>$d_{\rm sub}$ (cm)</th></tr></thead>
+<tbody>
+<tr><td>Asphalt road</td><td>0.75</td><td>2.0</td><td>$3.75 \times 10^{-7}$</td><td>10.16</td></tr>
+<tr><td>Concrete roof</td><td>1.50</td><td>2.1</td><td>$7.14 \times 10^{-7}$</td><td>14.02</td></tr>
+<tr><td>Bare soil</td><td>0.30</td><td>1.3</td><td>$2.31 \times 10^{-7}$</td><td>7.97</td></tr>
+</tbody></table>
+
+<p>Worked initial-condition values for the <strong>asphalt road</strong> (using $d = 10.16$ cm), at $t = 0$:</p>
+<table>
+<thead><tr><th>Cell</th><th>Depth $z$ (cm)</th><th>$z/d$</th><th>$e^{-z/d}$</th><th>$\cos(-z/d)$</th><th>$T(z, 0)$ (K)</th><th>Layer</th></tr></thead>
+<tbody>
+<tr><td>0 (surface)</td><td>0.25</td><td>0.025</td><td>0.976</td><td>0.9997</td><td>299.82</td><td>Asphalt</td></tr>
+<tr><td>5 (centre 4.34 cm)</td><td>4.34</td><td>0.427</td><td>0.652</td><td>0.910</td><td>296.95</td><td>Asphalt</td></tr>
+<tr><td>6 (centre 5.71 cm)</td><td>5.71</td><td>0.562</td><td>0.570</td><td>0.847</td><td>296.12</td><td>Aggregate</td></tr>
+<tr><td>10 (centre 14.5 cm)</td><td>14.5</td><td>1.428</td><td>0.240</td><td>0.143</td><td>292.76</td><td>Aggregate</td></tr>
+<tr><td>13 (centre 27 cm)</td><td>27</td><td>2.658</td><td>0.070</td><td>−0.886</td><td>292.04</td><td>Dry soil</td></tr>
+<tr><td>20+ (≥ 50 cm)</td><td>≥ 50</td><td>≥ 4.9</td><td>≤ 0.008</td><td>varies</td><td>≈ 292.50</td><td>Dry soil / subsoil</td></tr>
+</tbody></table>
+
+<div class="callout">Notice that the IC formula uses only ONE substrate's $\kappa$ (the top layer's) even though the column has multiple layers. The formula is an approximation — strictly it is valid for a uniform semi-infinite medium. Below the top layer, the analytical profile is a small mismatch, but any error decays by day 2 because of the daily forcing. Good enough as a spin-up shortcut.</div>
+
+<h2 id="test2-seb">20. The Surface Energy Balance Closure — How $T_s^0$ Gets Solved Each Step</h2>
+<p>This is the biggest conceptual difference between Test 1 and Test 2. In Test 1 we PRESCRIBED $T_s^0$; in Test 2 we SOLVE for it at every step.</p>
+
+<h3>20a. The equation we are solving</h3>
+<p>At every time step, $T_s^0$ must satisfy the surface energy balance:</p>
+<div class="eq">$$F(T_s^0) \;\equiv\; R_n(T_s^0) - H(T_s^0) - LE - G(T_s^0) \;=\; 0$$</div>
+<p>Each term depends on $T_s^0$:</p>
+<ul>
+<li>$R_n = (1 - \alpha_s) S_\downarrow + \varepsilon_s L_\downarrow - \varepsilon_s \sigma (T_s^0)^4$ &nbsp; (the $T_s^4$ makes this <strong>nonlinear</strong>)</li>
+<li>$H = \rho c_p (T_s^0 - T_a) / r_a$ &nbsp; (linear in $T_s^0$)</li>
+<li>$LE = 0$ &nbsp; (strict-impervious assumption)</li>
+<li>$G = \lambda_{1/2} (T_s^0 - T_1) / (z_1 - z_0)$ &nbsp; (linear in $T_s^0$ — $T_1$ is the cell-1 temperature held fixed during the SEB iteration)</li>
+</ul>
+
+<h3>20b. Why we cannot just "plug in a value" like in Test 1</h3>
+<p>In Test 1, we set $T_s^0(t) = 292.5 + 7.5\cos(\omega t)$ — direct evaluation, one line of code. In Test 2, the surface temperature is the <em>unknown</em>: we have an equation, not a formula. The four flux terms must balance, and only one $T_s^0$ value makes them balance. We must <strong>solve</strong> the equation.</p>
+
+<h3>20c. Newton iteration — how it solves the equation</h3>
+<p>Newton's method is a textbook root-finder. Starting from a guess $T_{s,\,{\rm old}}^0$, we compute a correction by linearising $F$ around the guess:</p>
+<div class="eq">$$T_{s,\,{\rm new}}^0 \;=\; T_{s,\,{\rm old}}^0 \;-\; \frac{F(T_{s,\,{\rm old}}^0)}{F'(T_{s,\,{\rm old}}^0)}$$</div>
+<p>The derivative (Jacobian) is computed analytically — no finite differences needed:</p>
+<div class="eq">$$F'(T_s^0) \;=\; -4 \varepsilon_s \sigma (T_s^0)^3 \;-\; \frac{\rho c_p}{r_a} \;-\; \frac{\lambda_{1/2}}{z_1 - z_0}$$</div>
+<p>(All three terms are negative — sign comes from how each flux responds to a warmer surface: hotter $T_s^0$ → more outgoing radiation, more sensible heating loss to the air, more ground flux into the substrate.)</p>
+
+<h3>20d. A walked-through iteration example</h3>
+<p>Example for asphalt road at $t = 18:00$ LT (just after sunset). Atmospheric forcing at that time: $S_\downarrow = 0$ (sun is down), $L_\downarrow ≈ 340$ W/m², $T_a ≈ 25$ °C = 298.15 K. The top cell temperature $T_1$ (held fixed during the SEB iteration) is some warm value, say 35 °C = 308.15 K. Initial guess for $T_s^0$: the value from the previous step, say 35.5 °C = 308.65 K.</p>
+
+<p style="margin-left: 1em;"><strong>Iteration 1:</strong> Compute $F$ at $T_s^0 = 308.65$ K.</p>
+<ul style="margin-left: 1em;">
+<li>$R_n = 0.95 \cdot 340 - 0.95 \cdot 5.67\!\times\!10^{-8} \cdot 308.65^4 = 323 - 488 = -165$ W/m²</li>
+<li>$H = 1.2 \cdot 1005 \cdot (308.65 - 298.15) / 67 = 188$ W/m²</li>
+<li>$G = 0.75 \cdot (308.65 - 308.15) / 0.005 = 75$ W/m²</li>
+<li>$F = R_n - H - 0 - G = -165 - 188 - 75 = -428$ W/m² (way out of balance — surface losing energy faster than it can replace)</li>
+<li>$F' = -4 \cdot 0.95 \cdot 5.67\!\times\!10^{-8} \cdot 308.65^3 - 1.2\!\cdot\!1005/67 - 0.75/0.005 ≈ -6.32 - 18 - 150 = -174.3$ W/m²/K</li>
+<li>$\Delta T = -F/F' = -(-428)/(-174.3) = -2.46$ K</li>
+<li>New guess: $T_s^0 = 308.65 - 2.46 = 306.19$ K (the surface drops 2.46 K toward balance)</li>
+</ul>
+
+<p style="margin-left: 1em;"><strong>Iteration 2:</strong> Compute $F$ at $T_s^0 = 306.19$ K. The new $F$ value is much smaller, ~ 10–20 W/m². $\Delta T \approx 0.1$ K.</p>
+
+<p style="margin-left: 1em;"><strong>Iteration 3:</strong> $F$ ≈ 0.1 W/m², $\Delta T$ ≈ $10^{-3}$ K.</p>
+
+<p style="margin-left: 1em;"><strong>Iteration 4:</strong> $|\Delta T| < 10^{-4}$ K → STOP. Newton converged to the new surface temperature, e.g., $T_s^0 \approx 306.08$ K. This becomes the value used in the next time step's sub-step A.</p>
+
+<div class="callout">Newton's method converges <em>quadratically</em>: the error roughly squares each iteration. In practice on the SEB, 3–4 iterations are enough. The tolerance $|\Delta T| < 10^{-4}$ K is far tighter than any other error in the simulation.</div>
+
+<h2 id="test2-harmonic">21. Harmonic Mean at Layer Interfaces — Where It Actually Matters</h2>
+<p>In Test 1, the harmonic mean was trivial because all cells had $\lambda = 0.30$. In Test 2, the harmonic mean does real work at every face that straddles a material interface. Below are the actual values for each substrate's interfaces.</p>
+
+<h3>21a. Asphalt road — 3 interfaces inside the column</h3>
+<table>
+<thead><tr><th>Interface at depth</th><th>$\lambda$ above</th><th>$\lambda$ below</th><th>Arithmetic mean (wrong)</th><th>Harmonic mean (correct, code uses this)</th></tr></thead>
+<tbody>
+<tr><td>5 cm (asphalt → aggregate)</td><td>0.75</td><td>1.40</td><td>1.075</td><td><strong>0.977</strong></td></tr>
+<tr><td>25 cm (aggregate → dry soil)</td><td>1.40</td><td>0.30</td><td>0.850</td><td><strong>0.494</strong></td></tr>
+<tr><td>100 cm (dry soil → subsoil)</td><td>0.30</td><td>0.50</td><td>0.400</td><td><strong>0.375</strong></td></tr>
+</tbody></table>
+<p>The aggregate→dry-soil interface at 25 cm has the largest mismatch (arithmetic 0.850 vs harmonic 0.494 — about 1.7× different). Using arithmetic here would over-conduct heat across that interface.</p>
+
+<h3>21b. Concrete roof — the dramatic case</h3>
+<table>
+<thead><tr><th>Interface at depth</th><th>$\lambda$ above</th><th>$\lambda$ below</th><th>Arithmetic mean (wrong)</th><th>Harmonic mean (correct)</th></tr></thead>
+<tbody>
+<tr><td>10 cm (concrete deck → mineral wool)</td><td>1.50</td><td>0.04</td><td>0.770</td><td><strong>0.078</strong></td></tr>
+<tr><td>20 cm (mineral wool → drywall/wood)</td><td>0.04</td><td>0.15</td><td>0.095</td><td><strong>0.063</strong></td></tr>
+</tbody></table>
+<div class="callout">At the deck-insulation interface, arithmetic mean is 0.77 vs harmonic mean 0.078 — a factor of 10 different. Using arithmetic here would silently over-conduct heat by ~10× across the insulation, completely destroying the physics. This is the single best motivation for the harmonic-mean rule.</div>
+
+<h3>21c. Bare soil — uniform, harmonic mean trivial</h3>
+<p>One layer ($\lambda = 0.30$ everywhere), so $\lambda_{j+1/2} = 0.30$ at every face. Same as Test 1.</p>
+
+<h2 id="test2-algorithm">22. Test 2 — The Algorithm at Every Time Step (Two Sub-Steps)</h2>
+<p>Each Δt step is split into <strong>two sub-steps</strong> executed in this order:</p>
+
+<h3>Sub-step A — column update (holding $T_s^0$ FIXED at its OLD value)</h3>
+<pre>t_new = t_old + dt
+T_s_0_old = T[0]                  # surface T from end of previous step
+
+# Apply top BC: cell 0 gets T_s_0_old (held fixed for the column update)
+T[0] = T_s_0_old
+
+# Build the right-hand side using harmonic-mean fluxes
+for j in range(N - 1):
+    G_half[j] = lambda_half[j] * (T[j] - T[j+1]) / dz_centre[j]
+
+# Apply theta-method
+if alpha == 0:
+    # FTCS - explicit
+    T_new = T + dt / (C * dz) * (G_half[:-1] - G_half[1:])
+else:
+    # BTCS or CN - implicit, tridiagonal solve
+    A_band, b = build_tridiagonal_system(T, alpha, dt, lambda_half, C, dz)
+    T_new = scipy.linalg.solve_banded((1, 1), A_band, b)
+
+# Apply bottom BC: zero-flux Neumann
+T_new[N-1] = T_new[N-2]</pre>
+<p>What sub-step A does: advances every interior cell from time $n$ to $n+1$ using the θ-method, assuming the surface temperature is still at its old value. After sub-step A, cells 1..N-1 have their new values, but cell 0 still has $T_{s,\,{\rm old}}^0$.</p>
+
+<h3>Sub-step B — SEB Newton iteration (holding the COLUMN FIXED at its NEW values)</h3>
+<pre>T_s = T_new[0]                   # initial guess: old surface T
+for k in range(MAX_ITER):
+    # Compute atmospheric forcing at the NEW time
+    Sd = S_down(t_new)
+    Ld = L_down(t_new)
+    Ta = T_air(t_new)
+    U  = U_wind(t_new)
+    r_a = 1 / (C_H * U)
+
+    # Compute residual F(T_s)
+    R_n = (1 - alpha_s) * Sd + emis * Ld - emis * sigma * T_s**4
+    H   = rho * c_p * (T_s - Ta) / r_a
+    G   = lambda_half[0] * (T_s - T_new[1]) / dz_centre[0]
+    F   = R_n - H - 0 - G
+
+    # Compute analytical Jacobian F'(T_s)
+    dF = -4 * emis * sigma * T_s**3 - rho * c_p / r_a - lambda_half[0] / dz_centre[0]
+
+    # Newton update
+    dT = -F / dF
+    T_s = T_s + dT
+
+    if abs(dT) &lt; 1e-4:
+        break    # converged
+
+# After convergence, T_s holds the NEW surface temperature
+T_new[0] = T_s</pre>
+<p>What sub-step B does: solves the SEB for the new surface temperature, with the column held fixed at the values just computed in sub-step A. After sub-step B, cell 0 has its new $T_s^0$ consistent with the just-updated column.</p>
+
+<h3>End of step</h3>
+<pre>T = T_new
+t = t_new
+record(t, T[0], G_half[0])
+if t &lt; t_end: goto Sub-step A</pre>
+
+<div class="callout"><strong>The order matters.</strong> The column is advanced first, THEN the SEB updates the surface. This sequence is the "operator splitting" between the column-update operator A and the SEB-update operator B. The two operators do not commute, and approximating $e^{(A+B)\Delta t}$ as $e^{A\Delta t}\,e^{B\Delta t}$ introduces a first-order error in $\Delta t$ — regardless of how accurate each individual sub-step is. This is the dominant error at large $\Delta t$ in this project.</div>
+
+<h2 id="test2-when">23. When Each Constraint Is Applied (Test 2 version)</h2>
+<table>
+<thead><tr><th>Constraint</th><th>When applied?</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td>Initial condition (IC)</td><td>ONCE, at $t = 0$ only</td><td>Sets every cell from analytical damping-depth profile (using top-layer $\kappa$ for that substrate)</td></tr>
+<tr><td>Harmonic-mean $\lambda$</td><td>ONCE, precomputed at start</td><td>Determines effective $\lambda$ at every face, including across material interfaces</td></tr>
+<tr><td>Top BC (Dirichlet on $T_s^0$)</td><td>AT EVERY STEP, AT TWO MOMENTS:</td><td>(a) At start of sub-step A: set $T[0] = T_{s,\,{\rm old}}^0$. (b) At end of sub-step B: set $T[0] = $ Newton-converged new $T_s^0$.</td></tr>
+<tr><td>SEB Newton iteration</td><td>AT EVERY STEP, inside sub-step B</td><td>Solves $R_n - H - LE - G = 0$ for the new surface temperature. 3–4 iterations.</td></tr>
+<tr><td>Bottom BC (zero-flux Neumann)</td><td>AT EVERY STEP, inside sub-step A</td><td>$T[N-1] = T[N-2]$ — forces zero flux at the deepest face</td></tr>
+<tr><td>θ-method update</td><td>AT EVERY STEP, sub-step A</td><td>Advances cells 1..N-2 from time $n$ to $n+1$</td></tr>
+</tbody></table>
+
+<h2 id="test2-step">24. Test 2 — One Concrete Δt = 600 s Step (BTCS on Asphalt Road)</h2>
+<p>To make Test 2 absolutely concrete, here is one BTCS step on the asphalt road at Δt = 600 s, starting from a quasi-equilibrium state just after sunset.</p>
+
+<h3>Before the step ($t = 64\,800$ s = 18:00 LT on day 2)</h3>
+<ul>
+<li>$T[0] = T_{s,\,{\rm old}}^0 = 308.65$ K (35.5 °C — asphalt still warm from afternoon sun)</li>
+<li>$T[1] \approx 308.15$ K (top half of the 5 cm asphalt layer, cooled slightly)</li>
+<li>$T[6] \approx 305.0$ K (in the aggregate layer)</li>
+<li>$T[13] \approx 297.0$ K (in dry soil)</li>
+<li>$T[N-1] \approx 292.5$ K (deep, essentially at daily mean)</li>
+<li>$\lambda_{\rm half}$ precomputed; sub-surface jumps at faces 5/6 (asphalt/aggregate) and 12/13 (aggregate/soil).</li>
+</ul>
+
+<h3>Sub-step A — column update, BTCS, $\Delta t = 600$ s</h3>
+<ol>
+<li>Hold $T[0]$ fixed at 308.65 K.</li>
+<li>Build the tridiagonal matrix $A$ and right-hand side $b$ from the BTCS formula. The diagonal entries depend on $C_j$, $\Delta z_j$, $\Delta t$, and harmonic-mean $\lambda$. Cells across layer interfaces (j=5/6 and j=12/13) get the harmonic-mean values 0.977 and 0.494 in their off-diagonals — exactly the values from §21a.</li>
+<li>Call <code>scipy.linalg.solve_banded((1,1), A, b)</code> to solve for $T_{\rm new}[0\ldots N-1]$. $O(N)$ cost — about 0.1 ms for $N$ = 28 cells.</li>
+<li>Apply bottom BC: $T_{\rm new}[N-1] = T_{\rm new}[N-2]$. (Both ≈ 292.5 K — no change.)</li>
+<li>Cell 1 cools, say to $T_{\rm new}[1] \approx 305.2$ K (a 2.95 K drop in 600 s — heat being conducted downward).</li>
+</ol>
+<p>At the end of sub-step A, $T_{\rm new}[0]$ is still 308.65 K (held fixed by the BC during this sub-step).</p>
+
+<h3>Sub-step B — SEB Newton iteration</h3>
+<p>Now we update $T[0]$ to its proper new value. Compute atmospheric forcing at $t_{\rm new} = 65\,400$ s (= 18:10 LT). The sun is fully below the horizon: $S_\downarrow = 0$. $T_a$ has dropped to about 297.5 K (24.4 °C). $L_\downarrow \approx 338$ W/m².</p>
+
+<p>Initial guess: $T_s^0 = T_{\rm new}[0] = 308.65$ K (the value from sub-step A — surface still at the old afternoon temperature).</p>
+
+<p style="margin-left: 1em;"><strong>Iteration 1:</strong></p>
+<ul style="margin-left: 1em;">
+<li>$R_n = 0 + 0.95 \cdot 338 - 0.95 \cdot 5.67\!\times\!10^{-8} \cdot 308.65^4 \approx 321 - 488 = -167$ W/m²</li>
+<li>$H = 1.2 \cdot 1005 \cdot (308.65 - 297.5) / 67 \approx 200$ W/m²</li>
+<li>$G = 0.75 \cdot (308.65 - 305.2) / 0.005 = 517$ W/m² (large because the column just cooled below the surface, creating a steep gradient!)</li>
+<li>$F = -167 - 200 - 0 - 517 = -884$ W/m² — surface is losing energy at 884 W/m²; needs to drop fast.</li>
+<li>$F' \approx -174$ W/m²/K (same form as §20d).</li>
+<li>$\Delta T = -F/F' = -(-884)/(-174) = -5.08$ K.</li>
+<li>New guess: $T_s^0 = 308.65 - 5.08 = 303.57$ K.</li>
+</ul>
+
+<p style="margin-left: 1em;"><strong>Iteration 2:</strong> Compute $F$ at 303.57 K. The drop has reduced all three loss terms; $F \approx -30$ W/m². $\Delta T \approx -0.17$ K. New guess: 303.40 K.</p>
+
+<p style="margin-left: 1em;"><strong>Iteration 3:</strong> $F \approx 0.3$ W/m², $\Delta T \approx 2\!\times\!10^{-3}$ K. New guess: 303.398 K.</p>
+
+<p style="margin-left: 1em;"><strong>Iteration 4:</strong> $|\Delta T| < 10^{-4}$ K. CONVERGED. $T_s^0 = 303.398$ K = 30.25 °C.</p>
+
+<h3>End of step</h3>
+<ul>
+<li>Set $T_{\rm new}[0] = 303.398$ K.</li>
+<li>Final column state: $T[0] = 303.398$, $T[1] = 305.2$, ... (note the inversion! The cell ABOVE is colder than the cell BELOW because sub-step A let the column "think" $T_s^0$ was still 308.65 K, then sub-step B revealed the surface had actually dropped to 303.4 K. The cell-1 value of 305.2 K is therefore too warm — this is exactly the operator-splitting error.)</li>
+<li>Record: $t = 65\,400$ s, $T_s^0 = 303.4$ K, $G_{\rm surface} = 0.75 \cdot (303.4 - 305.2)/0.005 = -270$ W/m² (negative — heat flowing OUT of the substrate, since surface is now cooler than the deck).</li>
+<li>Advance: $t \leftarrow 65\,400$ s, $T \leftarrow T_{\rm new}$. Loop.</li>
+</ul>
+
+<div class="callout"><strong>The over-amplification on display.</strong> A true coupled solver (no splitting) would have advanced the column AND surface together, ending with $T[0] \approx 303.4$ and $T[1]$ closer to 306 K (smaller gradient). Our split solver ends with $T[0] = 303.4$ but $T[1] = 305.2$ — a steeper gradient at the top face. So $G$ is over-amplified at sunset. Over a full day this asymmetric over-amplification produces the 40% diurnal-amplitude inflation in $G$ that the report's Figure 4 shows on asphalt and concrete.</div>
+
+<h2 id="test2-why">25. Why This Matters — The Operator-Splitting Error</h2>
+<p>The whole point of Test 2 is to measure how the schemes compare at operational Δt. The headline finding is:</p>
+
+<ul>
+<li><strong>At Δt = 15 s</strong> (control): all three schemes agree to line-thickness. Confirms the implementation is consistent.</li>
+<li><strong>At Δt = 60 s</strong>: FTCS blows up on asphalt ($\nu = 0.9$) and concrete ($\nu = 1.71$); soil ($\nu = 0.14$) survives. BTCS and CN run to completion with small errors.</li>
+<li><strong>At Δt = 600 s</strong>: FTCS catastrophically unstable on asphalt and concrete, mildly unstable on soil. <strong>BTCS over-amplifies the diurnal $G$ amplitude by 40 % (asphalt), 41 % (roof), 19 % (soil). CN halves these to 21 %, 26 %, 10 %.</strong></li>
+</ul>
+
+<h3>Why both BTCS and CN show first-order error in Δt</h3>
+<p>BTCS is intrinsically first-order — that's expected. But CN is intrinsically second-order, so its error <em>should</em> shrink as $\Delta t^2$. Empirically it shrinks as $\Delta t^1$. Why?</p>
+<p><strong>Because the operator-splitting error is first-order, and it dominates over CN's per-substep error.</strong> Both BTCS and CN show $\Delta t$-refinement ratios of about 10 (not 100) when $\Delta t$ scales by 10×. The dominant error is the splitting between column and SEB, not the per-substep truncation. CN's second-order accuracy is wasted.</p>
+
+<h3>How to fix it (sketched but not implemented in this project)</h3>
+<ul>
+<li><strong>Option A — fully coupled solver:</strong> augment the tridiagonal system with one extra row coupling $T_s^0$ to $T_1$ via the SEB. One linear solve per step instead of "column then Newton". Eliminates the splitting error.</li>
+<li><strong>Option B — Strang symmetric splitting:</strong> half-step column (Δt/2) → full-step SEB (Δt) → half-step column (Δt/2). The symmetric form cancels the leading commutator error, making the splitting second-order. Same per-step cost as the asymmetric form.</li>
+</ul>
+
+<h3>SHAP attribution — confirming the mechanism with data</h3>
+<p>To confirm that $\kappa_{\rm top}$ is the dominant substrate property driving the error, the project ran a separate analysis: 150 random three-layer substrate columns, BTCS at Δt = 600 s. Gradient-boosted regression with SHAP attribution found that $\kappa_{\rm top}$ alone explains $R^2 = 0.92$ of the variance in BTCS coarse-Δt error. This is consistent with the operator-splitting picture: high $\kappa_{\rm top}$ means the top cell relaxes fast to the (held-fixed) $T_s^0$ during sub-step A, then has to "catch up" to the (now-correct) $T_s^0$ at sub-step B — producing a large gradient swing and a large $G$ error. The mechanistic story and the data-driven story converge on the same answer.</p>
+
+<div class="callout">The Test 2 deep dive is the project's mechanistic core. Once you understand the two-sub-step structure (§22), the SEB Newton iteration (§20), and the operator-splitting error (§25), every plot and table in §4-§6 of the long report falls into place.</div>
 
 <hr>
 <p style="text-align: center; color: #6b7186; font-size: 13px; font-style: italic; margin-top: 40px;">— End of cheat-sheet —</p>
