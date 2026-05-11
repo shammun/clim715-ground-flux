@@ -142,11 +142,19 @@ window.MathJax = {
  - <strong>[Definition]</strong> — a definition or a project-specific discretization choice.</p>
 <hr />
 <h2 id="part-1">Part 1. Foundational physics: heat, temperature, and the substrate</h2>
+<div class="interp-box"><h4>Why this part exists — and what you will get from it</h4>
+<p>Before we can write a single line of numerical code, we have to agree on what the code is trying to compute. Part 1 builds that vocabulary from scratch. It answers four basic questions: (1) what is heat conduction in plain language, (2) what physical numbers describe a substrate (asphalt, concrete, soil), (3) how far does the daily heating cycle reach into the ground, and (4) how does the surface decide its own temperature.</p>
+<p><strong>Why we need this before anything else.</strong> Every choice further down — the size of grid cells, the size of time steps, the choice of scheme, the boundary conditions — is dictated by the physical scales established here. If you skip the physics, the numerics look arbitrary; if you understand the physics, the numerics look inevitable.</p>
+<p><strong>How it connects to the project.</strong> The damping depth $d \approx 8$–$14$ cm computed in Section 1.3 forces us to pick a sub-centimetre grid; the resulting cell size will combine with $\kappa$ in Section 1.4 to produce the famous 17-second FTCS bound; the SEB in Section 1.5 will turn out to be the place where the operator-splitting error lives. So Part 1 is the source of every constraint the rest of the project responds to.</p>
+</div>
 <h3>1.1 What does it mean for the ground to conduct heat?</h3>
+<p><strong>What we are doing in this subsection.</strong> Before we can write equations for heat flow, we need a physical picture. The next two paragraphs give you that picture in plain language — a hot paving stone, a temperature gradient, and the rate at which heat moves down through the material. By the end of the subsection you will know what the symbol $G$ means and why it is the headline quantity in the entire project.</p>
 <p>Imagine a paving stone in the sun. The top is hot — say $50 ^\circ\mathrm{C}$. Five centimetres down, the stone is much cooler — say $30 ^\circ\mathrm{C}$. There is a temperature gradient inside the stone. As long as that gradient exists, heat will flow from the hot top to the cool bottom. This flow is conduction.</p>
 <p>The amount of heat that flows per square metre per second is the <strong>conductive heat flux</strong>, denoted $G$ in this project. The symbol $G$ is just a label — a single letter that stands for "ground heat flux at this location, at this time". Its units are watts per square metre, $\mathrm{W/m^{2}}$. By convention $G > 0$ means flow downward (into the ground).</p>
 <p>To make this less abstract: a typical mid-afternoon $G$ on a sun-warmed asphalt road is about $200$ W/m² (positive, into the ground). At night the same surface emits at perhaps $-50$ W/m² (negative, out of the ground).</p>
+<p><strong>Wrapping up Section 1.1.</strong> You now have one number — $G$, the ground heat flux — and one intuition — heat flows from hot to cold whenever there is a temperature gradient. Everything in the rest of the project is built around computing $G$ accurately. The next step is to name the material properties that decide how big $G$ can be for a given gradient.</p>
 <h3>1.2 The four key material properties</h3>
+<p><strong>What we are doing in this subsection.</strong> $G$ depends on the gradient, but it <em>also</em> depends on what the substrate is made of. A 1 °C/cm gradient through wet concrete moves much more heat than the same gradient through dry styrofoam. We need four material numbers — three actual material properties ($\lambda$, $C$, $\kappa$) and one derived length scale ($d$) — to capture that dependence. You will use these four numbers everywhere downstream: $\lambda$ in Fourier's law, $C$ in the heat-storage term, $\kappa$ in the stability bound, $d$ in choosing how fine the top grid cell needs to be.</p>
 <p>Every substrate is described by two material numbers, from which a third is derived. The fourth quantity is a length scale.</p>
 <p><strong>Thermal conductivity</strong> $\lambda$ (Greek letter "lambda"). Units W/m/K. The number $\lambda$ tells you how much heat flows through the material per unit temperature gradient. Bigger $\lambda$ means heat propagates more easily. Air $\approx 0.025$; rigid foam $\approx 0.03$; dry sandy soil $\approx 0.30$; asphalt $\approx 0.75$; concrete $\approx 1.5$; granite $\approx 3.0$.</p>
 <p><strong>Volumetric heat capacity</strong> $C$. Units J/m³/K. The number $C$ tells you how much energy (in joules) is needed to raise one cubic metre of the material by one Kelvin. Water $\approx 4.18 \times 10^{6}$; concrete $\approx 2.1 \times 10^{6}$; dry sandy soil $\approx 1.3 \times 10^{6}$.</p>
@@ -209,7 +217,9 @@ window.MathJax = {
 </tbody>
 </table>
 <p>So the daily wave penetrates only the top 8–14 cm. Our topmost grid cells must be much smaller than $d$ — typically half a centimetre to one centimetre.</p>
+<p><strong>Wrapping up Section 1.3.</strong> The 8–14 cm damping depth is the single most consequential number we have produced so far. It forces a sub-centimetre top grid cell. The next subsection turns that constraint around: <em>once we have a sub-centimetre cell, what is the largest stable explicit time step?</em> The answer will be the famous 17-second bound, and it is the headline reason this project uses implicit schemes.</p>
 <h3>1.4 Why $d$ matters for picking time steps</h3>
+<p><strong>Where this is going.</strong> Section 1.3 forced us to use a 5–10 mm top cell to resolve the diurnal wave. Now we ask the explicit (FTCS) scheme: "given that cell size, what is the largest time step you can take without blowing up?" The widget below answers that question visually. As you drag the cell-thickness slider, the maximum stable FTCS time step changes by orders of magnitude — and for the smallest cells, it falls below operational climate-model time steps. This is where the project's whole motivation for studying implicit schemes lives.</p>
 
 <div class="widget-card">
   <div class="widget-header">
@@ -262,19 +272,59 @@ window.MathJax = {
 <p><strong>Reading this equation.</strong> Four quantities all in W/m². $R_n$ (read "R-sub-n", short for "net radiation") is energy <em>coming in</em> from sun and sky. $H$, $LE$, $G$ are three pathways energy <em>leaves</em> the surface. Conservation: incoming = sum of outgoing, or equivalently $R_n - H - LE - G = 0$. This is the <strong>surface energy balance</strong> (SEB).</p>
 <p>The notation $T_s^0$ means "$T$ at the substrate surface, depth zero". The "0" superscript is a label (depth $z = 0$), <em>not</em> an exponent.</p>
 <h3>1.6 Units and dimensional analysis sanity check</h3>
+<p><strong>What we are doing in this subsection.</strong> Every term in every equation we will write has a physical meaning and physical units. Mixing them up is the most common error in coupled physics-code: a missing factor of $\rho$ or a stray $\Delta z$ destroys energy conservation silently. Below we list every key term, what it <em>physically means</em>, the intuition for it, and a unit check that proves the equation is self-consistent. Treat this as a "decoder ring" you can come back to whenever a symbol stops making sense.</p>
+
+<p><strong>1. The heat-storage term:</strong> $C \, \partial T/\partial t$ — units (J/m³/K)·(K/s) = W/m³.</p>
 <ul>
-<li>$C \partial T/\partial t$ has units (J/m³/K)(K/s) = W/m³.</li>
-<li>$\partial/\partial z[\lambda \partial T/\partial z]$ has units m⁻¹·(W/m/K)·K·m⁻¹ = W/m³. Same. ✓</li>
-<li>$\nu = \kappa \Delta t/\Delta z^2$ has units (m²/s)(s)/m² = dimensionless. ✓</li>
-<li>$r_a = 1/(C_H U)$ has units 1/(m/s) = s/m. ✓</li>
-<li>$H = \rho c_p (T_s - T_a)/r_a$ has units (kg/m³)(J/kg/K)(K)/(s/m) = W/m². ✓</li>
+<li><em>What it means physically.</em> The rate at which one cubic metre of substrate is storing (or releasing) thermal energy as its temperature changes.</li>
+<li><em>Intuition.</em> $C$ is "how much energy fits in this material per °C of warming". Multiply by "how fast the temperature is rising" ($\partial T/\partial t$, K/s) and you get "how fast energy is piling up per cubic metre" (W/m³). The term is positive when the substrate is heating up (absorbing energy) and negative when it is cooling (releasing it).</li>
+<li><em>Unit check.</em> (J/m³/K)(K/s) — the Kelvin cancels and we are left with J/(m³·s) = W/m³. ✓</li>
 </ul>
+
+<p><strong>2. The divergence-of-flux term:</strong> $\partial/\partial z [\lambda \, \partial T/\partial z]$ — units W/m³.</p>
+<ul>
+<li><em>What it means physically.</em> The rate at which heat flux is changing with depth — equivalently, the net heat being deposited (per cubic metre) at a given level because more is flowing in from above than flowing out below.</li>
+<li><em>Intuition.</em> Inside the brackets, $\lambda \, \partial T/\partial z$ is Fourier's law: thermal conductivity times temperature gradient. Take the depth derivative of that, and you ask "is the heat flux speeding up or slowing down as I go down?" If flux entering a thin slab from above exceeds flux leaving the bottom, energy is accumulating inside the slab — that accumulation rate, in W/m³, is what this term measures.</li>
+<li><em>Unit check.</em> Inside the brackets: (W/m/K)·(K/m) = W/m². Outside: divide by an additional m → W/m³. ✓ Notice it matches the storage term — that match is exactly what makes the heat equation a statement of energy conservation.</li>
+</ul>
+
+<p><strong>3. The diffusion number:</strong> $\nu = \kappa \Delta t / \Delta z^{2}$ — dimensionless.</p>
+<ul>
+<li><em>What it means physically.</em> The ratio of two times: $\Delta t$ (one numerical time step) divided by the diffusion time across one grid cell ($\Delta z^{2}/\kappa$). If $\nu = 1$, in one time step heat diffuses across exactly one cell. If $\nu = 0.5$, it diffuses across half a cell. If $\nu = 10$, the model is asking diffusion to leap across ten cells in one step — which is unphysical and breaks explicit schemes.</li>
+<li><em>Intuition.</em> $\nu$ is the single most important number in stability analysis. It does not matter whether you change $\kappa$, $\Delta t$, or $\Delta z$ — only the combination $\kappa \Delta t / \Delta z^{2}$ controls whether FTCS lives or dies. That's why we give it a name.</li>
+<li><em>Unit check.</em> (m²/s)·(s)/m² — everything cancels. ✓</li>
+</ul>
+
+<p><strong>4. The aerodynamic resistance:</strong> $r_a = 1/(C_H U)$ — units s/m.</p>
+<ul>
+<li><em>What it means physically.</em> How hard it is, in a turbulent sense, for heat to move from the surface up into the air. Big $r_a$ → calm, stratified air, weak surface-air coupling. Small $r_a$ → windy, turbulent air, strong coupling.</li>
+<li><em>Intuition.</em> Think of $r_a$ as an electrical resistance and the temperature difference $T_s^0 - T_a$ as a voltage; sensible heat flux $H$ is the resulting current. The denominator $C_H U$ is bigger when the wind blows harder (eddies carry heat more efficiently) or when the surface is rougher (more turbulence). So $r_a$ falls and $H$ rises. The strict-impervious project uses constants $C_H = 5\times 10^{-3}$ and $U = 3$ m/s, giving $r_a = 1/(0.005 \cdot 3) = 66.7$ s/m.</li>
+<li><em>Unit check.</em> $C_H$ is dimensionless, $U$ is m/s, so $C_H U$ has units m/s. Its reciprocal is s/m. ✓</li>
+</ul>
+
+<p><strong>5. The sensible heat flux:</strong> $H = \rho c_p (T_s^0 - T_a)/r_a$ — units W/m².</p>
+<ul>
+<li><em>What it means physically.</em> The rate (per square metre of surface) at which the surface dumps heat into the air via turbulent eddies. Daytime: $T_s^0 > T_a$ so $H > 0$ — surface heats the air. Nighttime: usually $T_s^0 < T_a$ so $H < 0$ — air warms the surface slightly.</li>
+<li><em>Intuition.</em> The numerator $\rho c_p (T_s^0 - T_a)$ is "how much energy difference per cubic metre of air exists between the surface and the reference level". Divide by $r_a$ (seconds per metre) and you get joules per cubic metre per (seconds per metre) = J/(m²·s) = W/m². The whole formula is the thermal-electrical analogue: $H = (\text{voltage})/(\text{resistance})$ with voltage = temperature difference scaled by air's heat capacity, resistance = $r_a$.</li>
+<li><em>Unit check.</em> (kg/m³)(J/kg/K)(K)/(s/m) = (J/m³)/(s/m) = J·m/(m³·s) = J/(m²·s) = W/m². ✓</li>
+</ul>
+
+<p><strong>The dimensional moral.</strong> Look at the storage term (W/m³) and the divergence-of-flux term (W/m³). They match. That is not a coincidence — that match <em>is</em> the heat equation. Now look at $R_n$, $H$, $LE$, $G$ in Section 1.5: all W/m². They also match. That is the surface energy balance. Whenever you write a new equation in this project, run a unit check first: if the units don't agree, the equation is wrong, regardless of how plausible it looks.</p>
+
+<p><strong>Wrapping up Section 1.6.</strong> You now have the physical names, the intuition, and the unit check for every term that will appear in the governing equation and the surface energy balance. Part 2 will turn these continuous expressions into something a computer can actually evaluate — replacing $\partial$ with $\Delta$ and integrals with sums.</p>
+
 <blockquote>
 <p><strong>Lecture 3</strong> is the algebraic foundation of the finite differences we use.</p>
 </blockquote>
 <hr />
 <h2 id="part-2">Part 2. From a continuous PDE to a discrete computer program</h2>
+<div class="interp-box"><h4>Why this part exists — and what you will get from it</h4>
+<p>Part 1 ended with a continuous-mathematics object: $C \, \partial T/\partial t = \partial/\partial z[\lambda \, \partial T/\partial z]$. A computer cannot multiply infinitely many real numbers together — it can only manipulate a finite list. Part 2 is the bridge: it shows how to translate the continuous PDE into a finite list of arithmetic operations a computer can run.</p>
+<p><strong>What we will build.</strong> Three ingredients: (1) a way to classify the PDE so we know what behaviour to expect (parabolic = diffusive smoothing), (2) finite-difference approximations of derivatives — the workhorse formulas that replace every $\partial$ with a difference of two stored numbers, and (3) the vocabulary of stability and accuracy that we will use to compare schemes in Part 3.</p>
+<p><strong>How it connects to the project.</strong> Every line of <code>run_experiments.py</code> uses one of the three finite-difference formulas derived here, and every stability bound we cite in Parts 4–9 is a consequence of the vocabulary set up here. Get this part right and the rest of the project is just careful bookkeeping.</p>
+</div>
 <h3>2.1 What is a partial differential equation?</h3>
+<p><strong>What we are doing in this subsection.</strong> The heat-conduction equation involves derivatives in <em>both</em> time and space, which makes it a <em>partial</em> differential equation (PDE) rather than an ordinary one. The next few paragraphs explain what that means and why the operator $\partial^2 T/\partial z^2$ — the second spatial derivative — is the geometric mechanism that makes heat diffuse.</p>
 <p>An <strong>ordinary differential equation (ODE)</strong> describes how something changes with respect to one variable. Newton's law of cooling, $dT/dt = -k(T - T_\infty)$, is an ODE.</p>
 <p>A <strong>partial differential equation (PDE)</strong> involves derivatives with respect to more than one variable. Heat conduction in depth is a PDE because $T$ depends on both $z$ and $t$:</p>
 <p>$$\frac{\partial T}{\partial t} = \kappa \frac{\partial^2 T}{\partial z^2}.$$</p>
@@ -283,7 +333,9 @@ window.MathJax = {
 </blockquote>
 <p><strong>Reading this equation.</strong> The symbol $\partial$ (a curly d, read "partial") is used instead of regular $d$ when the function depends on multiple variables. So $\partial T/\partial t$ means "rate of change of $T$ with respect to $t$, holding $z$ fixed". $\partial^2 T/\partial z^2$ is the second partial derivative with respect to $z$ — the curvature of $T$ as a function of $z$ at a fixed time.</p>
 <p>In plain words: at every point $(z, t)$, the temperature is rising in time at a rate proportional to how curved it is in space at that moment. If $T$ is concave-up (curving upward like a bowl bottom), the second derivative is positive and $T$ rises with time. If $T$ is concave-down (peak), $T$ falls. So heat diffuses by smoothing out curvature: peaks decay, troughs fill in.</p>
+<p><strong>Wrapping up Section 2.1.</strong> The single most useful image: heat diffusion is the universe pressing iron on wrinkled fabric — high curvature is flattened, every peak relaxes toward its neighbours. With that picture established, the next subsection labels the heat equation by its family ("parabolic"), which tells us what kind of stability and accuracy issues to expect.</p>
 <h3>2.2 The PDE classification — why heat is parabolic</h3>
+<p><strong>What we are doing in this subsection.</strong> Different PDEs behave differently — some propagate waves (hyperbolic), some smooth disturbances away (parabolic), some have no time direction at all (elliptic). Knowing which family our equation belongs to tells us in advance what to worry about. For the heat equation we will confirm it is parabolic, which means: there is no wave-like propagation, only diffusive smoothing, and the maximum stable explicit time step shrinks as $\Delta z^2$ — that is the famous restrictive bound of FTCS.</p>
 <p>Notes #2 classifies linear second-order PDEs by the discriminant $B^2 - 4AC$ of the general form</p>
 <p>$$A u_{xx} + B u_{xy} + C u_{yy} + \text{lower-order terms} = 0.$$</p>
 <blockquote>
@@ -296,7 +348,9 @@ window.MathJax = {
 <li><strong>Parabolic</strong> ($B^2 - 4AC = 0$). Diffusion-like.</li>
 </ul>
 <p>Our heat conduction equation $u_t - \kappa u_{zz} = 0$ has $A = -\kappa$ for $u_{zz}$, with $B = 0$ and $C = 0$. Discriminant: $0 - 4(-\kappa)(0) = 0$ — parabolic.</p>
+<p><strong>What "parabolic" tells us in practice.</strong> Three things. (1) Diffusion-only: no information propagates as a wave. (2) Stiff at fine grids: an explicit time step must shrink as $\Delta z^2$, which is brutal at sub-centimetre resolution. (3) Implicit-friendly: backward and trapezoidal schemes are unconditionally stable on parabolic equations. So just by classifying the PDE we already know which numerical recipes will work and which will not.</p>
 <h3>2.3 The two basic finite-difference ideas</h3>
+<p><strong>What we are doing in this subsection.</strong> A computer cannot evaluate $\partial T/\partial z$ exactly — it only stores temperature at a few discrete depths. We need approximate formulas that turn a derivative into a difference of two (or three) stored numbers. Taylor's theorem gives us those formulas. By the end of this subsection you will know the three workhorses: forward-difference, backward-difference, and centred-difference for first derivatives, and the centred three-point formula for second derivatives. Every line of the project's solver is built from these four formulas.</p>
 <p>For a smooth function $f(x)$, Taylor's theorem gives:</p>
 <p>$$f(x + \Delta x) = f(x) + \Delta x f'(x) + \frac{\Delta x^2}{2} f''(x) + \frac{\Delta x^3}{6} f'''(x) + O(\Delta x^4).$$</p>
 <blockquote>
@@ -327,7 +381,9 @@ window.MathJax = {
 <p><strong>Status: [Established]</strong> — second-order accurate.</p>
 </blockquote>
 <p><strong>Reading this equation.</strong> "Forward slope at this point" minus "backward slope at this point", divided by $\Delta x$. That gives "rate of change of slope" = second derivative.</p>
+<p><strong>Wrapping up Section 2.3.</strong> Four formulas in your toolbox now: three for $f'(x)$ (forward, backward, centred) and one for $f''(x)$ (centred three-point). Every PDE we numerically solve in this project is built from combinations of these. Centred-in-space gives second-order accuracy "for free" by symmetric cancellation. Forward-in-time will deliver FTCS, backward-in-time will deliver BTCS, and a symmetric weighted average of the two will deliver Crank–Nicolson — Part 3 puts the pieces together.</p>
 <h3>2.4 What does "stability" mean?</h3>
+<p><strong>What we are doing in this subsection.</strong> Accuracy and stability are different things. A scheme can be very accurate per step but still blow up over many steps if errors compound; a different scheme can have larger per-step error but stay bounded forever. We need precise language for the difference, because the project's whole punchline is "FTCS is plenty accurate per step but conditionally stable, so it cannot be used at operational time steps; BTCS and CN trade some per-step accuracy for unconditional stability."</p>
 <p>A finite-difference scheme is <strong>stable</strong> if small numerical errors at one time step do not grow unboundedly over many time steps. If errors grow, the solution "blows up" — temperatures become infinite or NaN. Stability is separate from accuracy.</p>
 <p>Some schemes are <strong>conditionally stable</strong> — $\Delta t$ must be smaller than some bound. Others are <strong>unconditionally stable</strong>.</p>
 <blockquote>
@@ -335,7 +391,13 @@ window.MathJax = {
 </blockquote>
 <hr />
 <h2 id="part-3">Part 3. The vocabulary of finite-difference time-stepping schemes</h2>
+<div class="interp-box"><h4>Why this part exists — and what you will get from it</h4>
+<p>Part 2 gave us four finite-difference formulas for derivatives. Part 3 chooses <em>which</em> of those formulas to apply to the time derivative. There are only three really useful choices — and they are not equally good. The whole question of "which time-stepping scheme should I use?" reduces to picking among them.</p>
+<p><strong>The three options.</strong> (1) Evaluate the rate at the start of the interval (FTCS, $\alpha = 0$): cheap but only conditionally stable. (2) Evaluate the rate at the end (BTCS, $\alpha = 1$): expensive (implicit solve) but always stable. (3) Average start and end (Crank–Nicolson, $\alpha = 1/2$): same cost as BTCS but second-order accurate. All three are special cases of a single formula — the $\theta$-method.</p>
+<p><strong>How this connects to the project.</strong> Every result in Section 4 of the long report is one of "FTCS at $\alpha = 0$" or "BTCS at $\alpha = 1$" or "CN at $\alpha = 1/2$" applied to the substrate column. The 27-cell experiment matrix in the long report is built around varying $\alpha$ (three choices) × substrate (three choices) × $\Delta t$ (three choices). So Part 3 is the parameterisation that organises the entire experimental design.</p>
+</div>
 <h3>3.1 The general framework</h3>
+<p><strong>What we are doing in this subsection.</strong> We introduce a notation that lets us write all three time-stepping schemes in a single formula. The key idea is that the next value $T^{n+1}$ equals the current value $T^n$ plus the time integral of the rate function $f(T, t)$ over one step. Different ways of approximating that integral give different schemes.</p>
 <p>Lecture 6 introduces notation: let $\psi$ denote the true solution, $\phi_j^n$ the numerical approximation at $t = n \Delta t$. For the ODE form $d\psi/dt = f(\psi, t)$, the goal is to construct schemes for advancing $\phi^n \to \phi^{n+1}$ that approximate the exact integral</p>
 <p>$$\psi^{n+1} = \psi^n + \int_{n\Delta t}^{(n+1)\Delta t} f(\psi, t) dt.$$</p>
 <blockquote>
@@ -358,12 +420,18 @@ window.MathJax = {
 </blockquote>
 <p><strong>Reading this scheme.</strong> Approximate the integral as the average of rate at start and rate at end, times interval length. Geometrically a trapezoid under the rate curve. The symmetric averaging cancels the leading first-order error term — second-order accurate.</p>
 <h3>3.4 The full $\theta$-method family</h3>
+<p><strong>What we are doing in this subsection.</strong> We compress FTCS, BTCS, and CN into a single formula governed by one parameter, $\alpha$ (also called $\theta$ in some textbooks). This is the cornerstone of the project's code architecture: there is one Python routine, and it takes $\alpha$ as an argument. Set $\alpha = 0$ and the routine becomes FTCS; set $\alpha = 1$ and it becomes BTCS; set $\alpha = 1/2$ and it becomes Crank–Nicolson. <em>One implementation, three schemes — debugged once, verified once, ready to run hundreds of experiments without code duplication.</em></p>
 <p>All three schemes are special cases of one formula:</p>
 <p>$$T^{n+1} = T^n + \Delta t [\alpha f(T^{n+1}) + (1-\alpha) f(T^n)].$$</p>
 <blockquote>
 <p><strong>Status: [Established]</strong> — the $\theta$-method.</p>
 </blockquote>
-<p><strong>Reading this equation.</strong> Weighted average of new and old rate, with weight $\alpha$ on new and $(1-\alpha)$ on old. $\alpha = 0$ is forward Euler / FTCS; $\alpha = 1$ is backward Euler / BTCS; $\alpha = 1/2$ is Crank–Nicolson. One formula, three schemes.</p>
+<p><strong>Reading this equation, the easy way.</strong> "The new temperature equals the old temperature plus a step of length $\Delta t$, where the step is a weighted average of two rates: the rate at the new (still-unknown) value with weight $\alpha$, and the rate at the old (known) value with weight $(1-\alpha)$." Three intuitive special cases:</p>
+<ul>
+<li><strong>$\alpha = 0$ (FTCS).</strong> All weight on the old rate. Cheap (just plug in known numbers and compute). Conditionally stable: must obey $\nu \le 1/2$. The numerical equivalent of "look at the current slope, walk a step in that direction".</li>
+<li><strong>$\alpha = 1$ (BTCS).</strong> All weight on the new rate. Implicit (you must solve an equation, because the new rate depends on the unknown new value). Unconditionally stable, first-order. The equivalent of "look at the slope at the destination, walk so the slope-of-arrival is consistent".</li>
+<li><strong>$\alpha = 1/2$ (Crank–Nicolson).</strong> Average old and new rates. Implicit, but second-order accurate. The equivalent of "use the average of the slope at the start and the slope at the end" — a trapezoidal rule under the rate curve, which by symmetric cancellation kills the leading first-order error.</li>
+</ul>
 <table>
 <thead>
 <tr>
@@ -416,10 +484,34 @@ window.MathJax = {
 <li><strong>Case 4 (Matsuno)</strong>: amplitude decays slightly.</li>
 </ul>
 </blockquote>
-<h3>3.6 Why the project uses the $\theta$-method specifically</h3>
-<p>Three benefits: single source of truth for the spatial discretisation; three numbers replace three routines; same banded-tridiagonal solver handles BTCS and CN.</p>
+<h3>3.6 Why the project uses the $\theta$-method specifically — and why not something else</h3>
+<p><strong>What we are doing in this subsection.</strong> We make explicit the reasoning behind one of the project's most important architectural choices. The $\theta$-method is not the only option — we could have used a Runge–Kutta family, a leapfrog, a Matsuno predictor-corrector, an exponential integrator, or many others. We picked the $\theta$-method on purpose. Below is the full justification, with each alternative answered.</p>
+
+<h4>The three concrete benefits of the $\theta$-method for this project</h4>
+<ol>
+<li><strong>One implementation, three schemes.</strong> A single function <code>step_alpha(T, dt, ..., alpha, ...)</code> covers FTCS, BTCS, and CN. We debug once, verify once, and the comparison across schemes is mechanical — there is no risk that "FTCS uses a different harmonic mean than CN" because the code path is identical. This matters because the project's central contribution is a controlled comparison: <em>same physics, same grid, same boundary conditions, only $\alpha$ varies</em>.</li>
+<li><strong>Reuses the same linear solver.</strong> When $\alpha > 0$, the right-hand side depends on $T^{n+1}$ at each cell and its two neighbours, producing a banded-tridiagonal matrix. The same SciPy banded solver (<code>scipy.linalg.solve_banded</code>) handles BTCS, CN, and any intermediate $\alpha$ — $O(N)$ cost per step. Adding a 4th-order Runge–Kutta or a Magnus integrator would require a separate solver path and three times the testing surface.</li>
+<li><strong>Stability regions are textbook-known.</strong> The von Neumann analysis we walk through in Section 6.5 is documented in every numerical-PDE textbook. We did not have to derive new stability conditions — we are reusing a stability theory that has been used for 70+ years. That predictability is itself a deliverable: when we report that FTCS blows up at the predicted moment in Section 8.1, the prediction comes from this well-established theory.</li>
+</ol>
+
+<h4>Why $\theta$-method, not the alternatives</h4>
+<ul>
+<li><strong>vs. fully explicit Runge–Kutta (RK4).</strong> RK4 is fourth-order in time and entirely explicit. But for diffusion, RK4 still has a stability bound proportional to $\Delta z^{2}/\kappa$ — only slightly more permissive than FTCS. We would have to take very small time steps for any of the cell sizes we care about. The unconditional stability of BTCS/CN is what really lets us reach 600 s steps.</li>
+<li><strong>vs. leapfrog (centred-in-time, centred-in-space).</strong> Leapfrog is second-order accurate, simple, and beloved in atmospheric dynamics. But it is <em>unconditionally unstable</em> for pure diffusion, regardless of $\Delta t$ — the amplification factor at the $2\Delta z$ wave has $|A| > 1$ for any $\nu > 0$. The Notes #9 (Pure Diffusion) call this out explicitly. So leapfrog is the wrong family for our parabolic problem.</li>
+<li><strong>vs. Matsuno (predictor-corrector).</strong> Matsuno is two-stage explicit; we covered it in §3.5. It approximates Backward Euler at the cost of two right-hand-side evaluations per step. Compared to BTCS proper, Matsuno is slightly less stable (still conditionally bounded) and not noticeably more accurate. The implicit BTCS, especially with the tridiagonal solver, wins both on stability and on cost amortised over the 27-cell experiment matrix.</li>
+<li><strong>vs. exponential integrators.</strong> Exponential time-differencing (e.g., ETD-RK4) achieves both high order and unconditional stability for stiff linear problems. They are excellent for problems with a clean linear part — but our SEB is nonlinear (the $T_{s}^{4}$ longwave term), so the exponential is no longer of a closed-form linear operator. The added implementation complexity is not justified by the modest accuracy gain at $\Delta t \le 600$ s.</li>
+<li><strong>vs. higher-order BDF (BDF3, BDF4).</strong> Backward differentiation formulas of order 3+ are also unconditionally stable for diffusion, but multi-step (need history). For a project meant to be didactic and easy to verify, the simplicity of one-step methods wins.</li>
+</ul>
+
+<h4>Why $\theta$-method is especially handy in <em>this</em> project</h4>
+<p>The project's headline experiment is to compare FTCS, BTCS, and CN at three different time steps on three different substrates. With the $\theta$-method, each of those 27 runs is one call to the same Python function with three arguments changed. The cleanliness of the experimental design — and therefore the credibility of the headline numerical results (40% over-amplification on BTCS, halved by CN) — is a <em>direct consequence</em> of using a single parameterised method instead of three independent codes. If we had implemented FTCS, BTCS, and CN as three separate routines, the comparison would have been muddied by tiny implementation differences and we would never know whether the 40% number is "real" or an artefact.</p>
+
+<p><strong>Wrapping up Part 3.</strong> You now have one parameter, $\alpha$, that controls the entire family of time-stepping schemes used in the project, and you understand <em>why</em> the family was chosen over the alternatives. Part 4 turns to the report itself, starting with the abstract.</p>
 <hr />
 <h2 id="part-4">Part 4. Walking through the abstract</h2>
+<div class="interp-box"><h4>Why this part exists — and what you will get from it</h4>
+<p>The abstract of a scientific paper is a deliberately compressed summary — every sentence is doing double duty. If you can decode it, you have a roadmap of the entire report. Part 4 walks through the abstract claim by claim, naming every symbol, decoding every jargon phrase, and pointing forward to where in the rest of the document each claim is justified. By the end of this part you should be able to read the abstract aloud and explain every word to a non-specialist.</p>
+</div>
 <p>The abstract is the densest paragraph in the report. We unpack it claim by claim.</p>
 <p><strong>"The ground heat flux is the energy that the surface stores and releases from its substrate over a diurnal cycle, and is the term in the surface energy budget that is most sensitive to numerical treatment."</strong></p>
 <p>$G$ (ground heat flux) is small in daily mean, but it controls the day-night temperature swing. The other three SEB terms are local in time. $G$ involves the <em>history</em> of the substrate — and history dependence is exactly what numerical errors accumulate in.</p>
@@ -437,9 +529,15 @@ window.MathJax = {
 <p>CN is intrinsically second-order, so a ratio of 10 (not 100) tells us the dominant error is <em>not</em> per-substep CN truncation; it is operator splitting.</p>
 <p><strong>"$\kappa_{\text{top}}$ is the dominant predictor..."</strong></p>
 <p>Notation: $\kappa_{\text{top}}$ is "$\kappa$ in the top cell". $R^2$ is the coefficient of determination — a number between 0 and 1 measuring how much of the target's variance the predictor explains.</p>
+<p><strong>Wrapping up Part 4.</strong> The abstract is now a roadmap: stability bound (Part 6.5), FTCS blow-up (Part 8.1), BTCS over-amplification (Part 8.2), refinement ratios near 10 (Part 9.2), $\kappa_{\text{top}}$ as the dominant predictor (Part 10.3). Every claim has a destination. The rest of the document walks you to each in order.</p>
 <hr />
 <h2 id="part-5">Part 5. Walking through Section 1 Introduction</h2>
+<div class="interp-box"><h4>Why this part exists — and what you will get from it</h4>
+<p>The introduction of the long report does two jobs: it motivates <em>why anyone should care</em> about ground heat flux in urban climate, and it teases <em>what specific failure mode</em> the project investigates. Part 5 unpacks those two jobs so the introduction stops feeling like background and starts feeling like the gateway to the experiments.</p>
+<p><strong>What we will get.</strong> Three things: (1) why the urban heat island specifically depends on $G$, the ground heat flux; (2) the damping-depth numbers (8 cm, 10 cm, 14 cm) that decide grid resolution; (3) what "wavenumber-dependent damping" means in plain language, so the von Neumann analysis in Part 6 has a place to land.</p>
+</div>
 <h3>5.1 Why the urban heat island depends on $G$ specifically</h3>
+<p><strong>What we are doing in this subsection.</strong> The urban-heat-island problem can be discussed without ever mentioning the ground at all — and many introductory treatments do exactly that. We need to show why <em>this</em> project cares about the substrate, not the air. The mechanism is heat storage: cities store daytime heat in their thermally-massive surfaces and release it at night. $G$ is the in/out flux that drives that storage. So getting $G$ right is the same as getting the nocturnal UHI right.</p>
 <p>The urban heat island (UHI) is the systematic phenomenon that cities are warmer than rural areas, especially at night. The central mechanism for the night-time component is <strong>heat storage</strong>.</p>
 <p>During the day, urban materials absorb shortwave. After sunset, $R_n$ turns negative and stored heat is released. At night urban surface is still warm; rural one has cooled. The contrast is the nocturnal UHI. $G$ is the very quantity that puts heat into the urban substrate during the day and pulls it back at night.</p>
 <blockquote>
@@ -448,12 +546,21 @@ window.MathJax = {
 <h3>5.2 The damping-depth values quoted in the introduction</h3>
 <p>Paragraph 11 of the report says: "$d$ is approximately 8 cm in dry soil, 14 cm in dense concrete, and 10 cm in asphalt." We did the calculation in Part 1.3.</p>
 <h3>5.3 What "wavenumber-dependent damping" means</h3>
+<p><strong>What we are doing in this subsection.</strong> The introduction uses the phrase "wavenumber-dependent damping" without unpacking it. We unpack it here so that when the von Neumann analysis arrives in Part 6.5, you already know what it is about to compute.</p>
 <p>Every numerical scheme can be characterised by how it changes the amplitude of each Fourier component (each wavelength) per time step. We will derive these <em>amplification factors</em> explicitly in Part 6.5.</p>
+<p><strong>The single intuition to take away.</strong> Imagine the substrate's temperature profile as a stack of sinusoidal waves at different vertical wavelengths. Each scheme treats each wavelength differently — some are damped (smoothed away), some are preserved, and bad schemes amplify some of them. The amplification factor $A(k\Delta z)$ is just the number "how much is this wavelength multiplied by per step". If $|A| > 1$ for any wavelength the grid can resolve, that wavelength grows exponentially and the simulation blows up. Part 6.5 turns this picture into algebra and Part 8.1 confirms the algebra by blowing up a simulation at exactly the predicted step.</p>
 <blockquote>
 <p><strong>[HW2]</strong> asked you to verify amplitude conservation on a sine-wave initial condition. <strong>[HW4]</strong> plotted $|A_k|$ vs $k\Delta x$.</p>
 </blockquote>
 <hr />
 <h2 id="part-6">Part 6. Walking through Section 2 — Governing equation and numerical discretization</h2>
+<div class="interp-box"><h4>Why this part exists — and what you will get from it</h4>
+<p>Part 6 is the technical core. Every equation the solver actually evaluates comes from this part. By the end of it you will be able to walk through the file <code>run_experiments.py</code> line by line and point to the equation in this part that each line is implementing.</p>
+<p><strong>How it is structured.</strong> Section 6.1 derives the heat equation from Fourier's law plus energy conservation. Section 6.2 chops the depth axis into cells and explains why the conductivity is taken as a harmonic mean at faces. Section 6.3 introduces the time-stepping ($\theta$-method update) and shows where the tridiagonal linear system comes from. Section 6.4 covers the boundary conditions. Section 6.5 is the von Neumann stability analysis — the part that turns "FTCS sometimes blows up" into a precise inequality $\nu \le 1/2$. Section 6.6 reads the Figure 1 panel of amplification factors and the live von Neumann widget.</p>
+<p><strong>Slide 4 is the executive-summary slide of the entire project.</strong> Before you dive into the derivations, read the widget below — it consolidates the governing equation, the grid layout, and the θ-method update onto one page so you have the "destination" in view while reading the derivation.</p>
+</div>
+
+<p><strong>What we are about to show in Slide 4.</strong> Slide 4 is a one-page summary of every piece of physics and numerics introduced so far, organised in two columns. It is the slide we will refer back to throughout Part 6. The left column shows the governing equation, the column diagram, and the harmonic-mean rule. The right column shows the $\theta$-method update with three coloured pills (FTCS, CN, BTCS), the boundary-conditions table, and the order-of-operations annotation. Read each equation carefully — they are not decoration, they are the literal code of the solver.</p>
 
 <div class="widget-card">
   <div class="widget-header">
@@ -465,20 +572,49 @@ window.MathJax = {
   </div>
   <div class="widget-caption">The governing physics summarised on one slide: the conductivity-form heat equation, the stretched-grid column diagram with cell centres and half-level fluxes, the harmonic-mean rule for $\lambda$ at faces, the θ-method update with three pills marking α = 0, 1/2, 1, and the boundary-conditions table.</div>
 </div>
-<div class="interp-box"><h4>Slide 4 — How to read this slide</h4>
-<p><strong>What it shows.</strong> A one-page summary of every piece of physics and numerics introduced so far, in two columns. Left column: the governing equation in conductivity form, plus a small diagram of the stretched-grid column with cell centres (purple dots) and half-level fluxes (teal arrows), and a $\lambda$-jump annotation across the layer interface. Right column: the θ-method update equation, three coloured pills marking the three schemes by their $\alpha$ value (FTCS purple, CN orange, BTCS teal), and a boundary-conditions / forcing summary table.</p>
-<p><strong>How to read each element.</strong></p>
+<div class="interp-box"><h4>Slide 4 — Every equation on the slide, explained as easily as possible</h4>
+<p>Slide 4 has four mathematical objects (one governing equation, one harmonic-mean rule, one θ-method update equation, and one boundary-conditions table) plus a small column diagram. Each one looks intimidating at first glance. Below is the simplest possible reading of each.</p>
+
+<p><strong>Equation 1 — The governing heat equation.</strong></p>
+<p>$$C_s(z) \, \frac{\partial T_s}{\partial t} \;=\; \frac{\partial}{\partial z}\!\left[ \lambda_s(z) \, \frac{\partial T_s}{\partial z} \right].$$</p>
+<p><em>What the symbols are.</em> $T_s(z, t)$ is substrate temperature at depth $z$ and time $t$; $C_s(z)$ is the heat capacity at that depth (J/m³/K); $\lambda_s(z)$ is the thermal conductivity at that depth (W/m/K).</p>
+<p><em>What each side says.</em> The left side asks "how fast is energy being stored per cubic metre at this depth?" Heat capacity $C_s$ times rate-of-temperature-change $\partial T_s/\partial t$ gives the answer in W/m³. The right side asks "what is the net heat flux arriving at this depth per cubic metre?" Inside the bracket is Fourier's law $\lambda \, \partial T/\partial z$ — heat flux. Taking the $z$-derivative of that flux asks "is heat flux speeding up or slowing down with depth?" If more flux enters from above than leaves below, energy piles up.</p>
+<p><em>The simplest possible reading.</em> <strong>"Temperature rises at a rate equal to how much heat is being shoved into this slab from above minus how much is escaping out the bottom."</strong> That is energy conservation, in one line.</p>
+<p><em>Why <strong>conductivity form</strong>, not <strong>diffusivity form</strong>.</em> If $\lambda$ and $C$ were constants, we could pull them outside and write $\partial T/\partial t = \kappa \, \partial^{2} T/\partial z^{2}$ — the "diffusivity form" you see in textbooks. But the urban substrates we care about have layers (asphalt over aggregate over soil), so $\lambda$ and $C$ jump across interfaces. Keeping them <em>inside</em> the derivative preserves discrete heat conservation across those jumps. That is why every line of <code>run_experiments.py</code> uses the conductivity form.</p>
+
+<p><strong>Equation 2 — The harmonic-mean rule for $\lambda$ at faces.</strong></p>
+<p>$$\lambda_{j+1/2} \;=\; \frac{2\,\lambda_j\,\lambda_{j+1}}{\lambda_j + \lambda_{j+1}}.$$</p>
+<p><em>What the symbols are.</em> $\lambda_j$ and $\lambda_{j+1}$ are conductivities at two adjacent cell centres; $\lambda_{j+1/2}$ is the effective conductivity at the face between them (the place where flux is evaluated).</p>
+<p><em>The simplest possible reading.</em> <strong>"Two materials in series resist heat flow the way two resistors in series resist current — the effective conductivity is dominated by the worst (lowest-$\lambda$) one."</strong> If $\lambda_1 = 1.5$ (concrete) and $\lambda_2 = 0.04$ (insulation), the arithmetic mean would say 0.77 (too high by a factor of 10!). The harmonic mean gives 0.078 — much closer to the insulation value, correctly capturing that the insulator throttles the flux.</p>
+<p><em>Why this matters.</em> Concrete deck sits on insulation in the project's roof substrate. Without the harmonic mean, the model would over-conduct heat across that interface by an order of magnitude.</p>
+
+<p><strong>Equation 3 — The $\theta$-method update.</strong></p>
+<p>$$\frac{C_j \Delta z_j \, \bigl(T_j^{n+1} - T_j^n\bigr)}{\Delta t} \;=\; \alpha \, \bigl[-\partial G/\partial z\bigr]^{n+1} \;+\; (1-\alpha)\,\bigl[-\partial G/\partial z\bigr]^{n}.$$</p>
+<p><em>What the symbols are.</em> $T_j^n$ is the temperature in cell $j$ at time level $n$; $T_j^{n+1}$ is the unknown new value one step later; $C_j \Delta z_j$ is the heat capacity per square metre of horizontal area for cell $j$; $\Delta t$ is the time step; $[-\partial G/\partial z]$ is the negative divergence of the flux (the right-hand-side of the heat equation, evaluated cell-by-cell as $G_{j-1/2} - G_{j+1/2}$); $\alpha$ is the implicitness weight.</p>
+<p><em>The simplest possible reading, left side.</em> <strong>"Change in stored energy per second."</strong> Take the difference between new and old temperature, multiply by the cell's thermal mass per unit area, divide by the elapsed time. That is the energy accumulation rate.</p>
+<p><em>The simplest possible reading, right side.</em> <strong>"Net heating rate, evaluated at a weighted average of the new time and the old time."</strong> Weight $\alpha$ on the new (still-unknown) time, weight $(1-\alpha)$ on the old (known) time. Setting energy-accumulation rate equal to net heating rate is energy conservation across one step.</p>
+<p><em>Three special cases.</em></p>
 <ul>
-<li><strong>Heat equation</strong>: $C_s(z) \partial T_s/\partial t = \partial/\partial z [\lambda_s(z) \partial T_s/\partial z]$. Reading left to right — heat content accumulates locally at a rate equal to the divergence of the conductive flux.</li>
-<li><strong>Column diagram</strong>: each purple dot is a cell-centre where we store $T_j$; each teal arrow is a half-level face where we evaluate $G_{j+1/2}$. The red horizontal line shows where $\lambda$ jumps across a layer interface — that is exactly where the harmonic mean matters.</li>
-<li><strong>θ-method pills</strong>: choose one value of $\alpha$ and you get one scheme. $\alpha = 0$ (FTCS) is cheap and explicit but conditionally stable; $\alpha = 1$ (BTCS) is implicit, always stable, but only first-order; $\alpha = 1/2$ (CN) is implicit, always stable, AND second-order — the gold standard.</li>
-<li><strong>BC table</strong>: top BC is the SEB residual solved for $T_s^0$ by Newton iteration; bottom BC is zero-flux Neumann at $z = 2$ m.</li>
+<li>$\alpha = 0$ (FTCS): all weight on the old (known) heating rate. Computer-friendly because the right side has only known values — just plug in and compute. But conditionally stable: must obey $\nu \le 1/2$.</li>
+<li>$\alpha = 1$ (BTCS): all weight on the new heating rate. The right side now depends on the unknown $T_j^{n+1}$ at all cells, so we have to solve a linear system. Unconditionally stable, first-order in time.</li>
+<li>$\alpha = 1/2$ (Crank–Nicolson): average of old and new heating rates. Same linear-solve cost as BTCS, but second-order accurate in time because the symmetric average kills the leading error term.</li>
 </ul>
-<p><strong>How this connects to the rest of the document.</strong> Everything in Part 6 (Sections 6.1 through 6.6) is an unpacking of this single slide. By the time you finish reading Part 6, every element on this slide will have been derived, every symbol named, every consequence (especially the FTCS stability bound) explained. Think of this slide as the destination and Part 6 as the road.</p>
+<p><em>The pills on Slide 4</em> — purple FTCS, teal CN, orange BTCS — are visual reminders that one formula and one Python function cover all three schemes. Change $\alpha$, get a different scheme. That single architectural choice is what makes the 27-cell experiment matrix in Section 4 of the long report a controlled comparison rather than a comparison-of-three-different-implementations.</p>
+
+<p><strong>Boundary conditions on Slide 4 (the BC table).</strong> Two BCs are needed because the heat equation is second-order in $z$.</p>
+<ul>
+<li><strong>Top BC: SEB closure</strong>, $R_n - H - LE - G = 0$. At the top cell we don't prescribe $T_s^0$ directly — instead we make the four surface fluxes balance to zero by solving for $T_s^0$ with Newton iteration to $|\Delta T| < 10^{-4}$ K. Why iteration? Because $R_n$ depends on $T_s^0$ via the Stefan–Boltzmann $T^{4}$ term, which is nonlinear.</li>
+<li><strong>Bottom BC: zero-flux Neumann</strong> at $z = 2$ m. Discretely: $T_{N-1} = T_{N-2}$, forcing the gradient at the deepest face to zero. Physically reasonable because the diurnal signal does not reach 2 m depth (damping depth is only 8–14 cm).</li>
+<li><strong>Forcing</strong>: $S_\downarrow$ peaks at 1000 W/m² at noon; $T_a$ at 292.5 K with 7.5 K amplitude peaking at 14:00 LT; $U$ constant at 3 m/s.</li>
+<li><strong>Order of ops</strong>: advance the column with the current $T_s^0$ held fixed, then update $T_s^0$ from the SEB using the new $T_1$. <em>This sequencing is the source of the operator-splitting error that dominates results at coarse $\Delta t$.</em></li>
+</ul>
+
+<p><strong>Wrapping up this slide.</strong> Slide 4 is the entire solver in one image. Everything Part 6 covers from here on is the proof, the explanation, and the consequences of what is already on this slide. After reading Sections 6.1 through 6.6, come back to this slide and you will see that every element has a derivation behind it.</p>
 </div>
 
 
 <h3>6.1 Section 2.1 — Where the heat conduction equation comes from</h3>
+<p><strong>What we are doing in this subsection.</strong> The heat equation looks like a thing to memorise, but it is actually a consequence of two simpler laws: Fourier's law (heat flows from hot to cold proportional to the gradient) and energy conservation (heat does not appear or disappear, it just moves). Combining them gives the conductivity-form heat equation. We do the derivation here so that you understand why it has the structure it does and why "conductivity form" is the right form for layered substrates.</p>
 <p>The report writes the heat conduction equation in <strong>conductivity form</strong>:</p>
 <p>$$C_s(z) \frac{\partial T_s}{\partial t} = \frac{\partial}{\partial z}\left[\lambda_s(z) \frac{\partial T_s}{\partial z}\right].$$</p>
 <blockquote>
@@ -521,7 +657,9 @@ window.MathJax = {
 <p>$$C_s \frac{\partial T_s}{\partial t} = -\frac{\partial}{\partial z}(-\lambda_s \frac{\partial T_s}{\partial z}) = \frac{\partial}{\partial z}(\lambda_s \frac{\partial T_s}{\partial z}).$$</p>
 <p>That is the conductivity-form heat equation. <strong>Status: [Derived]</strong> from two established laws.</p>
 <p><strong>Step 3. Why "conductivity form" instead of "diffusivity form"?</strong> If $\lambda$ and $C$ are constant, we can pull them out: $\partial T/\partial t = \kappa \partial^2 T/\partial z^2$ with $\kappa = \lambda/C$. In our layered substrates, $\lambda$ and $C$ jump across material interfaces, so we keep them inside the derivative to preserve discrete heat conservation.</p>
+<p><strong>Wrapping up Section 6.1.</strong> You now know <em>where</em> the heat equation comes from (two physical laws plus algebra), <em>which</em> form to use (conductivity form, because of layered materials), and <em>what</em> it physically says (heat content per cell rises when more flux enters from above than leaves below). Section 6.2 chops the depth axis into cells so a computer can evaluate the conductivity form.</p>
 <h3>6.2 Section 2.2 — The grid, the half-levels, the harmonic mean</h3>
+<p><strong>What we are doing in this subsection.</strong> A computer stores a finite list of temperatures, not a continuous function $T(z, t)$. We need to decide: where on the depth axis do we evaluate temperature, where do we evaluate flux, and how do we handle the material discontinuities (concrete-on-insulation). Three pieces fall out: a staggered grid (temperatures at cell centres, fluxes at faces), a half-level naming convention ($j+1/2$), and the harmonic-mean rule for $\lambda$ at faces. These three pieces together guarantee that the discrete code conserves heat exactly across material jumps.</p>
 <h4>Cell centres and the staggered grid</h4>
 <p>Replace continuous depth $z$ with <strong>cell centres</strong> $z_0, z_1, \ldots, z_{N-1}$. At each cell store one number: temperature $T_j$ at the centre of cell $j$.</p>
 <p><strong>Reading the notation.</strong> $T_j$ is "the temperature at cell $j$". The subscript $j$ is just a cell index — an integer from 0 up to $N-1$, where $N$ is the total number of cells. Between cells $j$ and $j+1$ lies a face at depth $z_{j+1/2} = (z_j + z_{j+1})/2$. The half-integer subscript $j+1/2$ is read as "between cell $j$ and cell $j+1$" — it is not literally a cell, just a label for the location halfway between two adjacent centres.</p>
@@ -566,7 +704,9 @@ window.MathJax = {
 </blockquote>
 <p><strong>Reading this equation.</strong> Symbols: $C_j$ is heat capacity in cell $j$; $\Delta z_j$ is cell thickness; $C_j \Delta z_j$ is heat capacity per unit horizontal area; $dT_j/dt$ is rate of change of cell temperature with time (regular $d$, not $\partial$, because once space is discretised, temperature is a function of time only); $G_{j-1/2}$ is flux entering at the top; $G_{j+1/2}$ is flux leaving at the bottom.</p>
 <p>Plain words: rate of energy accumulation in this cell = flux in at top - flux out at bottom. <strong>Semi-discrete</strong>: space discretised, time still continuous.</p>
+<p><strong>Wrapping up Section 6.2.</strong> Space is now discrete. We have one number per cell ($T_j$), one flux per face ($G_{j+1/2}$), and a textbook recipe (harmonic mean) for handling material jumps. The semi-discrete tendency $C_j \Delta z_j \, dT_j/dt = G_{j-1/2} - G_{j+1/2}$ is the closest a continuous-time ODE comes to the project's solver. Section 6.3 takes the final step: discretise time as well, choosing how to treat the right-hand-side at the new time level versus the old.</p>
 <h3>6.3 Section 2.3 — Building the $\theta$-method update equation</h3>
+<p><strong>What we are doing in this subsection.</strong> Space is discrete (Section 6.2). Now we discretise time. The recipe is to integrate the semi-discrete tendency from $t^n$ to $t^{n+1}$ and approximate the integral with a quadrature rule. Three quadrature rules give three schemes — left rectangle (FTCS), right rectangle (BTCS), trapezoid (CN). All three live inside the single $\theta$-method formula. By the end of the subsection you will see exactly where the tridiagonal linear system comes from.</p>
 <p>The semi-discrete equation is $C_j \Delta z_j dT_j/dt = R_j(t)$, where $R_j = G_{j-1/2} - G_{j+1/2}$. Integrate from $t^n$ to $t^{n+1}$:</p>
 <p>$$C_j \Delta z_j (T_j^{n+1} - T_j^n) = \int_{t^n}^{t^{n+1}} R_j(t) dt.$$</p>
 <p><strong>Reading this equation.</strong> Left side: heat capacity times cell thickness times the temperature change over the step — that is the change in stored energy. Right side: integral of the rate $R_j$ over the step.</p>
@@ -596,7 +736,9 @@ window.MathJax = {
 <blockquote>
 <p><strong>Status: [Established algorithm]</strong> (Thomas 1949).</p>
 </blockquote>
+<p><strong>Wrapping up Section 6.3.</strong> The $\theta$-method is now fully assembled. For $\alpha = 0$ it is a simple arithmetic update; for $\alpha > 0$ it produces a tridiagonal linear system solved in $O(N)$ by the Thomas algorithm. Next we close the system with boundary conditions — without them the PDE has infinitely many solutions.</p>
 <h3>6.4 Section 2.4 — The boundary conditions</h3>
+<p><strong>What we are doing in this subsection.</strong> The heat equation is second-order in $z$, so we need two BCs: one at the top of the column and one at the bottom. The choices for this project are the surface energy balance at the top (a Dirichlet-like closure where $T_s^0$ is the unknown) and a zero-flux Neumann at the bottom (heat does not leak out at $z = 2$ m). The two together close the linear system and make the solution unique.</p>
 <p>Two main types:
 - <strong>Dirichlet</strong> — prescribes the value of $T$ at the boundary.
 - <strong>Neumann</strong> — prescribes the value of the gradient $\partial T/\partial z$ at the boundary.</p>
@@ -605,7 +747,9 @@ window.MathJax = {
 </blockquote>
 <p><strong>Lower boundary: zero-flux Neumann.</strong> At $z = z_{\text{top}} = 2$ m we impose $\partial T/\partial z = 0$. Discretely: $T_{N-1} = T_{N-2}$. <strong>Reading this</strong>: deepest cell ($j = N-1$) has the same temperature as the cell above ($j = N-2$), forcing the discrete gradient between them to zero, hence zero flux.</p>
 <p><strong>Upper boundary: Dirichlet on $T_s^0$.</strong> At cell 0 we set $T_0 = T_s^0$. The "0" superscript in $T_s^0$ is a label (depth zero), not an exponent.</p>
+<p><strong>Wrapping up Section 6.4.</strong> System closed: two BCs and the $\theta$-method update give a complete linear-algebra problem we can hand to SciPy at every time step. But "the simulation can be advanced step by step" does not yet mean "the simulation will remain finite as we advance it" — that question is the subject of stability analysis in Section 6.5.</p>
 <h3>6.5 Section 2.5 — Von Neumann stability analysis from scratch</h3>
+<p><strong>What we are doing in this subsection.</strong> We answer the question "for which time steps does the scheme remain bounded?" The technique is von Neumann's: assume errors look like sinusoidal Fourier modes, plug each mode into the update equation, and compute the per-step multiplier $A$. If $|A| \le 1$ for every resolvable wavenumber, the scheme is stable; otherwise some mode grows exponentially and the simulation blows up. The result will be exactly the inequality $\nu \le 1/2$ for FTCS and "unconditional stability" for BTCS and CN — the punchline of the entire project's methodology.</p>
 <h4>Setup: linearise, idealise, then test</h4>
 <p>Von Neumann analysis works only for linear schemes on uniform grids with constant coefficients. Idealise: assume $\lambda$ and $C$ are constant, $\Delta z$ uniform, periodic boundaries.</p>
 <h4>Step 1 — Substitute a Fourier mode</h4>
@@ -680,6 +824,7 @@ window.MathJax = {
 <p><strong>[HW4]</strong> plotted $|A_k|$ against $k\Delta x$ for an advection scheme. Same logical structure here for a parabolic equation, with worst case at $k\Delta z = \pi$.</p>
 </blockquote>
 <h3>6.6 Reading Figure 1 panel by panel</h3>
+<p><strong>What we are about to show in Figure 1.</strong> Section 6.5 derived the three amplification-factor formulas $A_{\rm FTCS}$, $A_{\rm BTCS}$, $A_{\rm CN}$ algebraically. Figure 1 turns those algebraic expressions into pictures — one curve per scheme, plotted as a function of the dimensionless wavenumber $k\Delta z$, for four different $\nu$ values. Reading Figure 1 is reading the stability theory at a glance: any curve that crosses the dashed line $|A| = 1$ flags an unstable wavenumber. The pictures will confirm the algebra of Section 6.5 and motivate why FTCS becomes unusable at coarse $\Delta t$ while BTCS and CN remain bounded.</p>
 
 <figure class="report-figure">
   <img src="report_images/figure_1.png" alt="Von Neumann amplification factors" loading="lazy">
@@ -696,7 +841,9 @@ window.MathJax = {
 <p><strong>The single most important reading.</strong> Compare the three panels at $\nu = 0.5$. FTCS sits on the bound (margin of failure). BTCS is at $|A| \approx 0.33$ at $k\Delta z = \pi$ — strongly damping. CN is at $|A| = 0$ at $k\Delta z = \pi$ — CN actually <em>annihilates</em> the worst wave in a single step at $\nu = 1/2$. So at the FTCS marginal-stability point, CN is far more accurate AND damps short waves well. This is why CN is the project's preferred scheme.</p>
 </div>
 
+<p><strong>Wrapping up Figure 1.</strong> Figure 1 is a static, three-snapshot picture of the amplification factors at four $\nu$ values. It is the visual translation of the von Neumann analysis. Slide 5 below makes the same picture interactive — drag the $\nu$ slider and watch all three curves redraw in real time, so the algebra is no longer abstract.</p>
 
+<p><strong>What we are about to show in Slide 5.</strong> The Slide 5 widget gives you a live $\nu$ slider for each of the three panels. As you drag the slider, the per-step amplification factor magnitude $|A_k|$ replots and a stability badge updates between "STABLE" and "UNSTABLE". This is the interactive version of Figure 1 — same physics, but you control the dial.</p>
 
 <div class="widget-card">
   <div class="widget-header">
@@ -719,6 +866,7 @@ window.MathJax = {
 <p><strong>How this connects to what came before.</strong> Section 6.5 derived the three amplification-factor formulas $A_{\mathrm{FTCS}}, A_{\mathrm{BTCS}}, A_{\mathrm{CN}}$ algebraically. This widget lets you <em>watch</em> the curves move as $\nu$ changes. After playing with the slider for a minute, the algebra is no longer abstract — you can see why FTCS dies at $\nu = 0.5$, why BTCS damps aggressively, and why CN ends up the best compromise for smooth problems.</p>
 </div>
 
+<p><strong>Wrapping up Slide 5.</strong> The interactive view confirms what Figure 1 and Section 6.5 said in static form. With the von Neumann theory now both derived and visualised, the rest of Section 6.6 is a numerical worked-example pass through the three panels — concrete values of $A$ at each $\nu$.</p>
 
 <p>Figure 1 has three panels — FTCS, BTCS, CN. Each plots $|A_k|$ vs $k\Delta z$ for $\nu = 0.25, 0.5, 1.0, 5.0$.</p>
 <h4>The axes</h4>
@@ -749,9 +897,17 @@ window.MathJax = {
 <p>At resolved scales (small $k\Delta z$), CN is much more accurate per step than BTCS — second-order vs first-order.</p>
 <hr />
 <h2 id="part-7">Part 7. Walking through Section 3 — Methods</h2>
+<div class="interp-box"><h4>Why this part exists — and what you will get from it</h4>
+<p>Part 6 gave us the discretisation, the BCs, and the stability theory in the abstract. Part 7 is the concrete experimental setup: which substrates, which time steps, which forcing functions, which solver. After this part you should be able to map every choice in the long report's Section 3 to a justification in Part 6 or a project-specific assumption.</p>
+<p><strong>What we cover.</strong> The code's $\alpha$ parameterisation (§7.1), the three substrate compositions (§7.2 — including the 3D visualisation), the surface energy balance and its Newton-iteration solver (§7.3), the synthetic forcing functions (§7.4), the initial condition (§7.5), and the two test designs — Test 1 verification and Test 2 prognostic-SEB (§7.6).</p>
+</div>
 <h3>7.1 Section 3.1 — What "parameterised by $\alpha$" means in code</h3>
+<p><strong>What we are doing in this subsection.</strong> Section 3.6 already explained why we use the $\theta$-method; now we look at how that choice shows up in the actual Python. The whole solver is a single function whose behaviour is controlled by one number. Below is the simplest possible description of how it works.</p>
 <p>One Python function <code>step_alpha(T, dt, ..., alpha, ...)</code>. When $\alpha = 0$: vectorised arithmetic update. When $\alpha > 0$: tridiagonal solve.</p>
 <h3>7.2 Section 3.2 — Substrate definitions</h3>
+<p><strong>What we are doing in this subsection.</strong> Three substrates were chosen to span the urban physics: an asphalt road (dark, dense, layered with aggregate over soil), a concrete roof (insulated, sharp $\lambda$ contrast at 10 cm), and bare soil (uniform, low conductivity). Each is defined by a depth-stack of $(\lambda, C)$ values plus a top albedo $\alpha_s$. The 3D widget below lets you see the three columns side by side at the same depth scale.</p>
+
+<p><strong>What we are about to show in Slide 3.</strong> The Slide 3 widget renders the three substrates as 3D columns of layered material going down 2 m below the surface, with the diurnal sun cycle illuminating the top. Drag to rotate; the layer colours match the material identity (asphalt purple, concrete deck orange, soil brown). Use it to build a mental picture of why the columns are different: the concrete roof has a dramatic insulation jump at 10 cm depth, the asphalt road has aggregate beneath a thin asphalt surface, and bare soil is uniform all the way down.</p>
 
 <div class="widget-card">
   <div class="widget-header">
@@ -763,7 +919,18 @@ window.MathJax = {
   </div>
   <div class="widget-caption">Asphalt road (4 layers), concrete roof with mineral-wool insulation (3 layers), bare sandy loam (uniform). Each column is 2 m deep. Drag to rotate; scroll to zoom; the diurnal sun cycle illuminates the surface.</div>
 </div>
+<div class="interp-box"><h4>Slide 3 — How to read this widget</h4>
+<p><strong>What it shows.</strong> Three 2-metre-deep substrate columns rendered side by side, with the diurnal sun cycle illuminating the top surface. Each column is sliced into the material layers that the solver actually sees. The model has <em>no</em> ground level, no buildings, no above-ground volume — every column is an independent 1-D heat-conduction problem with a radiating top surface.</p>
+<p><strong>Reading each column.</strong></p>
+<ul>
+<li><strong>Asphalt road (left)</strong>: thin (5 cm) dark asphalt over thick aggregate base, dry soil beneath, subsoil at the bottom. The low albedo (0.10) means most sunlight is absorbed at the surface, but the moderate $\lambda$ and high $C$ store and release heat slowly.</li>
+<li><strong>Concrete roof (middle)</strong>: 10 cm concrete deck on top, then 10 cm of mineral-wool insulation, then drywall/wood interior. The conductivity ratio at the deck–insulation face is 1.50/0.04 ≈ 38× — the largest discontinuity anywhere in the project, and the reason the harmonic-mean rule from Section 6.2 was non-negotiable.</li>
+<li><strong>Bare soil (right)</strong>: uniform sandy loam all the way down. No layers, no $\lambda$ jumps. This is the simplest column and the one that survives FTCS at $\Delta t = 600$ s.</li>
+</ul>
+<p><strong>How this connects to what comes next.</strong> The material parameters listed below this widget are the ones every other figure in Parts 8–10 depends on. The 17-second FTCS bound (Section 1.4), the over-amplification numbers (Section 8.2), the operator-splitting error scaling with $\kappa_{\rm top}$ (Section 9.2), the SHAP attribution finding $\kappa_{\rm top}$ as dominant (Section 10.3) — all are downstream of the substrate compositions visualised on this slide.</p>
+</div>
 
+<p><strong>Wrapping up the Slide 3 widget.</strong> Three substrates → three sets of $(\lambda, C)$ per layer → three sets of $\kappa$ and $d$ — and the rest of the project is essentially "what happens when you run the $\theta$-method on each of these at three time steps". The numerical values are tabulated immediately below.</p>
 
 <p><strong>Asphalt road</strong> (4 layers):
 - Asphalt 0–5 cm: $\lambda = 0.75$, $C = 2.0\times 10^6$.
@@ -779,6 +946,7 @@ window.MathJax = {
 <p><strong>Status: [Project-specific definitions]</strong>.</p>
 </blockquote>
 <h3>7.3 Section 3.3 — The surface energy balance and Newton iteration</h3>
+<p><strong>What we are doing in this subsection.</strong> The substrate solver advances $T_j$ at every cell from $n$ to $n+1$ given $T_s^0$. But who decides $T_s^0$? Answer: the surface energy balance. It is a single nonlinear algebraic equation in one unknown ($T_s^0$) that we solve by Newton iteration at every time step. This subsection makes that equation concrete and shows how Newton iteration converges in a handful of evaluations.</p>
 <h4>The SEB</h4>
 <p>$$R_n(T_s^0) - H(T_s^0) - LE(T_s^0) - G(T_s^0) = 0.$$</p>
 <blockquote>
@@ -855,7 +1023,9 @@ window.MathJax = {
 <blockquote>
 <p><strong>Status: [Derived]</strong> — $G$ is linear in $T_s$.</p>
 </blockquote>
+<p><strong>Wrapping up Section 7.3.</strong> Every step we solve one SEB nonlinear equation by Newton iteration to find $T_s^0$, then advance the column. The Jacobian is analytic — no finite-difference derivative needed — so Newton converges quadratically in 3–4 iterations. The order-of-operations (column then SEB) is the source of the operator-splitting error explored in Part 9.</p>
 <h3>7.4 Section 3.4 — The synthetic forcing</h3>
+<p><strong>What we are doing in this subsection.</strong> The atmosphere is represented by four functions of time: incoming shortwave $S_\downarrow(t)$, downward longwave $L_\downarrow(t)$, air temperature $T_a(t)$, and wind speed $U(t)$. We choose simple analytical functions (sinusoidal peaks at noon or 14:00 LT) so the forcing is fully reproducible and easy to relate to the analytical damping-depth solution. Real meteorological data would have noise and asymmetries that obscure the numerical comparison we are trying to make.</p>
 <p>With $\omega = 2\pi/86400$ rad/s:</p>
 <p>$$S_\downarrow(t) = \max[1000 \cos(\omega(t - 12 \mathrm{h})),\ 0]\ \text{W/m}^2.$$</p>
 <p><strong>Reading this equation.</strong> $\max[a, b]$ returns the larger of $a$, $b$. The cosine peaks at $t = 12$ h (noon), so $S_\downarrow$ peaks at noon at 1000 W/m². When the cosine goes negative (sun below horizon), the max with zero clips at zero.</p>
@@ -868,6 +1038,7 @@ window.MathJax = {
 <p><strong>Status: [Project-specific definitions]</strong>.</p>
 </blockquote>
 <h3>7.5 Section 3.5 — Initialization</h3>
+<p><strong>What we are doing in this subsection.</strong> A PDE solver needs an initial condition at every cell. We choose one that is already in approximate equilibrium with the forcing — the analytical damping-depth solution evaluated at $t = 0$. Doing so means the simulation does not waste days of spin-up just to forget arbitrary initial values; by day 2 the column has settled into a clean diurnal cycle that we can analyse.</p>
 <p>$$T(z, 0) = T_{\text{mean}} + A_0 e^{-z/d_{\text{top}}} \cos(-z/d_{\text{top}}), \qquad d_{\text{top}} = \sqrt{\frac{2 \kappa_{\text{top}}}{\omega}}.$$</p>
 <blockquote>
 <p><strong>Status: [Established]</strong> — analytical damping-depth solution at $t = 0$. Re-derived in Part 8.1.</p>
@@ -875,11 +1046,18 @@ window.MathJax = {
 <p><strong>Reading this equation.</strong> $T(z, 0)$ is temperature at depth $z$ and time 0. $T_{\text{mean}} = 292.5$ K. $A_0 = 7.5$ K. The exponential $e^{-z/d_{\text{top}}}$ decays with depth. The cosine $\cos(-z/d_{\text{top}})$ oscillates with depth (at $z = 0$ it equals 1).</p>
 <p>There is a 12-hour phase mismatch with the SEB-driven cycle peaking at 14:00 LT.</p>
 <h3>7.6 Section 3.6 — Test 1 vs Test 2 setups</h3>
+<p><strong>What we are doing in this subsection.</strong> The project runs two complementary experimental designs. Test 1 has a known analytical answer and is used to verify that the solver is mathematically correct. Test 2 has no closed-form answer; it asks the scientific question "how do FTCS, BTCS, and CN compare at realistic operational time steps on layered urban substrates?" Test 1 builds trust before Test 2 stretches the schemes.</p>
 <p><strong>Test 1 (verification):</strong> uniform sandy-loam column, 1 cm grid, $T_s^0(t) = T_{\text{mean}} + A_0\cos(\omega t)$ prescribed.</p>
 <p><strong>Test 2 (prognostic SEB):</strong> three substrates × three schemes × three time steps $\Delta t \in \{15, 60, 600\}$ s = 27 cells.</p>
+<p><strong>Wrapping up Part 7.</strong> The experimental design is now fully specified. We have three substrates, three schemes, three time steps, two test setups, four forcing functions, one Newton iteration, and one initial condition. Part 8 runs the experiments and reads the results.</p>
 <hr />
 <h2 id="part-8">Part 8. Walking through Section 4 — Results</h2>
+<div class="interp-box"><h4>Why this part exists — and what you will get from it</h4>
+<p>Part 8 reads the headline figures and tables of the long report. It is organised in the same order as Section 4 of the report: Test 1 verification (analytical damping-depth solution, then numerical recovery in Figure 2 and Table 1), then Test 2 prognostic-SEB experiments (Figure 3 at small $\Delta t$, Figure 4 at large $\Delta t$, Figure 5 vertical profiles, peak-temperature table, Δt-refinement widget).</p>
+<p><strong>How to read Part 8.</strong> Each result has the same three-part structure: a closed-form or analytical prediction, a numerical computation, and a comparison. The schemes either match the prediction (success) or diverge in characteristic ways (which Part 9 will explain mechanistically).</p>
+</div>
 <h3>8.1 Section 4.1 — The damping-depth verification</h3>
+<p><strong>What we are doing in this subsection.</strong> Before trusting the solver on the harder Test 2, we verify it on a problem with a known analytical solution: a uniform semi-infinite substrate with sinusoidal Dirichlet surface forcing. The textbook answer is the exponentially-decaying-with-depth, phase-shifted-with-depth wave. If the numerical solver reproduces that answer with the right amplitude decay and the right $\pi/4$ phase lead between $G$ and $T_s$, we have evidence the solver is mathematically correct.</p>
 <h4>The analytical solution and the $\pi/4$ phase lead — derived</h4>
 <p>For a semi-infinite uniform substrate with sinusoidal Dirichlet forcing $T_s(0, t) = \bar{T} + A\cos\omega t$, we solve</p>
 <p>$$\frac{\partial T}{\partial t} = \kappa \frac{\partial^2 T}{\partial z^2}, \qquad T(0, t) = \bar{T} + A\cos\omega t, \qquad T \to \bar{T} \text{ as } z \to \infty.$$</p>
@@ -930,7 +1108,10 @@ window.MathJax = {
 <p>$$G(0, t) = \lambda\frac{A}{d}\sqrt{2}\cos(\omega t + \pi/4).$$</p>
 <p><strong>Verifying the trig identity.</strong> $\sqrt{2}\cos(x + \pi/4) = \sqrt{2}[\cos x \cos(\pi/4) - \sin x \sin(\pi/4)] = \cos x - \sin x$. ✓</p>
 <p><strong>Reading the final formula.</strong> $G$ is sinusoidal with amplitude $\lambda A\sqrt{2}/d$, phase $\omega t + \pi/4$. The $+\pi/4$ phase lead means $G$ peaks $\pi/4$ in phase <strong>before</strong> $T_s$ peaks. For 24 hours, $\pi/4$ = 3 hours. If $T_s$ peaks at noon, $G$ peaks at 9 AM.</p>
-<h4>Reading Table 1</h4>
+<p><strong>Wrapping up the analytical derivation.</strong> We now have the closed-form prediction: an exponentially-decaying-with-depth, phase-lagged-with-depth surface temperature wave, and a surface ground heat flux that <em>leads</em> the surface temperature by exactly $\pi/4$ in phase (3 hours of 24). The next step is to ask whether the numerical solver reproduces that picture. Figure 2 below answers visually; Table 1 then quantifies the answer.</p>
+
+<h4>Reading Figure 2 — the visual verification</h4>
+<p><strong>What we are about to show in Figure 2.</strong> We have a closed-form analytical solution (above) and a numerical solver. Figure 2 overlays the two. If the numerical curves sit on top of the analytical curves — including the textbook $\pi/4$ phase lead of $G$ over $T_s$ — then the solver is mathematically correct and we can move on to Test 2. If they don't overlay, every downstream result is suspect. So Figure 2 is the gate.</p>
 
 <figure class="report-figure">
   <img src="report_images/figure_2.png" alt="Damping-depth verification panels" loading="lazy">
@@ -946,6 +1127,10 @@ window.MathJax = {
 <p><strong>The single most important reading.</strong> All five stable schemes lie on top of the analytical curve at the visual scale of this plot. This is the verification step: it tells us "the solver is mathematically correct before we trust it on the harder Test 2." If this plot did not show overlay, every result downstream would be suspect.</p>
 </div>
 
+<p><strong>Wrapping up Figure 2.</strong> Visual verification: pass. The numerical solver reproduces the analytical damping-depth solution within line thickness, including the $\pi/4$ phase lead. But "looks the same on a plot" is not a quantitative claim — Table 1 below tightens this into actual RMSE numbers at $z = 10$ cm, including a deliberate FTCS-blow-up entry that confirms the von Neumann stability bound numerically.</p>
+
+<h4>Reading Table 1 — the quantitative verification</h4>
+<p><strong>What we are about to show in Table 1.</strong> Figure 2 was a "do the curves overlay?" check. Table 1 is the same check expressed in numbers: root-mean-square errors at $z = 10$ cm over the day-5 cycle, for six different configurations. The table answers three questions: (1) is FTCS stable at $\nu = 0.4$ and unstable at $\nu = 0.6$ (matching the von Neumann prediction)? (2) does BTCS error grow linearly with $\Delta t$ (first-order)? (3) does CN error stay nearly flat (second-order)?</p>
 
 <p>Six configurations on uniform sandy loam, day-5 errors at $z = 10$ cm:</p>
 <table>
@@ -1021,8 +1206,11 @@ window.MathJax = {
 <li>CN error stays flat — second-order.</li>
 <li>$G$ RMSE $\approx$ 3 W/m² is a spatial-discretisation residual.</li>
 </ul>
+<p><strong>Wrapping up Section 8.1.</strong> Solver verified on Test 1: it reproduces the analytical damping-depth solution visually (Figure 2) and quantitatively (Table 1), and it blows up exactly when von Neumann analysis says it should. With that trust established, Section 8.2 turns to the harder Test 2 — three real urban substrates, three schemes, three time steps.</p>
 <h3>8.2 Section 4.2 — Three-substrate prognostic SEB results</h3>
+<p><strong>What we are doing in this subsection.</strong> Now we run the full 27-cell experimental matrix (3 substrates × 3 schemes × 3 time steps). Two of these cells (FTCS at $\Delta t = 60$ s and 600 s on the high-$\kappa$ substrates) will blow up — predicted by von Neumann analysis. The remaining 25 cells we compare against the FTCS-at-15s reference. The interesting structure is: at small $\Delta t$ the schemes agree, at large $\Delta t$ BTCS and CN both over-amplify the diurnal $G$ cycle, with BTCS roughly twice as bad as CN. Figures 3, 4, 5 visualise this in three complementary ways.</p>
 <h4>Reading Figure 3 — schemes agree at $\Delta t = 15$ s</h4>
+<p><strong>What we are about to show in Figure 3.</strong> Figure 3 is the "control" panel: at the smallest time step ($\Delta t = 15$ s), all three schemes should give visually indistinguishable surface temperatures. If they don't, something is wrong with the implementation, not with the physics. The figure also reveals the substrate-driven differences in peak temperature and peak timing — facts about physics, not about numerics.</p>
 
 <figure class="report-figure">
   <img src="report_images/figure_3.png" alt="Day-2 surface temperature on three substrates at Δt=15s" loading="lazy">
@@ -1041,6 +1229,10 @@ window.MathJax = {
 <p><strong>The third thing — peak timing.</strong> Low-$\kappa$ substrates respond quickly at the surface (heat does not spread away), so they lock onto the peak forcing time. High-$\kappa$ substrates lag because they have to fill a deeper reservoir before the surface itself gets hot. Bare soil therefore peaks earliest (12:45), concrete deck (highest $\kappa$) peaks latest (13:45).</p>
 </div>
 
+
+<p><strong>Wrapping up Figure 3.</strong> At fine $\Delta t$ all three schemes agree, confirming the implementation is consistent. The substrate ordering by peak temperature (soil > asphalt > roof) and by peak timing (soil earliest, roof latest) is a physics result, not a numerical one. The peak-temperature table below quantifies these substrate-driven differences.</p>
+
+<p><strong>What we are about to show in the peak-temperature table.</strong> A compact 3 × 2 table that pins down the peak $T_s^0$ and its time of occurrence for each substrate. It is the easiest place to compare substrates side-by-side and to anchor the surprising "bare soil is hottest" result.</p>
 
 <p>Day-2 surface temperature evolution at $\Delta t = 15$ s. Three curves overlay.</p>
 <table>
@@ -1074,7 +1266,10 @@ window.MathJax = {
 <p>This table is the empirical anchor for the claim "substrate physics dominates at small $\Delta t$, not the time-stepping scheme." Every row was computed three times (once per scheme), and the values matched to within line thickness on the plot.</p>
 </div>
 <p><strong>Why bare soil is hottest.</strong> Lowest $\kappa$ — heat cannot diffuse downward fast enough. Combined with $LE = 0$, energy concentrates at surface.</p>
+<p><strong>Wrapping up the peak-temperature table.</strong> Substrate physics dominates at $\Delta t = 15$ s — the scheme is irrelevant at this resolution. Once we coarsen $\Delta t$ to 600 s the scheme matters a great deal. Figure 4 is the dramatic version: same substrates, same forcing, but the schemes now visibly disagree.</p>
+
 <h4>Reading Figure 4 — schemes diverge at $\Delta t = 600$ s</h4>
+<p><strong>What we are about to show in Figure 4.</strong> Figure 3 was the control (schemes agree at small $\Delta t$). Figure 4 is the experiment (schemes disagree at large $\Delta t$). We plot day-2 ground heat flux $G(t)$ — not surface temperature — because $G$ is the quantity the project most cares about and the one that exhibits the largest numerical error. Watch for three things: FTCS blow-up on the high-$\kappa$ substrates, symmetric over-amplification of the diurnal $G$ cycle by BTCS, and CN halving that over-amplification.</p>
 
 <figure class="report-figure">
   <img src="report_images/figure_4.png" alt="Day-2 ground heat flux at Δt=600s" loading="lazy">
@@ -1093,6 +1288,10 @@ window.MathJax = {
 </div>
 
 
+
+<p><strong>Wrapping up Figure 4.</strong> The schemes visibly disagree at $\Delta t = 600$ s, and the disagreement is symmetric over-amplification (both day and night). The headline numbers are 40% / 41% / 19% over-amplification for BTCS; CN halves them. Figure 4 shows the worst case (one Δt value); the Slide 9 widget below sweeps through the full Δt range so you can watch the schemes converge as $\Delta t$ shrinks.</p>
+
+<p><strong>What we are about to show in Slide 9.</strong> Figure 4 froze a single $\Delta t = 600$ s. The Slide 9 widget lets you drag $\Delta t$ through 15, 60, 300, and 600 seconds and watch the curves converge to (or diverge from) the reference. It also adds a log-log RMSE-vs-$\Delta t$ panel, which is the cleanest possible demonstration of "both schemes converge at slope 1" — first-order in $\Delta t$ despite CN being intrinsically second-order. That mismatch is exactly the smoking gun for the operator-splitting error that Part 9 will explain.</p>
 
 <div class="widget-card">
   <div class="widget-header">
@@ -1123,7 +1322,10 @@ window.MathJax = {
 <li>BTCS overshoots peak by 40% on asphalt/roof, 19% on soil.</li>
 <li>CN overshoots by 21% on asphalt, 26% on roof, 10% on soil.</li>
 </ul>
+<p><strong>Wrapping up Slide 9.</strong> The log-log RMSE plot shows that both BTCS and CN error fall on a slope-1 line — first-order convergence. Theory says CN should be second-order (slope 2), so the dominant error is <em>not</em> per-substep CN truncation. That mismatch is the smoking gun for the operator-splitting error analysed in Part 9. Figure 5 below zooms into the vertical profile of the substrate at three times of day, exposing <em>where</em> the splitting error sits in the column.</p>
+
 <h4>Reading Figure 5 — vertical profiles in the asphalt column</h4>
+<p><strong>What we are about to show in Figure 5.</strong> Figure 4 and Slide 9 were both about $G(t)$ — a single number per time. Figure 5 cuts <em>across</em> depth at three fixed times (06:00, 12:00, 18:00) on the asphalt column and shows the full $T(z)$ profile. The 18:00 panel is the visual smoking-gun for the operator-splitting error: a 2-K kink in the top 5 cm of the column that does not exist in the fine-$\Delta t$ reference. This figure is the bridge from "schemes disagree at large $\Delta t$" to "we know <em>where</em> in the column they disagree, and we will explain <em>why</em> in Part 9".</p>
 
 <figure class="report-figure">
   <img src="report_images/figure_5.png" alt="Vertical profiles in the asphalt column" loading="lazy">
@@ -1142,6 +1344,10 @@ window.MathJax = {
 </div>
 
 
+
+<p><strong>Wrapping up Figure 5.</strong> The post-sunset 2-K kink in the top 5 cm is the spatial signature of the operator-splitting error. The error is local to the top few cells, large at the times when $T_s^0$ is changing fastest, and absent everywhere else. Slide 10 below makes the same point on the concrete-roof column (with its dramatic $\lambda$ jump) and lets you slide through the diurnal cycle in real time.</p>
+
+<p><strong>What we are about to show in Slide 10.</strong> Slide 10 takes the same idea as Figure 5 — depth profile in a column at different times — but on the concrete-roof column, where the conductivity jump at the deck/insulation interface concentrates the gradient and amplifies the splitting error. Drag the time-of-day slider to watch the profile evolve and see BTCS smear the post-sunset kink.</p>
 
 <div class="widget-card">
   <div class="widget-header">
@@ -1173,7 +1379,9 @@ window.MathJax = {
 <li>12:00: BTCS and CN slightly warmer near surface.</li>
 <li>18:00: largest divergence. BTCS at 600 s holds surface ~2 K above reference.</li>
 </ul>
+<p><strong>Wrapping up Slide 10.</strong> The harmonic-mean rule produces a visible kink in the profile at material interfaces; at coarse $\Delta t$, BTCS smears that kink during fast swings — the operator-splitting error has a spatial home. Section 8.3 collapses the per-substrate observations into a single quantitative summary table.</p>
 <h3>8.3 Section 4.3 — Cross-substrate quantitative summary (Table 2)</h3>
+<p><strong>What we are doing in this subsection.</strong> The visual results above need to be condensed into one quantitative table per substrate per scheme — three numbers each, summarising amplitude over-amplification, surface-temperature RMSE, and storage ratio. Table 2 (in the long report) is that summary; we list the three patterns that fall out of it.</p>
 <p>Table 2: 9 rows (3 substrates × 3 schemes), each cell triple is $A_G/A_{\text{ref}}$ / RMSE of $T_s$ / $S/S_{\text{ref}}$.</p>
 <p>Three patterns:
 1. RMSE largest for concrete roof, middle for asphalt, smallest for bare soil. Error scales with $\kappa_{\text{top}}$.
@@ -1181,7 +1389,13 @@ window.MathJax = {
 3. $S/S_{\text{ref}}$ within 5% of unity.</p>
 <hr />
 <h2 id="part-9">Part 9. Walking through Section 5 — Discussion</h2>
+<div class="interp-box"><h4>Why this part exists — and what you will get from it</h4>
+<p>Part 8 showed <em>what</em> happens (FTCS blow-up, BTCS over-amplification, CN halving). Part 9 explains <em>why</em>. The answers are: (1) FTCS stability is set by the topmost cell because the bound depends on $\Delta z^{2}/\kappa$ and the topmost cell has the smallest $\Delta z$; (2) the BTCS over-amplification is operator splitting between the column and the SEB, not the per-substep CN truncation error; (3) the operator-splitting error scales with $\kappa_{\rm top}$, which is why substrate order tracks $\kappa$; and (4) the implications for urban-climate modelling are about diurnal range, not daily mean.</p>
+<p>By the end of Part 9 you will be able to defend each Part 8 result mechanistically. Part 10 then independently confirms the mechanism via SHAP attribution on a 150-column synthetic ensemble.</p>
+</div>
 <h3>9.1 Section 5.1 — Why FTCS stability is set by the most thermally stiff layer</h3>
+<p><strong>What we are doing in this subsection.</strong> The FTCS bound is a single inequality $\nu \le 1/2$ — but in a layered column, $\nu$ is different in every cell. Which cell's $\nu$ controls the global step? The answer: the most thermally stiff cell, which is the one with the smallest $\Delta z^{2}/\kappa$. Below is the table that pins this down for our three substrates.</p>
+<p><strong>What we are about to show in the FTCS critical-$\Delta t$ table.</strong> One row per substrate, listing the stiffest cell (always the topmost, because it has the smallest $\Delta z$), its $\kappa$, and the resulting $\Delta t_{\rm crit}$. The table shows that the most diffusive substrate (concrete deck) has the tightest bound — counter-intuitive but true.</p>
 <table>
 <thead>
 <tr>
@@ -1223,7 +1437,9 @@ window.MathJax = {
 <p><strong>Why operational models cannot use FTCS at all.</strong> Mesoscale weather models use $\Delta t = 60$ s. Regional climate models use $\Delta t = 600$ s. Both exceed every substrate's FTCS bound by factors of 3 to 35. So unless you give up on resolving the 8–14 cm diurnal damping depth (which requires $\Delta z \sim 0.5$ cm), FTCS is out. This forces the entire field toward BTCS or Crank–Nicolson — and the rest of this document is about what errors those implicit schemes introduce in exchange.</p>
 </div>
 <p>Most diffusive substrate (concrete) is most restrictive. "Stiff" = time-step constraint set by fastest-evolving component.</p>
+<p><strong>Wrapping up Section 9.1.</strong> FTCS is bounded by the stiffest top cell. Operational time steps exceed this bound by orders of magnitude. Implicit methods are not an optimisation — they are mandatory. Section 9.2 turns to the next question: now that we use implicit methods, why do <em>they</em> still have errors at coarse $\Delta t$? The answer is operator splitting.</p>
 <h3>9.2 Section 5.2 — The operator-splitting error</h3>
+<p><strong>What we are doing in this subsection.</strong> Sections 8.2 and 8.3 showed that BTCS and CN both have first-order error in $\Delta t$, even though CN is supposed to be second-order. Section 9.2 explains where the first-order error comes from: it is the splitting between the column update and the SEB update. The column is solved holding $T_s^0$ fixed, then $T_s^0$ is updated holding the column fixed. This split is mathematically a leading-order commutator error — first-order in $\Delta t$ regardless of the per-substep accuracy.</p>
 <h4>How the splitting works</h4>
 <p>Each step has two sub-steps:
 - <strong>Sub-step A — column update.</strong> Hold $T_s^0$ fixed. Solve heat conduction equation in column.
@@ -1236,6 +1452,7 @@ window.MathJax = {
 <h4>Why both BTCS and CN show first-order scaling</h4>
 <p>Splitting error is first-order in $\Delta t$ regardless of per-substep scheme.</p>
 <h4>Reading Table 3</h4>
+<p><strong>What we are about to show in Slide 11 and Table 3.</strong> The smoking-gun evidence that operator splitting is the dominant error mechanism is the empirical $\Delta t$-refinement ratio. A first-order scheme should multiply its error by 10 when $\Delta t$ multiplies by 10; a second-order scheme by 100. We will see that both BTCS (intrinsically first-order) AND CN (intrinsically second-order) produce ratios near 10. The first time this is shown is via the live bar widget (Slide 11); then Table 3 below pins down the exact numbers for every substrate × scheme combination.</p>
 
 <div class="widget-card">
   <div class="widget-header">
@@ -1322,9 +1539,12 @@ window.MathJax = {
 <p><strong>The single most important takeaway.</strong> If CN were behaving second-order, the bottom row would read 100, not 10.2. The factor of 10 between observed and expected is the gap that the operator-splitting story is going to close.</p>
 </div>
 <p>All ratios in $[8.2, 10.2]$ — first-order. Smoking gun.</p>
+<p><strong>Wrapping up Section 9.2 / Table 3.</strong> The headline conclusion of the entire project: <em>CN's second-order accuracy is wasted because a first-order splitting error swamps it</em>. The fix is either a fully-coupled SEB-row solve or a Strang-symmetric splitting — Section 9.4 sketches both. Before that, Section 9.3 explains <em>which substrate property</em> sets the size of the splitting error.</p>
 <h3>9.3 Section 5.3 — Why $\kappa_{\text{top}}$ dominates substrate dependence</h3>
+<p><strong>What we are doing in this subsection.</strong> Section 9.2 told us the error is first-order in $\Delta t$. But the magnitude differs across substrates: 40% on asphalt, 41% on roof, 19% on soil. What substrate property explains the magnitude? The answer is $\kappa_{\rm top}$, the diffusivity of the top cell — the rate at which the top cell relaxes to a new $T_s^0$ during sub-step A. High-$\kappa$ cells relax fast, so they end the sub-step far from where they would be in a coupled solve. Section 10 will confirm this argument with SHAP attribution.</p>
 <p>Admittance $\mu = \sqrt{\lambda C}$ alone doesn't explain ordering. SHAP attribution: $\kappa_{\text{top}}$ dominant predictor, 92% of variance.</p>
 <h3>9.4 Section 5.4 — Implications, limitations, outlook</h3>
+<p><strong>What we are doing in this subsection.</strong> We translate the numerical findings into urban-climate consequences (storage-symmetric bias, so the daily-mean UHI is preserved but the diurnal range is inflated), list the project's main simplifying assumptions, and outline two fixes for the splitting error — a fully-coupled SEB-row solve or Strang symmetric splitting.</p>
 <h4>UHI implication: diurnal range bias, not mean bias</h4>
 <p>Storage ratios within 5% confirm symmetric over-amplification.</p>
 <h4>The four numbered limitations</h4>
@@ -1352,7 +1572,12 @@ window.MathJax = {
 </blockquote>
 <hr />
 <h2 id="part-10">Part 10. Walking through Section 6 — Independent SHAP attribution</h2>
+<div class="interp-box"><h4>Why this part exists — and what you will get from it</h4>
+<p>The three "real" substrates (asphalt, concrete, soil) differ in many properties at once. With only three data points, we cannot disentangle whether the error scales with $\kappa_{\rm top}$, or with admittance $\mu$, or with layer-count, or with first-interface depth. Section 6 of the long report fixes this by sampling 150 random three-layer columns and using an ML model + SHAP to attribute the BTCS coarse-$\Delta t$ error across six substrate features.</p>
+<p>By the end of Part 10 you will understand the synthetic ensemble, the gradient-boosted regression, the SHAP-value formulation, and the central finding: $\kappa_{\rm top}$ alone explains $R^{2} = 0.92$ of the variance. The mechanistic argument of Part 9 and the data-driven SHAP attribution of Part 10 land on the same answer.</p>
+</div>
 <h3>10.1 What problem Section 6 is solving</h3>
+<p><strong>What we are doing in this subsection.</strong> Three substrates are not enough data to separate confounded variables. The synthetic ensemble decouples the variables so each one can have an independent effect attributed to it.</p>
 <p>Three idealised substrates differ in $\kappa_{\text{top}}$, $\mu$, AND layer structure simultaneously. Cannot disentangle. Section 6 fixes this by sampling 150 random columns.</p>
 <h3>10.2 Section 6.1 — The synthetic ensemble</h3>
 <p>150 three-layer substrate columns, BTCS at $\Delta t = 600$ s and reference at $\Delta t = 15$ s. Day-2 surface-temperature RMSE is the target $y$.</p>
@@ -1389,6 +1614,7 @@ window.MathJax = {
 <li>5-fold cross-validated $R^2 = 0.61$.</li>
 </ul>
 <h3>10.4 Section 6.3 — The findings</h3>
+<p><strong>What we are about to show in Figure 6.</strong> Four panels of SHAP attribution evidence for "$\kappa_{\rm top}$ is the dominant predictor". Panel (a) is the global feature importance bar chart. Panel (b) is the dependence of SHAP on $\kappa_{\rm top}$, coloured by admittance — showing the relationship is monotone and not confounded with admittance. Panel (c) is the residual SHAP after partialling out $\kappa_{\rm top}$, showing admittance takes over as the next-best predictor. Panel (d) is the predicted-vs-observed RMSE 1:1 plot. Together they form a complete mechanistic + data-driven case.</p>
 
 <figure class="report-figure">
   <img src="report_images/figure_6.png" alt="SHAP attribution four-panel" loading="lazy">
@@ -1413,6 +1639,10 @@ window.MathJax = {
 <p><strong>What Figure 6 does NOT tell you.</strong> The fixed-grid prior of the ensemble ($\Delta z_{\mathrm{top}} = 0.5$ cm) means $\kappa_{\mathrm{top}}$ and the dimensionless group $\Delta t\,\kappa_{\mathrm{top}}/\Delta z_{\mathrm{top}}^{2}$ are perfectly correlated, so the attribution cannot disentangle them. A follow-up with varying $\Delta z_{\mathrm{top}}$ across the prior would let us regress against the dimensionless group directly — the project flags this in §6.4 as a known limitation of the attribution analysis.</p>
 </div>
 
+
+<p><strong>Wrapping up Figure 6.</strong> Figure 6 confirms — across a 150-column synthetic ensemble — what Part 9 argued mechanistically for the three real substrates: $\kappa_{\rm top}$ dominates, admittance is a clean secondary, layer structure is a small residual. Slide 12 below is the presentation-friendly bar version of panel (a).</p>
+
+<p><strong>What we are about to show in Slide 12.</strong> The presentation-deck distillation of Figure 6 panel (a): six horizontal bars ranking the six substrate features by mean $|\text{SHAP}|$, with $\kappa_{\rm top}$ at 0.71 K dominating everything else.</p>
 
 <div class="widget-card">
   <div class="widget-header">
@@ -1441,7 +1671,9 @@ window.MathJax = {
 
 <p>Figure 6 has four panels. (a) $\kappa_{\text{top}}$ tallest at 0.71 K. (b) SHAP dependence on $\kappa_{\text{top}}$ monotone positive. (c) Residual SHAP after $\kappa_{\text{top}}$ partialled out — $\mu_{\text{eff}}$ dominates. (d) Predicted vs observed RMSE 1:1.</p>
 <p>Same $\kappa_{\text{top}}$ that sets FTCS bound also sets prefactor of BTCS coarse-$\Delta t$ splitting error.</p>
+<p><strong>Wrapping up Slide 12.</strong> Stability and accuracy are governed by the same number ($\kappa_{\rm top}$) in this problem — that is the unifying theme of the project. Section 10.5 lists the limitations of the ensemble study.</p>
 <h3>10.5 Section 6.4 — Limitations</h3>
+<p><strong>What we are doing in this subsection.</strong> Every empirical study has caveats. The synthetic ensemble's main limitations are (a) the fixed grid prior that confounds $\kappa_{\rm top}$ with the dimensionless group $\Delta t\,\kappa_{\rm top}/\Delta z_{\rm top}^{2}$, (b) the modest sample size of 150 columns, and (c) the forcing-specific nature of the results. They do not invalidate the headline finding but they bound its generalisability.</p>
 <ul>
 <li>Fixed grid.</li>
 <li>Sample size 150.</li>
@@ -1449,6 +1681,11 @@ window.MathJax = {
 </ul>
 <hr />
 <h2 id="part-11">Part 11. Walking through Section 7 — Conclusions</h2>
+<div class="interp-box"><h4>Why this part exists — and what you will get from it</h4>
+<p>The conclusions section of the long report distils the project to five bullets. Part 11 walks through each bullet and points back to the figure or section where it is justified. By the end you should be able to defend each conclusion with one Part-8/9/10 reference. Slide 13 below is the presentation-friendly version of these conclusions.</p>
+</div>
+
+<p><strong>What we are about to show in Slide 13.</strong> The deck-closing summary slide: four cards, one per headline finding, with the key numerical results highlighted. If you had to defend the project in 90 seconds, you would walk through these four cards in order.</p>
 
 <div class="widget-card">
   <div class="widget-header">
@@ -1472,12 +1709,14 @@ window.MathJax = {
 </div>
 
 
+<p><strong>Wrapping up Slide 13.</strong> The four cards condense the project. The text below repeats them in the long report's five-bullet wording so the report and the deck reconcile exactly.</p>
 <p>The conclusions section is a five-bullet recap.</p>
 <p><strong>(i) FTCS conditional stability</strong>, $\nu \le 1/2$.</p>
 <p><strong>(ii) BTCS and CN unconditionally stable.</strong> At $\Delta t = 600$ s, BTCS over-amplifies by 40%/41%/19%; CN halves these.</p>
 <p><strong>(iii) $\Delta t$-refinement ratios near 10:1</strong> — first-order. Identifies operator splitting.</p>
 <p><strong>(iv) Daily storage integral preserved within 5%.</strong></p>
 <p><strong>(v) $\kappa_{\text{top}}$ dominant predictor.</strong> $R^2 = 0.92$.</p>
+<p><strong>Wrapping up Part 11.</strong> Five bullets, each justified by one figure or one table from Parts 8–10. The next two parts (the mastery cheat-sheet and the glossary) are reference material — there to be searched, not read end-to-end.</p>
 <hr />
 <h2 id="part-12">Part 12. Mastery cheat-sheet</h2>
 <h3>12.1 The single most important sentence</h3>
