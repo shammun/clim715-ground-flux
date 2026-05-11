@@ -1290,6 +1290,54 @@ window.MathJax = {
 <p><strong>Wrapping up Section 6.1.</strong> You now know <em>where</em> the heat equation comes from (two physical laws plus algebra), <em>which</em> form to use (conductivity form, because of layered materials), and <em>what</em> it physically says (heat content per cell rises when more flux enters from above than leaves below). Section 6.2 chops the depth axis into cells so a computer can evaluate the conductivity form.</p>
 <h3>6.2 Section 2.2 — The grid, the half-levels, the harmonic mean</h3>
 <p><strong>What we are doing in this subsection.</strong> A computer stores a finite list of temperatures, not a continuous function $T(z, t)$. We need to decide: where on the depth axis do we evaluate temperature, where do we evaluate flux, and how do we handle the material discontinuities (concrete-on-insulation). Three pieces fall out: a staggered grid (temperatures at cell centres, fluxes at faces), a half-level naming convention ($j+1/2$), and the harmonic-mean rule for $\lambda$ at faces. These three pieces together guarantee that the discrete code conserves heat exactly across material jumps.</p>
+
+<div class="interp-box"><h4>Important — "staggered" and "stretched" are TWO different ideas, often confused</h4>
+
+<p>It is tempting to roll the two grid properties into one — "a grid where cells get bigger with depth is a staggered grid". <strong>That is wrong.</strong> Staggered and stretched are independent design choices. Our project uses both, but each is solving a separate problem. Below is the disambiguation.</p>
+
+<table>
+<thead>
+<tr><th>Concept</th><th>What it controls</th><th>Why we want it</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Staggered grid</strong></td><td><em>Where</em> different physical quantities are stored within the cell layout</td><td>Exact heat conservation at faces — flux out of one cell = flux into the next</td></tr>
+<tr><td><strong>Stretched grid</strong></td><td><em>How big</em> each cell is</td><td>Computational efficiency — fine cells near the surface, coarse cells at depth</td></tr>
+</tbody>
+</table>
+
+<p><strong>What "staggered" specifically means.</strong> Some quantities live at <em>cell centres</em>, others live at <em>cell faces</em> — different positions for different variables:</p>
+<ul>
+<li><strong>Cell-centre quantities</strong> (stored at $z_j$, the centre of cell $j$): temperature $T_j$, heat capacity $C_j$, material conductivity $\lambda_j$.</li>
+<li><strong>Half-level quantities</strong> (stored at $z_{j+1/2}$, the face <em>between</em> cells $j$ and $j+1$): heat flux $G_{j+1/2}$, face conductivity $\lambda_{j+1/2}$.</li>
+</ul>
+<p>The half-integer subscript "$j+1/2$" is the giveaway. It tells you the quantity lives <em>between</em> two cells, not at any single cell centre. This is the standard finite-volume layout (Patankar 1980). Without staggering, you would have to define flux at cell centres along with temperature, which introduces averaging errors and breaks exact heat conservation at faces.</p>
+
+<p><strong>What "stretched" specifically means.</strong> Cell <em>thicknesses</em> vary with depth — geometric growth $\Delta z_j = \Delta z_0 \cdot r^j$ with $r = 1.18$–$1.25$ in our project (depending on substrate). The top cell is 0.5–1 cm; the bottom cell is ≈ 30 cm at $z = 2$ m. This is unrelated to where quantities are stored; it is purely about <em>how thick</em> each cell is.</p>
+
+<p><strong>The four combinations possible.</strong></p>
+<table>
+<thead>
+<tr><th></th><th>Uniform cells (all $\Delta z$ equal)</th><th>Stretched cells ($\Delta z$ varies)</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Non-staggered</strong> (everything at the same nodes)</td><td>Simplest textbook grid — but introduces averaging errors at faces</td><td>Stretched but co-located — still has the averaging-error problem</td></tr>
+<tr><td><strong>Staggered</strong> (variables at distinct positions)</td><td>Standard finite-volume uniform grid — <strong>this is what Test 1 uses</strong> ($\Delta z = 1$ cm uniform, staggered)</td><td>Standard finite-volume stretched grid — <strong>this is what Test 2 uses</strong> for the three substrates</td></tr>
+</tbody>
+</table>
+
+<p><strong>Test 1 vs Test 2 highlights the independence.</strong></p>
+<ul>
+<li><strong>Test 1 (verification, §4.1 of the report)</strong>: uniform $\Delta z = 1$ cm everywhere, but still staggered ($T$ at centres, $G$ at faces). So <em>staggered without stretched</em>. The choice was made so the analytical comparison is clean.</li>
+<li><strong>Test 2 (prognostic SEB, §4.2 of the report)</strong>: stretched $\Delta z$ varying from 0.5–1 cm at the top to ≈ 30 cm at the bottom, also staggered. So <em>staggered AND stretched</em>. The choice was made so we can resolve the surface physics without paying the cost of a uniform fine grid everywhere.</li>
+</ul>
+
+<p>Both tests use the same solver. The only thing that changes between them is the grid configuration. The solver's code does not branch on "is this uniform?" or "is this stretched?" — the same loop processes both, because the staggered layout is a property of <em>how variables are stored</em>, not of the cell-thickness array.</p>
+
+<p><strong>Common misconception:</strong> "A grid is staggered because the cells are different sizes." No. Different cell sizes makes it stretched. Storing $T$ at centres and $G$ at faces makes it staggered. The two ideas are orthogonal.</p>
+
+<p><strong>The single intuition to take away.</strong> <em>Staggered = where variables live; stretched = how thick cells are.</em> Our project uses both simultaneously, but each addresses a different concern: staggered makes energy conservation exact at faces; stretched makes the grid computationally efficient. Removing either one would require fixing a different problem (loss of exact conservation, or wasted compute on uniform fine cells at depth).</p>
+</div>
+
 <h4>Cell centres and the staggered grid</h4>
 <p>Replace continuous depth $z$ with <strong>cell centres</strong> $z_0, z_1, \ldots, z_{N-1}$. At each cell store one number: temperature $T_j$ at the centre of cell $j$.</p>
 <p><strong>Reading the notation.</strong> $T_j$ is "the temperature at cell $j$". The subscript $j$ is just a cell index — an integer from 0 up to $N-1$, where $N$ is the total number of cells. Between cells $j$ and $j+1$ lies a face at depth $z_{j+1/2} = (z_j + z_{j+1})/2$. The half-integer subscript $j+1/2$ is read as "between cell $j$ and cell $j+1$" — it is not literally a cell, just a label for the location halfway between two adjacent centres.</p>
