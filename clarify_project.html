@@ -670,6 +670,8 @@ window.MathJax = {
 
 <div class="interp-box"><h4>What does $\nu = \kappa \Delta t / \Delta z^{2}$ actually measure, and what is the "safety margin" for it?</h4>
 
+<p><strong>Quick note on the symbol.</strong> $\nu$ is the <strong>Greek lowercase letter "nu"</strong>, pronounced <strong>"noo"</strong> (rhymes with "new"). It is <em>not</em> the Latin lowercase letter "v" — the two look almost identical in most fonts, which causes regular confusion. In every numerical-PDE context (this walkthrough included), the symbol $\nu$ means the Greek nu. There is no Latin "v" used anywhere in this project. The convention to call the dimensionless diffusion number $\nu$ traces back to Courant–Friedrichs–Lewy (1928) and von Neumann (1947); it is the most common naming in the literature.</p>
+
 <p>Just as $d/\Delta z_0$ is the dimensionless measure of <em>spatial</em> resolution (§1.2), the diffusion number $\nu$ is the dimensionless measure of <em>temporal</em> resolution. It pulls together $\kappa$ (substrate property), $\Delta t$ (time step), and $\Delta z$ (cell thickness) into a single number that decides whether FTCS lives or dies. It deserves its own explanation, parallel to the $d/\Delta z_0$ one.</p>
 
 <p><strong>What it physically means.</strong> $\nu$ is the <strong>ratio of two times</strong>: one model time step $\Delta t$, divided by the diffusion time across one grid cell, $\Delta z^{2}/\kappa$. Read it as:</p>
