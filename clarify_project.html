@@ -172,6 +172,46 @@ window.MathJax = {
 </blockquote>
 <p><strong>Reading this equation.</strong> Left side: $d$, a length (metres). Right side: $\sqrt{ }$ is the square-root symbol; $2$ is the constant 2; $\kappa$ is thermal diffusivity; $\omega$ (Greek "omega") is the angular frequency of the daily cycle. Because one full cycle is $2\pi$ radians and one day is $86 400$ seconds, $\omega = 2\pi / 86 400 \approx 7.27 \times 10^{-5}$ radians per second. The square-root structure says: faster-diffusing materials (larger $\kappa$) feel the surface signal deeper; faster cycles (larger $\omega$) decay closer to the surface.</p>
 
+<div class="interp-box"><h4>What does "37% of surface amplitude" actually mean? — the plain-language version</h4>
+
+<p><strong>Step 1 — What "amplitude" means in the first place.</strong> Temperature at any one place changes through the day: warm in the afternoon, cool before dawn. Plot it over 24 hours and it looks like a wavy line — closest to a cosine curve. The <em>amplitude</em> of that curve is <strong>half of the total peak-to-trough swing</strong>. Why half? Because the curve goes equally above and below its daily mean. If the mean is 25 °C and the amplitude is 7 K, then peaks are at $25 + 7 = 32$ °C and troughs are at $25 - 7 = 18$ °C — a 14 K peak-to-trough swing, of which the amplitude is 7 K (one side of the swing).</p>
+
+<p><strong>Step 2 — "Surface amplitude" means the amplitude right at the top of the substrate.</strong> The top of the asphalt, the top of the concrete deck, the top of the bare soil. That is the value of "amplitude" at $z = 0$ in our formula — the symbol $A$ in the analytical solution. It is the largest amplitude anywhere in the column: the surface gets the full daily forcing without any damping yet.</p>
+
+<p><strong>Step 3 — "37% of surface amplitude" means the swing at depth $d$ is 37% as wide as the swing at the top.</strong> The substrate's daily mean temperature is essentially the same at every depth (it has no choice — energy averaged over a full day must balance), but the <em>swing around that mean</em> shrinks as you go down. At $z = d$, the swing is exactly $0.368 \times$ (the swing at $z = 0$).</p>
+
+<p><strong>A concrete worked example — bare soil at our project's site.</strong> Bare soil has $d = 7.97$ cm (computed in §1.3). Imagine the daily surface temperature swings from 18 °C at dawn to 32 °C at mid-afternoon. Then:</p>
+
+<table>
+<thead>
+<tr><th>Depth</th><th>How many $d$'s deep</th><th>Amplitude factor</th><th>Daily peak-to-trough swing</th><th>Typical min and max temperatures</th></tr>
+</thead>
+<tbody>
+<tr><td>0 cm (surface)</td><td>$z/d = 0$</td><td>1.000 (100%)</td><td>14.0 K</td><td>18 °C → 32 °C</td></tr>
+<tr><td>8 cm ($\approx d$)</td><td>$z/d = 1$</td><td>0.368 (37%)</td><td>5.15 K</td><td>22.4 °C → 27.6 °C</td></tr>
+<tr><td>16 cm ($\approx 2d$)</td><td>$z/d = 2$</td><td>0.135 (13.5%)</td><td>1.89 K</td><td>24.1 °C → 25.9 °C</td></tr>
+<tr><td>24 cm ($\approx 3d$)</td><td>$z/d = 3$</td><td>0.050 (5.0%)</td><td>0.70 K</td><td>24.65 °C → 25.35 °C</td></tr>
+<tr><td>32 cm ($\approx 4d$)</td><td>$z/d = 4$</td><td>0.018 (1.8%)</td><td>0.26 K</td><td>24.87 °C → 25.13 °C</td></tr>
+<tr><td>80 cm ($\approx 10d$)</td><td>$z/d = 10$</td><td>$4.5 \times 10^{-5}$</td><td>$6.3 \times 10^{-4}$ K</td><td>essentially 25 °C all day</td></tr>
+</tbody>
+</table>
+
+<p><strong>Reading the table in plain words.</strong></p>
+<ul>
+<li>At the surface (top row): a hot summer day's worth of swing — 14 K from dawn to mid-afternoon. That is what your hand feels on the asphalt.</li>
+<li>At 8 cm depth ($\approx d$ for soil): the swing has shrunk to about 5 K. You can still feel it as cooler in the morning, warmer in the afternoon, but the contrast is much weaker.</li>
+<li>At 16 cm depth ($\approx 2d$): only about 2 K of swing — barely noticeable.</li>
+<li>By 32 cm depth ($\approx 4d$): the daily swing is under 0.3 K. The temperature is effectively the daily mean, all the time.</li>
+<li>At 80 cm depth ($\approx 10d$): the daily wave is gone. The temperature follows the seasonal cycle, not the daily one. This is also why root cellars stay cool in summer and don't freeze in winter — they are below the diurnal damping zone.</li>
+</ul>
+
+<p><strong>An intuitive metaphor — shouting through walls.</strong> Imagine shouting at the surface of the ground. The wall of soil between you and a listener at depth $z$ muffles your voice. Each additional damping-depth of soil reduces your voice's loudness by a factor of $e^{-1} \approx 0.37$. After one damping-depth, your voice is at 37% of its original loudness. After two, $0.37 \times 0.37 = 13.5\%$. After three, $0.37^{3} = 5\%$. The ground is doing the same thing to the sun's daily forcing: each $d$ of depth attenuates the daily wave by a factor of $1/e$.</p>
+
+<p><strong>An intuitive metaphor — ripples on a pond.</strong> Drop a pebble at the centre of a pond. The ripples have a clear amplitude at the centre and weaken as they travel outward. If you measured the wave height every metre, you would find the ripples have lost a fixed fraction of their height per metre travelled. The diurnal wave in the ground is doing the same thing in depth — losing the same fraction per damping-depth $d$ travelled. The difference is that in the ground, $d$ depends on the material: faster-diffusing materials (high $\kappa$) let the wave travel deeper before fading.</p>
+
+<p><strong>How this connects to the rest of the project.</strong> The damping-depth values ($d \approx 8$ cm for soil, $\approx 10$ cm for asphalt, $\approx 14$ cm for concrete) are why the project's top grid cells must be 0.5–1 cm thick. If a grid cell were 5 cm thick, it would average over half the diurnal wave's amplitude — losing the very signal we are trying to simulate. And once we pick a 0.5 cm top cell, the FTCS bound $\Delta t \le \frac{1}{2}\Delta z^{2}/\kappa$ collapses to 17 seconds on the concrete deck. So this single, harmless-looking phrase — "37% of the surface amplitude" — is the upstream physical reason for every numerical struggle in the rest of the report.</p>
+</div>
+
 <div class="interp-box"><h4>Where does the "37% of surface amplitude" come from?</h4>
 <p>The formula $d = \sqrt{2\kappa/\omega}$ <em>by itself</em> doesn't mention 37%. The 37% comes from the <strong>analytical solution</strong> of the heat equation that <em>defines</em> $d$ in the first place. Here is the full story in plain language.</p>
 
