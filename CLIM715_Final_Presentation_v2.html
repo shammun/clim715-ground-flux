@@ -4141,18 +4141,18 @@ FEATURES.forEach(function(f, i) {
 //   - a relative .html path → rendered via iframe.src (existing standalone viz)
 // Any string ending in .html is treated as an external file.
 // ============================================================
-// SLIDE_ORDER for v2 — results-focused redesign, 18 slides.
-// Slides 1-9: intro + problem framing (Title, UHI hook, column anatomy,
-// governing eq, SEB closure, substrates, BCs, IC, θ-method family).
-// Slides 10-14: the five report figures back-to-back (results).
-// Slides 15-16: the two report tables (numerical summary + smoking-gun
+// SLIDE_ORDER for v2 — results-focused redesign, 19 slides.
+// Slides 1-10: intro + problem framing (Title, UHI hook, column anatomy,
+// governing eq, SEB closure, substrates, 3D viz, BCs, IC, θ-method family).
+// Slides 11-15: the five report figures back-to-back (results).
+// Slides 16-17: the two report tables (numerical summary + smoking-gun
 // refinement ratios).
-// Slide 17: Figure 6 (SHAP attribution result).
-// Slide 18: Conclusions (four findings + UHI implication).
+// Slide 18: Figure 6 (SHAP attribution result).
+// Slide 19: Conclusions (four findings + UHI implication).
 //
 // Removed from this layout vs earlier versions: t6/t7/t8 (Test 1 vs Test 2
-// setup), t9 (two-sub-step algorithm slide), the 3D substrate viz, and the
-// mechanism κ_top slide. Those slides remain on disk and can be reinstated.
+// setup), t9 (two-sub-step algorithm slide), and the mechanism κ_top slide.
+// Those slides remain on disk and can be reinstated.
 var SLIDE_ORDER = [
     's0',                                              //  1: Title
     's1',                                              //  2: UHI hook — why G matters
@@ -4160,18 +4160,19 @@ var SLIDE_ORDER = [
     't1',                                              //  4: Governing equation + material properties
     't2',                                              //  5: Surface Energy Balance closure
     't3',                                              //  6: The three substrates — composition
-    't4',                                              //  7: Boundary conditions (top & bottom)
-    't5',                                              //  8: Initial condition + damping depth
-    's2',                                              //  9: θ-method family (FTCS / CN / BTCS)
-    'fig1_von_neumann.html',                          // 10: Figure 1 — Von Neumann amplification
-    'fig2_damping_depth.html',                        // 11: Figure 2 — Test 1 damping-depth verification
-    'fig3_ts_dt15.html',                              // 12: Figure 3 — Ts(t) at Δt = 15 s, all schemes agree
-    'fig4_g_dt600.html',                              // 13: Figure 4 — G(t) at Δt = 600 s, FTCS/BTCS/CN
-    'fig5_profile_asphalt.html',                      // 14: Figure 5 — vertical T profile in asphalt
-    'table2_results.html',                            // 15: Table 2 — 27-cell cross-substrate summary
-    'table3_refinement_ratios.html',                  // 16: Table 3 — Δt-refinement ratios (smoking gun)
-    'fig6_shap.html',                                 // 17: Figure 6 — SHAP attribution result
-    's7'                                               // 18: Conclusions
+    'CLIM715_Substrate_3D_Visualization_v3.html',     //  7: 3D substrate visualization
+    't4',                                              //  8: Boundary conditions (top & bottom)
+    't5',                                              //  9: Initial condition + damping depth
+    's2',                                              // 10: θ-method family (FTCS / CN / BTCS)
+    'fig1_von_neumann.html',                          // 11: Figure 1 — Von Neumann amplification
+    'fig2_damping_depth.html',                        // 12: Figure 2 — Test 1 damping-depth verification
+    'fig3_ts_dt15.html',                              // 13: Figure 3 — Ts(t) at Δt = 15 s, all schemes agree
+    'fig4_g_dt600.html',                              // 14: Figure 4 — G(t) at Δt = 600 s, FTCS/BTCS/CN
+    'fig5_profile_asphalt.html',                      // 15: Figure 5 — vertical T profile in asphalt
+    'table2_results.html',                            // 16: Table 2 — 27-cell cross-substrate summary
+    'table3_refinement_ratios.html',                  // 17: Table 3 — Δt-refinement ratios (smoking gun)
+    'fig6_shap.html',                                 // 18: Figure 6 — SHAP attribution result
+    's7'                                               // 19: Conclusions
 ];
 
 var totalSlides = SLIDE_ORDER.length;

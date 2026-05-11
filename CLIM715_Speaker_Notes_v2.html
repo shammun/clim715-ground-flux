@@ -87,12 +87,12 @@
     <div class="sync-status" id="syncStatus"></div>
 
     <script>
-        // 18 entries — one per slot in the v2 deck SLIDE_ORDER.
+        // 19 entries — one per slot in the v2 deck SLIDE_ORDER.
         // Every slot carries a substantive presenter script (2-3 paragraphs,
-        // ~45-90s spoken delivery). Slots 1-9 describe the intro + setup
+        // ~45-90s spoken delivery). Slots 1-10 describe the intro + setup
         // framing slides (Title, UHI hook, column anatomy, governing equation,
-        // SEB, three substrates, BCs, IC, θ-method). Slots 10-18 cover the
-        // results arc — fig1-fig5, table2-3, fig6 SHAP, conclusions.
+        // SEB, three substrates, 3D viz, BCs, IC, θ-method). Slots 11-19 cover
+        // the results arc — fig1-fig5, table2-3, fig6 SHAP, conclusions.
         // Plain-language wording; Δt = 600 s framed as a coarse stress-test
         // value (Option B), matching the report's revised text.
         var slides = [
@@ -142,6 +142,14 @@
                     "Three idealised substrates were chosen on purpose to span the urban-physics range. The asphalt road has four layers — 5 centimetres of asphalt, 20 of aggregate base, 75 of dry soil, and a deep subsoil to 2 metres — with a moderately high top-layer diffusivity around 3.8 times 10 to the minus 7 metres squared per second. The concrete roof has three layers — about 10 centimetres of concrete deck, rigid mineral-wool insulation, and a drywall-and-wood interior — with the highest top-layer diffusivity around 7.1 times 10 to the minus 7, and the most extreme internal contrast where the concrete meets the insulation.",
                     "The bare soil reference is a single uniform sandy loam — no layering, lowest diffusivity around 2.3 times 10 to the minus 7. Albedos are 0.10 for asphalt, 0.30 for concrete, 0.25 for soil. The three substrates differ in top-layer diffusivity by a factor of about three, in bulk admittance by a factor of about three, and in layer structure by every conceivable measure.",
                     "These are not real city geometries — no buildings, no canyons, no facets. They are idealised 1-D columns chosen to span asphalt's moderate stiffness, concrete's extreme stiffness over an insulator, and a low-conductivity uniform reference. The mix lets us see whether scheme errors track κ_top, bulk admittance, layer structure, or all three — a question we'll close out with SHAP attribution."
+                ]
+            },
+            {
+                title: "Three substrates in 3D — visual anchor for the rest of the talk",
+                paragraphs: [
+                    "Here is a three-dimensional view of the three substrate columns from the previous slide. Each column is 2 metres deep, shown sticking down into the ground with the layers colour-coded by material — asphalt road on the left in purple, concrete roof in the middle in warm orange, and the uniform bare soil on the right in earth brown. There is no building above ground and no street between them; these are just the substrate columns laid out side by side for comparison.",
+                    "The sun cycling overhead is the diurnal forcing — same forcing applied to all three columns. The columns are completely independent of each other: heat flows vertically only, downward into each column and back up to the surface, with no horizontal transport between them. In other words, the model treats each substrate as if it were the only thing in the world.",
+                    "This slide is here to give you a clear mental image of the geometry before we move into boundary conditions and the numerical schemes. When I say 'asphalt' or 'concrete roof' for the rest of the talk, this is the geometry I mean — a 2-metre vertical column of layered material, sun above, deep zero-flux below."
                 ]
             },
             {
@@ -243,7 +251,7 @@
         ];
 
         // Map slot index (0-based) to entry in slides[]. 1-to-1 in this layout.
-        var NOTE_ORDER = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17];
+        var NOTE_ORDER = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18];
         var totalSlides = NOTE_ORDER.length;
 
         var currentSlide = 0;
