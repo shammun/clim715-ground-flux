@@ -814,6 +814,78 @@ window.MathJax = {
 <p><strong>The single intuition to take away.</strong> FTCS's $\Delta t$ is bounded above by stability; BTCS and CN's $\Delta t$ is bounded above only by <em>accuracy and physical-resolution requirements</em>, not by stability. The shift from "explicit + bounded" to "implicit + unbounded $\Delta t$" is what makes long-time-step climate simulations possible. The remaining error at large $\Delta t$ is what this project measures — and what Part 9 explains as operator splitting.</p>
 </div>
 
+<div class="interp-box"><h4>How are $d/\Delta z_0$ and $\nu$ related to the CFL number? Why don't we use CFL here?</h4>
+
+<p>A natural question after meeting $\nu$ for the first time: <em>isn't there a famous dimensionless stability number called CFL? Why aren't we using that?</em> The answer is that CFL and $\nu$ are <strong>sibling concepts applied to different physics</strong>. Below is the full comparison.</p>
+
+<p><strong>What CFL is.</strong> The CFL number — named for Richard <strong>C</strong>ourant, Kurt <strong>F</strong>riedrichs, and Hans <strong>L</strong>ewy, who introduced it in 1928 — is the dimensionless number that governs stability of explicit schemes for <em>advection</em> (transport at a finite wave speed). For a 1-D advection equation $\partial T/\partial t + u\,\partial T/\partial x = 0$ on a grid with spacing $\Delta x$ and time step $\Delta t$:</p>
+
+<p>$$\mathrm{CFL} \;=\; \frac{u\,\Delta t}{\Delta x}.$$</p>
+
+<p>Physical meaning: in one numerical time step, how many cells does a wave travelling at speed $u$ cross? For a simple upstream/upwind scheme, the CFL <em>stability condition</em> is $|\mathrm{CFL}| \le 1$: you cannot advect information across more than one cell per time step, or the scheme cannot "keep up" with the wave and blows up.</p>
+
+<p><strong>The diffusion analogue is $\nu$.</strong> Same idea, different physics. For the diffusion equation $\partial T/\partial t = \kappa\,\partial^{2} T/\partial z^{2}$:</p>
+
+<p>$$\nu \;=\; \frac{\kappa\,\Delta t}{\Delta z^{2}}.$$</p>
+
+<p>Physical meaning: in one numerical time step, how many cells does heat diffuse across? Stability condition for FTCS is $\nu \le 1/2$. <strong>$\nu$ is to diffusion what CFL is to advection.</strong> Both are dimensionless ratios of "one numerical time step" to "one physical time scale across one cell".</p>
+
+<p><strong>The two side by side.</strong></p>
+
+<table>
+<thead>
+<tr><th>Aspect</th><th>CFL (advection)</th><th>$\nu$ (diffusion)</th></tr>
+</thead>
+<tbody>
+<tr><td>Characteristic quantity</td><td>Wave speed $u$ (units m/s)</td><td>Diffusivity $\kappa$ (units <strong>m²/s</strong>)</td></tr>
+<tr><td>Formula</td><td>$\mathrm{CFL} = u\Delta t/\Delta x$</td><td>$\nu = \kappa\Delta t/\Delta z^{2}$</td></tr>
+<tr><td>Physical interpretation</td><td>$\Delta t$ ÷ (cell-crossing time at speed $u$)</td><td>$\Delta t$ ÷ (diffusion time across one cell, $\Delta z^{2}/\kappa$)</td></tr>
+<tr><td>Scaling with grid spacing</td><td>Linear: $\mathrm{CFL} \propto 1/\Delta x$</td><td><strong>Quadratic:</strong> $\nu \propto 1/\Delta z^{2}$</td></tr>
+<tr><td>Stability bound (simplest explicit)</td><td>$\mathrm{CFL} \le 1$</td><td>$\nu \le 1/2$ (FTCS)</td></tr>
+<tr><td>PDE family it governs</td><td>Hyperbolic (waves, transport)</td><td>Parabolic (diffusion, viscosity)</td></tr>
+<tr><td>Originator</td><td>Courant–Friedrichs–Lewy (1928)</td><td>Often called the "diffusion CFL"; analysed by von Neumann (1947)</td></tr>
+</tbody>
+</table>
+
+<p><strong>The quadratic-vs-linear distinction is the key practical difference.</strong> Halving $\Delta x$ halves the maximum stable $\Delta t$ for advection (CFL). Halving $\Delta z$ <em>quarters</em> the maximum stable $\Delta t$ for diffusion ($\nu$). Diffusion is therefore much "stiffer" — a tiny grid hurts the explicit time step much faster. That is exactly why our 5 mm concrete cell drops the FTCS bound to 17 s.</p>
+
+<p><strong>Why CFL does not apply to our project.</strong> The CFL condition applies to <em>hyperbolic</em> PDEs — equations that propagate information at finite wave speed. The heat conduction equation we solve is <em>parabolic</em>:</p>
+
+<p>$$\frac{\partial T_{s}}{\partial t} \;=\; \kappa \frac{\partial^{2} T_{s}}{\partial z^{2}}.$$</p>
+
+<p>Notice there is <strong>no $\partial T_{s}/\partial z$ term</strong> — only $\partial^{2} T_{s}/\partial z^{2}$. Heat is not being <em>transported</em> by any wind or velocity field; it is <em>diffusing</em>. There is no characteristic wave speed $u$ to plug into a CFL number — and consequently no CFL number to compute. The mathematical classification (Part 2.2) is precise: the heat equation has discriminant $B^{2} - 4AC = 0$ (parabolic), versus $> 0$ for hyperbolic. Different family, different stability theory, different dimensionless number.</p>
+
+<p><strong>So in our project, $\nu$ does the job CFL would do for an advection problem.</strong> They are not competitors; they are the natural-by-PDE-family stability metrics. You use CFL when you have waves; you use $\nu$ when you have diffusion.</p>
+
+<p><strong>What about $d/\Delta z_0$?</strong> That metric is not a stability measure at all — it is a <strong>spatial resolution</strong> measure. It tells you how many grid cells the model devotes to representing one damping depth. The wave-physics analogue is "cells per wavelength" $\lambda_{w}/\Delta x$, with the same Nyquist rule of thumb (≥ 2 to "see" the structure, ≥ 8–10 to resolve it accurately).</p>
+
+<table>
+<thead>
+<tr><th>Resolution measure</th><th>For waves</th><th>For diffusion</th></tr>
+</thead>
+<tbody>
+<tr><td>Dimensionless ratio</td><td>$\lambda_{w}/\Delta x$ (cells per wavelength)</td><td>$d/\Delta z_0$ (cells per damping depth)</td></tr>
+<tr><td>Bare minimum (Nyquist)</td><td>2</td><td>~ 2</td></tr>
+<tr><td>Accurate solver</td><td>8–10</td><td>8–10</td></tr>
+<tr><td>Used in this project?</td><td>No — no waves to resolve</td><td>Yes: soil 8, asphalt 20, concrete 28</td></tr>
+</tbody>
+</table>
+
+<p><strong>What if we did add advection to this model?</strong> Several realistic urban-climate extensions would introduce advection and therefore a CFL constraint:</p>
+
+<ul>
+<li><strong>Horizontal wind transporting warm air over the substrate.</strong> Introduces $u\,\partial T/\partial x$ in the air equation → CFL on $u_{\rm wind}$. Wind speed 3 m/s + horizontal $\Delta x = 100$ m gives $\mathrm{CFL} = u \Delta t/\Delta x = 3 \cdot 600 / 100 = 18$ — way over 1. Would force a much smaller $\Delta t$ or a different (implicit) advection scheme.</li>
+<li><strong>Acoustic or gravity waves</strong> in the atmosphere overhead — would introduce CFL on the phase speed.</li>
+<li><strong>Moisture transport with rainfall</strong> — CFL on droplet fall speed.</li>
+</ul>
+
+<p>None of these are in scope for this project, by design. We isolated the <em>diffusion + SEB</em> physics so that the only stability bound is the diffusion one ($\nu$), and the only error source we have to explain is the operator-splitting error between the column and the SEB updates. Adding advection would introduce a separate (and potentially competing) stability constraint on $\Delta t$.</p>
+
+<p><strong>Implications if we ran a "diffusive CFL" by analogy.</strong> Some textbooks define a "diffusive CFL" as exactly $\nu = \kappa\Delta t/\Delta z^{2}$ — so the diffusion number IS just CFL relabelled for parabolic problems. The constant on the right of the stability inequality differs (1/2 for FTCS diffusion, 1 for upstream advection), but the conceptual role is identical: a dimensionless time-step bound determined by the worst-case wavenumber.</p>
+
+<p><strong>The single intuition to take away.</strong> CFL and $\nu$ are sister stability numbers: one for advection (linear in $\Delta x$), one for diffusion (quadratic in $\Delta z$). We use $\nu$ here because our PDE is diffusion-only. There is no CFL to compute because there is no wave speed in the equation. If we ever added advective transport to the model, we would have to track <em>both</em> dimensionless numbers, and $\Delta t$ would have to satisfy both bounds simultaneously.</p>
+</div>
+
 <h3>1.5 The four-component surface energy balance</h3>
 <p>Surface temperature $T_s^0$ is determined by an energy balance at the surface. Four fluxes meet there:</p>
 <ul>
