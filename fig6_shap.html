@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SHAP attribution &mdash; &kappa;<sub>top</sub> dominates the BTCS coarse-&Delta;t error</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #eaf0f8; color: #2c3142;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .title-bar { padding: 22px 52px 6px; display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+  .badge { background: #6b5cb5; color: #fff; font-size: 10.5px; font-weight: 700; letter-spacing: 1.5px; padding: 4px 12px; border-radius: 4px; text-transform: uppercase; }
+  .slide-title { font-size: 24px; font-weight: 700; color: #2c3142; }
+  .headline { font-size: 15px; font-weight: 600; color: #ee845b; text-align: center; margin: 4px 52px 10px; flex-shrink: 0; line-height: 1.45; }
+  .stage {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    padding: 4px 36px 4px;
+    min-height: 0;
+  }
+  .figure-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(107, 92, 181, 0.12);
+    border: 1px solid rgba(107, 92, 181, 0.08);
+    padding: 14px 18px;
+    display: flex; flex-direction: column; align-items: center;
+    max-width: 100%; max-height: 100%;
+    overflow: hidden;
+  }
+  .figure-card img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    flex: 1;
+    min-height: 0;
+  }
+  .caption {
+    font-size: 13px;
+    color: #2c3142;
+    line-height: 1.45;
+    text-align: left;
+    margin: 12px 52px 18px;
+    padding: 10px 14px;
+    background: #ffffff;
+    border-left: 3px solid #6b5cb5;
+    border-radius: 4px;
+    box-shadow: 0 1px 6px rgba(107, 92, 181, 0.08);
+    flex-shrink: 0;
+  }
+  .caption b { color: #6b5cb5; }
+  .caption em { color: #2c8a83; font-style: normal; font-weight: 600; }
+  .src-tag {
+    font-size: 11px; color: #6b7186;
+    margin-top: 4px;
+  }
+  @media (max-width: 760px) {
+    .title-bar { padding: 30px 14px 6px; flex-wrap: wrap; gap: 8px; }
+    .slide-title { font-size: 17px; line-height: 1.25; }
+    .headline { margin: 4px 14px 8px; font-size: 12px; }
+    .stage { padding: 4px 12px; }
+    .caption { margin: 8px 14px 14px; font-size: 12px; padding: 8px 10px; }
+    body { padding-bottom: 80px; }
+  }
+</style>
+</head>
+<body>
+  <div class="title-bar">
+    <span class="badge">Attribution</span>
+    <span class="slide-title">SHAP attribution &mdash; &kappa;<sub>top</sub> dominates the BTCS coarse-&Delta;t error</span>
+  </div>
+  <div class="headline">Mean |SHAP| over 150 synthetic substrates: &kappa;<sub>top</sub> alone explains R<sup>2</sup>&nbsp;=&nbsp;0.92 of RMSE<sub>T<sub>s</sub></sub>. The &mu;<sub>eff</sub>-driven residual is small but systematic.</div>
+  <div class="stage">
+    <div class="figure-card">
+      <img src="report_fig6_shap.png" alt="Four panels of SHAP analysis: feature importance, dependence on kappa_top, residual importance after kappa_top, and predicted vs observed RMSE.">
+    </div>
+  </div>
+  <div class="caption">
+    <b>Figure 6.</b> Independent attribution analysis of BTCS coarse-&Delta;t error. <b>(a)</b> Full-feature SHAP importance: <em>&kappa;<sub>top</sub> dominates with mean |SHAP|&nbsp;=&nbsp;0.71&nbsp;K</em>, followed by &mu;<sub>eff</sub> (admittance) and the max-&lambda; contrast across the column. <b>(b)</b> SHAP dependence on &kappa;<sub>top</sub>, coloured by &mu;<sub>eff</sub> &mdash; monotone positive, with admittance modulating the slope. <b>(c)</b> SHAP importance on the &kappa;<sub>top</sub>-residual (residual R<sup>2</sup>&nbsp;=&nbsp;0.69): once the &kappa;<sub>top</sub> trend is removed, <em>&mu;<sub>eff</sub> emerges as the leading control of the residual</em>. <b>(d)</b> Predicted vs observed RMSE<sub>T<sub>s</sub></sub>: in-sample R<sup>2</sup>&nbsp;=&nbsp;0.959, 5-fold CV R<sup>2</sup>&nbsp;=&nbsp;0.61.
+    <div class="src-tag">Source: modified_full_report_1.docx &mdash; Section 6 Independent attribution analysis with gradient-boosted regression and SHAP.</div>
+  </div>
+
+<script>
+window.addEventListener('keydown', function (e) {
+  if (e.key === 'm' || e.key === 'M') {
+    if (window.parent !== window) window.parent.postMessage({type:'deck-nav', dir:'next'}, '*');
+  } else if (e.key === 'k' || e.key === 'K') {
+    if (window.parent !== window) window.parent.postMessage({type:'deck-nav', dir:'prev'}, '*');
+  }
+});
+</script>
+</body>
+</html>

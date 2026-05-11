@@ -4185,35 +4185,38 @@ FEATURES.forEach(function(f, i) {
 //   - a relative .html path → rendered via iframe.src (existing standalone viz)
 // Any string ending in .html is treated as an external file.
 // ============================================================
-// SLIDE_ORDER for v2 — context-first redesign.
+// SLIDE_ORDER for v2 — context-first redesign, report-figure edition.
+// Interactive widgets (window_von_neuman, window_delta_t, s3) and the
+// custom SVG result slides (s4, s5, s8, s9) were dropped in favour of the
+// 6 figures rendered for the corrected long report. Slide 16 keeps the
+// 3D substrate viz exactly where it sat in the previous v2 layout.
 // Slides 1-2: motivation. Slides 3-8: problem framing (column, equations,
-// SEB, substrates, BCs, IC). Slides 9-11: numerics (θ-method, Von Neumann,
-// stability bound). Slides 12-15: experimental design (Test 1 vs Test 2,
-// setups, algorithm). Slide 16: 3D substrate viz (now *after* setup is
-// established). Slides 17-22: results + conclusions.
+// SEB, substrates, BCs, IC). Slide 9: θ-method family. Slide 10: Figure 1
+// (Von Neumann amplification). Slides 11-13: experimental design. Slide 14:
+// Figure 2 (Test 1 verification). Slide 15: algorithm. Slide 16: 3D viz.
+// Slides 17-20: Figures 3-6 (results + attribution). Slide 21: Conclusions.
 var SLIDE_ORDER = [
     's0',                                              //  1: Title
     's1',                                              //  2: UHI hook — why G matters
-    't0',                                              //  3: 1D column anatomy & coupled physics
+    't0',                                              //  3: 1-D column anatomy & coupled physics
     't1',                                              //  4: Governing equation + material properties
     't2',                                              //  5: Surface Energy Balance closure
     't3',                                              //  6: The three substrates — composition
     't4',                                              //  7: Boundary conditions (top & bottom)
     't5',                                              //  8: Initial condition + damping depth
     's2',                                              //  9: θ-method family (FTCS / CN / BTCS)
-    'window_von_neuman.html',                         // 10: Von Neumann live widget
-    's3',                                              // 11: 17-second problem (FTCS bound)
-    't6',                                              // 12: Test 1 vs Test 2 — side-by-side
-    't7',                                              // 13: Test 1 setup (verification)
-    't8',                                              // 14: Test 2 setup + 27-cell matrix
+    'fig1_von_neumann.html',                          // 10: Figure 1 — Von Neumann amplification
+    't6',                                              // 11: Test 1 vs Test 2 — side-by-side
+    't7',                                              // 12: Test 1 setup (verification)
+    't8',                                              // 13: Test 2 setup + 27-cell matrix
+    'fig2_damping_depth.html',                        // 14: Figure 2 — Test 1 damping-depth verification
     't9',                                              // 15: Two-sub-step algorithm
-    'CLIM715_Substrate_3D_Visualization_v3.html',     // 16: 3D substrate viz (with full context now)
-    's4',                                              // 17: Test 1 verification results
-    's5',                                              // 18: Schemes agree at Δt = 15 s
-    'window_delta_t.html',                            // 19: Δt refinement live
-    's8',                                              // 20: Δt-refinement ratios → operator splitting
-    's9',                                              // 21: SHAP attribution → κ_top dominates
-    's7'                                               // 22: Conclusions
+    'CLIM715_Substrate_3D_Visualization_v3.html',     // 16: 3D substrate viz (kept per user request)
+    'fig3_ts_dt15.html',                              // 17: Figure 3 — Ts(t) at Δt = 15 s, all schemes agree
+    'fig4_g_dt600.html',                              // 18: Figure 4 — G(t) at Δt = 600 s, FTCS/BTCS/CN
+    'fig5_profile_asphalt.html',                      // 19: Figure 5 — vertical T profile in asphalt
+    'fig6_shap.html',                                 // 20: Figure 6 — SHAP attribution
+    's7'                                               // 21: Conclusions
 ];
 
 var totalSlides = SLIDE_ORDER.length;
@@ -4413,11 +4416,11 @@ window.addEventListener('keydown', function (e) {
     else if (e.key === 'k' || e.key === 'K') { e.preventDefault(); prevSlide(); }
 });
 
-// Receive M/K relays from cross-origin (file://) iframes — slides 3, 5, 9 are
-// loaded via iframe.src and Chrome treats each file:// URL as a unique origin,
-// so the contentWindow keydown listener from attachMKListener() silently
-// SecurityError's. The relay scripts in those three external HTML files post
-// here instead.
+// Receive M/K relays from cross-origin (file://) iframes — figure slides 10,
+// 14, 17-20 and the 3D viz at slot 16 are loaded via iframe.src. Chrome
+// treats each file:// URL as a unique origin, so the contentWindow keydown
+// listener from attachMKListener() silently SecurityError's. The relay
+// scripts in those external HTML files post here instead.
 window.addEventListener('message', function (e) {
     if (e.data && e.data.type === 'deck-nav') {
         if (e.data.dir === 'next') nextSlide();

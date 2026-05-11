@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Von Neumann amplification &mdash; FTCS, BTCS, Crank&ndash;Nicolson</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body, html {
+    width: 100vw; height: 100vh;
+    font-family: 'Segoe UI', Calibri, Geneva, sans-serif;
+    background: #eaf0f8; color: #2c3142;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .title-bar { padding: 22px 52px 6px; display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+  .badge { background: #6b5cb5; color: #fff; font-size: 10.5px; font-weight: 700; letter-spacing: 1.5px; padding: 4px 12px; border-radius: 4px; text-transform: uppercase; }
+  .slide-title { font-size: 24px; font-weight: 700; color: #2c3142; }
+  .headline { font-size: 15px; font-weight: 600; color: #ee845b; text-align: center; margin: 4px 52px 10px; flex-shrink: 0; line-height: 1.45; }
+  .stage {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    padding: 4px 36px 4px;
+    min-height: 0;
+  }
+  .figure-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(107, 92, 181, 0.12);
+    border: 1px solid rgba(107, 92, 181, 0.08);
+    padding: 14px 18px;
+    display: flex; flex-direction: column; align-items: center;
+    max-width: 100%; max-height: 100%;
+    overflow: hidden;
+  }
+  .figure-card img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    flex: 1;
+    min-height: 0;
+  }
+  .caption {
+    font-size: 13px;
+    color: #2c3142;
+    line-height: 1.45;
+    text-align: left;
+    margin: 12px 52px 18px;
+    padding: 10px 14px;
+    background: #ffffff;
+    border-left: 3px solid #6b5cb5;
+    border-radius: 4px;
+    box-shadow: 0 1px 6px rgba(107, 92, 181, 0.08);
+    flex-shrink: 0;
+  }
+  .caption b { color: #6b5cb5; }
+  .caption em { color: #2c8a83; font-style: normal; font-weight: 600; }
+  .src-tag {
+    font-size: 11px; color: #6b7186;
+    margin-top: 4px;
+  }
+  @media (max-width: 760px) {
+    .title-bar { padding: 30px 14px 6px; flex-wrap: wrap; gap: 8px; }
+    .slide-title { font-size: 17px; line-height: 1.25; }
+    .headline { margin: 4px 14px 8px; font-size: 12px; }
+    .stage { padding: 4px 12px; }
+    .caption { margin: 8px 14px 14px; font-size: 12px; padding: 8px 10px; }
+    body { padding-bottom: 80px; }
+  }
+</style>
+</head>
+<body>
+  <div class="title-bar">
+    <span class="badge">Stability theory</span>
+    <span class="slide-title">Von Neumann amplification &mdash; FTCS, BTCS, Crank&ndash;Nicolson</span>
+  </div>
+  <div class="headline">At &nu;&nbsp;=&nbsp;0.5 the FTCS factor sits exactly on the |A|&nbsp;=&nbsp;1 bound; at &nu;&nbsp;=&nbsp;5 it explodes to |A|&nbsp;&asymp;&nbsp;19. BTCS and CN stay below 1 for every (&nu;,&nbsp;k&Delta;z).</div>
+  <div class="stage">
+    <div class="figure-card">
+      <img src="report_fig1_von_neumann.png" alt="Three panels showing |A_k| vs k Delta z for FTCS, BTCS, and Crank-Nicolson at nu = 0.25, 0.5, 1.0, 5.0.">
+    </div>
+  </div>
+  <div class="caption">
+    <b>Figure 1.</b> Magnitude of the von&nbsp;Neumann amplification factor |A<sub>k</sub>(&nu;, k&Delta;z)| for the <b>FTCS</b> (left), <b>BTCS</b> (centre), and <b>Crank&ndash;Nicolson</b> (right) schemes applied to the heat conduction equation, plotted against the non-dimensional wavenumber k&Delta;z for &nu; &isin; {{0.25, 0.5, 1, 5}}. <em>FTCS at &nu;&nbsp;=&nbsp;0.5 sits exactly on the |A|&nbsp;=&nbsp;1 stability bound at k&Delta;z&nbsp;=&nbsp;&pi;; &nu;&nbsp;=&nbsp;1 and &nu;&nbsp;=&nbsp;5 violate it</em>, with the latter reaching |A|&nbsp;&asymp;&nbsp;19. BTCS and CN remain monotonically below 1, confirming unconditional stability.
+    <div class="src-tag">Source: modified_full_report_1.docx &mdash; Section 2.5 Von Neumann stability analysis.</div>
+  </div>
+
+<script>
+window.addEventListener('keydown', function (e) {
+  if (e.key === 'm' || e.key === 'M') {
+    if (window.parent !== window) window.parent.postMessage({type:'deck-nav', dir:'next'}, '*');
+  } else if (e.key === 'k' || e.key === 'K') {
+    if (window.parent !== window) window.parent.postMessage({type:'deck-nav', dir:'prev'}, '*');
+  }
+});
+</script>
+</body>
+</html>
