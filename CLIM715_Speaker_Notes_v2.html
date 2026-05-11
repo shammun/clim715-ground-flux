@@ -87,12 +87,12 @@
     <div class="sync-status" id="syncStatus"></div>
 
     <script>
-        // 19 entries — one per slot in the v2 deck SLIDE_ORDER.
+        // 18 entries — one per slot in the v2 deck SLIDE_ORDER.
         // Every slot carries a substantive presenter script (2-3 paragraphs,
         // ~45-90s spoken delivery). Slots 1-9 describe the intro + setup
         // framing slides (Title, UHI hook, column anatomy, governing equation,
-        // SEB, three substrates, BCs, IC, θ-method). Slots 10-19 cover the
-        // results arc — fig1-fig5, table2-3, mechanism, fig6 SHAP, conclusions.
+        // SEB, three substrates, BCs, IC, θ-method). Slots 10-18 cover the
+        // results arc — fig1-fig5, table2-3, fig6 SHAP, conclusions.
         // Plain-language wording; Δt = 600 s framed as a coarse stress-test
         // value (Option B), matching the report's revised text.
         var slides = [
@@ -225,14 +225,6 @@
                 ]
             },
             {
-                title: "Mechanism — why κ_top should dominate",
-                paragraphs: [
-                    "We've seen what the BTCS error looks like; this slide argues from the mechanism that the error should scale with one specific substrate parameter, κ_top, so the SHAP attribution on the next slide is a test of a physically motivated prediction, not an after-the-fact data exercise.",
-                    "Card 1 has the smoking gun from the previous slide: refinement ratios near 10 for both BTCS and CN. A ratio of 10 when Δt scales by 10 is a first-order error — expected for BTCS, but CN is intrinsically second-order, so CN by itself would have given 100. Observing 10 means CN's own truncation is being masked by a separate first-order error, the column-first-then-SEB Lie operator splitting.",
-                    "Card 2 gives the prefactor: the per-step equilibrium gap depends on how fast the top cell re-equilibrates within one Δt, with timescale τ_top equals Δz squared over κ_top. High κ_top means short τ_top, larger gap per step, larger error. Card 3 is the unifying statement: the same κ_top that sets the FTCS stability bound also sets the BTCS splitting prefactor — a single substrate parameter governs both failure modes. The testable prediction at the bottom: κ_top first, admittance second, layer structure a distant third."
-                ]
-            },
-            {
                 title: "Figure 6 — SHAP attribution result",
                 paragraphs: [
                     "The previous slide made a prediction — that κ_top should be the main thing controlling BTCS error. This slide is the test of that prediction using a completely different method. We made up 150 random urban substrates on the computer, with three layers each spanning realistic conductivity, heat capacity, and thickness ranges. For each substrate we ran BTCS at 600 seconds and BTCS at 15 seconds, recorded the RMSE between them as the score, and used SHAP to ask which of six substrate properties best predicts the score.",
@@ -251,7 +243,7 @@
         ];
 
         // Map slot index (0-based) to entry in slides[]. 1-to-1 in this layout.
-        var NOTE_ORDER = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18];
+        var NOTE_ORDER = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17];
         var totalSlides = NOTE_ORDER.length;
 
         var currentSlide = 0;

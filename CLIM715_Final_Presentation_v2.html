@@ -4185,19 +4185,18 @@ FEATURES.forEach(function(f, i) {
 //   - a relative .html path → rendered via iframe.src (existing standalone viz)
 // Any string ending in .html is treated as an external file.
 // ============================================================
-// SLIDE_ORDER for v2 — results-focused redesign, 19 slides.
+// SLIDE_ORDER for v2 — results-focused redesign, 18 slides.
 // Slides 1-9: intro + problem framing (Title, UHI hook, column anatomy,
 // governing eq, SEB closure, substrates, BCs, IC, θ-method family).
 // Slides 10-14: the five report figures back-to-back (results).
 // Slides 15-16: the two report tables (numerical summary + smoking-gun
 // refinement ratios).
-// Slide 17: mechanism slide (κ_top should dominate — a-priori prediction).
-// Slide 18: Figure 6 (SHAP attribution — the prediction's empirical test).
-// Slide 19: Conclusions (four findings + UHI implication).
+// Slide 17: Figure 6 (SHAP attribution result).
+// Slide 18: Conclusions (four findings + UHI implication).
 //
-// Removed from this layout vs the previous 22-slide version: t6 / t7 / t8
-// (Test 1 vs Test 2 setup), t9 (two-sub-step algorithm slide), and the
-// 3D substrate viz. Those slides remain on disk and can be reinstated.
+// Removed from this layout vs earlier versions: t6/t7/t8 (Test 1 vs Test 2
+// setup), t9 (two-sub-step algorithm slide), the 3D substrate viz, and the
+// mechanism κ_top slide. Those slides remain on disk and can be reinstated.
 var SLIDE_ORDER = [
     's0',                                              //  1: Title
     's1',                                              //  2: UHI hook — why G matters
@@ -4215,9 +4214,8 @@ var SLIDE_ORDER = [
     'fig5_profile_asphalt.html',                      // 14: Figure 5 — vertical T profile in asphalt
     'table2_results.html',                            // 15: Table 2 — 27-cell cross-substrate summary
     'table3_refinement_ratios.html',                  // 16: Table 3 — Δt-refinement ratios (smoking gun)
-    'mechanism_kappa_top.html',                       // 17: Why κ_top should dominate — mechanism slide
-    'fig6_shap.html',                                 // 18: Figure 6 — SHAP attribution result
-    's7'                                               // 19: Conclusions
+    'fig6_shap.html',                                 // 17: Figure 6 — SHAP attribution result
+    's7'                                               // 18: Conclusions
 ];
 
 var totalSlides = SLIDE_ORDER.length;
