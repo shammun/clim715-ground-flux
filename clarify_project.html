@@ -307,6 +307,109 @@ window.MathJax = {
 <p><strong>So when the previous paragraph said "the 37% rule is the upstream physical reason for every numerical struggle in the rest of the report", this is what it meant.</strong> The 37% defines $d$; $d$ defines $\Delta z$; $\Delta z$ defines $\Delta t_{\max}$ for FTCS; $\Delta t_{\max}$ for FTCS is too small for operational use; therefore we must study BTCS and CN — which is the project.</p>
 </div>
 
+<div class="interp-box"><h4>The three substrates, the materials they are made of, and how the column is gridded</h4>
+
+<p>So far we have used the names "asphalt road", "concrete roof", and "bare soil" as if they were self-evident. They are not. Below is a complete reference: <em>what each substrate physically represents</em>, <em>what every material name means</em>, and <em>exactly how the column is sliced into cells</em>. Come back to this box whenever a layer name or a $\Delta z$ value stops making sense.</p>
+
+<p><strong>The three substrates and their layered structure.</strong> The project considers three vertical 1-D columns that span the urban thermal physics: a dark dense road, an insulated commercial roof, and a natural bare-soil patch. Each is a stack of materials with different thermal properties:</p>
+
+<table>
+<thead>
+<tr><th>Substrate</th><th>Layers (top → bottom)</th><th>Layer depths</th><th>$\lambda$ (W/m/K)</th><th>$C$ ($\times 10^{6}$ J/m³/K)</th><th>Top-layer albedo</th></tr>
+</thead>
+<tbody>
+<tr><td rowspan="4"><strong>Asphalt road</strong><br>(4 layers)</td><td>Asphalt</td><td>0–5 cm</td><td>0.75</td><td>2.0</td><td rowspan="4">0.10</td></tr>
+<tr><td>Aggregate (sub-base)</td><td>5–25 cm</td><td>1.40</td><td>2.4</td></tr>
+<tr><td>Dry soil</td><td>25–100 cm</td><td>0.30</td><td>1.3</td></tr>
+<tr><td>Subsoil</td><td>100–200 cm</td><td>0.50</td><td>1.8</td></tr>
+<tr><td rowspan="3"><strong>Concrete roof</strong><br>(3 layers)</td><td>Concrete deck</td><td>0–10 cm</td><td>1.50</td><td>2.1</td><td rowspan="3">0.30</td></tr>
+<tr><td>Mineral-wool insulation</td><td>10–20 cm</td><td>0.04</td><td>0.08</td></tr>
+<tr><td>Drywall / wood interior</td><td>20–200 cm</td><td>0.15</td><td>1.5</td></tr>
+<tr><td><strong>Bare soil</strong><br>(uniform)</td><td>Sandy loam</td><td>0–200 cm</td><td>0.30</td><td>1.3</td><td>0.20</td></tr>
+</tbody>
+</table>
+
+<p><strong>What each material name means — and which substrate it belongs to.</strong> The layer names above are construction- and soil-science vocabulary; the table below explains each one in plain language.</p>
+
+<table>
+<thead>
+<tr><th>Material</th><th>Belongs to</th><th>Plain-language meaning</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Asphalt</strong></td><td>Asphalt road (top)</td><td>The dark dense road-surface mixture of bitumen and fine aggregate. Low albedo (0.10) — absorbs ~90% of sunlight, which is why pavements get so hot. Moderate $\lambda$, high $C$.</td></tr>
+<tr><td><strong>Aggregate</strong> (sub-base)</td><td>Asphalt road (2nd layer)</td><td>The compacted gravel/crushed-stone layer that sits under the asphalt and provides structural support + drainage. Higher conductivity than asphalt because the stone matrix conducts heat well.</td></tr>
+<tr><td><strong>Dry soil</strong></td><td>Asphalt road (3rd layer)</td><td>The naturally-occurring ground beneath the engineered road, dried out by the road covering above (no infiltration). Low $\lambda$ because air pockets in the soil insulate it.</td></tr>
+<tr><td><strong>Subsoil</strong></td><td>Asphalt road (deepest)</td><td>The undisturbed natural soil deeper than ~1 m, slightly denser and moister than the upper dry layer. Slightly higher $\lambda$ than dry soil.</td></tr>
+<tr><td><strong>Concrete deck</strong></td><td>Concrete roof (top)</td><td>The structural concrete slab that forms the top of a typical flat commercial roof. High $\lambda$ (heat conducts through it easily), high $C$ (lots of thermal mass). The reason it sets the 17-second FTCS bound.</td></tr>
+<tr><td><strong>Mineral-wool insulation</strong></td><td>Concrete roof (middle)</td><td>A thermal-insulation material spun from molten basalt or slag into glass-fibre mats. Extremely low $\lambda$ (0.04) and extremely low $C$ (~$0.08 \times 10^{6}$) — almost decouples the deck thermally from the interior. This is the standard energy-code-compliant roof insulation.</td></tr>
+<tr><td><strong>Drywall / wood interior</strong></td><td>Concrete roof (deepest)</td><td>The building interior beneath the insulation: drywall ceiling, wooden joists, attic air pockets — represented as a single bulk material with moderate $\lambda$ and $C$. It barely participates in the daily cycle because the insulation above it has already throttled the signal.</td></tr>
+<tr><td><strong>Sandy loam</strong></td><td>Bare soil (entire column)</td><td>A natural-soil mix dominated by sand with smaller fractions of silt, clay, and organic matter — a textbook "average" soil. Low $\lambda$ and moderate $C$. Used as a <em>uniform</em> column here (no layering) so the substrate is the simplest possible reference case.</td></tr>
+</tbody>
+</table>
+
+<p><strong>So in plain English:</strong></p>
+<ul>
+<li><strong>"Asphalt road"</strong> = a 2-metre vertical stack representing what is under a city street: dark asphalt at the top, then the gravel sub-base, then the natural ground beneath. <em>Aggregate and subsoil are layers of the asphalt road, not separate substrates.</em></li>
+<li><strong>"Concrete roof"</strong> = a 2-metre vertical stack representing what is under a commercial flat roof: structural concrete deck on top, mineral-wool insulation in the middle, then the building interior below. <em>Mineral-wool and drywall are layers of the concrete roof, not separate substrates.</em></li>
+<li><strong>"Bare soil"</strong> = a 2-metre vertical column of natural sandy-loam soil with no engineered layers — the rural-park reference case. <em>It has only one material; sandy loam is just the technical name for that soil type.</em></li>
+</ul>
+
+<p>So when we say "the project considers three substrates", we mean three column types, not three materials. Several of the table's named materials (aggregate, subsoil, mineral-wool insulation, drywall) are <em>sub-layers</em> within a substrate, not substrates of their own.</p>
+
+<p><strong>How the column is gridded — the stretched-grid mechanics in detail.</strong></p>
+
+<p>Each column is 2 m deep. We chop that depth into cells. <strong>The cells are not equal thickness</strong> — they grow geometrically with depth. The recipe in <code>run_experiments.py</code> is:</p>
+
+<p>$$\Delta z_j \;=\; \Delta z_0 \cdot r^{j}, \qquad j = 0, 1, 2, \dots, N-1$$</p>
+
+<p>with two adjustable numbers: $\Delta z_0$ (the top-cell thickness) and $r$ (the stretch ratio, between 1.18 and 1.25 in our setup). The final cell is trimmed so the total reaches exactly 2 m. The full per-substrate grid configuration:</p>
+
+<table>
+<thead>
+<tr><th>Substrate</th><th>Top cell $\Delta z_0$</th><th>Stretch ratio $r$</th><th># cells $N$</th><th>Bottom cell at $z = 2$ m</th><th>$\Delta z_0 / d$</th><th>Across-cell amplitude variation</th><th>FTCS $\Delta t_{\rm crit}$</th></tr>
+</thead>
+<tbody>
+<tr><td>Bare soil</td><td><strong>1.0 cm</strong></td><td>1.25</td><td>24</td><td>≈ 30 cm</td><td>12.6%</td><td>100% → 88.2%</td><td><strong>216 s</strong></td></tr>
+<tr><td>Asphalt road</td><td><strong>0.5 cm</strong></td><td>1.20</td><td>28</td><td>≈ 30 cm</td><td>4.9%</td><td>100% → 95.2%</td><td><strong>33 s</strong></td></tr>
+<tr><td>Concrete roof</td><td><strong>0.5 cm</strong></td><td>1.18</td><td>30</td><td>≈ 30 cm</td><td>3.6%</td><td>100% → 96.5%</td><td><strong>17 s</strong></td></tr>
+</tbody>
+</table>
+
+<p>All three columns reach $\approx 30$ cm bottom cell at $z = 2$ m via geometric stretching. <strong>Test 1 verification</strong> uses a separate uniform $\Delta z = 1$ cm grid throughout (no stretching), so the analytical-vs-numerical comparison is clean.</p>
+
+<p><strong>First several cell thicknesses for each substrate.</strong> Just so the geometric growth is concrete, here are the first 5–8 cells of each grid:</p>
+
+<table>
+<thead>
+<tr><th>Cell $j$</th><th>Bare soil $\Delta z_j$ (cm)</th><th>Asphalt road $\Delta z_j$ (cm)</th><th>Concrete roof $\Delta z_j$ (cm)</th></tr>
+</thead>
+<tbody>
+<tr><td>0 (top)</td><td>1.00</td><td>0.50</td><td>0.50</td></tr>
+<tr><td>1</td><td>1.25</td><td>0.60</td><td>0.59</td></tr>
+<tr><td>2</td><td>1.56</td><td>0.72</td><td>0.70</td></tr>
+<tr><td>3</td><td>1.95</td><td>0.86</td><td>0.82</td></tr>
+<tr><td>4</td><td>2.44</td><td>1.04</td><td>0.97</td></tr>
+<tr><td>5</td><td>3.05</td><td>1.24</td><td>1.14</td></tr>
+<tr><td>10</td><td>9.31</td><td>3.10</td><td>2.62</td></tr>
+<tr><td>15</td><td>28.4</td><td>7.71</td><td>5.99</td></tr>
+<tr><td>last (bottom)</td><td>≈ 30</td><td>≈ 30</td><td>≈ 30</td></tr>
+</tbody>
+</table>
+
+<p><strong>Why stretched, not uniform.</strong> Two competing requirements:</p>
+<ul>
+<li><strong>Top of the column</strong> must resolve the 8–14 cm damping depth → top cell must be sub-centimetre.</li>
+<li><strong>Bottom of the column</strong> ($z = 2$ m) is 14–25 damping-depths down — the diurnal wave is essentially gone (amplitude $\sim e^{-14} \approx 10^{-6}$), so a coarse cell is harmless.</li>
+</ul>
+<p>A uniform 0.5 cm grid would need 400 cells to span 2 m. A uniform 30 cm grid would have only 7 cells but smear the surface signal completely. Geometric stretching gives you both — fine where it matters, coarse where it does not. 24–30 cells total, ~16× savings in computational cost relative to uniform-fine. This is standard practice in land-surface schemes (Best et al. 2011; Masson 2000).</p>
+
+<p><strong>Two consequences that matter downstream.</strong></p>
+<ol>
+<li><strong>The FTCS stability bound is set by the smallest $\Delta z^{2}/\kappa$ in the column</strong> — which is the top cell of the highest-$\kappa$ layer. The 17 / 33 / 216 second critical time steps cited throughout the walkthrough are all determined by one cell — the top cell — not by the column as a whole.</li>
+<li><strong>The harmonic-mean conductivity at faces</strong> ($\lambda_{j+1/2}$) is a simplification that strictly assumes equal cell thickness. The general weighted form for unequal cells is $\lambda_{\rm eff} = (\Delta z_1 + \Delta z_2)/(\Delta z_1/\lambda_1 + \Delta z_2/\lambda_2)$, which is what <code>run_experiments.py</code> actually uses. See Section 6.2 of this walkthrough.</li>
+</ol>
+</div>
+
 <div class="interp-box"><h4>Where does the "37% of surface amplitude" come from?</h4>
 <p>The formula $d = \sqrt{2\kappa/\omega}$ <em>by itself</em> doesn't mention 37%. The 37% comes from the <strong>analytical solution</strong> of the heat equation that <em>defines</em> $d$ in the first place. Here is the full story in plain language.</p>
 
