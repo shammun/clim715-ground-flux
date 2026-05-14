@@ -361,27 +361,6 @@
     <div class="sub">|A<sub>k</sub>(ν, kΔz)| as a function of dimensionless time-step ν = κΔt/Δz²</div>
   </header>
 
-  <div class="panels">
-    <div class="card">
-      <div class="panel-title">FTCS (explicit)</div>
-      <div class="panel-subtitle">A = 1 − 2ν(1 − cos kΔz)</div>
-      <span class="badge stable" id="badge-ftcs">STABLE</span>
-      <svg class="plot" id="plot-ftcs"></svg>
-    </div>
-    <div class="card">
-      <div class="panel-title">BTCS (implicit)</div>
-      <div class="panel-subtitle">A = 1 / [1 + 2ν(1 − cos kΔz)]</div>
-      <span class="badge stable" id="badge-btcs">STABLE</span>
-      <svg class="plot" id="plot-btcs"></svg>
-    </div>
-    <div class="card">
-      <div class="panel-title">Crank–Nicolson</div>
-      <div class="panel-subtitle">A = [1 − ν(1 − cos kΔz)] / [1 + ν(1 − cos kΔz)]</div>
-      <span class="badge stable" id="badge-cn">STABLE</span>
-      <svg class="plot" id="plot-cn"></svg>
-    </div>
-  </div>
-
   <div class="control-card">
     <div class="row1">
       <span class="nu-label">ν =</span>
@@ -410,6 +389,27 @@
         <span class="label">CN max |A|</span>
         <strong id="amax-cn">0.000</strong>
       </div>
+    </div>
+  </div>
+
+  <div class="panels">
+    <div class="card">
+      <div class="panel-title">FTCS (explicit)</div>
+      <div class="panel-subtitle">A = 1 − 2ν(1 − cos kΔz)</div>
+      <span class="badge stable" id="badge-ftcs">STABLE</span>
+      <svg class="plot" id="plot-ftcs"></svg>
+    </div>
+    <div class="card">
+      <div class="panel-title">BTCS (implicit)</div>
+      <div class="panel-subtitle">A = 1 / [1 + 2ν(1 − cos kΔz)]</div>
+      <span class="badge stable" id="badge-btcs">STABLE</span>
+      <svg class="plot" id="plot-btcs"></svg>
+    </div>
+    <div class="card">
+      <div class="panel-title">Crank–Nicolson</div>
+      <div class="panel-subtitle">A = [1 − ν(1 − cos kΔz)] / [1 + ν(1 − cos kΔz)]</div>
+      <span class="badge stable" id="badge-cn">STABLE</span>
+      <svg class="plot" id="plot-cn"></svg>
     </div>
   </div>
 
