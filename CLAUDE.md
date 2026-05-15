@@ -77,45 +77,32 @@ When asked to build a new interactive piece:
 - The 150-column synthetic ensemble for the SHAP analysis (`shap_attribution.py` in older sessions) takes ~2 minutes.
 - All numerical runs are deterministic given fixed seeds; if results don't reproduce, suspect a code change, not a stochastic effect.
 
-## GitHub-hosted live preview (set up 2026-05-09)
+## GitHub-hosted live preview (set up 2026-05-09; minimal-Pages policy as of 2026-05-15)
 
-The full project lives at https://github.com/shammun/clim715-ground-flux (public, free-tier Pages). Every HTML file in this directory is served live at:
+The full project lives at https://github.com/shammun/clim715-ground-flux (public, free-tier Pages).
 
-- Final presentation deck: https://shammun.github.io/clim715-ground-flux/CLIM715_Final_Presentation.html
-- Qualifier reference deck: https://shammun.github.io/clim715-ground-flux/qualifier_final_presentation_3.html
-- Any standalone viz: https://shammun.github.io/clim715-ground-flux/window_<name>.html
+**Minimal-Pages policy (2026-05-15):** the Pages site now exposes ONLY the canonical Final Presentation and its three iframe sub-pages. The user wants visitors to land only on the deck — nothing else discoverable.
 
-The user views these from mobile while changes are made on the desktop. Workflow on every change:
+Files deployed to Pages (at repo root, served by Jekyll):
+- `index.html` — meta-refresh redirect to the Final Presentation
+- `CLIM715_Final_Presentation.html` — canonical deck
+- `CLIM715_Substrate_3D_Visualization_v3.html` — loaded as iframe by slide 3
+- `window_von_neuman.html` — loaded as iframe by slide 5
+- `window_delta_t.html` — loaded as iframe by slide 9
+
+Everything else (former lecture dashboards, Study Guide, Q&A guide, speaker-notes pages, alternate deck versions, slide-fragment HTMLs, widget HTMLs) has been moved to `_archive/`. Jekyll auto-excludes `_`-prefixed folders, so they are present in the repo for archival but NOT served at https://shammun.github.io/…/. Non-HTML files at root (docx, pdf, ipynb, py, csv, png, etc.) are excluded via `_config.yml`.
+
+If a new file needs to be exposed on Pages, add it to the repo root AND verify `_config.yml`'s `exclude:` list does not block its extension.
+
+The user views the deck from mobile while changes are made on desktop. Workflow on every change:
 
 1. Make the change.
-2. `git add` the touched files, `git commit` with a clear message, `git push`. Use the gh CLI binary at `C:\Users\sislam27\AppData\Local\Microsoft\WinGet\Packages\GitHub.cli_Microsoft.Winget.Source_8wekyb3d8bbwe\bin\gh.exe` if you need to run anything via gh; the user is already authenticated as `shammun`.
-3. Pages redeploys in ~30–60 s. Tell the user the change is live and quote the relevant deck URL so they can refresh on mobile.
+2. `git add` the touched files, `git commit` with a clear message, `git push`. Use the gh CLI binary at `C:\Users\sislam27\AppData\Local\Microsoft\WinGet\Packages\GitHub.cli_Microsoft.Winget.Source_8wekyb3d8bbwe\bin\gh.exe` if you need gh; user is authenticated as `shammun`.
+3. Pages redeploys in ~30–60 s. Tell the user the change is live and quote the canonical URL.
 
-**Always include the deck URL in every reply** so the user can tap it from their phone. The canonical URL is `https://shammun.github.io/clim715-ground-flux/CLIM715_Final_Presentation.html`.
+**Always include the canonical deck URL at the end of every HTML-touching reply** so the user can tap it from their phone: `https://shammun.github.io/clim715-ground-flux/CLIM715_Final_Presentation.html`. Do NOT include any other Pages URLs (the long live-link block from the pre-2026-05-15 policy is retired — archived files no longer live on Pages, and the user explicitly does not want other URLs surfaced).
 
-**Always include the full live-page link list at the end of every reply that touches any HTML in this repo.** The user has asked, across sessions, to see all live URLs without having to ask. Whenever you modify, create, rebuild, or even just discuss any `.html` file in this directory, end your reply with the link block below. The canonical README.md in this repo carries the full table; the block below is the abbreviated form to drop into chat replies.
-
-```
-Live pages (https://shammun.github.io/clim715-ground-flux/):
-• Final Presentation: …/CLIM715_Final_Presentation.html
-• Study Guide:        …/Lecture_Master_Guide.html
-• Project Walkthrough:…/clarify_project.html
-• Speaker Notes:      …/CLIM715_speaker_notes.html
-• Q&A Guide:          …/CLIM715_QA_guide.html
-• Substrate 3D (v3):  …/CLIM715_Substrate_3D_Visualization_v3.html
-• Von Neumann widget: …/window_von_neuman.html
-• Δt widget:          …/window_delta_t.html
-• Lecture 3 dash:     …/lecture3_dashboard_Claude_Code.html
-• Lecture 4 dash:     …/lecture4_dashboard_Claude_Code.html
-• Lecture 5 dash:     …/lecture5_dashboard_Claude_Code.html
-• Lecture 6 dash:     …/lecture6_dashboard_Claude_Code.html
-• Qualifier deck:     …/qualifier_final_presentation_3.html
-• Full list:          README.md on GitHub
-```
-
-When the user's most-recent request was specifically about *one* page (e.g., "fix slide 8 of the deck"), bold or callout the relevant URL at the top of that block so it is the first thing they see; still include the rest so they have one-touch access to everything.
-
-**Auto-push is the default** — do not ask the user for permission to commit or push. Every user-requested change ends in `git commit` + `git push`. Don't push speculative WIP; push after each change has landed and is internally consistent (i.e., what would be a clean commit). Don't commit `.claude/settings.local.json`; it's already in `.gitignore`.
+**Auto-push is the default** — do not ask for permission to commit or push. Every user-requested change ends in `git commit` + `git push`. Don't push speculative WIP; push after each change has landed and is internally consistent. Don't commit `.claude/settings.local.json`; it's already in `.gitignore`.
 
 ## Multi-pass verification when the user asks "verify slide N"
 

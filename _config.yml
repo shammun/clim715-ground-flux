@@ -1,0 +1,35 @@
+# CLIM-715 Pages build. Only the canonical deck + its three iframe
+# sub-pages + index.html are deployed. Everything else stays in the repo
+# (for archival and GitHub repo browsing) but is not served at
+# https://shammun.github.io/clim715-ground-flux/.
+#
+# Files in _archive/ are auto-excluded by Jekyll because the folder name
+# starts with an underscore. The excludes below cover non-HTML files at
+# the repo root that we don't want exposed on Pages.
+exclude:
+  - "*.md"
+  - "*.docx"
+  - "*.pdf"
+  - "*.ipynb"
+  - "*.py"
+  - "*.csv"
+  - "*.txt"
+  - "*.png"
+  - "*.jpg"
+  - "*.jpeg"
+  - "*.svg"
+  - "*.gif"
+  - "*.webp"
+  - "*.mp4"
+  - "*.mov"
+  - "*.yml"
+  - "*.yaml"
+  - "*.toml"
+  - "*.ini"
+  - "*.cfg"
+  - "*.lock"
+  - report_images
+  - memory
+  - __pycache__
+  - .claude
+  - .gitignore
