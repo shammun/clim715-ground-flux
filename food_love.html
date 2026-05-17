@@ -28,8 +28,7 @@
   .searchwrap{display:flex; gap:8px}
   .searchbox{
     flex:1; display:flex; align-items:center; gap:10px; background:var(--card);
-    border:2px solid var(--line); border-radius:14px; padding:13px 15px;
-    box-shadow:var(--shadow);
+    border:2px solid var(--line); border-radius:14px; padding:13px 15px; box-shadow:var(--shadow);
   }
   .searchbox:focus-within{border-color:var(--accent)}
   .searchbox svg{flex:none}
@@ -55,7 +54,7 @@
   .chip.active{background:var(--accent); color:#fff; border-color:var(--accent)}
   .chip.fav.active{background:var(--gold); border-color:var(--gold); color:#5a4400}
 
-  main{padding:4px 16px 90px; max-width:980px; margin:0 auto}
+  main{padding:4px 16px 90px; max-width:1000px; margin:0 auto}
   .sectiontitle{display:flex;align-items:center;gap:8px;margin:20px 4px 12px;font-size:17px;font-weight:800}
   .sectiontitle .count{font-size:12px;color:var(--muted);font-weight:600}
   .note{font-size:13px;color:var(--muted);margin:-4px 4px 14px;line-height:1.6;white-space:pre-line}
@@ -63,8 +62,7 @@
   .card{
     background:var(--card); border:2px solid var(--line); border-radius:16px;
     padding:14px; cursor:pointer; box-shadow:var(--shadow); position:relative;
-    display:flex; flex-direction:column; gap:8px; min-height:150px;
-    transition:transform .08s;
+    display:flex; flex-direction:column; gap:8px; min-height:150px; transition:transform .08s;
   }
   .card:active{transform:scale(.97)}
   .card.fav{border-color:var(--gold); background:linear-gradient(180deg,var(--gold-soft),#fff 60%)}
@@ -77,55 +75,55 @@
   .card .name{font-size:15px; font-weight:800; line-height:1.25}
   .card .meta{font-size:12px; color:var(--muted); margin-top:auto; display:flex; justify-content:space-between; align-items:center; gap:6px}
   .price{color:var(--accent); font-weight:800}
-  .needtag{font-size:10px;background:var(--accent-soft);color:var(--accent);padding:2px 7px;border-radius:6px;font-weight:700}
-  .havetag{font-size:10px;background:#e7f6ef;color:var(--ok);padding:2px 7px;border-radius:6px;font-weight:700}
+  .cnt{font-size:11px;background:var(--accent-soft);color:var(--accent);padding:3px 8px;border-radius:7px;font-weight:700}
   .empty{text-align:center;color:var(--muted);padding:60px 20px;font-size:16px}
 
   .overlay{position:fixed;inset:0;background:rgba(40,25,15,.45);z-index:50;display:none}
   .overlay.open{display:block}
   .sheet{
-    position:fixed; left:0; right:0; bottom:0; max-height:92vh; background:var(--card);
+    position:fixed; left:0; right:0; bottom:0; max-height:94vh; background:var(--card);
     border-radius:22px 22px 0 0; z-index:60; transform:translateY(100%);
     transition:transform .28s ease; display:flex; flex-direction:column;
   }
   .sheet.open{transform:translateY(0)}
   .grab{width:44px;height:5px;background:var(--line);border-radius:3px;margin:10px auto 4px;flex:none}
-  .sheethead{padding:8px 20px 14px; border-bottom:1px solid var(--line); flex:none}
+  .sheethead{padding:8px 20px 14px; border-bottom:1px solid var(--line); flex:none; position:relative}
   .sheethead .hero{
-    width:100%; height:150px; border-radius:16px; background:var(--accent-soft);
-    display:flex;align-items:center;justify-content:center;font-size:74px;overflow:hidden;margin-bottom:12px}
+    width:100%; height:140px; border-radius:16px; background:var(--accent-soft);
+    display:flex;align-items:center;justify-content:center;font-size:70px;overflow:hidden;margin-bottom:12px}
   .sheethead .hero img{width:100%;height:100%;object-fit:cover}
-  .sheethead h2{margin:0;font-size:23px}
-  .sheethead .sub{color:var(--muted);font-size:14px;margin-top:4px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  .sheetbody{padding:16px 20px 30px; overflow-y:auto; -webkit-overflow-scrolling:touch}
-  .sheetbody h3{font-size:14px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:4px 0 12px}
-  .ing{
-    display:flex; align-items:center; gap:13px; padding:14px 12px; border:1.5px solid var(--line);
-    border-radius:12px; margin-bottom:9px; font-size:17px; cursor:pointer; background:var(--card);
-  }
-  .ing.checked{background:#f4faf6; border-color:#bfe6d2; color:var(--muted); text-decoration:line-through}
-  .ing .box{
-    width:26px;height:26px;border:2px solid var(--accent);border-radius:7px;flex:none;
-    display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:900}
-  .ing.checked .box{background:var(--ok);border-color:var(--ok)}
-  .ing .emoji{font-size:24px;flex:none;width:30px;height:30px;display:flex;align-items:center;justify-content:center}
-  .ing .emoji img{width:30px;height:30px;border-radius:7px;object-fit:cover;display:block}
-  .ing.flag{border-color:#e7b94d;background:#fff8e8;color:#8a6a14;cursor:default}
+  .sheethead h2{margin:0;font-size:24px;font-weight:800}
+  .sheethead .sub{color:var(--muted);font-size:14px;margin-top:5px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .closeX{position:absolute;top:12px;right:18px;background:rgba(0,0,0,.45);border:0;width:38px;height:38px;border-radius:50%;font-size:20px;cursor:pointer;color:#fff;backdrop-filter:blur(2px)}
+  .sheetbody{padding:16px 16px 34px; overflow-y:auto; -webkit-overflow-scrolling:touch}
+  .ingbar{display:flex;align-items:baseline;justify-content:space-between;margin:2px 4px 14px}
+  .ingbar h3{font-size:15px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:0}
+  .ingbar .hint{font-size:12px;color:var(--muted)}
+  .resetbtn{border:0;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:700;
+    padding:6px 12px;border-radius:8px;cursor:pointer;display:none}
+  .inggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:13px}
+  .ingtile{
+    background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:10px;
+    text-align:center;cursor:pointer;display:flex;flex-direction:column;gap:9px;transition:transform .07s}
+  .ingtile:active{transform:scale(.96)}
+  .ingtile .pic{
+    width:100%;aspect-ratio:1/1;border-radius:12px;background:var(--accent-soft);
+    display:flex;align-items:center;justify-content:center;font-size:54px;overflow:hidden;position:relative}
+  .ingtile .pic img{width:100%;height:100%;object-fit:cover}
+  .ingtile .nm{font-size:16px;font-weight:700;line-height:1.3;color:var(--ink)}
+  .ingtile.got{opacity:.5}
+  .ingtile.got .pic::after{
+    content:'\2713';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    background:rgba(47,158,110,.80);color:#fff;font-size:46px;font-weight:900;border-radius:12px}
+  .ingtile.flag{border:1.5px solid #e7b94d;background:#fff8e8;cursor:default}
+  .ingtile.flag:active{transform:none}
+  .ingtile.flag .pic{background:#fbe6bd;font-size:38px}
+  .ingtile.flag .nm{color:#8a6a14;font-size:13px;font-weight:600;line-height:1.4}
   .noing{
-    background:var(--accent-soft); border:1.5px dashed var(--accent); border-radius:12px;
-    padding:18px; color:#9a4a22; font-size:14px; line-height:1.5; text-align:center}
-  .btnrow{display:flex;gap:10px;margin-top:18px}
-  .btn{
-    flex:1; padding:15px; border-radius:13px; border:0; font-size:16px; font-weight:800;
-    cursor:pointer; background:var(--accent-soft); color:var(--accent)}
-  .btn.solid{background:var(--accent);color:#fff}
-  .closeX{position:absolute;top:14px;right:16px;background:rgba(0,0,0,.06);border:0;width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer;color:var(--ink)}
-  textarea#editor{
-    width:100%;min-height:160px;border:2px solid var(--line);border-radius:12px;
-    padding:14px;font-size:16px;font-family:inherit;resize:vertical;color:var(--ink)}
-  .hint{font-size:13px;color:var(--muted);margin:6px 2px 12px;line-height:1.5}
+    background:var(--accent-soft);border:1.5px dashed var(--accent);border-radius:14px;
+    padding:22px;color:#9a4a22;font-size:15px;line-height:1.5;text-align:center}
   @media(min-width:760px){
-    .sheet{left:50%;right:auto;width:560px;transform:translate(-50%,100%)}
+    .sheet{left:50%;right:auto;width:620px;transform:translate(-50%,100%)}
     .sheet.open{transform:translate(-50%,0)}
   }
 </style>
@@ -157,26 +155,19 @@
 <div class="overlay" id="overlay"></div>
 <div class="sheet" id="sheet">
   <div class="grab"></div>
-  <button class="closeX" id="closeX" aria-label="Close">✕</button>
   <div class="sheethead">
+    <button class="closeX" id="closeX" aria-label="Close">✕</button>
     <div class="hero" id="dHero">🍽️</div>
     <h2 id="dName">—</h2>
     <div class="sub" id="dSub"></div>
   </div>
   <div class="sheetbody">
-    <div id="dIngWrap">
+    <div class="ingbar">
       <h3>Ingredients <span id="dIngCount" style="color:var(--accent)"></span></h3>
-      <div id="dIng"></div>
+      <button class="resetbtn" id="resetBtn">Clear ✓</button>
     </div>
-    <div id="dEdit" style="display:none">
-      <h3>Edit ingredients</h3>
-      <p class="hint">One ingredient per line. This saves on <b>this device</b> so cooks see it next time.</p>
-      <textarea id="editor" placeholder="e.g.&#10;Spaghetti&#10;Meatballs&#10;Marinara sauce"></textarea>
-    </div>
-    <div class="btnrow">
-      <button class="btn" id="resetCheck">Reset checklist</button>
-      <button class="btn solid" id="editBtn">Edit ingredients</button>
-    </div>
+    <div class="inggrid" id="dIng"></div>
+    <div style="font-size:12px;color:var(--muted);text-align:center;margin-top:16px">Tap an ingredient once you’ve grabbed it.</div>
   </div>
 </div>
 
@@ -317,26 +308,6 @@ function emojiFor(name, cat){
 }
 function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");}
 
-const LS_ING="foodlove_ing_v1";
-function userIng(){try{return JSON.parse(localStorage.getItem(LS_ING)||"{}")}catch(e){return{}}}
-function saveUserIng(o){localStorage.setItem(LS_ING,JSON.stringify(o))}
-function ingFor(it){
-  const u=userIng()[slug(it.name)+"|"+slug(it._cat)];
-  if(u && u.length) return {list:u, source:"saved"};
-  if(it.ing && it.ing.length) return {list:it.ing, source:"builtin"};
-  return {list:[], source:"none"};
-}
-
-MENU.forEach(g=>g.items.forEach(it=>{it._cat=g.cat;}));
-const popularPin=MENU.find(g=>g.popularPin);
-popularPin.items = MENU.flatMap(g=>g.items).filter(it=>it.popular);
-
-let activeCat="Most Popular";
-const elNav=document.getElementById("nav");
-const elMain=document.getElementById("main");
-const elQ=document.getElementById("q");
-const elClear=document.getElementById("clear");
-
 function ingEmoji(name){
   const n=name.toLowerCase();
   if(n.indexOf("⚠")===0) return "⚠";
@@ -350,10 +321,20 @@ function ingEmoji(name){
    ["pepper","🫑"],["olive","🫒"],["pineapple","🍍"],["chickpea","🫘"],["hummus","🫓"],
    ["artichoke","🌱"],["spaghetti","🍝"],["penne","🍝"],["pasta","🍝"],["ravioli","🥟"],
    ["bread","🥖"],["fries","🍟"],["mayo","🥚"],["mustard","🥫"],["dressing","🥗"],
-   ["vinaigrette","🥗"],["tahini","🥣"],["dip","🫕"],["pesto","🌿"],["olive oil","🫒"]];
+   ["vinaigrette","🥗"],["tahini","🥣"],["dip","🫕"],["pesto","🌿"]];
   for(const [k,e] of m) if(n.includes(k)) return e;
-  return "•";
+  return "🍽️";
 }
+
+MENU.forEach(g=>g.items.forEach(it=>{it._cat=g.cat;}));
+const popularPin=MENU.find(g=>g.popularPin);
+popularPin.items = MENU.flatMap(g=>g.items).filter(it=>it.popular);
+
+let activeCat="Most Popular";
+const elNav=document.getElementById("nav");
+const elMain=document.getElementById("main");
+const elQ=document.getElementById("q");
+const elClear=document.getElementById("clear");
 
 function renderNav(){
   elNav.innerHTML="";
@@ -369,32 +350,25 @@ function renderNav(){
 function cardEl(it){
   const c=document.createElement("div");
   c.className="card"+(it.popular?" fav":"");
-  const info=ingFor(it);
-  const has=info.list.length>0;
+  const n=(it.ing||[]).length;
   c.innerHTML=`
     ${it.popular?'<div class="star">⭐</div>':''}
     <div class="thumb">${emojiFor(it.name,it._cat)}</div>
     <div class="name">${it.name}</div>
     <div class="meta">
       <span class="price">${it.price?("$"+it.price):""}</span>
-      <span class="${has?'havetag':'needtag'}">${has?'✓ '+info.list.length+' items':'add ingredients'}</span>
+      ${n?`<span class="cnt">${n} ingredient${n!=1?'s':''}</span>`:''}
     </div>`;
-  tryImg(c.querySelector(".thumb"), slug(it.name));
+  tryImg(c.querySelector(".thumb"), "food_love_images/"+slug(it.name)+".jpg");
   c.onclick=()=>openDetail(it);
   return c;
 }
 
-function tryImg(box, sl){
+function tryImg(box, src){
   const im=new Image();
   im.onload=()=>{ box.innerHTML=""; box.appendChild(im); };
   im.onerror=()=>{};
-  im.alt=""; im.src="food_love_images/"+sl+".jpg";
-}
-function tryIngImg(span, ing){
-  const im=new Image();
-  im.onload=()=>{ span.innerHTML=""; span.appendChild(im); };
-  im.onerror=()=>{};
-  im.alt=""; im.src="food_love_images/ing/"+slug(ing)+".jpg";
+  im.alt=""; im.src=src;
 }
 
 function render(){
@@ -418,8 +392,8 @@ function render(){
     t.innerHTML=`<span>${g.cat}</span><span class="count">${g.items.length} item${g.items.length!=1?'s':''}</span>`;
     elMain.appendChild(t);
     if(g.note){
-      const n=document.createElement("div");
-      n.className="note"; n.textContent=g.note; elMain.appendChild(n);
+      const nn=document.createElement("div");
+      nn.className="note"; nn.textContent=g.note; elMain.appendChild(nn);
     }
     const grid=document.createElement("div"); grid.className="grid";
     g.items.forEach(it=>grid.appendChild(cardEl(it)));
@@ -429,18 +403,15 @@ function render(){
 
 const overlay=document.getElementById("overlay");
 const sheet=document.getElementById("sheet");
-let current=null;
-const LS_CHK="foodlove_chk_v1";
-function chkState(){try{return JSON.parse(localStorage.getItem(LS_CHK)||"{}")}catch(e){return{}}}
-function saveChk(o){localStorage.setItem(LS_CHK,JSON.stringify(o))}
+const dIng=document.getElementById("dIng");
+const resetBtn=document.getElementById("resetBtn");
+let current=null, gathered=new Set();
 
 function openDetail(it){
-  current=it;
-  document.getElementById("dEdit").style.display="none";
-  document.getElementById("dIngWrap").style.display="";
-  document.getElementById("editBtn").textContent="Edit ingredients";
+  current=it; gathered=new Set();
   const hero=document.getElementById("dHero");
-  hero.innerHTML=emojiFor(it.name,it._cat); tryImg(hero, slug(it.name));
+  hero.innerHTML=emojiFor(it.name,it._cat);
+  tryImg(hero, "food_love_images/"+slug(it.name)+".jpg");
   document.getElementById("dName").textContent=it.name;
   const sub=document.getElementById("dSub");
   sub.innerHTML="";
@@ -451,62 +422,48 @@ function openDetail(it){
   overlay.classList.add("open");
   (window.requestAnimationFrame||(cb=>setTimeout(cb,16)))(()=>sheet.classList.add("open"));
 }
+
 function renderIng(){
-  const info=ingFor(current);
-  const wrap=document.getElementById("dIng");
+  const list=current.ing||[];
   const cnt=document.getElementById("dIngCount");
-  wrap.innerHTML="";
-  if(!info.list.length){
+  dIng.innerHTML="";
+  if(!list.length){
     cnt.textContent="";
-    wrap.innerHTML=`<div class="noing">No ingredient list on the menu for <b>${current.name}</b>.<br>
-      Tap <b>“Edit ingredients”</b> to add them — it saves so the next cook sees it.</div>`;
+    dIng.style.display="block";
+    dIng.innerHTML=`<div class="noing">No ingredient list printed on the menu for <b>${current.name}</b>.</div>`;
+    resetBtn.style.display="none";
     return;
   }
-  cnt.textContent="("+info.list.length+(info.source==="saved"?" • saved here":"")+")";
-  const key=slug(current.name)+"|"+slug(current._cat);
-  const st=chkState();
-  info.list.forEach((ing,i)=>{
+  dIng.style.display="grid";
+  cnt.textContent="("+list.length+")";
+  list.forEach((ing,i)=>{
     const isFlag = ing.indexOf("⚠")===0;
-    const checked = !isFlag && st[key] && st[key][i];
-    const row=document.createElement("div");
-    row.className="ing"+(isFlag?" flag":"")+(checked?" checked":"");
+    const tile=document.createElement("div");
     if(isFlag){
-      row.innerHTML=`<span class="emoji">⚠</span><span>${ing.replace(/^⚠\s*/,"")}</span>`;
+      tile.className="ingtile flag";
+      tile.innerHTML=`<div class="pic">⚠</div><div class="nm">${ing.replace(/^⚠\s*/,"")}</div>`;
     } else {
-      row.innerHTML=`<span class="box">${checked?'✓':''}</span><span class="emoji">${ingEmoji(ing)}</span><span>${ing}</span>`;
-      tryIngImg(row.querySelector(".emoji"), ing);
-      row.onclick=()=>{
-        const s=chkState(); s[key]=s[key]||{}; s[key][i]=!s[key][i]; saveChk(s); renderIng();
+      const got=gathered.has(i);
+      tile.className="ingtile"+(got?" got":"");
+      tile.innerHTML=`<div class="pic">${ingEmoji(ing)}</div><div class="nm">${ing}</div>`;
+      tryImg(tile.querySelector(".pic"), "food_love_images/ing/"+slug(ing)+".jpg");
+      tile.onclick=()=>{
+        if(gathered.has(i)) gathered.delete(i); else gathered.add(i);
+        renderIng();
       };
     }
-    wrap.appendChild(row);
+    dIng.appendChild(tile);
   });
+  resetBtn.style.display = gathered.size ? "inline-block" : "none";
 }
+
 function closeDetail(){
   sheet.classList.remove("open");
   setTimeout(()=>overlay.classList.remove("open"),260);
 }
 overlay.onclick=closeDetail;
 document.getElementById("closeX").onclick=closeDetail;
-document.getElementById("resetCheck").onclick=()=>{
-  const key=slug(current.name)+"|"+slug(current._cat);
-  const s=chkState(); delete s[key]; saveChk(s); renderIng();
-};
-document.getElementById("editBtn").onclick=function(){
-  const ed=document.getElementById("dEdit");
-  const showing=ed.style.display!=="none";
-  if(!showing){
-    document.getElementById("editor").value=ingFor(current).list.join("\n");
-    ed.style.display=""; document.getElementById("dIngWrap").style.display="none";
-    this.textContent="Save ingredients";
-  } else {
-    const lines=document.getElementById("editor").value.split("\n").map(s=>s.trim()).filter(Boolean);
-    const all=userIng(); all[slug(current.name)+"|"+slug(current._cat)]=lines; saveUserIng(all);
-    ed.style.display="none"; document.getElementById("dIngWrap").style.display="";
-    this.textContent="Edit ingredients";
-    renderIng(); render();
-  }
-};
+resetBtn.onclick=()=>{ gathered=new Set(); renderIng(); };
 
 elQ.addEventListener("input",()=>{ elClear.style.display=elQ.value?"block":"none"; render(); });
 elClear.onclick=()=>{ elQ.value=""; elClear.style.display="none"; render(); };
