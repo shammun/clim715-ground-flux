@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Food Love — Kitchen Prep Guide</title>
 <style>
   :root{
@@ -99,26 +102,18 @@
   .ingbar{display:flex;align-items:baseline;justify-content:space-between;margin:2px 4px 14px}
   .ingbar h3{font-size:15px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:0}
   .ingbar .hint{font-size:12px;color:var(--muted)}
-  .resetbtn{border:0;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:700;
-    padding:6px 12px;border-radius:8px;cursor:pointer;display:none}
   .inggrid{display:flex;flex-direction:column;gap:18px}
   .ingtile{
     background:var(--card);border:2px solid var(--line);border-radius:18px;padding:16px;
-    cursor:pointer;display:flex;flex-direction:column;gap:12px;transition:transform .07s;box-shadow:var(--shadow)}
-  .ingtile:active{transform:scale(.99)}
-  .ingtile .nm{font-size:23px;font-weight:800;line-height:1.25;color:var(--ink);text-align:center}
+    display:flex;flex-direction:column;gap:14px;box-shadow:var(--shadow)}
+  .ingtile .nm{font-size:25px;font-weight:800;line-height:1.25;color:var(--ink);text-align:center}
   .ingtile .pic{
     width:100%;aspect-ratio:4/3;border-radius:14px;background:var(--accent-soft);
-    display:flex;align-items:center;justify-content:center;font-size:100px;overflow:hidden;position:relative}
+    display:flex;align-items:center;justify-content:center;font-size:110px;overflow:hidden}
   .ingtile .pic img{width:100%;height:100%;object-fit:cover}
-  .ingtile.got{opacity:.5}
-  .ingtile.got .pic::after{
-    content:'\2713';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    background:rgba(47,158,110,.82);color:#fff;font-size:90px;font-weight:900;border-radius:14px}
-  .ingtile.flag{border:2px solid #e7b94d;background:#fff8e8;cursor:default}
-  .ingtile.flag:active{transform:none}
-  .ingtile.flag .pic{background:#fbe6bd;font-size:70px}
-  .ingtile.flag .nm{color:#8a6a14;font-size:17px;font-weight:700;line-height:1.4}
+  .ingtile.flag{border:2px solid #e7b94d;background:#fff8e8}
+  .ingtile.flag .pic{background:#fbe6bd;font-size:74px}
+  .ingtile.flag .nm{color:#8a6a14;font-size:18px;font-weight:700;line-height:1.4}
   .noing{
     background:var(--accent-soft);border:1.5px dashed var(--accent);border-radius:14px;
     padding:22px;color:#9a4a22;font-size:15px;line-height:1.5;text-align:center}
@@ -164,10 +159,8 @@
   <div class="sheetbody">
     <div class="ingbar">
       <h3>Ingredients <span id="dIngCount" style="color:var(--accent)"></span></h3>
-      <button class="resetbtn" id="resetBtn">Clear ✓</button>
     </div>
     <div class="inggrid" id="dIng"></div>
-    <div style="font-size:12px;color:var(--muted);text-align:center;margin-top:16px">Tap an ingredient once you’ve grabbed it.</div>
   </div>
 </div>
 
@@ -404,11 +397,10 @@ function render(){
 const overlay=document.getElementById("overlay");
 const sheet=document.getElementById("sheet");
 const dIng=document.getElementById("dIng");
-const resetBtn=document.getElementById("resetBtn");
-let current=null, gathered=new Set();
+let current=null;
 
 function openDetail(it){
-  current=it; gathered=new Set();
+  current=it;
   const hero=document.getElementById("dHero");
   hero.innerHTML=emojiFor(it.name,it._cat);
   tryImg(hero, "food_love_images/"+slug(it.name)+".jpg");
@@ -431,30 +423,23 @@ function renderIng(){
     cnt.textContent="";
     dIng.style.display="block";
     dIng.innerHTML=`<div class="noing">No ingredient list printed on the menu for <b>${current.name}</b>.</div>`;
-    resetBtn.style.display="none";
     return;
   }
-  dIng.style.display="grid";
+  dIng.style.display="flex";
   cnt.textContent="("+list.length+")";
-  list.forEach((ing,i)=>{
+  list.forEach((ing)=>{
     const isFlag = ing.indexOf("⚠")===0;
     const tile=document.createElement("div");
     if(isFlag){
       tile.className="ingtile flag";
       tile.innerHTML=`<div class="nm">${ing.replace(/^⚠\s*/,"")}</div><div class="pic">⚠</div>`;
     } else {
-      const got=gathered.has(i);
-      tile.className="ingtile"+(got?" got":"");
+      tile.className="ingtile";
       tile.innerHTML=`<div class="nm">${ing}</div><div class="pic">${ingEmoji(ing)}</div>`;
       tryImg(tile.querySelector(".pic"), "food_love_images/ing/"+slug(ing)+".jpg");
-      tile.onclick=()=>{
-        if(gathered.has(i)) gathered.delete(i); else gathered.add(i);
-        renderIng();
-      };
     }
     dIng.appendChild(tile);
   });
-  resetBtn.style.display = gathered.size ? "inline-block" : "none";
 }
 
 function closeDetail(){
@@ -463,7 +448,6 @@ function closeDetail(){
 }
 overlay.onclick=closeDetail;
 document.getElementById("closeX").onclick=closeDetail;
-resetBtn.onclick=()=>{ gathered=new Set(); renderIng(); };
 
 elQ.addEventListener("input",()=>{ elClear.style.display=elQ.value?"block":"none"; render(); });
 elClear.onclick=()=>{ elQ.value=""; elClear.style.display="none"; render(); };
