@@ -101,24 +101,24 @@
   .ingbar .hint{font-size:12px;color:var(--muted)}
   .resetbtn{border:0;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:700;
     padding:6px 12px;border-radius:8px;cursor:pointer;display:none}
-  .inggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:13px}
+  .inggrid{display:flex;flex-direction:column;gap:18px}
   .ingtile{
-    background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:10px;
-    text-align:center;cursor:pointer;display:flex;flex-direction:column;gap:9px;transition:transform .07s}
-  .ingtile:active{transform:scale(.96)}
+    background:var(--card);border:2px solid var(--line);border-radius:18px;padding:16px;
+    cursor:pointer;display:flex;flex-direction:column;gap:12px;transition:transform .07s;box-shadow:var(--shadow)}
+  .ingtile:active{transform:scale(.99)}
+  .ingtile .nm{font-size:23px;font-weight:800;line-height:1.25;color:var(--ink);text-align:center}
   .ingtile .pic{
-    width:100%;aspect-ratio:1/1;border-radius:12px;background:var(--accent-soft);
-    display:flex;align-items:center;justify-content:center;font-size:54px;overflow:hidden;position:relative}
+    width:100%;aspect-ratio:4/3;border-radius:14px;background:var(--accent-soft);
+    display:flex;align-items:center;justify-content:center;font-size:100px;overflow:hidden;position:relative}
   .ingtile .pic img{width:100%;height:100%;object-fit:cover}
-  .ingtile .nm{font-size:16px;font-weight:700;line-height:1.3;color:var(--ink)}
   .ingtile.got{opacity:.5}
   .ingtile.got .pic::after{
     content:'\2713';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    background:rgba(47,158,110,.80);color:#fff;font-size:46px;font-weight:900;border-radius:12px}
-  .ingtile.flag{border:1.5px solid #e7b94d;background:#fff8e8;cursor:default}
+    background:rgba(47,158,110,.82);color:#fff;font-size:90px;font-weight:900;border-radius:14px}
+  .ingtile.flag{border:2px solid #e7b94d;background:#fff8e8;cursor:default}
   .ingtile.flag:active{transform:none}
-  .ingtile.flag .pic{background:#fbe6bd;font-size:38px}
-  .ingtile.flag .nm{color:#8a6a14;font-size:13px;font-weight:600;line-height:1.4}
+  .ingtile.flag .pic{background:#fbe6bd;font-size:70px}
+  .ingtile.flag .nm{color:#8a6a14;font-size:17px;font-weight:700;line-height:1.4}
   .noing{
     background:var(--accent-soft);border:1.5px dashed var(--accent);border-radius:14px;
     padding:22px;color:#9a4a22;font-size:15px;line-height:1.5;text-align:center}
@@ -441,11 +441,11 @@ function renderIng(){
     const tile=document.createElement("div");
     if(isFlag){
       tile.className="ingtile flag";
-      tile.innerHTML=`<div class="pic">⚠</div><div class="nm">${ing.replace(/^⚠\s*/,"")}</div>`;
+      tile.innerHTML=`<div class="nm">${ing.replace(/^⚠\s*/,"")}</div><div class="pic">⚠</div>`;
     } else {
       const got=gathered.has(i);
       tile.className="ingtile"+(got?" got":"");
-      tile.innerHTML=`<div class="pic">${ingEmoji(ing)}</div><div class="nm">${ing}</div>`;
+      tile.innerHTML=`<div class="nm">${ing}</div><div class="pic">${ingEmoji(ing)}</div>`;
       tryImg(tile.querySelector(".pic"), "food_love_images/ing/"+slug(ing)+".jpg");
       tile.onclick=()=>{
         if(gathered.has(i)) gathered.delete(i); else gathered.add(i);
