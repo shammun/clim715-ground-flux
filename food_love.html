@@ -58,6 +58,7 @@
   main{padding:4px 16px 90px; max-width:980px; margin:0 auto}
   .sectiontitle{display:flex;align-items:center;gap:8px;margin:20px 4px 12px;font-size:17px;font-weight:800}
   .sectiontitle .count{font-size:12px;color:var(--muted);font-weight:600}
+  .note{font-size:13px;color:var(--muted);margin:-4px 4px 14px;line-height:1.6;white-space:pre-line}
   .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:13px}
   .card{
     background:var(--card); border:2px solid var(--line); border-radius:16px;
@@ -74,13 +75,12 @@
   }
   .thumb img{width:100%;height:100%;object-fit:cover}
   .card .name{font-size:15px; font-weight:800; line-height:1.25}
-  .card .meta{font-size:12px; color:var(--muted); margin-top:auto; display:flex; justify-content:space-between; align-items:center}
+  .card .meta{font-size:12px; color:var(--muted); margin-top:auto; display:flex; justify-content:space-between; align-items:center; gap:6px}
   .price{color:var(--accent); font-weight:800}
   .needtag{font-size:10px;background:var(--accent-soft);color:var(--accent);padding:2px 7px;border-radius:6px;font-weight:700}
   .havetag{font-size:10px;background:#e7f6ef;color:var(--ok);padding:2px 7px;border-radius:6px;font-weight:700}
   .empty{text-align:center;color:var(--muted);padding:60px 20px;font-size:16px}
 
-  /* Detail sheet */
   .overlay{position:fixed;inset:0;background:rgba(40,25,15,.45);z-index:50;display:none}
   .overlay.open{display:block}
   .sheet{
@@ -109,6 +109,7 @@
     display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:900}
   .ing.checked .box{background:var(--ok);border-color:var(--ok)}
   .ing .emoji{font-size:24px;flex:none}
+  .ing.flag{border-color:#e7b94d;background:#fff8e8;color:#8a6a14;cursor:default}
   .noing{
     background:var(--accent-soft); border:1.5px dashed var(--accent); border-radius:12px;
     padding:18px; color:#9a4a22; font-size:14px; line-height:1.5; text-align:center}
@@ -168,8 +169,8 @@
     </div>
     <div id="dEdit" style="display:none">
       <h3>Edit ingredients</h3>
-      <p class="hint">One ingredient per line. This saves on <b>this device</b> so cooks see it next time. (You can send the finalized list to be built in permanently.)</p>
-      <textarea id="editor" placeholder="e.g.&#10;Spaghetti&#10;Beef meatballs&#10;Marinara sauce&#10;Parmesan"></textarea>
+      <p class="hint">One ingredient per line. This saves on <b>this device</b> so cooks see it next time.</p>
+      <textarea id="editor" placeholder="e.g.&#10;Spaghetti&#10;Meatballs&#10;Marinara sauce"></textarea>
     </div>
     <div class="btnrow">
       <button class="btn" id="resetCheck">Reset checklist</button>
@@ -180,130 +181,120 @@
 
 <script>
 /* ============================================================
-   MENU — names / categories / prices transcribed from the menu
-   photos. Ingredient lists are intentionally EMPTY where the
-   printed menu text was not legible enough to transcribe safely
-   (a cook guide must never show guessed ingredients). Fill them
-   via the in-app "Edit ingredients" button, or supply legible
-   text to have them built in permanently.
+   MENU — names, categories, prices and ingredients transcribed
+   verbatim from the high-resolution menu photographs.
    ============================================================ */
 const MENU = [
  {cat:"Most Popular", popularPin:true, items:[]}, // auto-filled from popular flags
 
- {cat:"Pizza — Traditional", note:"Build-your-own. Base: Cheese Pizza. Sizes 14\" / Large 14\" / X-Large 16\".", items:[
-   {name:"Cheese Pizza", price:"9.99+", ing:["Pizza dough","Tomato sauce","Mozzarella cheese"]},
-   {name:"Sauce: Tomato", ing:[]},{name:"Sauce: Garlic", ing:[]},
-   {name:"Sauce: Spicy Roasted Red Pepper", ing:[]},{name:"Sauce: Pesto", ing:[]},
-   {name:"Sauce: Herbed Olive Oil", ing:[]},
-   {name:"Cheese: Feta", ing:[]},{name:"Cheese: Ricotta", ing:[]},
-   {name:"Cheese: Fresh Mozzarella", ing:[]},{name:"Cheese: Gorgonzola", ing:[]},
-   {name:"Cheese: Provolone", ing:[]},{name:"Cheese: Cheddar", ing:[]},
-   {name:"Topping: Grilled Beef", ing:[]},{name:"Topping: Chicken Breast", ing:[]},
-   {name:"Topping: Meatball", ing:[]},{name:"Topping: Prosciutto", ing:[]},
-   {name:"Topping: Genoa Salami", ing:[]},{name:"Topping: Ham", ing:[]},
-   {name:"Topping: Anchovies", ing:[]},{name:"Topping: Steak", ing:[]},
-   {name:"Veg: Spinach", ing:[]},{name:"Veg: Green Peppers", ing:[]},
-   {name:"Veg: Fresh Tomatoes", ing:[]},{name:"Veg: Red Onions", ing:[]},
-   {name:"Veg: Black Olives", ing:[]},{name:"Veg: Roasted Garlic", ing:[]},
-   {name:"Veg: Roasted Red Peppers", ing:[]},{name:"Veg: Kalamata Olives", ing:[]},
-   {name:"Veg: Artichokes", ing:[]},{name:"Veg: Fresh Basil", ing:[]},
-   {name:"Veg: Sundried Tomatoes", ing:[]},{name:"Veg: Banana Peppers", ing:[]},
-   {name:"Veg: Pineapple", ing:[]},{name:"Veg: Portabella Mushrooms", ing:[]},
+ {cat:"Pizza — Traditional", note:
+  'Build-your-own. Sizes: Small 10\" $9.99 · Large 14\" $12.99 · X-Large 16\" $14.99. '+
+  'Toppings each $1 / $2 / $2.50. Whole-wheat crust +$1.\n'+
+  'SAUCES: Tomato · Garlic · Spicy Roasted Red Pepper · Pesto (contains pine nuts) · Herbed Olive Oil.\n'+
+  'CHEESES: Feta · Ricotta · Fresh Mozzarella · Gorgonzola · Provolone · Cheddar.\n'+
+  'MEATS: Pepperoni · Bacon · Italian Sausage · Anchovies · Ham · Steak · Ground Beef · Chicken Breast · Meatballs · Prosciutto · Genoa Salami.\n'+
+  'VEGETABLES: Spinach · Jalapeño · Green Peppers · Fresh Tomatoes · Red Onions · Black Olives · Roasted Garlic · Caramelized Onion · Roasted Eggplant · Fresh Mushrooms · Sundried Tomatoes · Roasted Red Peppers · Kalamata Olives · Artichokes · Fresh Basil · Portabella Mushrooms · Pineapple · Banana Peppers.',
+  items:[
+   {name:"Cheese Pizza (base)", price:"9.99 / 12.99 / 14.99",
+    ing:["Pizza dough","Tomato sauce","Mozzarella cheese"]},
  ]},
 
- {cat:"Pizza — Gourmet", note:"10\" 13.99 / 14\" 19.99 / 16\" 21.99", items:[
-   {name:"Noma Special", popular:true, ing:[]},
-   {name:"Chicken Pasta", ing:[]},
-   {name:"Supremo", popular:true, ing:[]},
-   {name:"Margarita", ing:[]},
-   {name:"Hawaiian", ing:[]},
-   {name:"Pizza Prosciutto", ing:[]},
-   {name:"Sicilian Pizza", ing:[]},
-   {name:"Meat Lovers", popular:true, ing:[]},
-   {name:"Vegetarian", ing:[]},
-   {name:"Spicy Chicken", ing:[]},
-   {name:"Spinach & Artichoke", ing:[]},
-   {name:"Portabella Mushrooms", popular:true, ing:[]},
-   {name:"Greek Gourmet", ing:[]},
-   {name:"Roasted Eggplant", ing:[]},
+ {cat:"Pizza — Gourmet", note:"10\" $13.99 · 14\" $19.99 · 16\" $21.99", items:[
+   {name:"NoMa Special", popular:true, ing:["Tomato sauce","Mozzarella","Pepperoni","Italian sausage","Ham","Roasted red peppers","Caramelized onions"]},
+   {name:"Chicken Pesto", ing:["Pesto sauce","Mozzarella","Grilled chicken breast","Sundried tomatoes","Roasted red peppers","Red onions","Kalamata olives","Feta cheese"]},
+   {name:"Supremo", popular:true, ing:["Tomato sauce","Mozzarella","Pepperoni","Green peppers","Caramelized onions","Italian sausage","Black olives"]},
+   {name:"Margarita", ing:["Light tomato sauce","Fresh mozzarella","Basil","Tomatoes","Olive oil drizzle"]},
+   {name:"Hawaiian", ing:["Tomato sauce","Mozzarella","Ham","Pineapple"]},
+   {name:"Pizza Prosciutto", ing:["Light tomato sauce","Fresh mozzarella","Prosciutto","Caramelized onions","Mixed greens","Olive oil drizzle"]},
+   {name:"Sicilian Pizza", ing:["Light tomato sauce","Prosciutto","Fresh mozzarella","Roasted red peppers","Kalamata olives","Olive oil drizzle"]},
+   {name:"Meat Lovers", popular:true, ing:["Tomato sauce","Mozzarella","Bacon","Pepperoni","Ham","Italian sausage"]},
+   {name:"Vegetariano", ing:["Tomato sauce","Mozzarella","Tomatoes","Mushrooms","Green peppers","Red onions","Black olives"]},
+   {name:"Spicy Chicken", ing:["Spicy buffalo or pepper sauce","Mozzarella","Grilled chicken","Red onions","Side of blue cheese"]},
+   {name:"Spinach & Artichoke", ing:["Garlic herb sauce","Mozzarella","Tomatoes","Mushrooms","Caramelized onions","Baby spinach","Artichokes","Feta"]},
+   {name:"Portabella Mushrooms", popular:true, ing:["Garlic herb sauce","Mozzarella","Portabella mushroom","Roasted red peppers","Baby spinach","Feta"]},
+   {name:"Greek Gourmet", ing:["Tomato sauce","Fresh tomatoes","Green peppers","Mozzarella","Feta","Kalamata olives"]},
+   {name:"Roasted Eggplant", ing:["Garlic herb sauce","Mozzarella","Eggplant","Roasted red peppers","Kalamata olives","Feta"]},
  ]},
 
  {cat:"Calzones", note:"$12.99 — served with a side of marinara sauce", items:[
-   {name:"Chicken Portabella", ing:[]},
-   {name:"Italian", ing:[]},
-   {name:"Veggie", ing:[]},
-   {name:"Meatball", ing:[]},
-   {name:"Spinach & Artichokes", ing:[]},
-   {name:"Your Favorite (pick toppings)", ing:[]},
+   {name:"Chicken Portabella", ing:["Tomato sauce","Grilled chicken breast","Mozzarella","Ricotta","Portabella mushrooms"]},
+   {name:"Italian", ing:["Tomato sauce","Prosciutto","Genoa salami","Ham","Pepperoni","Ricotta","Marinara"]},
+   {name:"Veggie", ing:["Tomato sauce","Tomatoes","Spinach","Mushrooms","Black olives","Feta","Mozzarella"]},
+   {name:"Meatball", ing:["Tomato sauce","Meatballs","Mozzarella"]},
+   {name:"Spinach & Artichokes", ing:["Tomato sauce","Fresh spinach","Artichokes","Mozzarella","Feta","Mushrooms","Caramelized onions"]},
+   {name:"Your Favorite", ing:["Mozzarella","Any sauce","Any 3 toppings (see pizza toppings)"]},
  ]},
 
  {cat:"Pasta", note:"$11.99 — served with a slice of bread", items:[
-   {name:"Cheese Manicotti", ing:[]},
-   {name:"Spaghetti & Meat Sauce", ing:[]},
-   {name:"Spaghetti & Meatballs", popular:true, ing:[]},
-   {name:"Chicken Parmesan", popular:true, ing:[]},
-   {name:"Lasagna", ing:[]},
-   {name:"Beef Ravioli", popular:true, ing:[]},
-   {name:"Spinach Ravioli", ing:[]},
+   {name:"Cheese Manicotti", ing:["Pasta shells","Ricotta cheese","Mozzarella","Marinara sauce"]},
+   {name:"Spaghetti & Meat Sauce", ing:["Spaghetti","Homemade marinara","Ground beef sauce","Mozzarella"]},
+   {name:"Spaghetti & Meatballs", popular:true, ing:["Spaghetti","Homemade marinara","Meatballs","Mozzarella cheese"]},
+   {name:"Chicken Parmesan", popular:true, ing:["Chicken breast","Basil","Marinara sauce","Mozzarella","Parmesan cheese","Spaghetti"]},
+   {name:"Lasagna", ing:["Pasta sheets","Homemade marinara","Sautéed ground beef","Mozzarella","Ricotta cheese"]},
+   {name:"Beef Ravioli", popular:true, ing:["Beef ravioli","Ground beef","Herbs","Marinara sauce","Ricotta","Mozzarella cheese"]},
+   {name:"Spinach Ravioli", ing:["Spinach ravioli","Spinach","Herbs","Ricotta","Marinara sauce","Mozzarella"]},
  ]},
 
- {cat:"Wings", note:"6 pc 7.99 / 10 pc 11.99 / 20 pc 21.99. Sauces: Buffalo, BBQ, Garlic. Dressings: Ranch, Blue Cheese, Garlic.", items:[
-   {name:"Wings — Buffalo", ing:[]},
-   {name:"Wings — BBQ", ing:[]},
-   {name:"Wings — Garlic", ing:[]},
+ {cat:"Wings", note:"6 pc $7.99 · 10 pc $11.99 · 20 pc $21.99. Choose sauce: Buffalo, BBQ or Garlic. Dressings: Ranch, Blue Cheese or Garlic. Extra dressing 0.50¢ each.", items:[
+   {name:"Wings — Buffalo", ing:["Chicken wings","Buffalo sauce","Served with ranch, blue cheese or garlic dressing"]},
+   {name:"Wings — BBQ", ing:["Chicken wings","BBQ sauce","Served with ranch, blue cheese or garlic dressing"]},
+   {name:"Wings — Garlic", ing:["Chicken wings","Garlic sauce","Served with ranch, blue cheese or garlic dressing"]},
  ]},
 
  {cat:"Sandwiches", note:"$8.99 — served with potato chips", items:[
-   {name:"Steak Sandwich", popular:true, ing:[]},
-   {name:"Gyro Sandwich", ing:[]},
-   {name:"La Villa's Chicken", ing:[]},
-   {name:"Italian", ing:[]},
-   {name:"Turkey", ing:[]},
-   {name:"The Milano", ing:[]},
-   {name:"Roasted Eggplant", ing:[]},
-   {name:"Meatball", ing:[]},
-   {name:"The Capri", ing:[]},
-   {name:"Portabella Mushrooms", ing:[]},
-   {name:"Bona", ing:[]},
-   {name:"Spinach & Artichoke", ing:[]},
-   {name:"The Venezia", ing:[]},
-   {name:"Hamburger", ing:[]},
-   {name:"Grilled Cheese", ing:[]},
-   {name:"The Napoli", ing:[]},
+   {name:"Steak Sandwich", popular:true, ing:["Steak","Mozzarella","Tomatoes","Fresh mushrooms","Caramelized onions","Green peppers","Lettuce","Creamy Italian dressing"]},
+   {name:"La Villa's Chicken", ing:["Grilled chicken breast","Marinara","Mozzarella","Roasted red peppers","Red onions","Lettuce","Mayo"]},
+   {name:"Italian", ing:["Genoa salami","Ham","Pepperoni","Mozzarella","Caramelized onions","Lettuce","Tomatoes","Mayo","Mustard"]},
+   {name:"The Milano", ing:["Provolone","Prosciutto","Genoa salami","Ham","Tomatoes","Mixed greens","Olive oil sauce"]},
+   {name:"Meatball", ing:["Meatball","Marinara","Mozzarella cheese"]},
+   {name:"The Capri", ing:["Fresh mozzarella","Prosciutto","Tomatoes","Mixed greens","Olive oil sauce"]},
+   {name:"Roma", popular:true, ing:["Provolone","Genoa salami","Pepperoni","Tomatoes","Mixed greens","Balsamic vinaigrette"]},
+   {name:"Chicken Paradiso", ing:["Grilled chicken breast","Marinara","Roasted red peppers","Mozzarella","Red onions","Lettuce","Mayo"]},
+   {name:"Ham & Cheese", ing:["Ham","Mozzarella","Lettuce","Tomatoes","Mayo","Mustard"]},
+   {name:"The Venezia", ing:["Turkey","Mozzarella","Mixed greens","Sundried tomato","Mayo","⚠ One more ingredient on the menu — confirm with manager"]},
+   {name:"Grilled Cheese", ing:["Mozzarella","Provolone cheese","Tomatoes"]},
+   {name:"The Napoli", ing:["Fresh mozzarella","Fresh basil","Tomatoes","Olive oil sauce"]},
+   {name:"Gyro Sandwich", ing:["Gyro meat","Tomatoes","Red onions","Lettuce","Yogurt dressing"]},
+   {name:"Turkey", ing:["Oven-roasted sliced turkey","Pesto sauce","Mozzarella","Red onions","Roasted red peppers","Lettuce","Sundried tomato mayo"]},
+   {name:"Roasted Eggplant", ing:["Roasted eggplant","Mozzarella","Feta","Roasted red peppers","Red onions","Kalamata olives","Pesto sauce"]},
+   {name:"Portabella Mushrooms", ing:["Portabella mushrooms","Mozzarella","Garlic herb sauce","Roasted red peppers","Caramelized onions","Sundried tomato mayo"]},
+   {name:"Spinach & Artichoke", ing:["Fresh spinach","Artichokes","Garlic herb sauce","Tomatoes","Caramelized onions","Fresh mushrooms","Mozzarella"]},
+   {name:"Hamburger", ing:["Beef patty","Tomatoes","Onions","Lettuce","Mustard sauce"]},
  ]},
 
  {cat:"Wraps", note:"$8.99 — wrapped in a warm pita", items:[
-   {name:"Gyro Wrap", ing:[]},
-   {name:"Veggie Wrap", ing:[]},
-   {name:"Chicken Caesar Wrap", ing:[]},
-   {name:"Spinach & Chicken Wrap", ing:[]},
+   {name:"Gyro Wrap", ing:["Gyro meat","Lettuce","Tomatoes","Red onions","Yogurt dressing"]},
+   {name:"Veggie Wrap", ing:["Hummus","Roasted red peppers","Roasted eggplant","Red onions","Baby spinach","Kalamata olives","Feta cheese","Sundried tomato mayo"]},
+   {name:"Chicken Caesar Wrap", ing:["Grilled chicken breast","Mozzarella","Caesar salad"]},
+   {name:"Spinach & Chicken Wrap", ing:["Spinach","Chicken","Red onions","Roasted red peppers","Caesar dressing"]},
  ]},
 
  {cat:"Appetizers", items:[
-   {name:"Sampler Selection", price:"7.99", ing:[]},
-   {name:"Breadsticks", price:"6.99", ing:[]},
-   {name:"Tuscan Hummus", price:"7.99", popular:true, ing:[]},
-   {name:"Baked Feta Marinara", price:"8.99", ing:[]},
-   {name:"Cheesy Bread", price:"7.99", ing:[]},
-   {name:"Spinach Dip", price:"7.99", ing:[]},
-   {name:"Spinach & Feta Triangle", price:"7.99", ing:[]},
-   {name:"Mozzarella Sticks", price:"7.99", ing:[]},
-   {name:"French Fries", price:"3.99", ing:[]},
-   {name:"Garlic Bread", price:"3.99", ing:[]},
-   {name:"Chicken Tenders (8 pc)", price:"7.99", ing:[]},
+   {name:"Sampler Selection", price:"7.99", ing:["Hummus","Spinach dip","Warm pita triangles"]},
+   {name:"Breadsticks", price:"6.99", ing:["Breadsticks","Garlic sauce","Homemade marinara"]},
+   {name:"Tuscan Hummus", price:"7.99", popular:true, ing:["Chickpeas","Tahini","Garlic","Warm pizza triangles"]},
+   {name:"Baked Feta Marinara", price:"8.99", ing:["Feta cheese","Homemade marinara","Toasted bread"]},
+   {name:"Cheesy Bread", price:"7.99", ing:["Homemade dough","Cheddar cheese","Mozzarella cheese","Marinara sauce"]},
+   {name:"Spinach Dip", price:"7.99", ing:["Spinach dip","Warm pita triangles"]},
+   {name:"Spinach & Feta Triangle", price:"7.99", ing:["Fillo dough","Sautéed spinach","Feta","Marinara sauce"]},
+   {name:"Mozzarella Sticks", price:"7.99", ing:["Mozzarella sticks","Marinara sauce"]},
+   {name:"French Fries", price:"3.99", ing:["French fries"]},
+   {name:"Garlic Bread", price:"3.99", ing:["Homemade dough","Garlic sauce","Cheese","Marinara sauce"]},
+   {name:"Chicken Tenders (8 pc)", price:"7.99", ing:["White-meat chicken tenders","Choice of: BBQ, buffalo, blue cheese, honey mustard or ranch dressing"]},
  ]},
 
- {cat:"Salads", note:"Served with a slice of garlic bread. Add chicken breast available.", items:[
-   {name:"House Salad", ing:[]},
-   {name:"Caesar Salad", ing:[]},
-   {name:"Greek Salad", ing:[]},
-   {name:"Antipasto Salad", ing:[]},
-   {name:"Grilled Chicken Salad", ing:[]},
-   {name:"Spinach Salad", ing:[]},
-   {name:"La Villa's Salad", ing:[]},
+ {cat:"Salads", note:"Served with a slice of garlic bread. Add chicken breast +$3.99.\nDressings: Balsamic Vinaigrette · Ranch · Caesar · Blue Cheese · Italian. Extra dressing 0.50¢ each.", items:[
+   {name:"House Salad", price:"6.99 / 8.99", ing:["Mixed greens","Artichokes","Tomatoes","Red onions","Balsamic vinaigrette"]},
+   {name:"Caesar Salad", price:"6.99 / 8.99", ing:["Romaine","Creamy Caesar dressing","Croutons","Parmesan cheese"]},
+   {name:"Greek Salad", price:"9.99", ing:["Mixed greens","Tomatoes","Red onions","Green peppers","Kalamata olives","Feta cheese","Balsamic vinaigrette"]},
+   {name:"Antipasto Salad", price:"9.99", ing:["Mixed greens","Tomatoes","Red onions","Roasted red peppers","Artichokes","Ham","Genoa salami","Prosciutto","Balsamic vinaigrette"]},
+   {name:"Caprese Salad", price:"8.99", ing:["Fresh mozzarella","Tomatoes","Basil leaves","Olive oil","Balsamic vinaigrette","Warm pita triangles"]},
+   {name:"Spinach Salad", price:"9.99", ing:["Fresh baby spinach","Tomatoes","Red onions","Kalamata olives","Gorgonzola","Balsamic vinaigrette"]},
+   {name:"Grilled Chicken Salad", price:"9.99", ing:["Mixed greens","Tomatoes","Red onions","Green peppers","Provolone cheese","Grilled chicken breast","Balsamic vinaigrette"]},
+   {name:"La Villa's Salad", price:"9.99", ing:["Lettuce or mixed greens","Tomatoes","Black olives","Green peppers","Red onions","Balsamic vinaigrette"]},
  ]},
 
- {cat:"Desserts", note:"$4.99", items:[
+ {cat:"Desserts", note:"$4.99 each", items:[
    {name:"Cheese Cake", ing:[]},
    {name:"Tiramisu", ing:[]},
    {name:"Cannoli", ing:[]},
@@ -311,14 +302,12 @@ const MENU = [
  ]},
 ];
 
-/* ---- emoji visual fallback by keyword ---- */
 function emojiFor(name, cat){
   const n=(name+" "+cat).toLowerCase();
-  const map=[["sauce","🥫"],["cheese:","🧀"],["topping:","🥓"],["veg:","🥬"],
-    ["pizza","🍕"],["calzone","🥟"],["spaghetti","🍝"],["pasta","🍝"],["ravioli","🥟"],
+  const map=[["pizza","🍕"],["calzone","🥟"],["spaghetti","🍝"],["pasta","🍝"],["ravioli","🥟"],
     ["lasagna","🍝"],["manicotti","🍝"],["wing","🍗"],["chicken","🍗"],["steak","🥩"],
     ["burger","🍔"],["hamburger","🍔"],["gyro","🌯"],["wrap","🌯"],["sandwich","🥪"],
-    ["fries","🍟"],["bread","🥖"],["garlic bread","🧄"],["hummus","🫓"],["mozzarella","🧀"],
+    ["fries","🍟"],["garlic bread","🧄"],["bread","🥖"],["hummus","🫓"],["mozzarella","🧀"],
     ["spinach","🥬"],["eggplant","🍆"],["mushroom","🍄"],["salad","🥗"],["feta","🧀"],
     ["dip","🫕"],["tiramisu","🍰"],["cake","🍰"],["cannoli","🥐"],["dessert","🍰"],
     ["tender","🍗"],["sampler","🍽️"],["margarita","🍕"],["hawaiian","🍍"]];
@@ -327,7 +316,6 @@ function emojiFor(name, cat){
 }
 function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");}
 
-/* ---- localStorage helpers (cook-edited ingredients persist) ---- */
 const LS_ING="foodlove_ing_v1";
 function userIng(){try{return JSON.parse(localStorage.getItem(LS_ING)||"{}")}catch(e){return{}}}
 function saveUserIng(o){localStorage.setItem(LS_ING,JSON.stringify(o))}
@@ -338,7 +326,6 @@ function ingFor(it){
   return {list:[], source:"none"};
 }
 
-/* ---- build derived data ---- */
 MENU.forEach(g=>g.items.forEach(it=>{it._cat=g.cat;}));
 const popularPin=MENU.find(g=>g.popularPin);
 popularPin.items = MENU.flatMap(g=>g.items).filter(it=>it.popular);
@@ -351,10 +338,18 @@ const elClear=document.getElementById("clear");
 
 function ingEmoji(name){
   const n=name.toLowerCase();
-  const m=[["tomato","🍅"],["mozzarella","🧀"],["cheese","🧀"],["basil","🌿"],
-   ["dough","🫓"],["sauce","🥫"],["chicken","🍗"],["beef","🥩"],["meatball","🧆"],
-   ["spinach","🥬"],["mushroom","🍄"],["onion","🧅"],["garlic","🧄"],["pepper","🫑"],
-   ["olive","🫒"],["egg","🥚"],["parmesan","🧀"],["pasta","🍝"],["bread","🥖"]];
+  if(n.indexOf("⚠")===0) return "⚠";
+  const m=[["tomato","🍅"],["mozzarella","🧀"],["parmesan","🧀"],["gorgonzola","🧀"],
+   ["feta","🧀"],["provolone","🧀"],["ricotta","🧀"],["cheese","🧀"],["basil","🌿"],
+   ["herb","🌿"],["dough","🫓"],["pita","🫓"],["marinara","🥫"],["sauce","🥫"],
+   ["chicken","🍗"],["turkey","🦃"],["gyro","🥩"],["beef","🥩"],["steak","🥩"],
+   ["meatball","🧆"],["ham","🥓"],["bacon","🥓"],["prosciutto","🥓"],["salami","🥓"],
+   ["pepperoni","🥓"],["sausage","🌭"],["spinach","🥬"],["greens","🥬"],["lettuce","🥬"],
+   ["romaine","🥬"],["mushroom","🍄"],["eggplant","🍆"],["onion","🧅"],["garlic","🧄"],
+   ["pepper","🫑"],["olive","🫒"],["pineapple","🍍"],["chickpea","🫘"],["hummus","🫓"],
+   ["artichoke","🌱"],["spaghetti","🍝"],["penne","🍝"],["pasta","🍝"],["ravioli","🥟"],
+   ["bread","🥖"],["fries","🍟"],["mayo","🥚"],["mustard","🥫"],["dressing","🥗"],
+   ["vinaigrette","🥗"],["tahini","🥣"],["dip","🫕"],["pesto","🌿"],["olive oil","🫒"]];
   for(const [k,e] of m) if(n.includes(k)) return e;
   return "•";
 }
@@ -377,7 +372,7 @@ function cardEl(it){
   const has=info.list.length>0;
   c.innerHTML=`
     ${it.popular?'<div class="star">⭐</div>':''}
-    <div class="thumb" data-slug="${slug(it.name)}">${emojiFor(it.name,it._cat)}</div>
+    <div class="thumb">${emojiFor(it.name,it._cat)}</div>
     <div class="name">${it.name}</div>
     <div class="meta">
       <span class="price">${it.price?("$"+it.price):""}</span>
@@ -403,12 +398,12 @@ function render(){
   if(term){
     const hits=MENU.filter(g=>!g.popularPin)
       .flatMap(g=>g.items)
-      .filter(it=>it.name.toLowerCase().includes(term)||it._cat.toLowerCase().includes(term));
+      .filter(it=>it.name.toLowerCase().includes(term)||it._cat.toLowerCase().includes(term)
+        ||(it.ing||[]).some(x=>x.toLowerCase().includes(term)));
     if(!hits.length){ elMain.innerHTML=`<div class="empty">No dish matches “${elQ.value}”.<br>Try a shorter word.</div>`; return; }
     groups=[{cat:`Results for “${elQ.value}”`, items:hits}];
   } else {
-    const g=MENU.find(x=>x.cat===activeCat);
-    groups=[g];
+    groups=[MENU.find(x=>x.cat===activeCat)];
   }
   groups.forEach(g=>{
     const t=document.createElement("div");
@@ -417,8 +412,7 @@ function render(){
     elMain.appendChild(t);
     if(g.note){
       const n=document.createElement("div");
-      n.style.cssText="font-size:13px;color:var(--muted);margin:-4px 4px 12px;line-height:1.5";
-      n.textContent=g.note; elMain.appendChild(n);
+      n.className="note"; n.textContent=g.note; elMain.appendChild(n);
     }
     const grid=document.createElement("div"); grid.className="grid";
     g.items.forEach(it=>grid.appendChild(cardEl(it)));
@@ -426,7 +420,6 @@ function render(){
   });
 }
 
-/* ---- detail sheet ---- */
 const overlay=document.getElementById("overlay");
 const sheet=document.getElementById("sheet");
 let current=null;
@@ -458,21 +451,26 @@ function renderIng(){
   wrap.innerHTML="";
   if(!info.list.length){
     cnt.textContent="";
-    wrap.innerHTML=`<div class="noing">Ingredients not entered yet for <b>${current.name}</b>.<br>
-      Tap <b>“Edit ingredients”</b> below to add them — it saves so the next cook sees it.</div>`;
+    wrap.innerHTML=`<div class="noing">No ingredient list on the menu for <b>${current.name}</b>.<br>
+      Tap <b>“Edit ingredients”</b> to add them — it saves so the next cook sees it.</div>`;
     return;
   }
   cnt.textContent="("+info.list.length+(info.source==="saved"?" • saved here":"")+")";
   const key=slug(current.name)+"|"+slug(current._cat);
   const st=chkState();
   info.list.forEach((ing,i)=>{
-    const checked = st[key] && st[key][i];
+    const isFlag = ing.indexOf("⚠")===0;
+    const checked = !isFlag && st[key] && st[key][i];
     const row=document.createElement("div");
-    row.className="ing"+(checked?" checked":"");
-    row.innerHTML=`<span class="box">${checked?'✓':''}</span><span class="emoji">${ingEmoji(ing)}</span><span>${ing}</span>`;
-    row.onclick=()=>{
-      const s=chkState(); s[key]=s[key]||{}; s[key][i]=!s[key][i]; saveChk(s); renderIng();
-    };
+    row.className="ing"+(isFlag?" flag":"")+(checked?" checked":"");
+    if(isFlag){
+      row.innerHTML=`<span class="emoji">⚠</span><span>${ing.replace(/^⚠\s*/,"")}</span>`;
+    } else {
+      row.innerHTML=`<span class="box">${checked?'✓':''}</span><span class="emoji">${ingEmoji(ing)}</span><span>${ing}</span>`;
+      row.onclick=()=>{
+        const s=chkState(); s[key]=s[key]||{}; s[key][i]=!s[key][i]; saveChk(s); renderIng();
+      };
+    }
     wrap.appendChild(row);
   });
 }
@@ -502,11 +500,9 @@ document.getElementById("editBtn").onclick=function(){
   }
 };
 
-/* ---- search ---- */
 elQ.addEventListener("input",()=>{ elClear.style.display=elQ.value?"block":"none"; render(); });
 elClear.onclick=()=>{ elQ.value=""; elClear.style.display="none"; render(); };
 
-/* ---- voice search (offline-safe; graceful fallback) ---- */
 const mic=document.getElementById("mic");
 const vhint=document.getElementById("voicehint");
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
