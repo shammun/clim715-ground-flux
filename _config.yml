@@ -15,8 +15,9 @@ exclude:
   - "*.csv"
   - "*.txt"
   - "*.png"
-  - "*.jpg"
-  - "*.jpeg"
+  # NOTE: *.jpg / *.jpeg are intentionally NOT excluded so the
+  # food_love_images/ ingredient photos serve on Pages. The CLIM
+  # report figures are all .png (kept hidden by the rule above).
   - "*.svg"
   - "*.gif"
   - "*.webp"
