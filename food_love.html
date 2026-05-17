@@ -108,7 +108,8 @@
     width:26px;height:26px;border:2px solid var(--accent);border-radius:7px;flex:none;
     display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:900}
   .ing.checked .box{background:var(--ok);border-color:var(--ok)}
-  .ing .emoji{font-size:24px;flex:none}
+  .ing .emoji{font-size:24px;flex:none;width:30px;height:30px;display:flex;align-items:center;justify-content:center}
+  .ing .emoji img{width:30px;height:30px;border-radius:7px;object-fit:cover;display:block}
   .ing.flag{border-color:#e7b94d;background:#fff8e8;color:#8a6a14;cursor:default}
   .noing{
     background:var(--accent-soft); border:1.5px dashed var(--accent); border-radius:12px;
@@ -389,6 +390,12 @@ function tryImg(box, sl){
   im.onerror=()=>{};
   im.alt=""; im.src="food_love_images/"+sl+".jpg";
 }
+function tryIngImg(span, ing){
+  const im=new Image();
+  im.onload=()=>{ span.innerHTML=""; span.appendChild(im); };
+  im.onerror=()=>{};
+  im.alt=""; im.src="food_love_images/ing/"+slug(ing)+".jpg";
+}
 
 function render(){
   renderNav();
@@ -467,6 +474,7 @@ function renderIng(){
       row.innerHTML=`<span class="emoji">⚠</span><span>${ing.replace(/^⚠\s*/,"")}</span>`;
     } else {
       row.innerHTML=`<span class="box">${checked?'✓':''}</span><span class="emoji">${ingEmoji(ing)}</span><span>${ing}</span>`;
+      tryIngImg(row.querySelector(".emoji"), ing);
       row.onclick=()=>{
         const s=chkState(); s[key]=s[key]||{}; s[key][i]=!s[key][i]; saveChk(s); renderIng();
       };
