@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Food Love — Kitchen Prep Guide</title>
+<style>
+  :root{
+    --bg:#fff7f0; --card:#ffffff; --ink:#2b2118; --muted:#8a7a6b;
+    --accent:#e0632e; --accent-soft:#fff0e6; --gold:#f4b400; --gold-soft:#fff6d6;
+    --line:#efe2d6; --ok:#2f9e6e; --shadow:0 6px 22px rgba(180,110,60,.12);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--ink); min-height:100vh;
+  }
+  header{
+    position:sticky; top:0; z-index:30; background:var(--bg);
+    padding:14px 16px 10px; border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex; align-items:center; gap:10px; margin-bottom:12px}
+  .brand .logo{font-size:30px}
+  .brand h1{font-size:21px; margin:0; letter-spacing:.3px}
+  .brand h1 b{color:var(--accent)}
+  .brand .tag{font-size:12px; color:var(--muted); margin-top:1px}
+  .searchwrap{display:flex; gap:8px}
+  .searchbox{
+    flex:1; display:flex; align-items:center; gap:10px; background:var(--card);
+    border:2px solid var(--line); border-radius:14px; padding:13px 15px;
+    box-shadow:var(--shadow);
+  }
+  .searchbox:focus-within{border-color:var(--accent)}
+  .searchbox svg{flex:none}
+  #q{flex:1; border:0; outline:0; font-size:17px; background:transparent; color:var(--ink)}
+  #q::placeholder{color:#bcae9f}
+  .clearbtn{border:0;background:transparent;color:var(--muted);font-size:20px;display:none;cursor:pointer;padding:0 4px}
+  .micbtn{
+    flex:none; width:54px; border:0; border-radius:14px; background:var(--accent);
+    color:#fff; font-size:22px; box-shadow:var(--shadow); cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .micbtn:active{transform:scale(.96)}
+  .micbtn.listening{background:#d23b3b; animation:pulse 1s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(210,59,59,.5)}70%{box-shadow:0 0 0 14px rgba(210,59,59,0)}100%{box-shadow:0 0 0 0 rgba(210,59,59,0)}}
+  #voicehint{font-size:12px;color:var(--accent);min-height:16px;margin:7px 2px 0;font-weight:600}
+
+  nav{display:flex; gap:8px; overflow-x:auto; padding:12px 16px; -webkit-overflow-scrolling:touch}
+  nav::-webkit-scrollbar{display:none}
+  .chip{
+    flex:none; border:2px solid var(--line); background:var(--card); color:var(--ink);
+    padding:9px 16px; border-radius:999px; font-size:14px; font-weight:600; cursor:pointer;
+  }
+  .chip.active{background:var(--accent); color:#fff; border-color:var(--accent)}
+  .chip.fav.active{background:var(--gold); border-color:var(--gold); color:#5a4400}
+
+  main{padding:4px 16px 90px; max-width:980px; margin:0 auto}
+  .sectiontitle{display:flex;align-items:center;gap:8px;margin:20px 4px 12px;font-size:17px;font-weight:800}
+  .sectiontitle .count{font-size:12px;color:var(--muted);font-weight:600}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:13px}
+  .card{
+    background:var(--card); border:2px solid var(--line); border-radius:16px;
+    padding:14px; cursor:pointer; box-shadow:var(--shadow); position:relative;
+    display:flex; flex-direction:column; gap:8px; min-height:150px;
+    transition:transform .08s;
+  }
+  .card:active{transform:scale(.97)}
+  .card.fav{border-color:var(--gold); background:linear-gradient(180deg,var(--gold-soft),#fff 60%)}
+  .star{position:absolute; top:10px; right:12px; font-size:18px}
+  .thumb{
+    width:100%; aspect-ratio:1/1; border-radius:12px; background:var(--accent-soft);
+    display:flex; align-items:center; justify-content:center; font-size:46px; overflow:hidden;
+  }
+  .thumb img{width:100%;height:100%;object-fit:cover}
+  .card .name{font-size:15px; font-weight:800; line-height:1.25}
+  .card .meta{font-size:12px; color:var(--muted); margin-top:auto; display:flex; justify-content:space-between; align-items:center}
+  .price{color:var(--accent); font-weight:800}
+  .needtag{font-size:10px;background:var(--accent-soft);color:var(--accent);padding:2px 7px;border-radius:6px;font-weight:700}
+  .havetag{font-size:10px;background:#e7f6ef;color:var(--ok);padding:2px 7px;border-radius:6px;font-weight:700}
+  .empty{text-align:center;color:var(--muted);padding:60px 20px;font-size:16px}
+
+  /* Detail sheet */
+  .overlay{position:fixed;inset:0;background:rgba(40,25,15,.45);z-index:50;display:none}
+  .overlay.open{display:block}
+  .sheet{
+    position:fixed; left:0; right:0; bottom:0; max-height:92vh; background:var(--card);
+    border-radius:22px 22px 0 0; z-index:60; transform:translateY(100%);
+    transition:transform .28s ease; display:flex; flex-direction:column;
+  }
+  .sheet.open{transform:translateY(0)}
+  .grab{width:44px;height:5px;background:var(--line);border-radius:3px;margin:10px auto 4px;flex:none}
+  .sheethead{padding:8px 20px 14px; border-bottom:1px solid var(--line); flex:none}
+  .sheethead .hero{
+    width:100%; height:150px; border-radius:16px; background:var(--accent-soft);
+    display:flex;align-items:center;justify-content:center;font-size:74px;overflow:hidden;margin-bottom:12px}
+  .sheethead .hero img{width:100%;height:100%;object-fit:cover}
+  .sheethead h2{margin:0;font-size:23px}
+  .sheethead .sub{color:var(--muted);font-size:14px;margin-top:4px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .sheetbody{padding:16px 20px 30px; overflow-y:auto; -webkit-overflow-scrolling:touch}
+  .sheetbody h3{font-size:14px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:4px 0 12px}
+  .ing{
+    display:flex; align-items:center; gap:13px; padding:14px 12px; border:1.5px solid var(--line);
+    border-radius:12px; margin-bottom:9px; font-size:17px; cursor:pointer; background:var(--card);
+  }
+  .ing.checked{background:#f4faf6; border-color:#bfe6d2; color:var(--muted); text-decoration:line-through}
+  .ing .box{
+    width:26px;height:26px;border:2px solid var(--accent);border-radius:7px;flex:none;
+    display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:900}
+  .ing.checked .box{background:var(--ok);border-color:var(--ok)}
+  .ing .emoji{font-size:24px;flex:none}
+  .noing{
+    background:var(--accent-soft); border:1.5px dashed var(--accent); border-radius:12px;
+    padding:18px; color:#9a4a22; font-size:14px; line-height:1.5; text-align:center}
+  .btnrow{display:flex;gap:10px;margin-top:18px}
+  .btn{
+    flex:1; padding:15px; border-radius:13px; border:0; font-size:16px; font-weight:800;
+    cursor:pointer; background:var(--accent-soft); color:var(--accent)}
+  .btn.solid{background:var(--accent);color:#fff}
+  .closeX{position:absolute;top:14px;right:16px;background:rgba(0,0,0,.06);border:0;width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer;color:var(--ink)}
+  textarea#editor{
+    width:100%;min-height:160px;border:2px solid var(--line);border-radius:12px;
+    padding:14px;font-size:16px;font-family:inherit;resize:vertical;color:var(--ink)}
+  .hint{font-size:13px;color:var(--muted);margin:6px 2px 12px;line-height:1.5}
+  @media(min-width:760px){
+    .sheet{left:50%;right:auto;width:560px;transform:translate(-50%,100%)}
+    .sheet.open{transform:translate(-50%,0)}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="logo">🍅</span>
+    <div>
+      <h1>Food <b>Love</b></h1>
+      <div class="tag">Kitchen prep guide — every dish, every ingredient</div>
+    </div>
+  </div>
+  <div class="searchwrap">
+    <div class="searchbox">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#bcae9f" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="q" type="text" placeholder="Search a dish… e.g. spaghetti and meatballs" autocomplete="off">
+      <button class="clearbtn" id="clear" aria-label="Clear">✕</button>
+    </div>
+    <button class="micbtn" id="mic" title="Say what you want to make" aria-label="Voice search">🎤</button>
+  </div>
+  <div id="voicehint"></div>
+</header>
+
+<nav id="nav"></nav>
+<main id="main"></main>
+
+<div class="overlay" id="overlay"></div>
+<div class="sheet" id="sheet">
+  <div class="grab"></div>
+  <button class="closeX" id="closeX" aria-label="Close">✕</button>
+  <div class="sheethead">
+    <div class="hero" id="dHero">🍽️</div>
+    <h2 id="dName">—</h2>
+    <div class="sub" id="dSub"></div>
+  </div>
+  <div class="sheetbody">
+    <div id="dIngWrap">
+      <h3>Ingredients <span id="dIngCount" style="color:var(--accent)"></span></h3>
+      <div id="dIng"></div>
+    </div>
+    <div id="dEdit" style="display:none">
+      <h3>Edit ingredients</h3>
+      <p class="hint">One ingredient per line. This saves on <b>this device</b> so cooks see it next time. (You can send the finalized list to be built in permanently.)</p>
+      <textarea id="editor" placeholder="e.g.&#10;Spaghetti&#10;Beef meatballs&#10;Marinara sauce&#10;Parmesan"></textarea>
+    </div>
+    <div class="btnrow">
+      <button class="btn" id="resetCheck">Reset checklist</button>
+      <button class="btn solid" id="editBtn">Edit ingredients</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   MENU — names / categories / prices transcribed from the menu
+   photos. Ingredient lists are intentionally EMPTY where the
+   printed menu text was not legible enough to transcribe safely
+   (a cook guide must never show guessed ingredients). Fill them
+   via the in-app "Edit ingredients" button, or supply legible
+   text to have them built in permanently.
+   ============================================================ */
+const MENU = [
+ {cat:"Most Popular", popularPin:true, items:[]}, // auto-filled from popular flags
+
+ {cat:"Pizza — Traditional", note:"Build-your-own. Base: Cheese Pizza. Sizes 14\" / Large 14\" / X-Large 16\".", items:[
+   {name:"Cheese Pizza", price:"9.99+", ing:["Pizza dough","Tomato sauce","Mozzarella cheese"]},
+   {name:"Sauce: Tomato", ing:[]},{name:"Sauce: Garlic", ing:[]},
+   {name:"Sauce: Spicy Roasted Red Pepper", ing:[]},{name:"Sauce: Pesto", ing:[]},
+   {name:"Sauce: Herbed Olive Oil", ing:[]},
+   {name:"Cheese: Feta", ing:[]},{name:"Cheese: Ricotta", ing:[]},
+   {name:"Cheese: Fresh Mozzarella", ing:[]},{name:"Cheese: Gorgonzola", ing:[]},
+   {name:"Cheese: Provolone", ing:[]},{name:"Cheese: Cheddar", ing:[]},
+   {name:"Topping: Grilled Beef", ing:[]},{name:"Topping: Chicken Breast", ing:[]},
+   {name:"Topping: Meatball", ing:[]},{name:"Topping: Prosciutto", ing:[]},
+   {name:"Topping: Genoa Salami", ing:[]},{name:"Topping: Ham", ing:[]},
+   {name:"Topping: Anchovies", ing:[]},{name:"Topping: Steak", ing:[]},
+   {name:"Veg: Spinach", ing:[]},{name:"Veg: Green Peppers", ing:[]},
+   {name:"Veg: Fresh Tomatoes", ing:[]},{name:"Veg: Red Onions", ing:[]},
+   {name:"Veg: Black Olives", ing:[]},{name:"Veg: Roasted Garlic", ing:[]},
+   {name:"Veg: Roasted Red Peppers", ing:[]},{name:"Veg: Kalamata Olives", ing:[]},
+   {name:"Veg: Artichokes", ing:[]},{name:"Veg: Fresh Basil", ing:[]},
+   {name:"Veg: Sundried Tomatoes", ing:[]},{name:"Veg: Banana Peppers", ing:[]},
+   {name:"Veg: Pineapple", ing:[]},{name:"Veg: Portabella Mushrooms", ing:[]},
+ ]},
+
+ {cat:"Pizza — Gourmet", note:"10\" 13.99 / 14\" 19.99 / 16\" 21.99", items:[
+   {name:"Noma Special", popular:true, ing:[]},
+   {name:"Chicken Pasta", ing:[]},
+   {name:"Supremo", popular:true, ing:[]},
+   {name:"Margarita", ing:[]},
+   {name:"Hawaiian", ing:[]},
+   {name:"Pizza Prosciutto", ing:[]},
+   {name:"Sicilian Pizza", ing:[]},
+   {name:"Meat Lovers", popular:true, ing:[]},
+   {name:"Vegetarian", ing:[]},
+   {name:"Spicy Chicken", ing:[]},
+   {name:"Spinach & Artichoke", ing:[]},
+   {name:"Portabella Mushrooms", popular:true, ing:[]},
+   {name:"Greek Gourmet", ing:[]},
+   {name:"Roasted Eggplant", ing:[]},
+ ]},
+
+ {cat:"Calzones", note:"$12.99 — served with a side of marinara sauce", items:[
+   {name:"Chicken Portabella", ing:[]},
+   {name:"Italian", ing:[]},
+   {name:"Veggie", ing:[]},
+   {name:"Meatball", ing:[]},
+   {name:"Spinach & Artichokes", ing:[]},
+   {name:"Your Favorite (pick toppings)", ing:[]},
+ ]},
+
+ {cat:"Pasta", note:"$11.99 — served with a slice of bread", items:[
+   {name:"Cheese Manicotti", ing:[]},
+   {name:"Spaghetti & Meat Sauce", ing:[]},
+   {name:"Spaghetti & Meatballs", popular:true, ing:[]},
+   {name:"Chicken Parmesan", popular:true, ing:[]},
+   {name:"Lasagna", ing:[]},
+   {name:"Beef Ravioli", popular:true, ing:[]},
+   {name:"Spinach Ravioli", ing:[]},
+ ]},
+
+ {cat:"Wings", note:"6 pc 7.99 / 10 pc 11.99 / 20 pc 21.99. Sauces: Buffalo, BBQ, Garlic. Dressings: Ranch, Blue Cheese, Garlic.", items:[
+   {name:"Wings — Buffalo", ing:[]},
+   {name:"Wings — BBQ", ing:[]},
+   {name:"Wings — Garlic", ing:[]},
+ ]},
+
+ {cat:"Sandwiches", note:"$8.99 — served with potato chips", items:[
+   {name:"Steak Sandwich", popular:true, ing:[]},
+   {name:"Gyro Sandwich", ing:[]},
+   {name:"La Villa's Chicken", ing:[]},
+   {name:"Italian", ing:[]},
+   {name:"Turkey", ing:[]},
+   {name:"The Milano", ing:[]},
+   {name:"Roasted Eggplant", ing:[]},
+   {name:"Meatball", ing:[]},
+   {name:"The Capri", ing:[]},
+   {name:"Portabella Mushrooms", ing:[]},
+   {name:"Bona", ing:[]},
+   {name:"Spinach & Artichoke", ing:[]},
+   {name:"The Venezia", ing:[]},
+   {name:"Hamburger", ing:[]},
+   {name:"Grilled Cheese", ing:[]},
+   {name:"The Napoli", ing:[]},
+ ]},
+
+ {cat:"Wraps", note:"$8.99 — wrapped in a warm pita", items:[
+   {name:"Gyro Wrap", ing:[]},
+   {name:"Veggie Wrap", ing:[]},
+   {name:"Chicken Caesar Wrap", ing:[]},
+   {name:"Spinach & Chicken Wrap", ing:[]},
+ ]},
+
+ {cat:"Appetizers", items:[
+   {name:"Sampler Selection", price:"7.99", ing:[]},
+   {name:"Breadsticks", price:"6.99", ing:[]},
+   {name:"Tuscan Hummus", price:"7.99", popular:true, ing:[]},
+   {name:"Baked Feta Marinara", price:"8.99", ing:[]},
+   {name:"Cheesy Bread", price:"7.99", ing:[]},
+   {name:"Spinach Dip", price:"7.99", ing:[]},
+   {name:"Spinach & Feta Triangle", price:"7.99", ing:[]},
+   {name:"Mozzarella Sticks", price:"7.99", ing:[]},
+   {name:"French Fries", price:"3.99", ing:[]},
+   {name:"Garlic Bread", price:"3.99", ing:[]},
+   {name:"Chicken Tenders (8 pc)", price:"7.99", ing:[]},
+ ]},
+
+ {cat:"Salads", note:"Served with a slice of garlic bread. Add chicken breast available.", items:[
+   {name:"House Salad", ing:[]},
+   {name:"Caesar Salad", ing:[]},
+   {name:"Greek Salad", ing:[]},
+   {name:"Antipasto Salad", ing:[]},
+   {name:"Grilled Chicken Salad", ing:[]},
+   {name:"Spinach Salad", ing:[]},
+   {name:"La Villa's Salad", ing:[]},
+ ]},
+
+ {cat:"Desserts", note:"$4.99", items:[
+   {name:"Cheese Cake", ing:[]},
+   {name:"Tiramisu", ing:[]},
+   {name:"Cannoli", ing:[]},
+   {name:"Chocolate Cake", ing:[]},
+ ]},
+];
+
+/* ---- emoji visual fallback by keyword ---- */
+function emojiFor(name, cat){
+  const n=(name+" "+cat).toLowerCase();
+  const map=[["sauce","🥫"],["cheese:","🧀"],["topping:","🥓"],["veg:","🥬"],
+    ["pizza","🍕"],["calzone","🥟"],["spaghetti","🍝"],["pasta","🍝"],["ravioli","🥟"],
+    ["lasagna","🍝"],["manicotti","🍝"],["wing","🍗"],["chicken","🍗"],["steak","🥩"],
+    ["burger","🍔"],["hamburger","🍔"],["gyro","🌯"],["wrap","🌯"],["sandwich","🥪"],
+    ["fries","🍟"],["bread","🥖"],["garlic bread","🧄"],["hummus","🫓"],["mozzarella","🧀"],
+    ["spinach","🥬"],["eggplant","🍆"],["mushroom","🍄"],["salad","🥗"],["feta","🧀"],
+    ["dip","🫕"],["tiramisu","🍰"],["cake","🍰"],["cannoli","🥐"],["dessert","🍰"],
+    ["tender","🍗"],["sampler","🍽️"],["margarita","🍕"],["hawaiian","🍍"]];
+  for(const [k,e] of map){ if(n.includes(k)) return e; }
+  return "🍽️";
+}
+function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");}
+
+/* ---- localStorage helpers (cook-edited ingredients persist) ---- */
+const LS_ING="foodlove_ing_v1";
+function userIng(){try{return JSON.parse(localStorage.getItem(LS_ING)||"{}")}catch(e){return{}}}
+function saveUserIng(o){localStorage.setItem(LS_ING,JSON.stringify(o))}
+function ingFor(it){
+  const u=userIng()[slug(it.name)+"|"+slug(it._cat)];
+  if(u && u.length) return {list:u, source:"saved"};
+  if(it.ing && it.ing.length) return {list:it.ing, source:"builtin"};
+  return {list:[], source:"none"};
+}
+
+/* ---- build derived data ---- */
+MENU.forEach(g=>g.items.forEach(it=>{it._cat=g.cat;}));
+const popularPin=MENU.find(g=>g.popularPin);
+popularPin.items = MENU.flatMap(g=>g.items).filter(it=>it.popular);
+
+let activeCat="Most Popular";
+const elNav=document.getElementById("nav");
+const elMain=document.getElementById("main");
+const elQ=document.getElementById("q");
+const elClear=document.getElementById("clear");
+
+function ingEmoji(name){
+  const n=name.toLowerCase();
+  const m=[["tomato","🍅"],["mozzarella","🧀"],["cheese","🧀"],["basil","🌿"],
+   ["dough","🫓"],["sauce","🥫"],["chicken","🍗"],["beef","🥩"],["meatball","🧆"],
+   ["spinach","🥬"],["mushroom","🍄"],["onion","🧅"],["garlic","🧄"],["pepper","🫑"],
+   ["olive","🫒"],["egg","🥚"],["parmesan","🧀"],["pasta","🍝"],["bread","🥖"]];
+  for(const [k,e] of m) if(n.includes(k)) return e;
+  return "•";
+}
+
+function renderNav(){
+  elNav.innerHTML="";
+  MENU.forEach(g=>{
+    const b=document.createElement("button");
+    b.className="chip"+(g.cat===activeCat?" active":"")+(g.popularPin?" fav":"");
+    b.textContent=(g.popularPin?"⭐ ":"")+g.cat;
+    b.onclick=()=>{activeCat=g.cat; elQ.value=""; elClear.style.display="none"; render();};
+    elNav.appendChild(b);
+  });
+}
+
+function cardEl(it){
+  const c=document.createElement("div");
+  c.className="card"+(it.popular?" fav":"");
+  const info=ingFor(it);
+  const has=info.list.length>0;
+  c.innerHTML=`
+    ${it.popular?'<div class="star">⭐</div>':''}
+    <div class="thumb" data-slug="${slug(it.name)}">${emojiFor(it.name,it._cat)}</div>
+    <div class="name">${it.name}</div>
+    <div class="meta">
+      <span class="price">${it.price?("$"+it.price):""}</span>
+      <span class="${has?'havetag':'needtag'}">${has?'✓ '+info.list.length+' items':'add ingredients'}</span>
+    </div>`;
+  tryImg(c.querySelector(".thumb"), slug(it.name));
+  c.onclick=()=>openDetail(it);
+  return c;
+}
+
+function tryImg(box, sl){
+  const im=new Image();
+  im.onload=()=>{ box.innerHTML=""; box.appendChild(im); };
+  im.onerror=()=>{};
+  im.alt=""; im.src="food_love_images/"+sl+".jpg";
+}
+
+function render(){
+  renderNav();
+  const term=elQ.value.trim().toLowerCase();
+  elMain.innerHTML="";
+  let groups;
+  if(term){
+    const hits=MENU.filter(g=>!g.popularPin)
+      .flatMap(g=>g.items)
+      .filter(it=>it.name.toLowerCase().includes(term)||it._cat.toLowerCase().includes(term));
+    if(!hits.length){ elMain.innerHTML=`<div class="empty">No dish matches “${elQ.value}”.<br>Try a shorter word.</div>`; return; }
+    groups=[{cat:`Results for “${elQ.value}”`, items:hits}];
+  } else {
+    const g=MENU.find(x=>x.cat===activeCat);
+    groups=[g];
+  }
+  groups.forEach(g=>{
+    const t=document.createElement("div");
+    t.className="sectiontitle";
+    t.innerHTML=`<span>${g.cat}</span><span class="count">${g.items.length} item${g.items.length!=1?'s':''}</span>`;
+    elMain.appendChild(t);
+    if(g.note){
+      const n=document.createElement("div");
+      n.style.cssText="font-size:13px;color:var(--muted);margin:-4px 4px 12px;line-height:1.5";
+      n.textContent=g.note; elMain.appendChild(n);
+    }
+    const grid=document.createElement("div"); grid.className="grid";
+    g.items.forEach(it=>grid.appendChild(cardEl(it)));
+    elMain.appendChild(grid);
+  });
+}
+
+/* ---- detail sheet ---- */
+const overlay=document.getElementById("overlay");
+const sheet=document.getElementById("sheet");
+let current=null;
+const LS_CHK="foodlove_chk_v1";
+function chkState(){try{return JSON.parse(localStorage.getItem(LS_CHK)||"{}")}catch(e){return{}}}
+function saveChk(o){localStorage.setItem(LS_CHK,JSON.stringify(o))}
+
+function openDetail(it){
+  current=it;
+  document.getElementById("dEdit").style.display="none";
+  document.getElementById("dIngWrap").style.display="";
+  document.getElementById("editBtn").textContent="Edit ingredients";
+  const hero=document.getElementById("dHero");
+  hero.innerHTML=emojiFor(it.name,it._cat); tryImg(hero, slug(it.name));
+  document.getElementById("dName").textContent=it.name;
+  const sub=document.getElementById("dSub");
+  sub.innerHTML="";
+  const c1=document.createElement("span"); c1.textContent=it._cat; sub.appendChild(c1);
+  if(it.price){const p=document.createElement("span");p.className="price";p.textContent="$"+it.price;sub.appendChild(p);}
+  if(it.popular){const s=document.createElement("span");s.textContent="⭐ Most popular";s.style.color="#b58900";sub.appendChild(s);}
+  renderIng();
+  overlay.classList.add("open");
+  (window.requestAnimationFrame||(cb=>setTimeout(cb,16)))(()=>sheet.classList.add("open"));
+}
+function renderIng(){
+  const info=ingFor(current);
+  const wrap=document.getElementById("dIng");
+  const cnt=document.getElementById("dIngCount");
+  wrap.innerHTML="";
+  if(!info.list.length){
+    cnt.textContent="";
+    wrap.innerHTML=`<div class="noing">Ingredients not entered yet for <b>${current.name}</b>.<br>
+      Tap <b>“Edit ingredients”</b> below to add them — it saves so the next cook sees it.</div>`;
+    return;
+  }
+  cnt.textContent="("+info.list.length+(info.source==="saved"?" • saved here":"")+")";
+  const key=slug(current.name)+"|"+slug(current._cat);
+  const st=chkState();
+  info.list.forEach((ing,i)=>{
+    const checked = st[key] && st[key][i];
+    const row=document.createElement("div");
+    row.className="ing"+(checked?" checked":"");
+    row.innerHTML=`<span class="box">${checked?'✓':''}</span><span class="emoji">${ingEmoji(ing)}</span><span>${ing}</span>`;
+    row.onclick=()=>{
+      const s=chkState(); s[key]=s[key]||{}; s[key][i]=!s[key][i]; saveChk(s); renderIng();
+    };
+    wrap.appendChild(row);
+  });
+}
+function closeDetail(){
+  sheet.classList.remove("open");
+  setTimeout(()=>overlay.classList.remove("open"),260);
+}
+overlay.onclick=closeDetail;
+document.getElementById("closeX").onclick=closeDetail;
+document.getElementById("resetCheck").onclick=()=>{
+  const key=slug(current.name)+"|"+slug(current._cat);
+  const s=chkState(); delete s[key]; saveChk(s); renderIng();
+};
+document.getElementById("editBtn").onclick=function(){
+  const ed=document.getElementById("dEdit");
+  const showing=ed.style.display!=="none";
+  if(!showing){
+    document.getElementById("editor").value=ingFor(current).list.join("\n");
+    ed.style.display=""; document.getElementById("dIngWrap").style.display="none";
+    this.textContent="Save ingredients";
+  } else {
+    const lines=document.getElementById("editor").value.split("\n").map(s=>s.trim()).filter(Boolean);
+    const all=userIng(); all[slug(current.name)+"|"+slug(current._cat)]=lines; saveUserIng(all);
+    ed.style.display="none"; document.getElementById("dIngWrap").style.display="";
+    this.textContent="Edit ingredients";
+    renderIng(); render();
+  }
+};
+
+/* ---- search ---- */
+elQ.addEventListener("input",()=>{ elClear.style.display=elQ.value?"block":"none"; render(); });
+elClear.onclick=()=>{ elQ.value=""; elClear.style.display="none"; render(); };
+
+/* ---- voice search (offline-safe; graceful fallback) ---- */
+const mic=document.getElementById("mic");
+const vhint=document.getElementById("voicehint");
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(!SR){
+  mic.addEventListener("click",()=>{ vhint.textContent="Voice not supported on this browser — please type instead."; });
+} else {
+  const rec=new SR(); rec.lang="en-US"; rec.interimResults=true; rec.maxAlternatives=1;
+  let listening=false;
+  mic.addEventListener("click",()=>{ listening?rec.stop():rec.start(); });
+  rec.onstart=()=>{ listening=true; mic.classList.add("listening"); vhint.textContent="Listening… say a dish name"; };
+  rec.onerror=(e)=>{ vhint.textContent = e.error==="not-allowed" ? "Microphone blocked — allow mic access or type instead." : "Didn’t catch that — tap 🎤 and try again."; };
+  rec.onend=()=>{ listening=false; mic.classList.remove("listening"); };
+  rec.onresult=(e)=>{
+    let txt=""; for(const r of e.results) txt+=r[0].transcript;
+    txt=txt.trim();
+    elQ.value=txt; elClear.style.display=txt?"block":"none";
+    vhint.textContent=txt?('Heard: “'+txt+'”'):"";
+    render();
+  };
+}
+
+renderNav(); render();
+</script>
+</body>
+</html>
