@@ -6,57 +6,57 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Food Love — Ingredient Gallery</title>
+<title>Food Love — Gallery</title>
 <style>
   :root{
     --bg:#fff7f0; --card:#ffffff; --ink:#2b2118; --muted:#8a7a6b;
-    --accent:#e0632e; --accent-soft:#fff0e6;
+    --accent:#e0632e; --accent-soft:#fff0e6; --gold:#f4b400; --gold-soft:#fff6d6;
     --line:#efe2d6; --shadow:0 6px 22px rgba(180,110,60,.12);
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;padding:0}
-  body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    background:var(--bg); color:var(--ink); min-height:100vh;
-  }
-  header{
-    background:var(--bg); padding:18px 16px 14px; border-bottom:1px solid var(--line);
-    position:sticky; top:0; z-index:10;
-  }
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--ink); min-height:100vh}
+  header{background:var(--bg); padding:18px 16px 14px; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:10}
   .brand{display:flex; align-items:center; gap:10px; margin-bottom:8px}
   .brand .logo{font-size:30px}
   .brand h1{font-size:22px; margin:0; letter-spacing:.3px; font-weight:800}
   .brand h1 b{color:var(--accent)}
   .tag{font-size:13px; color:var(--muted); margin-top:2px}
-  .count{display:inline-block; margin-left:6px; background:var(--accent-soft); color:var(--accent); font-size:12px; font-weight:700; padding:3px 9px; border-radius:8px; vertical-align:middle}
   .searchwrap{margin-top:12px; display:flex; align-items:center; gap:10px;
-    background:var(--card); border:2px solid var(--line); border-radius:14px;
-    padding:11px 14px; box-shadow:var(--shadow)}
+    background:var(--card); border:2px solid var(--line); border-radius:14px; padding:11px 14px; box-shadow:var(--shadow)}
   .searchwrap:focus-within{border-color:var(--accent)}
   .searchwrap svg{flex:none}
   #q{flex:1; border:0; outline:0; font-size:16px; background:transparent; color:var(--ink)}
   #q::placeholder{color:#bcae9f}
 
-  main{padding:16px 16px 60px; max-width:1200px; margin:0 auto}
-  .grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:14px}
+  main{padding:8px 16px 60px; max-width:1200px; margin:0 auto}
+  .sectionhd{display:flex;align-items:baseline;gap:8px;margin:24px 4px 12px}
+  .sectionhd h2{font-size:18px;font-weight:800;margin:0}
+  .sectionhd .cnt{font-size:12px;color:var(--muted);font-weight:600}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:13px}
   .card{
-    background:var(--card); border:2px solid var(--line); border-radius:18px;
+    background:var(--card); border:2px solid var(--line); border-radius:16px;
     padding:12px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px;
+    position:relative;
   }
+  .card.fav{border-color:var(--gold); background:linear-gradient(180deg,var(--gold-soft),#fff 60%)}
+  .star{position:absolute; top:8px; right:10px; font-size:16px}
   .pic{
     width:100%; aspect-ratio:1/1; border-radius:13px; background:var(--accent-soft);
-    display:flex; align-items:center; justify-content:center; font-size:54px;
-    overflow:hidden; position:relative;
+    display:flex; align-items:center; justify-content:center; font-size:48px; overflow:hidden; position:relative;
   }
   .pic img{width:100%; height:100%; object-fit:cover; display:block}
-  .nm{font-size:17px; font-weight:800; line-height:1.25; text-align:center; color:var(--ink)}
-  .empty{text-align:center; color:var(--muted); padding:60px 20px}
+  .nm{font-size:15px; font-weight:800; line-height:1.25; text-align:center; color:var(--ink)}
+  .meta{font-size:11px; color:var(--muted); text-align:center}
+  .meta .price{color:var(--accent); font-weight:800}
+  .empty{text-align:center; color:var(--muted); padding:40px 20px}
+  .errnote{background:#fff3e6;border:1.5px dashed var(--accent);border-radius:12px;padding:14px;color:#9a4a22;font-size:13px;margin:14px 4px}
   footer{text-align:center; color:var(--muted); font-size:12px; padding:18px 16px 30px}
   footer a{color:var(--accent); font-weight:700; text-decoration:none}
-
   @media(min-width:760px){
-    .grid{grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:18px}
-    .nm{font-size:18px}
+    .grid{grid-template-columns:repeat(auto-fill, minmax(170px, 1fr)); gap:16px}
+    .nm{font-size:16px}
   }
 </style>
 </head>
@@ -66,28 +66,48 @@
   <div class="brand">
     <span class="logo">🍅</span>
     <div>
-      <h1>Food <b>Love</b> — Ingredients <span class="count" id="cnt"></span></h1>
-      <div class="tag">All ingredient photos, in one view.</div>
+      <h1>Food <b>Love</b> — Gallery</h1>
+      <div class="tag" id="tag">Every menu item and every ingredient, in one page.</div>
     </div>
   </div>
   <div class="searchwrap">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#bcae9f" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-    <input id="q" type="text" placeholder="Filter… e.g. cheese, olive, sauce" autocomplete="off">
+    <input id="q" type="text" placeholder="Filter… e.g. roma, cheese, chicken, olive" autocomplete="off">
   </div>
 </header>
 
-<main>
-  <div class="grid" id="grid"></div>
-  <div id="empty" class="empty" style="display:none">No ingredient matches that filter.</div>
-</main>
+<main id="main"></main>
 
 <footer>
-  Back to the full kitchen guide → <a href="food_love.html">food_love.html</a>
+  Back to the kitchen guide → <a href="food_love.html">food_love.html</a>
 </footer>
 
 <script>
-/* Master list of ingredient photos (one per real ingredient). */
-const ITEMS = [
+function emojiForDish(name, cat){
+  const n=(name+" "+cat).toLowerCase();
+  const map=[["pizza","🍕"],["calzone","🥟"],["spaghetti","🍝"],["pasta","🍝"],["ravioli","🥟"],
+    ["lasagna","🍝"],["manicotti","🍝"],["wing","🍗"],["chicken","🍗"],["steak","🥩"],
+    ["burger","🍔"],["hamburger","🍔"],["gyro","🌯"],["wrap","🌯"],["sandwich","🥪"],
+    ["fries","🍟"],["garlic bread","🧄"],["bread","🥖"],["hummus","🫓"],["mozzarella","🧀"],
+    ["spinach","🥬"],["eggplant","🍆"],["mushroom","🍄"],["salad","🥗"],["feta","🧀"],
+    ["dip","🫕"],["tiramisu","🍰"],["cake","🍰"],["cannoli","🥐"],["dessert","🍰"],
+    ["tender","🍗"],["sampler","🍽️"],["margarita","🍕"],["hawaiian","🍍"]];
+  for(const [k,e] of map) if(n.includes(k)) return e;
+  return "🍽️";
+}
+function emojiForIng(n){
+  n=n.toLowerCase();
+  const m=[["cheese","🧀"],["sauce","🥫"],["pesto","🌿"],["chicken","🍗"],["beef","🥩"],
+   ["bacon","🥓"],["pepperoni","🥓"],["salami","🥓"],["prosciutto","🥓"],["ham","🥓"],
+   ["sausage","🌭"],["mushroom","🍄"],["onion","🧅"],["olive","🫒"],["pepper","🫑"],
+   ["lettuce","🥬"],["ravioli","🥟"],["artichoke","🌱"]];
+  for(const [k,e] of m) if(n.includes(k)) return e;
+  return "🍽️";
+}
+function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");}
+
+/* Master list of uploaded ingredient photos (one per real photo). */
+const INGREDIENTS = [
   {name:"Provolone",            slug:"provolone"},
   {name:"Pesto",                slug:"pesto"},
   {name:"Parmesan cheese",      slug:"parmesan"},
@@ -119,43 +139,117 @@ const ITEMS = [
   {name:"Artichokes",           slug:"artichokes"},
 ];
 
-function emojiFor(n){
-  n=n.toLowerCase();
-  const m=[["cheese","🧀"],["sauce","🥫"],["pesto","🌿"],["chicken","🍗"],["beef","🥩"],
-   ["bacon","🥓"],["pepperoni","🥓"],["salami","🥓"],["prosciutto","🥓"],["ham","🥓"],
-   ["sausage","🌭"],["mushroom","🍄"],["onion","🧅"],["olive","🫒"],["pepper","🫑"],
-   ["lettuce","🥬"],["spinach","🥬"],["ravioli","🥟"],["artichoke","🌱"]];
-  for(const [k,e] of m) if(n.includes(k)) return e;
-  return "🍽️";
+function buildDishCard(it){
+  const c=document.createElement("div");
+  c.className="card"+(it.popular?" fav":"");
+  c.innerHTML = `
+    ${it.popular?'<div class="star">⭐</div>':''}
+    <div class="pic">${emojiForDish(it.name, it._cat)}</div>
+    <div class="nm">${it.name}</div>
+    <div class="meta"><span>${it._cat}</span>${it.price?` · <span class="price">$${it.price}</span>`:""}</div>`;
+  const im=new Image(); const slot=c.querySelector(".pic");
+  im.onload=()=>{ slot.innerHTML=""; slot.appendChild(im); };
+  im.onerror=()=>{};
+  im.alt=it.name; im.src="food_love_images/"+slug(it.name)+".jpg";
+  return c;
+}
+function buildIngCard(it){
+  const c=document.createElement("div");
+  c.className="card";
+  c.innerHTML=`<div class="pic">${emojiForIng(it.name)}</div><div class="nm">${it.name}</div>`;
+  const im=new Image(); const slot=c.querySelector(".pic");
+  im.onload=()=>{ slot.innerHTML=""; slot.appendChild(im); };
+  im.onerror=()=>{};
+  im.alt=it.name; im.src="food_love_images/ing/"+it.slug+".jpg";
+  return c;
 }
 
-const grid=document.getElementById("grid");
-const cnt=document.getElementById("cnt");
-const empty=document.getElementById("empty");
+let dishesByCat = null;       // [{cat, items:[{name,_cat,popular,price}]}, ...] or null
+const main=document.getElementById("main");
 const q=document.getElementById("q");
+const tag=document.getElementById("tag");
 
 function render(){
   const term=q.value.trim().toLowerCase();
-  const filtered = term ? ITEMS.filter(it=>it.name.toLowerCase().includes(term)) : ITEMS;
-  cnt.textContent=filtered.length;
-  grid.innerHTML="";
-  if(!filtered.length){ empty.style.display="block"; return; }
-  empty.style.display="none";
-  filtered.forEach(it=>{
-    const c=document.createElement("div");
-    c.className="card";
-    c.innerHTML=`<div class="pic">${emojiFor(it.name)}</div><div class="nm">${it.name}</div>`;
-    const im=new Image();
-    const slot=c.querySelector(".pic");
-    im.onload=()=>{ slot.innerHTML=""; slot.appendChild(im); };
-    im.onerror=()=>{};
-    im.alt=it.name; im.src="food_love_images/ing/"+it.slug+".jpg";
-    grid.appendChild(c);
-  });
+  main.innerHTML="";
+  let totalShown=0;
+
+  if(dishesByCat){
+    dishesByCat.forEach(g=>{
+      const items = term ? g.items.filter(it=>it.name.toLowerCase().includes(term)||it._cat.toLowerCase().includes(term)) : g.items;
+      if(!items.length) return;
+      const hd=document.createElement("div"); hd.className="sectionhd";
+      hd.innerHTML=`<h2>${g.cat}</h2><span class="cnt">${items.length} item${items.length!=1?'s':''}</span>`;
+      main.appendChild(hd);
+      const grid=document.createElement("div"); grid.className="grid";
+      items.forEach(it=>grid.appendChild(buildDishCard(it)));
+      main.appendChild(grid);
+      totalShown += items.length;
+    });
+  } else {
+    const note=document.createElement("div"); note.className="errnote";
+    note.textContent="Couldn't load the menu dishes from food_love.html. Showing ingredient photos only.";
+    main.appendChild(note);
+  }
+
+  const ings = term ? INGREDIENTS.filter(it=>it.name.toLowerCase().includes(term)) : INGREDIENTS;
+  if(ings.length){
+    const hd=document.createElement("div"); hd.className="sectionhd";
+    hd.innerHTML=`<h2>Ingredients</h2><span class="cnt">${ings.length} photo${ings.length!=1?'s':''}</span>`;
+    main.appendChild(hd);
+    const grid=document.createElement("div"); grid.className="grid";
+    ings.forEach(it=>grid.appendChild(buildIngCard(it)));
+    main.appendChild(grid);
+    totalShown += ings.length;
+  }
+
+  if(!totalShown){
+    const e=document.createElement("div"); e.className="empty"; e.textContent="No match for that filter.";
+    main.appendChild(e);
+  }
+
+  tag.textContent = term
+    ? `Showing ${totalShown} match${totalShown!=1?'es':''} for “${q.value}”`
+    : `Every menu item and every ingredient, in one page.`;
 }
 
 q.addEventListener("input", render);
-render();
+
+/* Pull menu dishes from food_love.html so this page stays in sync. */
+fetch("food_love.html").then(r=>r.text()).then(txt=>{
+  const start = txt.indexOf("const MENU = [");
+  if(start<0) throw new Error("MENU not found");
+  const arrStart = txt.indexOf("[", start);
+  let depth=0, end=-1, inStr=false, strCh="", esc=false;
+  for(let i=arrStart;i<txt.length;i++){
+    const ch=txt[i];
+    if(inStr){
+      if(esc){esc=false; continue;}
+      if(ch==="\\"){esc=true; continue;}
+      if(ch===strCh) inStr=false;
+      continue;
+    }
+    if(ch==='"'||ch==="'"||ch==="`"){ inStr=true; strCh=ch; continue; }
+    if(ch==="[") depth++;
+    else if(ch==="]"){ depth--; if(depth===0){end=i; break;} }
+  }
+  if(end<0) throw new Error("MENU array end not found");
+  const lit = txt.slice(arrStart, end+1);
+  const MENU = (new Function("return "+lit))();
+  // tag each item with its category, drop the Most Popular pin
+  const groups = MENU.filter(g=>!g.popularPin).map(g=>({
+    cat: g.cat,
+    items: g.items.map(it=>({...it, _cat:g.cat}))
+  }));
+  dishesByCat = groups;
+  render();
+}).catch(err=>{
+  console.warn("dish load failed:", err);
+  dishesByCat = null;
+  render();
+});
+
+render(); // initial paint (ingredients only until dishes load)
 </script>
 </body>
 </html>
